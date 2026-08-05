@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — TypeShala</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page page-narrow">
+
+  <p class="eyebrow">Student Access</p>
+  <h1>Create your student account</h1>
+
+  <div class="card">
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
+
+    <form id="registerForm">
+      <div class="field">
+        <label for="regName">Full name</label>
+        <input type="text" id="regName" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" required minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-full" id="registerBtn">Create account</button>
+    </form>
+
+    <p class="foot-link">
+      Already registered? <a href="login.html">Login instead</a>
+    </p>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+function hideMessages() {
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'none';
+}
+function showError(text) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = text;
+  el.style.display = 'block';
+  document.getElementById('successMsg').style.display = 'none';
+}
+function showSuccess(text) {
+  const el = document.getElementById('successMsg');
+  el.textContent = text;
+  el.style.display = 'block';
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+// Handle registration
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideMessages();
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+
+  try {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    await registerStudent(name, email, password);
+    showSuccess('Account created! Redirecting you to login...');
+    document.getElementById('registerForm').reset();
+    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+  } catch (err) {
+    showError(err.message || 'Registration failed. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  }
+});
+
+// If already logged in, skip straight to dashboard
+(async () => {
+  const user = await getCurrentUser();
+  if (user) window.location.href = 'dashboard.html';
+})();
+</script>
+
+</body>
+</html>
