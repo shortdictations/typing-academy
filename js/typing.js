@@ -1,9 +1,9 @@
 /* ============================================================
    typing.js
    ------------------------------------------------------------
-   Runs the typing test screen: passage selection, countdown
-   timer, live WPM/accuracy, and saving the final result to
-   Supabase when the test ends.
+   Runs the typing test screen: passage selection (now loaded
+   live from Supabase), countdown timer, live WPM/accuracy, and
+   saving the final result to Supabase when the test ends.
    ============================================================ */
 
 let currentUser = null;
@@ -11,7 +11,10 @@ let currentUser = null;
 // Test configuration chosen on the setup screen
 let selectedCategory = "SSC";
 let selectedDuration = 5;     // minutes
-let selectedPassage = null;   // the passage object from passages.js
+let selectedPassage = null;   // the passage row fetched from Supabase
+
+// Passages currently loaded for the chosen category + duration
+let loadedPassages = [];
 
 // Live test state
 let testTimer = null;
@@ -26,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   buildCategoryChoices();
   buildDurationChoices();
-  refreshPassageOptions();
+  await refreshPassageOptions();
 
   document.getElementById("startBtn").addEventListener("click", startTest);
   document.getElementById("retryBtn").addEventListener("click", resetToSetup);
@@ -43,10 +46,10 @@ function buildCategoryChoices() {
     const btn = document.createElement("div");
     btn.className = "choice" + (cat === selectedCategory ? " selected" : "");
     btn.textContent = cat;
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       selectedCategory = cat;
       buildCategoryChoices();
-      refreshPassageOptions();
+      await refreshPassageOptions();
     });
     wrap.appendChild(btn);
   });
@@ -60,35 +63,48 @@ function buildDurationChoices() {
     const btn = document.createElement("div");
     btn.className = "choice" + (min === selectedDuration ? " selected" : "");
     btn.textContent = min + " minutes";
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       selectedDuration = min;
       buildDurationChoices();
+      await refreshPassageOptions(); // duration now affects which passages are shown
     });
     wrap.appendChild(btn);
   });
 }
 
-function refreshPassageOptions() {
+async function refreshPassageOptions() {
   const select = document.getElementById("passageSelect");
-  const options = getPassagesByCategory(selectedCategory);
+  const startBtn = document.getElementById("startBtn");
+
+  select.innerHTML = '<option>Loading passages...</option>';
+  startBtn.disabled = true;
+
+  loadedPassages = await fetchPassages(selectedCategory, selectedDuration);
+
   select.innerHTML = "";
-  options.forEach(p => {
+  if (loadedPassages.length === 0) {
+    select.innerHTML = '<option>No passages available for this selection</option>';
+    startBtn.disabled = true;
+    return;
+  }
+
+  loadedPassages.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.id;
-    opt.textContent = p.title;
+    opt.textContent = p.title + (p.difficulty ? " (" + p.difficulty + ")" : "");
     select.appendChild(opt);
   });
+  startBtn.disabled = false;
 }
 
 /* ---------------- Starting a test ---------------- */
 
 function startTest() {
   const passageId = document.getElementById("passageSelect").value;
-  selectedPassage = getPassageById(passageId);
+  selectedPassage = loadedPassages.find(p => p.id === passageId);
   if (!selectedPassage) return;
 
-  const text = selectedDuration === 5 ? selectedPassage.short : selectedPassage.long;
-  passageChars = text.split("");
+  passageChars = selectedPassage.content.split("");
 
   // Swap screens
   document.getElementById("setupCard").style.display = "none";
@@ -241,7 +257,7 @@ function showResultTicket(wpm, accuracy, totalTypedChars, correct) {
 }
 
 async function saveResult(wpm, accuracy, totalTypedChars, correct) {
-  // Requirement: only save if a student is actually logged in
+  // Only save if a student is actually logged in
   if (!currentUser) {
     console.warn("No logged-in user — result was not saved.");
     return;
@@ -263,8 +279,9 @@ async function saveResult(wpm, accuracy, totalTypedChars, correct) {
   }
 }
 
-function resetToSetup() {
+async function resetToSetup() {
   document.getElementById("resultCard").style.display = "none";
   document.getElementById("testCard").style.display = "none";
   document.getElementById("setupCard").style.display = "block";
+  await refreshPassageOptions(); // pick up any admin changes since the last test
 }
