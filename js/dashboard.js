@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!user) return;
 
   showStudentName(user);
+  await showAdminLinkIfApplicable(user);
 
   const { data: results, error } = await supabaseClient
     .from("typing_results")
@@ -35,6 +36,12 @@ function showStudentName(user) {
     : user.email;
   const el = document.getElementById("welcomeName");
   if (el) el.textContent = name;
+}
+
+async function showAdminLinkIfApplicable(user) {
+  const admin = await isAdminUser(user.id);
+  const link = document.getElementById("adminLink");
+  if (link && admin) link.style.display = "inline-block";
 }
 
 function renderSummary(results) {
