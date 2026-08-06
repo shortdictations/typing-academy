@@ -78,3 +78,34 @@ async function requireLogin() {
 
   return user;
 }
+
+// Check whether a given user id is in the "admins" table
+async function isAdminUser(userId) {
+  const { data, error } = await supabaseClient
+    .from("admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Admin check failed:", error);
+    return false;
+  }
+  return !!data;
+}
+
+// Call this at the top of admin.html instead of requireLogin().
+// It first makes sure someone is logged in, THEN makes sure they
+// are an admin. Non-admins are redirected to dashboard.html.
+async function requireAdmin() {
+  const user = await requireLogin();
+  if (!user) return null; // requireLogin already redirected to login.html
+
+  const admin = await isAdminUser(user.id);
+  if (!admin) {
+    alert("You do not have access to this page.");
+    window.location.href = "dashboard.html";
+    return null;
+  }
+  return user;
+}
