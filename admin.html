@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — TypeShala</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Admin Panel</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <span id="userChip"></span>
+      <a href="dashboard.html">Dashboard</a>
+      <button id="logoutBtn">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Admin Only</p>
+  <h1>Manage Passages</h1>
+  <p class="lede">Add, edit, or remove typing passages. Changes appear on the student typing page immediately.</p>
+
+  <!-- ADD / EDIT FORM -->
+  <div class="card">
+    <div class="card-label" id="formLabel">Add a New Passage</div>
+    <div class="error-msg" id="formError"></div>
+    <div class="success-msg" id="formSuccess"></div>
+
+    <form id="passageForm">
+      <div class="field">
+        <label for="pTitle">Title</label>
+        <input type="text" id="pTitle" required>
+      </div>
+
+      <div class="field">
+        <label for="pContent">Passage Content</label>
+        <textarea id="pContent" rows="6" required style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-mono);font-size:0.95rem;"></textarea>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="pCategory">Category</label>
+          <select id="pCategory">
+            <option value="SSC">SSC</option>
+            <option value="Stenographer">Stenographer</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pDifficulty">Difficulty</label>
+          <select id="pDifficulty">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="pDuration">Duration (which test this is for)</label>
+          <select id="pDuration">
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pActive">Status</label>
+          <select id="pActive">
+            <option value="true" selected>Active (visible to students)</option>
+            <option value="false">Inactive (hidden)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn" id="submitBtn">Add Passage</button>
+        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LIST + FILTER -->
+  <div class="card">
+    <div class="card-label">All Passages</div>
+
+    <div class="field" style="max-width:260px;">
+      <label for="filterCategory">Filter by Category</label>
+      <select id="filterCategory">
+        <option value="all">All Categories</option>
+        <option value="SSC">SSC</option>
+        <option value="Stenographer">Stenographer</option>
+      </select>
+    </div>
+
+    <div id="passageListBody">
+      <div class="loading-strip">Loading passages...</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala Admin Panel</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>
