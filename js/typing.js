@@ -468,23 +468,50 @@ async function saveResult(r) {
 
   const errors = r.totalTypedChars - r.correct;
 
-  try {
-    await supabaseClient.from("typing_results").insert({
-      user_id: currentUser.id,
-      passage_title: selectedPassage.title,
-      wpm: r.netWpm,          // kept for backward compatibility with the dashboard
-      accuracy: r.accuracy,
-      errors: errors,
-      duration: selectedDuration,
-      gross_wpm: r.grossWpm,
-      net_wpm: r.netWpm,
-      correct_words: r.correctWords,
-      wrong_words: r.wrongWords,
-      total_words: r.totalWords
-    });
-  } catch (err) {
-    console.error("Could not save result:", err);
+  const { error } = await supabaseClient.from("typing_results").insert({
+    user_id: currentUser.id,
+    passage_title: selectedPassage.title,
+    wpm: r.netWpm,          // kept for backward compatibility with the dashboard
+    accuracy: r.accuracy,
+    errors: errors,
+    duration: selectedDuration,
+    gross_wpm: r.grossWpm,
+    net_wpm: r.netWpm,
+    correct_words: r.correctWords,
+    wrong_words: r.wrongWords,
+    total_words: r.totalWords
+  });
+
+  if (error) {
+    console.error("Could not save result:", error);
+    // TEMPORARY — show the exact Supabase error on the result page so a
+    // failed save is never silent. Remove this block once confirmed fixed.
+    showSaveErrorOnPage(error);
   }
+}
+
+// TEMPORARY — displays the raw Supabase error inside the result ticket.
+// Safe to delete this whole function once debugging is done.
+function showSaveErrorOnPage(error) {
+  const existing = document.getElementById("saveErrorBox");
+  if (existing) existing.remove();
+
+  const box = document.createElement("div");
+  box.id = "saveErrorBox";
+  box.style.cssText =
+    "background:#FBEAE7; border:2px dashed #B23A2E; border-radius:4px; " +
+    "padding:12px 16px; margin-top:16px; font-family:monospace; font-size:0.78rem; " +
+    "color:#8F2D23; line-height:1.6;";
+  box.innerHTML =
+    '<div style="font-weight:700; text-transform:uppercase; letter-spacing:0.06em; ' +
+    'font-size:0.68rem; margin-bottom:6px;">Save Failed — Debug Info (temporary)</div>' +
+    "<div>Message: " + (error.message || "none") + "</div>" +
+    "<div>Code: " + (error.code || "none") + "</div>" +
+    "<div>Details: " + (error.details || "none") + "</div>" +
+    "<div>Hint: " + (error.hint || "none") + "</div>";
+
+  const resultCard = document.getElementById("resultCard");
+  if (resultCard) resultCard.appendChild(box);
 }
 
 async function resetToSetup() {
