@@ -32,7 +32,7 @@
   <h1>Welcome, <span id="welcomeName">Student</span></h1>
   <p class="lede">A record of every typing test you've taken, with your speed and accuracy over time.</p>
 
-  <div class="summary-strip" style="grid-template-columns: repeat(3, 1fr);">
+  <div class="summary-strip">
     <div class="summary-card">
       <div class="big" id="statTests">0</div>
       <div class="lab">Total Tests Completed</div>
@@ -42,8 +42,32 @@
       <div class="lab">Highest WPM</div>
     </div>
     <div class="summary-card">
+      <div class="big" id="statAvgWpm">0</div>
+      <div class="lab">Average WPM</div>
+    </div>
+    <div class="summary-card">
       <div class="big" id="statAvgAccuracy">0%</div>
       <div class="lab">Average Accuracy</div>
+    </div>
+    <div class="summary-card">
+      <div class="big" id="statLastPractice" style="font-size:1.2rem;">—</div>
+      <div class="lab">Last Practice Date</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">WPM Progress</div>
+    <div id="wpmChartWrap">
+      <canvas id="wpmChart" height="90"></canvas>
+      <div class="empty-state" id="wpmChartEmpty" style="display:none;">Take a test to start tracking your WPM progress.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Accuracy Progress</div>
+    <div id="accuracyChartWrap">
+      <canvas id="accuracyChart" height="90"></canvas>
+      <div class="empty-state" id="accuracyChartEmpty" style="display:none;">Take a test to start tracking your accuracy progress.</div>
     </div>
   </div>
 
@@ -64,6 +88,7 @@
 <footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/dashboard.js"></script>
