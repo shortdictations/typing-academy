@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock Test — TypeShala</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <span id="userChip"></span>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="typing.html">Practice</a>
+      <a href="mock-test.html">Mock Test</a>
+      <button id="logoutBtn">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Exam Simulation</p>
+  <h1>Mock Test</h1>
+  <p class="lede">A closer simulation of the real exam: pick your exam and duration, get a randomly assigned passage, and complete it under exam conditions.</p>
+
+  <!-- STEP 1: SETUP -->
+  <div class="card" id="setupCard">
+    <div class="card-label">Mock Test Setup</div>
+
+    <div class="field">
+      <label>Exam</label>
+      <div class="choice-group" id="examChoices"></div>
+    </div>
+
+    <div class="field">
+      <label>Duration</label>
+      <div class="choice-group" id="durationChoices"></div>
+    </div>
+
+    <p class="test-rules-note" id="setupNote" style="margin-top:0;"></p>
+
+    <button class="btn" id="startBtn">Start Mock Test</button>
+  </div>
+
+  <!-- STEP 2: LIVE TEST -->
+  <div class="card" id="testCard" style="display:none;">
+    <div class="test-warning-banner" id="testWarningBanner"></div>
+    <div class="test-header">
+      <div>
+        <div class="card-label" style="border:none;margin:0;padding:0;" id="testPassageTitle"></div>
+      </div>
+      <div class="live-stats">
+        <div>
+          <div class="val" id="liveWpm">0</div>
+          <div class="lab">WPM</div>
+        </div>
+        <div>
+          <div class="val" id="liveAccuracy">100%</div>
+          <div class="lab">Accuracy</div>
+        </div>
+      </div>
+      <div class="timer-box" id="timerBox">00:00</div>
+    </div>
+
+    <div class="passage-box" id="passageBox"></div>
+
+    <textarea class="type-input" id="typeInput" rows="4" placeholder="Click here and start typing to begin the timer..."></textarea>
+    <p class="test-rules-note">Pasting and right-click are disabled during the mock test. Typing is locked the moment time runs out.</p>
+  </div>
+
+  <!-- STEP 3: RESULT -->
+  <div class="card" id="resultCard" style="display:none;">
+    <div class="result-ticket">
+      <div class="seal-stamp">
+        <div class="grade" id="resultGrade">A</div>
+        <div class="tag">Result</div>
+      </div>
+      <div class="result-title">Mock Test Completed</div>
+      <div class="result-sub" id="resultPassageName">—</div>
+
+      <div class="result-grid">
+        <div>
+          <div class="big" id="resultGrossWpm">0</div>
+          <div class="lab">Gross WPM</div>
+        </div>
+        <div>
+          <div class="big" id="resultNetWpm">0</div>
+          <div class="lab">Net WPM</div>
+        </div>
+        <div>
+          <div class="big" id="resultAccuracy">0%</div>
+          <div class="lab">Accuracy</div>
+        </div>
+        <div>
+          <div class="big" id="resultDuration">0 min</div>
+          <div class="lab">Duration</div>
+        </div>
+        <div>
+          <div class="big" id="resultErrors">0</div>
+          <div class="lab">Total Errors</div>
+        </div>
+        <div>
+          <div class="big" id="resultTotalWords">0</div>
+          <div class="lab">Total Words Typed</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn" id="retryBtn">Take Another Mock Test</button>
+      <a class="btn btn-ghost" href="dashboard.html">Back to Dashboard</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/mock-test.js"></script>
+
+</body>
+</html>
