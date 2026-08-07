@@ -77,12 +77,16 @@ function renderHistoryTable(results) {
         <td>${escapeHtml(r.passage_title || "-")}</td>
         <td>${r.duration} min</td>
         <td>${r.wpm}</td>
+        <td>${r.gross_wpm != null ? r.gross_wpm : "-"}</td>
+        <td>${r.net_wpm != null ? r.net_wpm : "-"}</td>
         <td>${r.accuracy}%</td>
         <td>${r.errors}</td>
+        <td>${r.total_words != null ? r.total_words : "-"}</td>
       </tr>`;
   });
 
   container.innerHTML = `
+    <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
         <tr>
@@ -90,12 +94,16 @@ function renderHistoryTable(results) {
           <th>Passage</th>
           <th>Duration</th>
           <th>WPM</th>
+          <th>Gross WPM</th>
+          <th>Net WPM</th>
           <th>Accuracy</th>
           <th>Errors</th>
+          <th>Total Words</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 function escapeHtml(str) {
