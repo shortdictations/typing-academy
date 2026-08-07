@@ -19,6 +19,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  // ---- TEMPORARY ON-PAGE DEBUG BOX — remove once the bug is found ----
+  renderDebugBox({
+    email: user.email,
+    userId: user.id,
+    rowCount: error ? "N/A (query errored)" : results.length,
+    supabaseError: error ? (error.message + " (code: " + (error.code || "none") + ")") : "None",
+    firstRowUserId: (!error && results && results.length > 0) ? results[0].user_id : "No rows returned"
+  });
+  // ---- END TEMPORARY DEBUG BOX ----
+
   if (error) {
     console.error(error);
     document.getElementById("historyBody").innerHTML =
@@ -28,7 +38,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   renderSummary(results);
   renderHistoryTable(results.slice(0, 10)); // last 10 tests only
+  renderCharts(results);
 });
+
+// TEMPORARY — builds a small "Debug Information" box at the top of the
+// dashboard page showing exactly what the typing_results query saw.
+// Safe to delete this whole function once debugging is done.
+function renderDebugBox(info) {
+  const existing = document.getElementById("debugInfoBox");
+  if (existing) existing.remove();
+
+  const box = document.createElement("div");
+  box.id = "debugInfoBox";
+  box.style.cssText =
+    "background:#FFF7E0; border:2px dashed #B23A2E; border-radius:4px; " +
+    "padding:14px 18px; margin-bottom:20px; font-family:monospace; font-size:0.8rem; " +
+    "color:#1B2A3D; line-height:1.7;";
+
+  box.innerHTML =
+    '<div style="font-weight:700; text-transform:uppercase; letter-spacing:0.06em; ' +
+    'font-size:0.7rem; color:#B23A2E; margin-bottom:8px;">Debug Information (temporary)</div>' +
+    "<div>1. Logged-in email: " + escapeHtml(String(info.email)) + "</div>" +
+    "<div>2. Logged-in user.id: " + escapeHtml(String(info.userId)) + "</div>" +
+    "<div>3. Rows returned from typing_results: " + escapeHtml(String(info.rowCount)) + "</div>" +
+    "<div>4. Supabase error: " + escapeHtml(String(info.supabaseError)) + "</div>" +
+    "<div>5. First returned row's user_id: " + escapeHtml(String(info.firstRowUserId)) + "</div>";
+
+  const main = document.querySelector("main.page");
+  if (main) {
+    main.insertBefore(box, main.firstChild);
+  } else {
+    document.body.insertBefore(box, document.body.firstChild);
+  }
+}
 
 function showStudentName(user) {
   const name = user.user_metadata && user.user_metadata.full_name
@@ -47,13 +89,93 @@ async function showAdminLinkIfApplicable(user) {
 function renderSummary(results) {
   const testsTaken = results.length;
   const bestWpm = testsTaken ? Math.max(...results.map(r => r.wpm)) : 0;
+  const avgWpm = testsTaken
+    ? Math.round(results.reduce((sum, r) => sum + r.wpm, 0) / testsTaken)
+    : 0;
   const avgAccuracy = testsTaken
     ? Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / testsTaken)
     : 0;
 
   document.getElementById("statTests").textContent = testsTaken;
   document.getElementById("statBestWpm").textContent = bestWpm;
+  document.getElementById("statAvgWpm").textContent = avgWpm;
   document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
+
+  const lastPracticeEl = document.getElementById("statLastPractice");
+  if (testsTaken) {
+    // results is ordered newest-first, so index 0 is the most recent test
+    const lastDate = new Date(results[0].created_at);
+    lastPracticeEl.textContent = lastDate.toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric"
+    });
+  } else {
+    lastPracticeEl.textContent = "—";
+  }
+}
+
+// Draws the WPM and Accuracy line charts using Chart.js, oldest test
+// first (left) to most recent (right).
+function renderCharts(results) {
+  if (results.length === 0) {
+    document.getElementById("wpmChart").style.display = "none";
+    document.getElementById("accuracyChart").style.display = "none";
+    document.getElementById("wpmChartEmpty").style.display = "block";
+    document.getElementById("accuracyChartEmpty").style.display = "block";
+    return;
+  }
+
+  // results comes in newest-first; charts should read left-to-right
+  // in chronological order, so reverse a copy for plotting.
+  const chronological = results.slice().reverse();
+
+  const labels = chronological.map(r => {
+    const d = new Date(r.created_at);
+    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+  });
+  const wpmValues = chronological.map(r => r.wpm);
+  const accuracyValues = chronological.map(r => r.accuracy);
+
+  new Chart(document.getElementById("wpmChart"), {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "WPM",
+        data: wpmValues,
+        borderColor: "#B23A2E",
+        backgroundColor: "rgba(178,58,46,0.12)",
+        tension: 0.25,
+        fill: true,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  new Chart(document.getElementById("accuracyChart"), {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Accuracy %",
+        data: accuracyValues,
+        borderColor: "#3E6B4F",
+        backgroundColor: "rgba(62,107,79,0.12)",
+        tension: 0.25,
+        fill: true,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
 }
 
 function renderHistoryTable(results) {
