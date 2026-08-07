@@ -19,16 +19,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // ---- TEMPORARY ON-PAGE DEBUG BOX — remove once the bug is found ----
-  renderDebugBox({
-    email: user.email,
-    userId: user.id,
-    rowCount: error ? "N/A (query errored)" : results.length,
-    supabaseError: error ? (error.message + " (code: " + (error.code || "none") + ")") : "None",
-    firstRowUserId: (!error && results && results.length > 0) ? results[0].user_id : "No rows returned"
-  });
-  // ---- END TEMPORARY DEBUG BOX ----
-
   if (error) {
     console.error(error);
     document.getElementById("historyBody").innerHTML =
@@ -40,37 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderHistoryTable(results.slice(0, 10)); // last 10 tests only
   renderCharts(results);
 });
-
-// TEMPORARY — builds a small "Debug Information" box at the top of the
-// dashboard page showing exactly what the typing_results query saw.
-// Safe to delete this whole function once debugging is done.
-function renderDebugBox(info) {
-  const existing = document.getElementById("debugInfoBox");
-  if (existing) existing.remove();
-
-  const box = document.createElement("div");
-  box.id = "debugInfoBox";
-  box.style.cssText =
-    "background:#FFF7E0; border:2px dashed #B23A2E; border-radius:4px; " +
-    "padding:14px 18px; margin-bottom:20px; font-family:monospace; font-size:0.8rem; " +
-    "color:#1B2A3D; line-height:1.7;";
-
-  box.innerHTML =
-    '<div style="font-weight:700; text-transform:uppercase; letter-spacing:0.06em; ' +
-    'font-size:0.7rem; color:#B23A2E; margin-bottom:8px;">Debug Information (temporary)</div>' +
-    "<div>1. Logged-in email: " + escapeHtml(String(info.email)) + "</div>" +
-    "<div>2. Logged-in user.id: " + escapeHtml(String(info.userId)) + "</div>" +
-    "<div>3. Rows returned from typing_results: " + escapeHtml(String(info.rowCount)) + "</div>" +
-    "<div>4. Supabase error: " + escapeHtml(String(info.supabaseError)) + "</div>" +
-    "<div>5. First returned row's user_id: " + escapeHtml(String(info.firstRowUserId)) + "</div>";
-
-  const main = document.querySelector("main.page");
-  if (main) {
-    main.insertBefore(box, main.firstChild);
-  } else {
-    document.body.insertBefore(box, document.body.firstChild);
-  }
-}
 
 function showStudentName(user) {
   const name = user.user_metadata && user.user_metadata.full_name
