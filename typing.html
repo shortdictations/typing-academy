@@ -56,6 +56,7 @@
 
   <!-- STEP 2: LIVE TEST -->
   <div class="card" id="testCard" style="display:none;">
+    <div class="test-warning-banner" id="testWarningBanner"></div>
     <div class="test-header">
       <div>
         <div class="card-label" style="border:none;margin:0;padding:0;" id="testPassageTitle"></div>
@@ -76,6 +77,7 @@
     <div class="passage-box" id="passageBox"></div>
 
     <textarea class="type-input" id="typeInput" rows="4" placeholder="Click here and start typing to begin the timer..."></textarea>
+    <p class="test-rules-note">This test runs in full-screen, exam-style mode: pasting and right-click are disabled, and exiting full-screen or refreshing the page will end the test.</p>
   </div>
 
   <!-- STEP 3: RESULT -->
@@ -90,8 +92,12 @@
 
       <div class="result-grid">
         <div>
-          <div class="big" id="resultWpm">0</div>
-          <div class="lab">Words / Min</div>
+          <div class="big" id="resultGrossWpm">0</div>
+          <div class="lab">Gross WPM</div>
+        </div>
+        <div>
+          <div class="big" id="resultNetWpm">0</div>
+          <div class="lab">Net WPM</div>
         </div>
         <div>
           <div class="big" id="resultAccuracy">0%</div>
@@ -102,15 +108,35 @@
           <div class="lab">Duration</div>
         </div>
         <div>
+          <div class="big" id="resultCorrectWords">0</div>
+          <div class="lab">Correct Words</div>
+        </div>
+        <div>
+          <div class="big" id="resultWrongWords">0</div>
+          <div class="lab">Wrong Words</div>
+        </div>
+        <div>
+          <div class="big" id="resultTotalWords">0</div>
+          <div class="lab">Total Words Typed</div>
+        </div>
+        <div>
           <div class="big" id="resultChars">0 / 0</div>
           <div class="lab">Correct Chars</div>
+        </div>
+        <div>
+          <div class="big" id="resultErrors">0</div>
+          <div class="lab">Total Errors</div>
+        </div>
+        <div>
+          <div class="big" id="resultDateTime" style="font-size:1rem;">—</div>
+          <div class="lab">Date &amp; Time</div>
         </div>
       </div>
     </div>
 
     <div style="display:flex; gap:12px; margin-top:20px;">
-      <button class="btn" id="retryBtn">Take Another Test</button>
-      <a class="btn btn-ghost" href="dashboard.html">View Dashboard</a>
+      <button class="btn" id="retryBtn">Practice Again</button>
+      <a class="btn btn-ghost" href="dashboard.html">Back to Dashboard</a>
     </div>
   </div>
 
