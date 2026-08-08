@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Mock Tests — TypeShala Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Admin Panel</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <span id="userChip"></span>
+      <a href="admin.html">Passages</a>
+      <a href="admin-mock-tests.html">Mock Tests</a>
+      <a href="dashboard.html">Dashboard</a>
+      <button id="logoutBtn">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Admin Only</p>
+  <h1>Manage Mock Tests</h1>
+  <p class="lede">Create the individual mock tests students pick from (e.g. "Legal Mock 01"). Each one is linked to a single passage and has its own duration and access level.</p>
+
+  <!-- ADD / EDIT FORM -->
+  <div class="card">
+    <div class="card-label" id="formLabel">Add a New Mock Test</div>
+    <div class="error-msg" id="formError"></div>
+    <div class="success-msg" id="formSuccess"></div>
+
+    <form id="mockForm">
+      <div class="field">
+        <label for="mTitle">Title</label>
+        <input type="text" id="mTitle" placeholder="e.g. Legal Mock 01" required>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="mCategory">Category</label>
+          <select id="mCategory">
+            <option value="legal">Legal</option>
+            <option value="ssc">SSC</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mAccess">Access</label>
+          <select id="mAccess">
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="mPassage">Assigned Passage</label>
+        <select id="mPassage" required></select>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="mDuration">Duration</label>
+          <select id="mDuration">
+            <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mOrder">Display Order</label>
+          <input type="number" id="mOrder" value="0" min="0" step="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="mActive">Status</label>
+        <select id="mActive">
+          <option value="true" selected>Active (visible to students)</option>
+          <option value="false">Inactive (hidden)</option>
+        </select>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn" id="submitBtn">Add Mock Test</button>
+        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LIST + FILTER -->
+  <div class="card">
+    <div class="card-label">All Mock Tests</div>
+
+    <div class="field" style="max-width:260px;">
+      <label for="filterCategory">Filter by Category</label>
+      <select id="filterCategory">
+        <option value="all">All Categories</option>
+        <option value="legal">Legal</option>
+        <option value="ssc">SSC</option>
+      </select>
+    </div>
+
+    <div id="mockListBody">
+      <div class="loading-strip">Loading mock tests...</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala Admin Panel</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin-mock-tests.js"></script>
+
+</body>
+</html>
