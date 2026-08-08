@@ -47,6 +47,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   mockTest = data;
   selectedPassage = data.passages;
 
+  // Real DB-level access check — reads the same can_access_mock()
+  // function used to enforce saving, so a student who reaches this
+  // page by guessing/pasting a premium mock's URL is stopped here
+  // too, not just left to discover it after finishing the test.
+  if (mockTest.access_type === "premium") {
+    const { data: allowed, error: accessError } = await supabaseClient.rpc("can_access_mock", { mock_id: mockTest.id });
+
+    if (accessError || !allowed) {
+      const categoryLabel = mockTest.category === "ssc" ? "SSC" : "Legal";
+      document.getElementById("setupInfo").innerHTML =
+        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">Premium — ' + categoryLabel + ' Subscription Required</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active ' + categoryLabel + ' subscription to take this mock test.</div>' +
+        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Subscription Plans</a>';
+      return; // startBtn is never shown, so the test cannot be started
+    }
+  }
+
   document.getElementById("setupInfo").innerHTML =
     '<div style="font-family:var(--font-display); font-size:1.3rem; font-weight:700;">' + escapeHtml(mockTest.title) + '</div>' +
     '<div style="color:var(--ink-soft); margin-top:6px;">' + mockTest.duration + ' minutes &middot; ' +
