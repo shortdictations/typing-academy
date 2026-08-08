@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscriptions — TypeShala</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <span id="userChip"></span>
+      <a href="mock-test.html">Mock Test</a>
+      <a href="dashboard.html">Dashboard</a>
+      <button id="logoutBtn">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Your Account</p>
+  <h1>Subscriptions</h1>
+  <p class="lede">Legal Mock and SSC Mock are separate plans — you can hold either, both, or neither.</p>
+
+  <div class="setup-grid" id="plansWrap">
+    <div class="card">
+      <div class="card-label">Legal Mock</div>
+      <div id="legalStatus" class="loading-strip">Checking your subscription...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">SSC Mock</div>
+      <div id="sscStatus" class="loading-strip">Checking your subscription...</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/subscriptions.js"></script>
+
+</body>
+</html>
