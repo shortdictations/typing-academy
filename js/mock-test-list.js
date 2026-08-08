@@ -52,20 +52,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const completedIds = new Set((results || []).map(r => r.mock_test_id));
 
-  renderMockList(mocks, completedIds);
+  // Real subscription check (reads actual DB rows — this is display
+  // logic only; the real security is the can_access_mock() check
+  // enforced at the database level when a result is saved).
+  const unlockedCategories = await loadUnlockedCategories(user.id);
+
+  renderMockList(mocks, completedIds, unlockedCategories);
 });
 
-function renderMockList(mocks, completedIds) {
+// Returns a Set of subscription_type values ('legal' / 'ssc') the
+// student currently has ACTIVE, unexpired access to.
+async function loadUnlockedCategories(userId) {
+  const { data: subs, error } = await supabaseClient
+    .from("subscriptions")
+    .select("subscription_type, status, expiry_date")
+    .eq("user_id", userId)
+    .eq("status", "active");
+
+  if (error || !subs) {
+    console.error("Could not load subscriptions:", error);
+    return new Set();
+  }
+
+  const now = new Date();
+  const unlocked = new Set();
+  subs.forEach(s => {
+    if (!s.expiry_date || new Date(s.expiry_date) > now) {
+      unlocked.add(s.subscription_type);
+    }
+  });
+  return unlocked;
+}
+
+function renderMockList(mocks, completedIds, unlockedCategories) {
   const wrap = document.getElementById("mockListBody");
   wrap.innerHTML = "";
 
   mocks.forEach(m => {
     const isPremium = m.access_type === "premium";
     const isCompleted = completedIds.has(m.id);
+    const hasAccess = !isPremium || unlockedCategories.has(m.category);
+    const categoryLabel = m.category === "ssc" ? "SSC" : "Legal";
 
     const card = document.createElement("div");
     card.className = "card";
     card.style.marginBottom = "14px";
+
+    let actionHtml;
+    if (hasAccess) {
+      actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' +
+        (isCompleted ? "Retake" : "Start") + '</a>';
+    } else {
+      actionHtml = '<button class="btn btn-ghost" disabled style="opacity:0.6; cursor:not-allowed;">Locked</button>';
+    }
 
     card.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -77,16 +116,22 @@ function renderMockList(mocks, completedIds) {
           <div style="font-size:0.85rem; color:var(--ink-soft); margin-top:4px;">
             ${m.duration} minutes &middot; ${isPremium ? "Premium" : "Free"}
           </div>
+          ${!hasAccess ? '<div style="font-size:0.8rem; color:var(--stamp); margin-top:6px; font-weight:600;">Premium — ' + categoryLabel + ' Subscription Required</div>' : ""}
         </div>
         <div>
-          ${isPremium
-            ? '<button class="btn btn-ghost" disabled style="opacity:0.6; cursor:not-allowed;">Locked</button>'
-            : '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' + (isCompleted ? "Retake" : "Start") + '</a>'}
+          ${actionHtml}
         </div>
       </div>`;
 
     wrap.appendChild(card);
   });
+
+  if (mocks.some(m => m.access_type === "premium" && !unlockedCategories.has(m.category))) {
+    const link = document.createElement("p");
+    link.style.cssText = "text-align:center; margin-top:10px; font-size:0.85rem;";
+    link.innerHTML = '<a href="subscriptions.html" style="color:var(--stamp); font-weight:600; text-decoration:none;">View subscription plans &rarr;</a>';
+    wrap.appendChild(link);
+  }
 }
 
 function escapeHtml(str) {
