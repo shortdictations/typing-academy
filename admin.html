@@ -50,6 +50,30 @@
 
       <div class="setup-grid">
         <div class="field">
+          <label for="pType">Passage Type</label>
+          <select id="pType">
+            <option value="Practice">Practice</option>
+            <option value="Mock Test">Mock Test</option>
+          </select>
+        </div>
+        <div class="field" id="pExamNameWrap" style="display:none;">
+          <label for="pExamName">Exam Name</label>
+          <select id="pExamName">
+            <option value="SSC">SSC</option>
+            <option value="Gauhati High Court">Gauhati High Court</option>
+            <option value="Court Typing">Court Typing</option>
+            <option value="Custom">Custom...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" id="pExamNameCustomWrap" style="display:none;">
+        <label for="pExamNameCustom">Custom Exam Name</label>
+        <input type="text" id="pExamNameCustom" placeholder="Type the exam name">
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
           <label for="pCategory">Category</label>
           <select id="pCategory">
             <option value="SSC">SSC</option>
@@ -73,9 +97,9 @@
           <label for="pDuration">Duration (which test this is for)</label>
           <select id="pDuration">
             <option value="5">5 minutes</option>
-            <option value="10">10 minutes</option>
-            <option value="15">15 minutes (Mock Test only)</option>
-            <option value="20">20 minutes (Mock Test only)</option>
+            <option value="10" selected>10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
           </select>
         </div>
         <div class="field">
@@ -98,15 +122,25 @@
   <div class="card">
     <div class="card-label">All Passages</div>
 
-    <div class="field" style="max-width:260px;">
-      <label for="filterCategory">Filter by Category</label>
-      <select id="filterCategory">
-        <option value="all">All Categories</option>
-        <option value="SSC">SSC</option>
-        <option value="Stenographer">Stenographer</option>
-        <option value="Court">Court</option>
-        <option value="General">General</option>
-      </select>
+    <div class="setup-grid" style="max-width:560px;">
+      <div class="field">
+        <label for="filterCategory">Filter by Category</label>
+        <select id="filterCategory">
+          <option value="all">All Categories</option>
+          <option value="SSC">SSC</option>
+          <option value="Stenographer">Stenographer</option>
+          <option value="Court">Court</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="filterType">Filter by Type</label>
+        <select id="filterType">
+          <option value="all">All Types</option>
+          <option value="Practice">Practice</option>
+          <option value="Mock Test">Mock Test</option>
+        </select>
+      </div>
     </div>
 
     <div id="passageListBody">
