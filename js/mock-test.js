@@ -5,21 +5,18 @@
    typing.js so the regular practice test can never be affected
    by anything here.
 
-   Exam name -> passages.category mapping:
-     SSC Typing Test       -> 'SSC'
-     Court Typing Test     -> 'Court'
-     General Practice Test -> 'General'
+   Mock Test passages are the passages table rows where
+   passage_type = 'Mock Test'. The exam list shown to students is
+   built dynamically from whatever exam_name values actually exist
+   among active Mock Test passages — so any preset (SSC, Gauhati
+   High Court, Court Typing) or admin-typed Custom name appears
+   automatically, with no hardcoded list to keep in sync.
    ============================================================ */
 
 let currentUser = null;
 
-const EXAM_CATEGORY_MAP = {
-  "SSC Typing Test": "SSC",
-  "Court Typing Test": "Court",
-  "General Practice Test": "General"
-};
-
-let selectedExam = "SSC Typing Test";
+let availableExams = [];   // filled in from the database at load time
+let selectedExam = null;
 let selectedDuration = 10; // minutes — 10, 15, or 20 only for mock tests
 let selectedPassage = null;
 
@@ -35,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
   if (!currentUser) return;
 
+  await loadAvailableExams();
   buildExamChoices();
   buildDurationChoices();
   updateSetupNote();
@@ -60,11 +58,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ---------------- Setup screen ---------------- */
 
+// Pulls the distinct exam_name values that exist among active
+// Mock Test passages, so the exam list is always accurate —
+// including any Custom name an admin has typed in.
+async function loadAvailableExams() {
+  const { data, error } = await supabaseClient
+    .from("passages")
+    .select("exam_name")
+    .eq("passage_type", "Mock Test")
+    .eq("active", true);
+
+  if (error || !data) {
+    console.error("Could not load exam list:", error);
+    availableExams = [];
+    return;
+  }
+
+  const unique = new Set();
+  data.forEach(row => { if (row.exam_name) unique.add(row.exam_name); });
+  availableExams = Array.from(unique).sort();
+  selectedExam = availableExams.length > 0 ? availableExams[0] : null;
+}
+
 function buildExamChoices() {
   const wrap = document.getElementById("examChoices");
-  const exams = Object.keys(EXAM_CATEGORY_MAP);
   wrap.innerHTML = "";
-  exams.forEach(exam => {
+
+  if (availableExams.length === 0) {
+    wrap.innerHTML = '<span style="color:var(--ink-soft); font-size:0.85rem;">No mock exams have been added yet. Please check back later.</span>';
+    document.getElementById("startBtn").disabled = true;
+    return;
+  }
+
+  availableExams.forEach(exam => {
     const btn = document.createElement("div");
     btn.className = "choice" + (exam === selectedExam ? " selected" : "");
     btn.textContent = exam;
@@ -95,23 +121,29 @@ function buildDurationChoices() {
 }
 
 function updateSetupNote() {
-  document.getElementById("setupNote").textContent =
+  const note = document.getElementById("setupNote");
+  if (!selectedExam) {
+    note.textContent = "";
+    return;
+  }
+  note.textContent =
     "A passage will be picked at random for " + selectedExam + " (" + selectedDuration + " min) when you start.";
 }
 
 /* ---------------- Starting the test ---------------- */
 
 async function startMockTest() {
+  if (!selectedExam) return;
+
   const startBtn = document.getElementById("startBtn");
   startBtn.disabled = true;
   startBtn.textContent = "Loading passage...";
 
-  const category = EXAM_CATEGORY_MAP[selectedExam];
-
   const { data: passages, error } = await supabaseClient
     .from("passages")
     .select("*")
-    .eq("category", category)
+    .eq("passage_type", "Mock Test")
+    .eq("exam_name", selectedExam)
     .eq("duration", selectedDuration)
     .eq("active", true);
 
