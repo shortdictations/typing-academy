@@ -6,7 +6,9 @@
    live in the database and are managed from admin.html.)
    ============================================================ */
 
-// Get every ACTIVE passage matching a category + duration.
+// Get every ACTIVE, PRACTICE-type passage matching a category + duration.
+// Mock Test passages are deliberately excluded here — they're only
+// ever fetched by mock-test.js.
 // Returns [] (and logs the error) if the request fails.
 async function fetchPassages(category, duration) {
   const { data, error } = await supabaseClient
@@ -14,6 +16,7 @@ async function fetchPassages(category, duration) {
     .select("*")
     .eq("category", category)
     .eq("duration", duration)
+    .eq("passage_type", "Practice")
     .eq("active", true)
     .order("created_at", { ascending: true });
 
