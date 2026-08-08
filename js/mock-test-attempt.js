@@ -62,11 +62,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   input.addEventListener("paste", e => e.preventDefault());
   input.addEventListener("drop", e => e.preventDefault());
 
+  // Requirement 2: completely disable Backspace during an active mock
+  // test. testScreenOpen is true from the moment the test screen shows
+  // until the test ends, so this only ever blocks Backspace while a
+  // mock test is actually in progress.
+  input.addEventListener("keydown", e => {
+    if (testScreenOpen && e.key === "Backspace") {
+      e.preventDefault();
+    }
+  });
+
   document.getElementById("testCard").addEventListener("contextmenu", e => e.preventDefault());
 
   input.addEventListener("blur", () => setTimeout(refocusTypingInput, 0));
   document.getElementById("passageBox").addEventListener("click", refocusTypingInput);
   document.getElementById("testCard").addEventListener("click", refocusTypingInput);
+
+  // Requirement 1: full-screen handling
+  document.getElementById("fsRetryBtn").addEventListener("click", () => {
+    enterFullscreen();
+  });
+  document.addEventListener("fullscreenchange", handleFullscreenChange);
+  document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
 });
 
 /* ---------------- Starting the test ---------------- */
@@ -101,6 +118,61 @@ function startMockTest() {
   if (testTimer) clearInterval(testTimer);
 
   window.addEventListener("beforeunload", beforeUnloadHandler);
+
+  // Requirement 1: enter full-screen when the mock test starts
+  enterFullscreen();
+}
+
+/* ---------------- Full-screen handling ---------------- */
+
+function enterFullscreen() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+
+  if (!req) {
+    // Browser doesn't support the Fullscreen API at all — let the
+    // student continue normally, just show the manual button in case
+    // a later interaction lets them trigger it themselves.
+    document.getElementById("fsRetryBtn").style.display = "inline-block";
+    return;
+  }
+
+  try {
+    const result = req.call(el);
+    if (result && typeof result.catch === "function") {
+      result
+        .then(() => { document.getElementById("fsRetryBtn").style.display = "none"; })
+        .catch(() => {
+          // Automatic full-screen was blocked — show a clear manual button instead.
+          document.getElementById("fsRetryBtn").style.display = "inline-block";
+        });
+    } else {
+      document.getElementById("fsRetryBtn").style.display = "none";
+    }
+  } catch (err) {
+    document.getElementById("fsRetryBtn").style.display = "inline-block";
+  }
+}
+
+function exitFullscreen() {
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (!isFs) return;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+  if (exit) {
+    try { exit.call(document); } catch (err) { /* ignore */ }
+  }
+}
+
+function handleFullscreenChange() {
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (isFs) {
+    document.getElementById("fsRetryBtn").style.display = "none";
+  } else if (testActive) {
+    // Student left full-screen mid-test — end the test, same as an
+    // invigilated exam would, and explain why on the result page.
+    showWarningBanner("This mock test was submitted early because full-screen mode was exited.");
+    endMockTest("fullscreen_exit");
+  }
 }
 
 function computeWordRanges(text) {
@@ -273,6 +345,10 @@ async function endMockTest(reason) {
 
   const grossWpm = Math.round((totalTypedChars / 5) / minutesForWpm);
   const netWpm = Math.round((correct / 5) / minutesForWpm);
+
+  // Requirement 1: exit full-screen once the mock test ends
+  exitFullscreen();
+  document.getElementById("fsRetryBtn").style.display = "none";
 
   showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords });
   await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords });
