@@ -48,15 +48,6 @@
       <button type="submit" class="btn btn-full" id="loginBtn">Login</button>
     </form>
 
-    <!-- Forgot password mini-form, hidden until the link above is clicked -->
-    <div id="forgotWrap" style="display:none; margin-top:18px; padding-top:18px; border-top:1px dashed var(--paper-line);">
-      <div class="field">
-        <label for="forgotEmail">Enter your registered email</label>
-        <input type="email" id="forgotEmail" autocomplete="email">
-      </div>
-      <button type="button" class="btn btn-ghost btn-full" id="forgotBtn">Send Reset Link</button>
-    </div>
-
     <p class="foot-link">
       New here? <a href="register.html">Create an account</a>
     </p>
@@ -80,43 +71,35 @@ function showError(text) {
   el.style.display = 'block';
 }
 
-// Toggle the forgot-password mini-form
-document.getElementById('forgotToggle').addEventListener('click', (e) => {
+// "Forgot Password?" — reuses the existing loginEmail field, no second input
+document.getElementById('forgotToggle').addEventListener('click', async (e) => {
   e.preventDefault();
   hideMessages();
-  const wrap = document.getElementById('forgotWrap');
-  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
-});
 
-// Handle "Send Reset Link"
-document.getElementById('forgotBtn').addEventListener('click', async () => {
-  hideMessages();
-  const email = document.getElementById('forgotEmail').value.trim();
+  const email = document.getElementById('loginEmail').value.trim();
   if (!email) {
-    showError('Please enter your email address first.');
+    showError('Please enter your registered email address first.');
     return;
   }
 
-  const btn = document.getElementById('forgotBtn');
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
+  const link = document.getElementById('forgotToggle');
+  const originalText = link.textContent;
+  link.textContent = 'Sending...';
 
   try {
-    await supabaseClient.auth.resetPasswordForEmail(email, {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/reset-password.html'
     });
-  } catch (err) {
-    // Supabase rarely errors here even for unregistered emails (to avoid
-    // leaking which emails exist) — fall through to the same generic
-    // success message either way.
-    console.error(err);
-  }
+    if (error) throw error;
 
-  const successEl = document.getElementById('successMsg');
-  successEl.textContent = 'If that email is registered, a password reset link has been sent. Please check your inbox.';
-  successEl.style.display = 'block';
-  btn.disabled = false;
-  btn.textContent = 'Send Reset Link';
+    const successEl = document.getElementById('successMsg');
+    successEl.textContent = 'Password reset link has been sent to your email.';
+    successEl.style.display = 'block';
+  } catch (err) {
+    showError(err.message || 'Could not send the reset link. Please try again.');
+  } finally {
+    link.textContent = originalText;
+  }
 });
 
 // Handle login
