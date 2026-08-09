@@ -36,14 +36,14 @@
     <form id="loginForm">
       <div class="field">
         <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" required autocomplete="email">
+        <input type="email" id="loginEmail" placeholder="demo@example.com" required autocomplete="email">
       </div>
       <div class="field">
         <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" required autocomplete="current-password">
+        <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
       </div>
       <p style="margin:-8px 0 16px; text-align:right;">
-        <a href="forgot-password.html" id="forgotToggle" style="font-size:0.82rem; color:var(--stamp); text-decoration:none;">Forgot Password?</a>
+        <a href="forgot-password.html" style="font-size:0.82rem; color:var(--stamp); text-decoration:none;">Forgot Password?</a>
       </p>
       <button type="submit" class="btn btn-full" id="loginBtn">Login</button>
     </form>
@@ -70,37 +70,6 @@ function showError(text) {
   el.textContent = text;
   el.style.display = 'block';
 }
-
-// "Forgot Password?" — reuses the existing loginEmail field, no second input
-document.getElementById('forgotToggle').addEventListener('click', async (e) => {
-  e.preventDefault();
-  hideMessages();
-
-  const email = document.getElementById('loginEmail').value.trim();
-  if (!email) {
-    showError('Please enter your registered email address first.');
-    return;
-  }
-
-  const link = document.getElementById('forgotToggle');
-  const originalText = link.textContent;
-  link.textContent = 'Sending...';
-
-  try {
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-password.html'
-    });
-    if (error) throw error;
-
-    const successEl = document.getElementById('successMsg');
-    successEl.textContent = 'Password reset link has been sent to your email.';
-    successEl.style.display = 'block';
-  } catch (err) {
-    showError(err.message || 'Could not send the reset link. Please try again.');
-  } finally {
-    link.textContent = originalText;
-  }
-});
 
 // Handle login
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
