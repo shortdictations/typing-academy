@@ -17,9 +17,13 @@
         <span class="subtitle">Typing Practice Centre</span>
       </span>
     </a>
-    <nav class="nav-links">
+    <nav class="nav-links" id="navLoggedOut">
       <a href="login.html">Login</a>
       <a href="register.html">Register</a>
+    </nav>
+    <nav class="nav-links" id="navLoggedIn" style="display:none;">
+      <a href="dashboard.html">Dashboard</a>
+      <button id="logoutBtn">Logout</button>
     </nav>
   </div>
 </header>
@@ -35,9 +39,13 @@
         competitive exam preparation. Get instant WPM and accuracy, and track
         every session on your personal dashboard.
       </p>
-      <div class="hero-actions">
+      <div class="hero-actions" id="heroLoggedOut">
         <a class="btn" href="register.html">Start practicing</a>
         <a class="btn btn-ghost" href="login.html">I already have an account</a>
+      </div>
+      <div class="hero-actions" id="heroLoggedIn" style="display:none;">
+        <a class="btn" href="dashboard.html">Go to Dashboard</a>
+        <a class="btn btn-ghost" href="mock-test.html">View Mock Tests</a>
       </div>
     </div>
 
@@ -82,6 +90,28 @@
 </main>
 
 <footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+// Uses the SAME Supabase Auth session and the SAME getCurrentUser()
+// helper from auth.js that every other page relies on — no separate
+// or duplicate authentication system.
+(async () => {
+  const user = await getCurrentUser();
+  const loggedIn = !!user;
+
+  document.getElementById('navLoggedOut').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('navLoggedIn').style.display = loggedIn ? 'flex' : 'none';
+  document.getElementById('heroLoggedOut').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('heroLoggedIn').style.display = loggedIn ? 'flex' : 'none';
+
+  if (loggedIn) {
+    document.getElementById('logoutBtn').addEventListener('click', logoutStudent);
+  }
+})();
+</script>
 
 </body>
 </html>
