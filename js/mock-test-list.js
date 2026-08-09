@@ -103,7 +103,11 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
       actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' +
         (isCompleted ? "Retake" : "Start") + '</a>';
     } else {
-      actionHtml = '<button class="btn btn-ghost" disabled style="opacity:0.6; cursor:not-allowed;">Locked</button>';
+      actionHtml =
+        '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">' +
+          '<span style="font-size:0.85rem; color:var(--ink-soft); white-space:nowrap;">&#128274; Premium</span>' +
+          '<a class="btn" href="subscriptions.html?plan=' + m.category + '">Get ' + categoryLabel + ' Subscription</a>' +
+        '</div>';
     }
 
     card.innerHTML = `
@@ -116,7 +120,6 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
           <div style="font-size:0.85rem; color:var(--ink-soft); margin-top:4px;">
             ${m.duration} minutes &middot; ${isPremium ? "Premium" : "Free"}
           </div>
-          ${!hasAccess ? '<div style="font-size:0.8rem; color:var(--stamp); margin-top:6px; font-weight:600;">Premium — ' + categoryLabel + ' Subscription Required</div>' : ""}
         </div>
         <div>
           ${actionHtml}
@@ -125,13 +128,6 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
 
     wrap.appendChild(card);
   });
-
-  if (mocks.some(m => m.access_type === "premium" && !unlockedCategories.has(m.category))) {
-    const link = document.createElement("p");
-    link.style.cssText = "text-align:center; margin-top:10px; font-size:0.85rem;";
-    link.innerHTML = '<a href="subscriptions.html" style="color:var(--stamp); font-weight:600; text-decoration:none;">View subscription plans &rarr;</a>';
-    wrap.appendChild(link);
-  }
 }
 
 function escapeHtml(str) {
