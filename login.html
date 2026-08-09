@@ -36,7 +36,7 @@
     <form id="loginForm">
       <div class="field">
         <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" placeholder="student@example.com" required autocomplete="email">
+        <input type="email" id="loginEmail" placeholder="demo@example.com" required autocomplete="email">
       </div>
       <div class="field">
         <label for="loginPassword">Password</label>
@@ -47,6 +47,14 @@
       </p>
       <button type="submit" class="btn btn-full" id="loginBtn">Login</button>
     </form>
+
+    <div style="display:flex; align-items:center; gap:10px; margin:18px 0;">
+      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
+      <span style="font-size:0.75rem; color:var(--ink-soft); letter-spacing:0.06em;">OR</span>
+      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
+    </div>
+
+    <button type="button" class="btn btn-ghost btn-full" id="googleLoginBtn">Continue with Google</button>
 
     <p class="foot-link">
       New here? <a href="register.html">Create an account</a>
@@ -70,6 +78,28 @@ function showError(text) {
   el.textContent = text;
   el.style.display = 'block';
 }
+
+// Handle Google OAuth login — reuses the same supabaseClient from
+// js/supabase-config.js, no separate client created.
+document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+  hideMessages();
+  const btn = document.getElementById('googleLoginBtn');
+  btn.disabled = true;
+  btn.textContent = 'Redirecting to Google...';
+
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
+
+  if (error) {
+    showError(error.message || 'Could not start Google sign-in. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Continue with Google';
+  }
+  // On success, Supabase redirects the browser to Google immediately —
+  // no further code runs here.
+});
 
 // Handle login
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
