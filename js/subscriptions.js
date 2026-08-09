@@ -27,6 +27,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   renderPlanStatus("legal", "Legal Mocks", subs || [], document.getElementById("legalStatus"));
   renderPlanStatus("ssc", "SSC Mocks", subs || [], document.getElementById("sscStatus"));
+
+  // If we arrived here from a locked mock's "Get Legal/SSC Subscription"
+  // link (?plan=legal or ?plan=ssc), draw attention to that specific card.
+  const params = new URLSearchParams(window.location.search);
+  const plan = params.get("plan");
+  if (plan === "legal" || plan === "ssc") {
+    const card = document.getElementById(plan === "legal" ? "legalStatus" : "sscStatus").closest(".plan-card");
+    if (card) {
+      card.style.outline = "2px solid var(--brass)";
+      card.style.outlineOffset = "2px";
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
 });
 
 // Finds the most relevant subscription row for a type and renders
