@@ -2,12 +2,22 @@
    admin.js
    ------------------------------------------------------------
    Powers admin.html: add / edit / delete passages, and filter
-   the list by category. Access is gated by requireAdmin(),
-   which redirects non-admins to dashboard.html. This is a
-   convenience check only — the REAL security is the Supabase
-   Row Level Security policies on the passages table, which
-   reject any insert/update/delete from a non-admin no matter
-   what the browser does.
+   the list. Access is gated by requireAdmin(), which redirects
+   non-admins to dashboard.html. This is a convenience check
+   only — the REAL security is the Supabase Row Level Security
+   policies on the passages table, which reject any insert/
+   update/delete from a non-admin no matter what the browser
+   does.
+
+   Passage Type is now exactly two options: "Mock Test" (pass-
+   based access — SSC Pass/Legal Pass/Combo Pass, via the
+   mock_tests catalog) or "Credit Based Test" (1-credit access,
+   independent of any pass). "Practice" is no longer offered
+   here — existing Practice-tagged passages are intentionally
+   excluded from this list so they can't be accidentally
+   mutated through this form, but they remain fully untouched
+   in the database and keep working exactly as before on the
+   regular typing practice page (js/passages.js is unchanged).
    ============================================================ */
 
 let editingId = null; // null = "add" mode, otherwise the id being edited
@@ -19,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("passageForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
   document.getElementById("filterCategory").addEventListener("change", loadPassages);
+  document.getElementById("filterType").addEventListener("change", loadPassages);
 
   await loadPassages();
 });
@@ -29,11 +40,24 @@ async function loadPassages() {
   const listBody = document.getElementById("passageListBody");
   listBody.innerHTML = '<div class="loading-strip">Loading passages...</div>';
 
-  const filter = document.getElementById("filterCategory").value;
+  const categoryFilter = document.getElementById("filterCategory").value;
+  const typeFilter = document.getElementById("filterType").value;
 
-  let query = supabaseClient.from("passages").select("*").order("created_at", { ascending: false });
-  if (filter !== "all") {
-    query = query.eq("category", filter);
+  // Only Mock Test / Credit Based Test passages ever appear here —
+  // Practice-tagged passages are managed elsewhere (the regular
+  // typing practice content pool) and are deliberately excluded so
+  // they can't be edited into an invalid state via this form.
+  let query = supabaseClient
+    .from("passages")
+    .select("*")
+    .in("passage_type", ["Mock Test", "Credit Based Test"])
+    .order("created_at", { ascending: false });
+
+  if (categoryFilter !== "all") {
+    query = query.eq("category", categoryFilter);
+  }
+  if (typeFilter !== "all") {
+    query = query.eq("passage_type", typeFilter);
   }
 
   const { data, error } = await query;
@@ -60,8 +84,8 @@ function renderList(passages) {
     rows += `
       <tr>
         <td>${escapeHtml(p.title)}</td>
+        <td><span class="pill">${escapeHtml(p.passage_type)}</span></td>
         <td><span class="pill">${escapeHtml(p.category)}</span></td>
-        <td>${escapeHtml(p.difficulty || "-")}</td>
         <td>${p.duration} min</td>
         <td>${p.active ? "Active" : "Inactive"}</td>
         <td style="white-space:nowrap;">
@@ -72,19 +96,21 @@ function renderList(passages) {
   });
 
   listBody.innerHTML = `
+    <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
         <tr>
           <th>Title</th>
+          <th>Passage Type</th>
           <th>Category</th>
-          <th>Difficulty</th>
           <th>Duration</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    </div>`;
 
   // Keep a lookup so Edit can find the full row without another request
   window._passageLookup = {};
@@ -103,10 +129,13 @@ async function handleSubmit(e) {
   const payload = {
     title: document.getElementById("pTitle").value.trim(),
     content: document.getElementById("pContent").value.trim(),
+    passage_type: document.getElementById("pType").value,
     category: document.getElementById("pCategory").value,
-    difficulty: document.getElementById("pDifficulty").value,
     duration: parseInt(document.getElementById("pDuration").value, 10),
     active: document.getElementById("pActive").value === "true"
+    // No difficulty, no exam_name — removed from this form entirely.
+    // Existing values for those columns (if any) are left untouched
+    // on UPDATE since they're simply not included in this payload.
   };
 
   try {
@@ -135,8 +164,8 @@ function startEdit(id) {
   editingId = id;
   document.getElementById("pTitle").value = p.title;
   document.getElementById("pContent").value = p.content;
+  document.getElementById("pType").value = p.passage_type;
   document.getElementById("pCategory").value = p.category;
-  document.getElementById("pDifficulty").value = p.difficulty || "Medium";
   document.getElementById("pDuration").value = String(p.duration);
   document.getElementById("pActive").value = p.active ? "true" : "false";
 
