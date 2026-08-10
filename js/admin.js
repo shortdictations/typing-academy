@@ -139,15 +139,29 @@ async function handleSubmit(e) {
   };
 
   try {
+    let savedPassage;
     if (editingId) {
-      const { error } = await supabaseClient.from("passages").update(payload).eq("id", editingId);
+      const { data, error } = await supabaseClient.from("passages").update(payload).eq("id", editingId).select().single();
       if (error) throw error;
+      savedPassage = data;
       showFormSuccess("Passage updated.");
     } else {
-      const { error } = await supabaseClient.from("passages").insert(payload);
+      const { data, error } = await supabaseClient.from("passages").insert(payload).select().single();
       if (error) throw error;
+      savedPassage = data;
       showFormSuccess("Passage added.");
     }
+
+    // Credit Based Test passages are 1:1 with a mock_tests catalog
+    // row — that's what mock-test.html actually reads from. Keep it
+    // in sync automatically so creating the passage here is the only
+    // step needed; no separate manual step on admin-mock-tests.html
+    // is required. (Mock Test passages are NOT auto-linked — those
+    // remain a deliberate, separate manual step, unchanged.)
+    if (savedPassage.passage_type === "Credit Based Test") {
+      await syncCreditMockTest(savedPassage);
+    }
+
     exitEditMode();
     await loadPassages();
   } catch (err) {
@@ -195,6 +209,34 @@ async function deletePassage(id) {
     return;
   }
   await loadPassages();
+}
+
+// Creates or updates the single mock_tests row linked to this
+// Credit Based Test passage (matched by passage_id), so the
+// student-facing Credit-Based Tests section on mock-test.html —
+// which reads from mock_tests, not passages — always reflects
+// what's in the Add Passage form without a separate manual step.
+async function syncCreditMockTest(passage) {
+  const mockPayload = {
+    title: passage.title,
+    category: passage.category.toLowerCase(), // passages: 'SSC'/'Legal' -> mock_tests: 'ssc'/'legal'
+    access_type: "credit",
+    passage_id: passage.id,
+    duration: passage.duration,
+    active: passage.active
+  };
+
+  const { data: existing } = await supabaseClient
+    .from("mock_tests")
+    .select("id")
+    .eq("passage_id", passage.id)
+    .maybeSingle();
+
+  if (existing) {
+    await supabaseClient.from("mock_tests").update(mockPayload).eq("id", existing.id);
+  } else {
+    await supabaseClient.from("mock_tests").insert({ ...mockPayload, display_order: 0 });
+  }
 }
 
 /* ---------------- Small helpers ---------------- */
