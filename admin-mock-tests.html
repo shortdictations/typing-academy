@@ -31,7 +31,7 @@
 
   <p class="eyebrow">Admin Only</p>
   <h1>Manage Mock Tests</h1>
-  <p class="lede">Create the individual mock tests students pick from (e.g. "Legal Mock 01"). Each one is linked to a single passage and has its own duration and access level.</p>
+  <p class="lede">Create the individual mock tests students pick from. Each one is exactly one of three Test Types — SSC Mock Test, Legal Mock Test, or Credit Based Test — linked to one existing passage.</p>
 
   <!-- ADD / EDIT FORM -->
   <div class="card">
@@ -41,30 +41,47 @@
 
     <form id="mockForm">
       <div class="field">
-        <label for="mTitle">Title</label>
+        <label for="mTitle">Test Title</label>
         <input type="text" id="mTitle" placeholder="e.g. Legal Mock 01" required>
+      </div>
+
+      <div class="field">
+        <label for="mTestType">Test Type</label>
+        <select id="mTestType">
+          <option value="ssc_mock">SSC Mock Test</option>
+          <option value="legal_mock">Legal Mock Test</option>
+          <option value="credit">Credit Based Test</option>
+        </select>
       </div>
 
       <div class="setup-grid">
         <div class="field">
           <label for="mCategory">Category</label>
           <select id="mCategory">
-            <option value="legal">Legal</option>
             <option value="ssc">SSC</option>
+            <option value="legal">Legal</option>
           </select>
+          <p class="test-rules-note" id="mCategoryNote" style="margin-top:6px;"></p>
         </div>
-        <div class="field">
+        <div class="field" id="mAccessWrap">
           <label for="mAccess">Access</label>
           <select id="mAccess">
             <option value="free">Free</option>
             <option value="premium">Premium</option>
           </select>
+          <p class="test-rules-note" style="margin-top:6px;">Unlocked by the matching Pass (or free, for this category's first few mocks).</p>
+        </div>
+        <div class="field" id="mCostWrap" style="display:none;">
+          <label>Cost</label>
+          <div class="card" style="padding:10px 14px; background:var(--paper-dark);">Cost: 1 Credit</div>
+          <p class="test-rules-note" style="margin-top:6px;">Fixed — every Credit Based Test always costs exactly 1 credit. Never unlocked by a Pass.</p>
         </div>
       </div>
 
       <div class="field">
-        <label for="mPassage">Assigned Passage</label>
+        <label for="mPassage">Passage</label>
         <select id="mPassage" required></select>
+        <p class="test-rules-note" id="mPassageNote" style="margin-top:6px;"></p>
       </div>
 
       <div class="setup-grid">
@@ -101,13 +118,24 @@
   <div class="card">
     <div class="card-label">All Mock Tests</div>
 
-    <div class="field" style="max-width:260px;">
-      <label for="filterCategory">Filter by Category</label>
-      <select id="filterCategory">
-        <option value="all">All Categories</option>
-        <option value="legal">Legal</option>
-        <option value="ssc">SSC</option>
-      </select>
+    <div class="setup-grid" style="max-width:560px;">
+      <div class="field">
+        <label for="filterCategory">Filter by Category</label>
+        <select id="filterCategory">
+          <option value="all">All Categories</option>
+          <option value="ssc">SSC</option>
+          <option value="legal">Legal</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="filterTestType">Filter by Test Type</label>
+        <select id="filterTestType">
+          <option value="all">All Types</option>
+          <option value="ssc_mock">SSC Mock Test</option>
+          <option value="legal_mock">Legal Mock Test</option>
+          <option value="credit">Credit Based Test</option>
+        </select>
+      </div>
     </div>
 
     <div id="mockListBody">
