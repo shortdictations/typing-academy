@@ -623,6 +623,47 @@ table.marksheet tr:hover td{ background: var(--paper-dark); }
   border-top: 1px dashed var(--paper-line);
 }
 
+/* ---------- Purchase page: 3-across pass cards ---------- */
+.passes-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+@media (max-width: 900px){ .passes-grid{ grid-template-columns: 1fr; } }
+
+.pass-card{ position: relative; }
+.pass-card.featured{ border-color: var(--brass); box-shadow: 0 0 0 1px var(--brass); }
+.best-value-badge{
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--brass);
+  color: var(--white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.pass-price{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin: 4px 0 2px;
+}
+.pass-duration{
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+
 footer.site-foot{
   text-align: center;
   font-size: 0.75rem;
