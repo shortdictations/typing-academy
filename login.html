@@ -1,11 +1,14 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body><header class="letterhead">
+<body>
+
+<header class="letterhead">
   <div class="letterhead-inner">
     <a class="brand" href="index.html">
       <span class="seal">TS</span>
@@ -13,220 +16,118 @@
         <span class="title">TypeShala</span>
         <span class="subtitle">Typing Practice Centre</span>
       </span>
-    </a><nav class="nav-links">
-  <a href="index.html">Home</a>
-  <a href="register.html">Register</a>
-</nav>
-
-  </div>
-</header><main class="page page-narrow">  <p class="eyebrow">Student Access</p>
-  <h1>Login to your account</h1>  <div class="card"><div class="error-msg" id="errorMsg"></div>
-<div class="success-msg" id="successMsg"></div>
-
-<form id="loginForm">
-
-  <div class="field">
-    <label for="loginEmail">Email</label>
-    <input
-      type="email"
-      id="loginEmail"
-      placeholder="demo@example.com"
-      required
-      autocomplete="email"
-    >
-  </div>
-
-  <div class="field">
-    <label for="loginPassword">Password</label>
-    <input
-      type="password"
-      id="loginPassword"
-      placeholder="Enter your password"
-      required
-      autocomplete="current-password"
-    >
-  </div>
-
-  <p style="margin:-8px 0 16px; text-align:right;">
-    <a
-      href="forgot-password.html"
-      style="font-size:0.82rem; color:var(--stamp); text-decoration:none;"
-    >
-      Forgot Password?
     </a>
-  </p>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="register.html">Register</a>
+    </nav>
+  </div>
+</header>
 
-  <button
-    type="submit"
-    class="btn btn-full"
-    id="loginBtn"
-  >
-    Login
-  </button>
+<main class="page page-narrow">
 
-</form>
+  <p class="eyebrow">Student Access</p>
+  <h1>Login to your account</h1>
 
-<div style="display:flex; align-items:center; gap:10px; margin:18px 0;">
-  <div style="flex:1; height:1px; background:var(--paper-line);"></div>
-  <span style="font-size:0.75rem; color:var(--ink-soft); letter-spacing:0.06em;">
-    OR
-  </span>
-  <div style="flex:1; height:1px; background:var(--paper-line);"></div>
-</div>
+  <div class="card">
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
 
-<button
-  type="button"
-  class="btn btn-ghost btn-full"
-  id="googleLoginBtn"
-  style="display:flex; align-items:center; justify-content:center; gap:10px;"
->
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 18 18"
-    aria-hidden="true"
-    style="flex:none;"
-  >
-    <path
-      fill="#4285F4"
-      d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"
-    />
-    <path
-      fill="#34A853"
-      d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"
-    />
-    <path
-      fill="#EA4335"
-      d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"
-    />
-  </svg>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="demo@example.com" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+      </div>
+      <p style="margin:-8px 0 16px; text-align:right;">
+        <a href="forgot-password.html" style="font-size:0.82rem; color:var(--stamp); text-decoration:none;">Forgot Password?</a>
+      </p>
+      <button type="submit" class="btn btn-full" id="loginBtn">Login</button>
+    </form>
 
-  <span>Continue with Google</span>
-</button>
+    <div style="display:flex; align-items:center; gap:10px; margin:18px 0;">
+      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
+      <span style="font-size:0.75rem; color:var(--ink-soft); letter-spacing:0.06em;">OR</span>
+      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
+    </div>
 
-<p class="foot-link">
-  New here? <a href="register.html">Create an account</a>
-</p>
+    <button type="button" class="btn btn-ghost btn-full" id="googleLoginBtn">Continue with Google</button>
 
-  </div></main><footer class="site-foot">
-  TypeShala — built for typing practice, not affiliated with SSC or any government body.
-</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-config.js"></script><script src="js/auth.js"></script><script>
+    <p class="foot-link">
+      New here? <a href="register.html">Create an account</a>
+    </p>
+  </div>
 
+</main>
+
+<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
 function hideMessages() {
   document.getElementById('errorMsg').style.display = 'none';
   document.getElementById('successMsg').style.display = 'none';
 }
-
 function showError(text) {
   const el = document.getElementById('errorMsg');
   el.textContent = text;
   el.style.display = 'block';
 }
 
-/* Google OAuth Login */
+// Handle Google OAuth login — reuses the same supabaseClient from
+// js/supabase-config.js, no separate client created.
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-
   hideMessages();
-
   const btn = document.getElementById('googleLoginBtn');
-
   btn.disabled = true;
   btn.textContent = 'Redirecting to Google...';
 
-  try {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
 
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/dashboard.html'
-      }
-    });
-
-    if (error) {
-      throw error;
-    }
-
-  } catch (err) {
-
-    showError(
-      err.message || 'Could not start Google sign-in. Please try again.'
-    );
-
+  if (error) {
+    showError(error.message || 'Could not start Google sign-in. Please try again.');
     btn.disabled = false;
-    btn.innerHTML = `
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        aria-hidden="true"
-        style="flex:none;"
-      >
-        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/>
-        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/>
-        <path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17-.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/>
-        <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/>
-      </svg>
-      <span>Continue with Google</span>
-    `;
+    btn.textContent = 'Continue with Google';
   }
-
+  // On success, Supabase redirects the browser to Google immediately —
+  // no further code runs here.
 });
 
-/* Email / Password Login */
+// Handle login
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
-
   e.preventDefault();
-
   hideMessages();
-
   const btn = document.getElementById('loginBtn');
-
   btn.disabled = true;
   btn.textContent = 'Logging in...';
 
   try {
-
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-
     await loginStudent(email, password);
-
+    // Requirement 3: after successful login, go to dashboard.html
     window.location.href = 'dashboard.html';
-
   } catch (err) {
-
-    showError(
-      err.message || 'Login failed. Please check your email and password.'
-    );
-
+    showError(err.message || 'Login failed. Please check your details.');
     btn.disabled = false;
     btn.textContent = 'Login';
   }
-
 });
 
-/* If already logged in, go directly to dashboard */
+// If already logged in, skip straight to dashboard
 (async () => {
-
-  try {
-
-    const user = await getCurrentUser();
-
-    if (user) {
-      window.location.href = 'dashboard.html';
-    }
-
-  } catch (err) {
-
-    console.error('Session check failed:', err);
-
-  }
-
+  const user = await getCurrentUser();
+  if (user) window.location.href = 'dashboard.html';
 })();
+</script>
 
-</script></body>
+</body>
 </html>
