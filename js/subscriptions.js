@@ -1,80 +1,58 @@
 /* ============================================================
    subscriptions.js
    ------------------------------------------------------------
-   Reads the logged-in student's own rows from the subscriptions
-   table (RLS already restricts this to their own data) and shows
-   Legal and SSC status as two completely separate plans.
-
-   No payment gateway is wired up here — "Subscribe" is a plain,
-   inert button for now, per instructions.
+   Populates "My Current Access" on the purchase page by reading
+   the student's own rows from user_passes and wallet_credits
+   (both already allow "select own rows" via existing RLS — no
+   new backend logic was added for this). Purchase buttons are
+   inert placeholders; no payment logic here yet.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin();
   if (!user) return;
 
-  const { data: subs, error } = await supabaseClient
-    .from("subscriptions")
-    .select("*")
-    .eq("user_id", user.id);
+  const [{ data: passes, error: passesError }, { data: credits, error: creditsError }] = await Promise.all([
+    supabaseClient.from("user_passes").select("*").eq("user_id", user.id),
+    supabaseClient.from("wallet_credits").select("*").eq("user_id", user.id)
+  ]);
 
-  if (error) {
-    console.error(error);
-    document.getElementById("legalStatus").innerHTML = '<div class="empty-state">Could not load subscription status.</div>';
-    document.getElementById("sscStatus").innerHTML = '<div class="empty-state">Could not load subscription status.</div>';
-    return;
-  }
+  if (passesError) console.error(passesError);
+  if (creditsError) console.error(creditsError);
 
-  renderPlanStatus("legal", "Legal Mocks", subs || [], document.getElementById("legalStatus"));
-  renderPlanStatus("ssc", "SSC Mocks", subs || [], document.getElementById("sscStatus"));
-
-  // If we arrived here from a locked mock's "Get Legal/SSC Subscription"
-  // link (?plan=legal or ?plan=ssc), draw attention to that specific card.
-  const params = new URLSearchParams(window.location.search);
-  const plan = params.get("plan");
-  if (plan === "legal" || plan === "ssc") {
-    const card = document.getElementById(plan === "legal" ? "legalStatus" : "sscStatus").closest(".plan-card");
-    if (card) {
-      card.style.outline = "2px solid var(--brass)";
-      card.style.outlineOffset = "2px";
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }
+  renderPassStatus("SSC", passes || [], document.getElementById("accessSsc"));
+  renderPassStatus("LEGAL", passes || [], document.getElementById("accessLegal"));
+  renderPassStatus("COMBO", passes || [], document.getElementById("accessCombo"));
+  renderCreditStatus(credits || [], document.getElementById("accessCredits"));
 });
 
-// Finds the most relevant subscription row for a type and renders
-// its status. If more than one row exists for the same type
-// (e.g. an old expired one plus a new active one), the active,
-// unexpired one takes priority.
-function renderPlanStatus(type, label, subs, container) {
+// A pass is valid only when: starts_at <= now() AND expires_at > now()
+// AND status != 'cancelled' — same rule the database access-control
+// function uses, just for display here.
+function renderPassStatus(passType, passes, el) {
   const now = new Date();
-
-  const rowsOfType = subs.filter(s => s.subscription_type === type);
-  const activeRow = rowsOfType.find(s =>
-    s.status === "active" && (!s.expiry_date || new Date(s.expiry_date) > now)
+  const rows = passes.filter(p => p.pass_type === passType);
+  const validRow = rows.find(p =>
+    p.status !== "cancelled" &&
+    new Date(p.starts_at) <= now &&
+    new Date(p.expires_at) > now
   );
 
-  if (activeRow) {
-    const expiryText = activeRow.expiry_date
-      ? new Date(activeRow.expiry_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-      : "No expiry date set";
-
-    container.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-        <span class="pill" style="background:#E9F1EC; color:var(--ok);">Active</span>
-      </div>
-      <div style="font-size:0.9rem; color:var(--ink-soft);">
-        Expiry date: <strong style="color:var(--ink);">${expiryText}</strong>
-      </div>`;
+  if (validRow) {
+    const expiryText = new Date(validRow.expires_at).toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric"
+    });
+    el.innerHTML = 'Active until<br><strong style="color:var(--ink);">' + expiryText + '</strong>';
   } else {
-    container.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-        <span class="pill">Not Subscribed</span>
-      </div>
-      <p style="font-size:0.85rem; color:var(--ink-soft); margin:0 0 14px;">
-        You're currently limited to the first 3 free ${label}. Subscribe to unlock the rest.
-      </p>
-      <button class="btn" disabled style="opacity:0.6; cursor:not-allowed;">Subscribe to ${label}</button>
-      <p style="font-size:0.72rem; color:var(--ink-soft); margin-top:8px;">Online subscription purchase is coming soon.</p>`;
+    el.textContent = "Not active";
   }
+}
+
+function renderCreditStatus(credits, el) {
+  const now = new Date();
+  const totalRemaining = credits
+    .filter(c => new Date(c.expires_at) > now)
+    .reduce((sum, c) => sum + c.credits_remaining, 0);
+
+  el.textContent = totalRemaining + " available";
 }
