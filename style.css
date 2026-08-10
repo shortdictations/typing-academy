@@ -481,19 +481,40 @@ p.lede{
 .summary-strip{
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 @media (max-width: 700px){ .summary-strip{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px){ .summary-strip{ grid-template-columns: 1fr; } }
 .summary-card{
   background: var(--white);
   border: 1px solid var(--paper-line);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 14px;
   text-align: center;
+  min-width: 0;
 }
-.summary-card .big{ font-family: var(--font-display); font-weight: 700; font-size: 1.7rem; color: var(--stamp); }
-.summary-card .lab{ font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-top: 4px; }
+.summary-card .big{ font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; color: var(--stamp); overflow-wrap: anywhere; }
+.summary-card .lab{ font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-top: 4px; }
+
+/* Dashboard progress charts: side by side on desktop/tablet, stacked
+   on narrow screens; more compact than a standard .card */
+.charts-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 700px){ .charts-row{ grid-template-columns: 1fr; gap: 12px; } }
+.chart-card{
+  padding: 14px 16px;
+  margin: 0;
+}
+.chart-card .card-label{
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+}
+.charts-row .card + .card{ margin-top: 0; } /* override the default .card+.card stacking margin inside the grid row */
 
 table.marksheet{
   width: 100%;
