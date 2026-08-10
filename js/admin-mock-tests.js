@@ -33,6 +33,7 @@ async function loadPassagesIntoDropdown() {
   const { data, error } = await supabaseClient
     .from("passages")
     .select("id, title, category, duration")
+    .eq("passage_type", "Mock Test") // Credit Based Test passages don't go through the pass-based mock_tests catalog
     .order("title", { ascending: true });
 
   if (error || !data) {
