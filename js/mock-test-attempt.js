@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "inline-block";
-  startBtn.addEventListener("click", startMockTest);
+  startBtn.addEventListener("click", handleStartClick);
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
@@ -104,6 +104,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ---------------- Starting the test ---------------- */
+
+// Runs when the student presses "Start Mock Test". For premium
+// mocks this is the ONE place a free sample can be consumed —
+// the page-load check above (can_access_mock) is read-only and
+// only decides whether to show the Start button at all. This
+// keeps consumption tied to the moment the student actually
+// begins, not to merely viewing the page, and re-verifies access
+// atomically in case something changed (e.g. the last free sample
+// was used in another tab) between page load and this click.
+async function handleStartClick() {
+  const startBtn = document.getElementById("startBtn");
+
+  if (mockTest.access_type === "premium") {
+    startBtn.disabled = true;
+    startBtn.textContent = "Checking access...";
+
+    const { data, error } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
+
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Mock Test";
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (error || !result || !result.has_access) {
+      const categoryLabel = mockTest.category === "ssc" ? "SSC" : "Legal";
+      document.getElementById("setupInfo").innerHTML =
+        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">Premium — ' + categoryLabel + ' Subscription Required</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active ' + categoryLabel + ' subscription, pass, or a remaining free sample to take this mock test.</div>' +
+        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Subscription Plans</a>';
+      startBtn.style.display = "none";
+      return;
+    }
+  }
+
+  startMockTest();
+}
 
 function startMockTest() {
   passageChars = selectedPassage.content.split("");
