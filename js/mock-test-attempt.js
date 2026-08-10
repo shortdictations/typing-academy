@@ -64,10 +64,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Credit Based Test: read-only check here (never deducts) — if
+  // this specific test was already consumed by this student, show
+  // that plainly instead of a Start button that would just be
+  // rejected. The actual credit spend/consumption only happens
+  // inside start_credit_test(), called from handleStartClick below.
+  if (mockTest.access_type === "credit") {
+    const { data: existingUnlock } = await supabaseClient
+      .from("mock_unlocks")
+      .select("id")
+      .eq("user_id", currentUser.id)
+      .eq("mock_test_id", mockTest.id)
+      .maybeSingle();
+
+    if (existingUnlock) {
+      document.getElementById("setupInfo").innerHTML =
+        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this Credit Based Test. It cannot be retaken.</div>' +
+        '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
+      return; // startBtn is never shown
+    }
+  }
+
   document.getElementById("setupInfo").innerHTML =
     '<div style="font-family:var(--font-display); font-size:1.3rem; font-weight:700;">' + escapeHtml(mockTest.title) + '</div>' +
     '<div style="color:var(--ink-soft); margin-top:6px;">' + mockTest.duration + ' minutes &middot; ' +
-    (mockTest.access_type === "premium" ? "Premium" : "Free") + '</div>' +
+    (mockTest.access_type === "credit" ? "1 Credit" : (mockTest.access_type === "premium" ? "Premium" : "Free")) + '</div>' +
     '<div style="color:var(--ink-soft); margin-top:10px; font-size:0.85rem;">Your passage has already been assigned — it will appear the moment you click start.</div>';
 
   const startBtn = document.getElementById("startBtn");
@@ -136,6 +158,41 @@ async function handleStartClick() {
       startBtn.style.display = "none";
       return;
     }
+  } else if (mockTest.access_type === "credit") {
+    // The ONLY place a credit is ever spent — this call is the real
+    // security boundary. Frontend visibility on mock-test.html was
+    // never access control; this atomic, server-side check/deduct
+    // is what actually decides whether the test may start.
+    startBtn.disabled = true;
+    startBtn.textContent = "Checking credit balance...";
+
+    const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
+
+    startBtn.disabled = false;
+    startBtn.textContent = "Start Mock Test";
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (error || !result || !result.has_access) {
+      document.getElementById("setupInfo").innerHTML =
+        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">&#128274; No Credits Remaining</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need at least 1 credit to take this test.</div>' +
+        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">Buy Credits</a>';
+      startBtn.style.display = "none";
+      return;
+    }
+
+    if (result.access_reason === "ALREADY_COMPLETED") {
+      document.getElementById("setupInfo").innerHTML =
+        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this Credit Based Test. It cannot be retaken.</div>' +
+        '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
+      startBtn.style.display = "none";
+      return;
+    }
+    // result.access_reason === "CREDIT_USED" — 1 credit was just
+    // deducted and this test is now permanently claimed for this
+    // student. Proceed to the timed test below.
   }
 
   startMockTest();
