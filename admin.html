@@ -53,51 +53,23 @@
         <div class="field">
           <label for="pType">Passage Type</label>
           <select id="pType">
-            <option value="Practice">Practice</option>
             <option value="Mock Test">Mock Test</option>
+            <option value="Credit Based Test">Credit Based Test</option>
           </select>
         </div>
-        <div class="field" id="pExamNameWrap" style="display:none;">
-          <label for="pExamName">Exam Name</label>
-          <select id="pExamName">
-            <option value="SSC">SSC</option>
-            <option value="Gauhati High Court">Gauhati High Court</option>
-            <option value="Court Typing">Court Typing</option>
-            <option value="Custom">Custom...</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field" id="pExamNameCustomWrap" style="display:none;">
-        <label for="pExamNameCustom">Custom Exam Name</label>
-        <input type="text" id="pExamNameCustom" placeholder="Type the exam name">
-      </div>
-
-      <div class="setup-grid">
         <div class="field">
           <label for="pCategory">Category</label>
           <select id="pCategory">
             <option value="SSC">SSC</option>
-            <option value="Stenographer">Stenographer</option>
-            <option value="Court">Court</option>
-            <option value="General">General</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="pDifficulty">Difficulty</label>
-          <select id="pDifficulty">
-            <option value="Easy">Easy</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="Hard">Hard</option>
+            <option value="Legal">Legal</option>
           </select>
         </div>
       </div>
 
       <div class="setup-grid">
         <div class="field">
-          <label for="pDuration">Duration (which test this is for)</label>
+          <label for="pDuration">Duration</label>
           <select id="pDuration">
-            <option value="5">5 minutes</option>
             <option value="10" selected>10 minutes</option>
             <option value="15">15 minutes</option>
             <option value="20">20 minutes</option>
@@ -129,17 +101,15 @@
         <select id="filterCategory">
           <option value="all">All Categories</option>
           <option value="SSC">SSC</option>
-          <option value="Stenographer">Stenographer</option>
-          <option value="Court">Court</option>
-          <option value="General">General</option>
+          <option value="Legal">Legal</option>
         </select>
       </div>
       <div class="field">
         <label for="filterType">Filter by Type</label>
         <select id="filterType">
           <option value="all">All Types</option>
-          <option value="Practice">Practice</option>
           <option value="Mock Test">Mock Test</option>
+          <option value="Credit Based Test">Credit Based Test</option>
         </select>
       </div>
     </div>
