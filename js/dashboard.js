@@ -47,7 +47,6 @@ async function showAdminLinkIfApplicable(user) {
 
 function renderSummary(results) {
   const testsTaken = results.length;
-  const bestWpm = testsTaken ? Math.max(...results.map(r => r.wpm)) : 0;
   const avgWpm = testsTaken
     ? Math.round(results.reduce((sum, r) => sum + r.wpm, 0) / testsTaken)
     : 0;
@@ -56,7 +55,6 @@ function renderSummary(results) {
     : 0;
 
   document.getElementById("statTests").textContent = testsTaken;
-  document.getElementById("statBestWpm").textContent = bestWpm;
   document.getElementById("statAvgWpm").textContent = avgWpm;
   document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
 
