@@ -50,9 +50,13 @@ function renderPassStatus(passType, passes, el) {
 
 function renderCreditStatus(credits, el) {
   const now = new Date();
-  const totalRemaining = credits
-    .filter(c => new Date(c.expires_at) > now)
-    .reduce((sum, c) => sum + c.credits_remaining, 0);
+  const unexpired = credits.filter(c => new Date(c.expires_at) > now);
+  const free = unexpired.filter(c => c.credit_type === "free").reduce((sum, c) => sum + c.credits_remaining, 0);
+  const purchased = unexpired.filter(c => c.credit_type === "purchased").reduce((sum, c) => sum + c.credits_remaining, 0);
+  const total = free + purchased;
 
-  el.textContent = totalRemaining + " available";
+  el.innerHTML =
+    '&#127873; Free: ' + free + '<br>' +
+    '&#128179; Purchased: ' + purchased + '<br>' +
+    '<strong>Total: ' + total + '</strong>';
 }
