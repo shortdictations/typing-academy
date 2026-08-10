@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Subscriptions — TypeShala</title>
+<title>Choose Your Access — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,45 +29,101 @@
 <main class="page">
 
   <p class="eyebrow">Your Account</p>
-  <h1>Subscriptions</h1>
-  <p class="lede">Legal Mock and SSC Mock are separate plans — you can hold either, both, or neither.</p>
+  <h1>Choose Your Access</h1>
+  <p class="lede">Unlock premium Mock Tests with a category pass, or pay only for the individual mocks you want with Test Credits.</p>
 
-  <div class="plans-grid">
-    <div class="card plan-card">
-      <div class="plan-header">
-        <span class="plan-icon">⚖️</span>
-        <div>
-          <div class="plan-title">Legal Mock</div>
-          <div class="plan-subtitle">Court &amp; Legal Typing Plan</div>
-        </div>
-      </div>
+  <!-- MY CURRENT ACCESS -->
+  <div class="card-label" style="margin-top:8px;">My Current Access</div>
+  <div class="summary-strip" id="currentAccessStrip">
+    <div class="summary-card">
+      <div class="big" id="accessSsc" style="font-size:1rem;">Loading...</div>
+      <div class="lab">SSC Pass</div>
+    </div>
+    <div class="summary-card">
+      <div class="big" id="accessLegal" style="font-size:1rem;">Loading...</div>
+      <div class="lab">Legal Pass</div>
+    </div>
+    <div class="summary-card">
+      <div class="big" id="accessCombo" style="font-size:1rem;">Loading...</div>
+      <div class="lab">Combo Pass</div>
+    </div>
+    <div class="summary-card">
+      <div class="big" id="accessCredits" style="font-size:1rem;">Loading...</div>
+      <div class="lab">Test Credits</div>
+    </div>
+  </div>
+
+  <!-- MOCK TEST PASSES -->
+  <h2 style="margin-top:36px;">Mock Test Passes</h2>
+  <p class="lede" style="margin-bottom:18px;">Choose a pass to unlock premium mock tests for 60 days.</p>
+
+  <div class="passes-grid">
+    <div class="card pass-card">
+      <div class="card-label">SSC Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
       <ul class="plan-features">
-        <li>Court &amp; Legal typing mock tests</li>
-        <li>Unlimited access to Legal Mock 04 and beyond</li>
-        <li>Detailed Gross/Net WPM &amp; accuracy reports</li>
+        <li>All SSC typing mocks</li>
+        <li>Access throughout the validity period</li>
+        <li>Non-recurring</li>
       </ul>
-      <div class="plan-status" id="legalStatus">
-        <div class="loading-strip">Checking your subscription...</div>
-      </div>
+      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+        data-product-type="PASS" data-pass-type="SSC">
+        Buy SSC Pass — Coming Soon
+      </button>
     </div>
 
-    <div class="card plan-card">
-      <div class="plan-header">
-        <span class="plan-icon">📝</span>
-        <div>
-          <div class="plan-title">SSC Mock</div>
-          <div class="plan-subtitle">SSC Typing &amp; DEST Plan</div>
-        </div>
-      </div>
+    <div class="card pass-card">
+      <div class="card-label">Legal Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
       <ul class="plan-features">
-        <li>SSC typing &amp; DEST mock tests</li>
-        <li>Unlimited access to SSC Mock 04 and beyond</li>
-        <li>Detailed Gross/Net WPM &amp; accuracy reports</li>
+        <li>All High Court / Legal typing mocks</li>
+        <li>Access throughout the validity period</li>
+        <li>Non-recurring</li>
       </ul>
-      <div class="plan-status" id="sscStatus">
-        <div class="loading-strip">Checking your subscription...</div>
-      </div>
+      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+        data-product-type="PASS" data-pass-type="LEGAL">
+        Buy Legal Pass — Coming Soon
+      </button>
     </div>
+
+    <div class="card pass-card featured">
+      <span class="best-value-badge">Best Value</span>
+      <div class="card-label">Combo Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
+      <ul class="plan-features">
+        <li>All SSC typing mocks</li>
+        <li>All Legal typing mocks</li>
+        <li>One pass for both categories</li>
+        <li>Non-recurring</li>
+      </ul>
+      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+        data-product-type="PASS" data-pass-type="COMBO">
+        Buy Combo Pass — Coming Soon
+      </button>
+    </div>
+  </div>
+
+  <!-- TEST CREDITS -->
+  <h2 style="margin-top:36px;">Test Credits</h2>
+  <p class="lede" style="margin-bottom:6px;">Don't want a full pass? Buy credits and unlock individual premium mock tests.</p>
+  <p class="lede" style="margin-bottom:18px; font-size:0.85rem;">Each credit unlocks one premium mock test. Credits are valid for 365 days.</p>
+
+  <div class="card" style="max-width:420px; border-style:dashed;">
+    <div class="card-label">10 Mock Credits</div>
+    <div class="pass-price">₹99</div>
+    <div class="pass-duration">Valid for 365 Days</div>
+    <ul class="plan-features">
+      <li>Unlock 10 individual premium mocks</li>
+      <li>Credits valid for 365 days</li>
+      <li>Use credits whenever you want</li>
+    </ul>
+    <button class="btn btn-ghost btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+      data-product-type="CREDIT" data-credits="10">
+      Buy 10 Credits — Coming Soon
+    </button>
   </div>
 
 </main>
