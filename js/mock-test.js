@@ -2,45 +2,61 @@
    mock-test.js
    ------------------------------------------------------------
    Runs the Mock Test HUB page (mock-test.html): the two
-   category cards (unchanged) plus a new, separate Credit-Based
-   Tests section. Credit Based Tests are identified purely from
-   the database (mock_tests.access_type = 'credit'), never from
-   hardcoded titles. Frontend visibility here is NOT access
-   control — the actual credit check/deduction happens in
-   start_credit_test(), called only from mock-test-attempt.js
-   when the student actually presses Start.
+   category cards (unchanged) plus the Credit-Based Tests
+   catalog. Credit Based Tests are identified purely from the
+   database (mock_tests.access_type = 'credit'), never hardcoded.
+   Frontend visibility here is NOT access control — the actual
+   credit check/deduction happens in start_credit_test(), called
+   only from mock-test-attempt.js when Start is actually pressed.
+   This page only decides what to SHOW (Start vs Buy Credits vs
+   Completed), based on real balance/consumption data read from
+   the database.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin();
   if (!user) return; // requireLogin already redirected to login.html
 
-  await loadCreditBalance(user.id);
-  await loadCreditTests(user.id);
+  const balance = await loadCreditBalance(user.id);
+  await loadCreditTests(user.id, balance);
 });
 
+// Returns { free, purchased, total } — read directly from
+// wallet_credits, split by credit_type, unexpired lots only.
 async function loadCreditBalance(userId) {
-  const el = document.getElementById("creditBalance");
+  const els = {
+    free: document.getElementById("creditFree"),
+    purchased: document.getElementById("creditPurchased"),
+    total: document.getElementById("creditTotal")
+  };
+
   const { data, error } = await supabaseClient
     .from("wallet_credits")
-    .select("credits_remaining, expires_at")
+    .select("credit_type, credits_remaining, expires_at")
     .eq("user_id", userId);
 
   if (error) {
     console.error(error);
-    el.textContent = "—";
-    return;
+    els.free.textContent = "—";
+    els.purchased.textContent = "—";
+    els.total.textContent = "—";
+    return { free: 0, purchased: 0, total: 0 };
   }
 
   const now = new Date();
-  const total = (data || [])
-    .filter(row => new Date(row.expires_at) > now)
-    .reduce((sum, row) => sum + row.credits_remaining, 0);
+  const unexpired = (data || []).filter(row => new Date(row.expires_at) > now);
+  const free = unexpired.filter(r => r.credit_type === "free").reduce((s, r) => s + r.credits_remaining, 0);
+  const purchased = unexpired.filter(r => r.credit_type === "purchased").reduce((s, r) => s + r.credits_remaining, 0);
+  const total = free + purchased;
 
-  el.textContent = "Credits: " + total;
+  els.free.textContent = free;
+  els.purchased.textContent = purchased;
+  els.total.textContent = total;
+
+  return { free, purchased, total };
 }
 
-async function loadCreditTests(userId) {
+async function loadCreditTests(userId, balance) {
   const listEl = document.getElementById("creditTestList");
 
   const { data: mocks, error } = await supabaseClient
@@ -61,7 +77,6 @@ async function loadCreditTests(userId) {
     return;
   }
 
-  // Which of these has this student already permanently consumed?
   const mockIds = mocks.map(m => m.id);
   const { data: unlocks } = await supabaseClient
     .from("mock_unlocks")
@@ -70,10 +85,10 @@ async function loadCreditTests(userId) {
     .in("mock_test_id", mockIds);
   const consumedIds = new Set((unlocks || []).map(u => u.mock_test_id));
 
-  renderCreditTests(mocks, consumedIds);
+  renderCreditTests(mocks, consumedIds, balance);
 }
 
-function renderCreditTests(mocks, consumedIds) {
+function renderCreditTests(mocks, consumedIds, balance) {
   const listEl = document.getElementById("creditTestList");
   listEl.innerHTML = "";
 
@@ -85,9 +100,19 @@ function renderCreditTests(mocks, consumedIds) {
     card.className = "card";
     card.style.marginBottom = "14px";
 
-    const actionHtml = isConsumed
-      ? '<a class="btn btn-ghost" href="mock-history.html">View Result</a>'
-      : '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">Start Test</a>';
+    let actionHtml;
+    let statusLine;
+    if (isConsumed) {
+      actionHtml = '<a class="btn btn-ghost" href="mock-history.html">View Result</a>';
+      statusLine = "&#10003; Completed";
+    } else if (balance.total <= 0) {
+      // Section 7: zero credits — show Buy Credits, never a working Start.
+      actionHtml = '<a class="btn" href="subscriptions.html">Buy Credits</a>';
+      statusLine = "&#128274; 1 Credit";
+    } else {
+      actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">Start Test</a>';
+      statusLine = "&#128274; 1 Credit";
+    }
 
     card.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -98,7 +123,7 @@ function renderCreditTests(mocks, consumedIds) {
             ${isConsumed ? '<span class="pill" style="margin-left:6px;">Completed</span>' : ""}
           </div>
           <div style="font-size:0.85rem; color:var(--ink-soft); margin-top:4px;">
-            ${m.duration} minutes &middot; ${isConsumed ? "&#10003; Completed" : "&#128274; 1 Credit"}
+            ${m.duration} minutes &middot; ${statusLine}
           </div>
         </div>
         <div>${actionHtml}</div>
