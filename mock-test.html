@@ -22,6 +22,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="typing.html">Practice</a>
       <a href="mock-history.html">Mock History</a>
+      <a href="subscriptions.html">Credits</a>
       <button id="logoutBtn">Logout</button>
     </nav>
   </div>
@@ -53,10 +54,14 @@
   <p class="lede" style="margin-bottom:14px;">Independent of any Pass — each test here costs exactly 1 Credit and, once completed, cannot be retaken.</p>
 
   <div class="card" style="margin-bottom:18px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
       <div>
-        <div class="card-label" style="border:none;margin:0;padding:0;">Your Credit Balance</div>
-        <div style="font-family:var(--font-display); font-weight:700; font-size:1.6rem; color:var(--stamp); margin-top:6px;" id="creditBalance">Loading...</div>
+        <div class="card-label" style="border:none;margin:0 0 8px;padding:0;">Your Credit Balance</div>
+        <div style="font-size:0.95rem; line-height:1.9;">
+          &#127873; Free Credits: <strong id="creditFree">—</strong><br>
+          &#128179; Purchased Credits: <strong id="creditPurchased">—</strong><br>
+          <span style="color:var(--stamp); font-weight:700;">Total Credits: <span id="creditTotal">—</span></span>
+        </div>
       </div>
       <a class="btn" href="subscriptions.html">Buy Credits</a>
     </div>
