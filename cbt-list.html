@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit-Based Tests — TypeShala</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="dashboard.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="mock-test.html">Mock Tests</a>
+      <a href="subscriptions.html">Credits</a>
+      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow"><a href="cbt.html" style="color:inherit;">&larr; Credit-Based Tests</a></p>
+  <h1 id="pageTitle">Credit-Based Tests</h1>
+  <p class="lede">Each test costs exactly 1 credit. Once completed, a test cannot be retaken.</p>
+
+  <div id="creditBalanceCard" class="card" style="margin-bottom:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div>
+        <div class="card-label" style="border:none;margin:0 0 8px;padding:0;">Your Credit Balance</div>
+        <div style="font-size:0.95rem; line-height:1.9;">
+          &#127873; Free Credits: <strong id="creditFree">—</strong><br>
+          &#128179; Purchased Credits: <strong id="creditPurchased">—</strong><br>
+          <span style="color:var(--stamp); font-weight:700;">Total Credits: <span id="creditTotal">—</span></span>
+        </div>
+      </div>
+      <a class="btn" href="subscriptions.html">Buy Credits</a>
+    </div>
+  </div>
+
+  <div id="cbtListBody">
+    <div class="loading-strip">Loading Credit-Based Tests...</div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cbt-list.js"></script>
+
+</body>
+</html>
