@@ -747,6 +747,7 @@ table.marksheet tr:hover td{ background: var(--paper-dark); }
   align-items: stretch;
 }
 @media (max-width: 900px){ .passes-grid{ grid-template-columns: 1fr; } }
+.passes-grid .card + .card{ margin-top: 0; } /* neutralizes the global "stacked card" spacing rule inside this grid, so all cards in a row align evenly */
 
 .pass-card{
   position: relative;
