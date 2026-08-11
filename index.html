@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TypeShala — Typing Practice for SSC & Stenographer Exams</title>
+<title>TypeShala — SSC & Legal Typing Mock Tests</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,13 +17,8 @@
         <span class="subtitle">Typing Practice Centre</span>
       </span>
     </a>
-    <nav class="nav-links" id="navLoggedOut">
-      <a href="login.html">Login</a>
-      <a href="register.html">Register</a>
-    </nav>
-    <nav class="nav-links" id="navLoggedIn" style="display:none;">
-      <a href="dashboard.html">Dashboard</a>
-      <button id="logoutBtn">Logout</button>
+    <nav class="nav-links">
+      <a class="btn" href="login.html" style="padding:8px 18px;">Get Started</a>
     </nav>
   </div>
 </header>
@@ -32,20 +27,14 @@
 
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">For SSC &amp; Stenographer Aspirants</p>
-      <h1>Build the typing speed your exam demands.</h1>
+      <p class="eyebrow">For SSC &amp; Legal/Court Typing Aspirants</p>
+      <h1>Exam-ready typing tests, structured the way the real exam is.</h1>
       <p class="lede">
-        Practice timed 5 and 10 minute typing tests on passages written for
-        competitive exam preparation. Get instant WPM and accuracy, and track
-        every session on your personal dashboard.
+        SSC Mock Tests, Legal/Court Mock Tests, and standalone Credit-Based Tests —
+        full-screen, timed, and scored with Gross WPM, Net WPM, and Accuracy on every attempt.
       </p>
-      <div class="hero-actions" id="heroLoggedOut">
-        <a class="btn" href="register.html">Start practicing</a>
-        <a class="btn btn-ghost" href="login.html">I already have an account</a>
-      </div>
-      <div class="hero-actions" id="heroLoggedIn" style="display:none;">
-        <a class="btn" href="dashboard.html">Go to Dashboard</a>
-        <a class="btn btn-ghost" href="mock-test.html">View Mock Tests</a>
+      <div class="hero-actions">
+        <a class="btn" href="login.html">Get Started</a>
       </div>
     </div>
 
@@ -55,37 +44,80 @@
       <div class="stat-row">
         <div>
           <div class="stat-num">42</div>
-          <div class="stat-label">WPM</div>
+          <div class="stat-label">Net WPM</div>
         </div>
         <div>
           <div class="stat-num">97%</div>
           <div class="stat-label">Accuracy</div>
         </div>
         <div>
-          <div class="stat-num">05:00</div>
+          <div class="stat-num">10:00</div>
           <div class="stat-label">Test Duration</div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="feature-grid">
-    <div class="feature">
-      <div class="num">01</div>
-      <h3>Register &amp; Login</h3>
-      <p>Create your student account in seconds. Your results are saved securely under your own login.</p>
+  <!-- CHOOSE YOUR PLAN -->
+  <h2 style="margin-top:20px;">Choose Your Plan</h2>
+  <p class="lede" style="margin-bottom:18px;">Each pass unlocks premium mocks for 60 days.</p>
+
+  <div class="passes-grid">
+    <div class="card pass-card">
+      <div class="card-label">SSC Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
+      <ul class="plan-features">
+        <li>All SSC typing mocks</li>
+        <li>Access throughout the validity period</li>
+        <li>Non-recurring</li>
+      </ul>
+      <a class="btn btn-full" href="login.html">Get Started</a>
     </div>
-    <div class="feature">
-      <div class="num">02</div>
-      <h3>Choose Your Test</h3>
-      <p>Pick an SSC or Stenographer passage, then take a 5 or 10 minute timed typing test.</p>
+
+    <div class="card pass-card">
+      <div class="card-label">Legal Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
+      <ul class="plan-features">
+        <li>All High Court / Legal typing mocks</li>
+        <li>Access throughout the validity period</li>
+        <li>Non-recurring</li>
+      </ul>
+      <a class="btn btn-full" href="login.html">Get Started</a>
     </div>
-    <div class="feature">
-      <div class="num">03</div>
-      <h3>Track Your Progress</h3>
-      <p>Every test is scored for WPM and accuracy and added to your dashboard history automatically.</p>
+
+    <div class="card pass-card featured">
+      <span class="best-value-badge">Best Value</span>
+      <div class="card-label">Combo Pass</div>
+      <div class="pass-price">₹___</div>
+      <div class="pass-duration">60 Days &middot; Non-recurring</div>
+      <ul class="plan-features">
+        <li>All SSC typing mocks</li>
+        <li>All Legal typing mocks</li>
+        <li>One pass for both categories</li>
+        <li>Non-recurring</li>
+      </ul>
+      <a class="btn btn-full" href="login.html">Get Started</a>
     </div>
-  </section>
+  </div>
+
+  <!-- CREDIT-BASED TESTS -->
+  <h2 style="margin-top:36px;">Credit-Based Tests</h2>
+  <p class="lede" style="margin-bottom:18px;">Don't want a full pass? Unlock individual tests one at a time — separate from any Pass.</p>
+
+  <div class="card" style="max-width:520px; border-style:dashed;">
+    <div class="card-label">1 Credit = 1 Test</div>
+    <div class="pass-price">₹99</div>
+    <div class="pass-duration">10 Credits &middot; Valid for 365 Days</div>
+    <ul class="plan-features">
+      <li>&#127873; New users get 3 Free Credits automatically</li>
+      <li>Each Credit-Based Test costs exactly 1 credit</li>
+      <li>Independent of SSC Pass, Legal Pass, or Combo Pass</li>
+      <li>Once consumed, a test is permanently completed — view your result, no retakes</li>
+    </ul>
+    <a class="btn btn-full" href="login.html">Get Started</a>
+  </div>
 
 </main>
 
@@ -95,20 +127,14 @@
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script>
-// Uses the SAME Supabase Auth session and the SAME getCurrentUser()
-// helper from auth.js that every other page relies on — no separate
-// or duplicate authentication system.
+// Uses the SAME Supabase Auth session / getCurrentUser() helper every
+// other page relies on — no separate auth system. A logged-in user
+// should never see the public homepage as their landing page, so this
+// redirects immediately rather than just toggling nav sections.
 (async () => {
   const user = await getCurrentUser();
-  const loggedIn = !!user;
-
-  document.getElementById('navLoggedOut').style.display = loggedIn ? 'none' : 'flex';
-  document.getElementById('navLoggedIn').style.display = loggedIn ? 'flex' : 'none';
-  document.getElementById('heroLoggedOut').style.display = loggedIn ? 'none' : 'flex';
-  document.getElementById('heroLoggedIn').style.display = loggedIn ? 'flex' : 'none';
-
-  if (loggedIn) {
-    document.getElementById('logoutBtn').addEventListener('click', logoutStudent);
+  if (user) {
+    window.location.href = "dashboard.html";
   }
 })();
 </script>
