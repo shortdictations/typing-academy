@@ -58,76 +58,20 @@
   </div>
 
   <!-- MOCK TEST PASSES -->
-  <h2 style="margin-top:36px;">Mock Test Passes</h2>
-  <p class="lede" style="margin-bottom:18px;">Choose a pass to unlock premium mock tests for 60 days.</p>
+  <h2 style="margin-top:36px;">Choose Your Plan</h2>
+  <p class="lede" style="margin-bottom:18px;">Choose a pass to unlock premium mock tests.</p>
 
-  <div class="passes-grid">
-    <div class="card pass-card">
-      <div class="card-label">SSC Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All SSC typing mocks</li>
-        <li>Access throughout the validity period</li>
-        <li>Non-recurring</li>
-      </ul>
-      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
-        data-product-type="PASS" data-pass-type="SSC">
-        Buy SSC Pass — Coming Soon
-      </button>
-    </div>
-
-    <div class="card pass-card">
-      <div class="card-label">Legal Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All High Court / Legal typing mocks</li>
-        <li>Access throughout the validity period</li>
-        <li>Non-recurring</li>
-      </ul>
-      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
-        data-product-type="PASS" data-pass-type="LEGAL">
-        Buy Legal Pass — Coming Soon
-      </button>
-    </div>
-
-    <div class="card pass-card featured">
-      <span class="best-value-badge">Best Value</span>
-      <div class="card-label">Combo Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All SSC typing mocks</li>
-        <li>All Legal typing mocks</li>
-        <li>One pass for both categories</li>
-        <li>Non-recurring</li>
-      </ul>
-      <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
-        data-product-type="PASS" data-pass-type="COMBO">
-        Buy Combo Pass — Coming Soon
-      </button>
-    </div>
+  <div class="passes-grid" id="passProductsGrid">
+    <div class="loading-strip">Loading plans...</div>
   </div>
 
-  <!-- TEST CREDITS -->
-  <h2 style="margin-top:36px;">Test Credits</h2>
-  <p class="lede" style="margin-bottom:6px;">Don't want a full pass? Buy credits and unlock individual premium mock tests.</p>
-  <p class="lede" style="margin-bottom:18px; font-size:0.85rem;">Each credit unlocks one premium mock test. Credits are valid for 365 days.</p>
+  <!-- CREDIT-BASED TESTS -->
+  <h2 style="margin-top:36px;">Credit-Based Tests</h2>
+  <p class="lede" style="margin-bottom:6px;">Don't want a full pass? Buy credits and attempt individual Credit-Based Tests.</p>
+  <p class="lede" style="margin-bottom:18px; font-size:0.85rem;"><strong>1 Credit = 1 Credit-Based Test.</strong> Credits are separate from SSC, Legal, and Combo Passes.</p>
 
-  <div class="card" style="max-width:420px; border-style:dashed;">
-    <div class="card-label">10 Mock Credits</div>
-    <div class="pass-price">₹99</div>
-    <div class="pass-duration">Valid for 365 Days</div>
-    <ul class="plan-features">
-      <li>Unlock 10 individual premium mocks</li>
-      <li>Credits valid for 365 days</li>
-      <li>Use credits whenever you want</li>
-    </ul>
-    <button class="btn btn-ghost btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
-      data-product-type="CREDIT" data-credits="10">
-      Buy 10 Credits — Coming Soon
-    </button>
+  <div class="passes-grid" id="creditProductsGrid">
+    <div class="loading-strip">Loading credit packages...</div>
   </div>
 
 </main>
