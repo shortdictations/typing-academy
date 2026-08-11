@@ -52,10 +52,14 @@ async function getCurrentUser() {
   return data.user || null;
 }
 
-// Call this at the top of any PROTECTED page (dashboard, typing).
+// Call this at the top of any PROTECTED page (dashboard, mock-test, etc).
 // If nobody is logged in, it redirects to login.html automatically.
-// If somebody IS logged in, it fills in the letterhead's name +
-// logout button, and returns the user object.
+// If somebody IS logged in, it wires up the shared authenticated
+// header (user-name dropdown + Logout inside it, and — if this page
+// has the credit badge markup — the live total credit balance), then
+// returns the user object. One shared implementation, used by every
+// protected page, so header behavior stays consistent everywhere
+// from a single place.
 async function requireLogin() {
   const user = await getCurrentUser();
   if (!user) {
@@ -63,12 +67,35 @@ async function requireLogin() {
     return null;
   }
 
-  const chip = document.getElementById("userChip");
-  if (chip) {
-    const name = user.user_metadata && user.user_metadata.full_name
+  await initAuthHeader(user);
+  return user;
+}
+
+// Wires the user-name dropdown (opens on click, closes on outside
+// click or after Logout) and, only if this page includes the
+// #creditBadgeNum element, fetches and displays the live total
+// credit balance. Pages without that element simply skip it — no
+// per-page branching needed.
+async function initAuthHeader(user) {
+  const nameEl = document.getElementById("userChip");
+  if (nameEl) {
+    nameEl.textContent = (user.user_metadata && user.user_metadata.full_name)
       ? user.user_metadata.full_name
       : user.email;
-    chip.textContent = name;
+  }
+
+  const trigger = document.getElementById("userMenuTrigger");
+  const dropdown = document.getElementById("userMenuDropdown");
+  if (trigger && dropdown) {
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle("open");
+    });
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+        dropdown.classList.remove("open");
+      }
+    });
   }
 
   const logoutBtn = document.getElementById("logoutBtn");
@@ -76,7 +103,35 @@ async function requireLogin() {
     logoutBtn.addEventListener("click", logoutStudent);
   }
 
-  return user;
+  if (document.getElementById("creditBadgeNum")) {
+    await renderHeaderCreditBalance(user.id);
+  }
+}
+
+// Total credits = free + purchased, read live from the existing
+// wallet_credits table (same source subscriptions.html/mock-test.html
+// already use) — no second credit balance is created here.
+async function renderHeaderCreditBalance(userId) {
+  const el = document.getElementById("creditBadgeNum");
+  if (!el) return;
+
+  const { data, error } = await supabaseClient
+    .from("wallet_credits")
+    .select("credits_remaining, expires_at")
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Could not load header credit balance:", error);
+    el.textContent = "—";
+    return;
+  }
+
+  const now = new Date();
+  const total = (data || [])
+    .filter(row => new Date(row.expires_at) > now)
+    .reduce((sum, row) => sum + row.credits_remaining, 0);
+
+  el.textContent = total;
 }
 
 // Check whether a given user id is in the "admins" table
