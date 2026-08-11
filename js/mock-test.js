@@ -2,10 +2,10 @@
    mock-test.js
    ------------------------------------------------------------
    Runs the Mock Test HUB page (mock-test.html) — the SSC/Legal
-   category cards plus the static Credit-Based Tests gateway card.
-   Individual CBT tests are no longer listed here; they live on
-   cbt.html (category selection) and cbt-list.html (the actual
-   per-category list, in js/cbt-list.js). This page needs no
+   category cards plus the two Credit-Based Tests category cards
+   (SSC CBT / Legal CBT). Individual CBT tests are never listed
+   here; they live only on cbt-list.html (in js/cbt-list.js),
+   reached directly from these cards — no intermediate page. This page needs no
    credit-fetching logic anymore — just the login check.
    ============================================================ */
 
