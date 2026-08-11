@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Subscription &amp; Credit Products — TypeShala Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="dashboard.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Admin Panel</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="admin.html">Passages</a>
+      <a href="admin-mock-tests.html">Mock Tests</a>
+      <a href="admin-products.html">Subscription &amp; Credits</a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Admin Only</p>
+  <h1>Subscription &amp; Credit Products</h1>
+  <p class="lede">Manage the Pass Plans and Credit Packages shown on the student Subscription page. This is the price list only — connecting real payments is a separate, later step.</p>
+
+  <!-- ADD / EDIT FORM -->
+  <div class="card">
+    <div class="card-label" id="formLabel">Add a New Product</div>
+    <div class="error-msg" id="formError"></div>
+    <div class="success-msg" id="formSuccess"></div>
+
+    <form id="productForm">
+      <div class="field">
+        <label for="pType">Product Type</label>
+        <select id="pType">
+          <option value="PASS">Pass Plan</option>
+          <option value="CREDIT">Credit Package</option>
+        </select>
+      </div>
+
+      <div class="field" id="passTypeWrap">
+        <label for="pPassType">Pass Type</label>
+        <select id="pPassType">
+          <option value="SSC">SSC</option>
+          <option value="LEGAL">Legal</option>
+          <option value="COMBO">Combo</option>
+        </select>
+      </div>
+
+      <div class="field" id="creditsWrap" style="display:none;">
+        <label for="pCredits">Number of Credits</label>
+        <input type="number" id="pCredits" min="1" step="1" placeholder="e.g. 10">
+      </div>
+
+      <div class="field">
+        <label for="pName">Product Name</label>
+        <input type="text" id="pName" placeholder="e.g. SSC Pass, or 10 Credits" required>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="pPrice">Price (INR)</label>
+          <input type="number" id="pPrice" min="0" step="1" placeholder="e.g. 99" required>
+        </div>
+        <div class="field">
+          <label for="pValidity">Validity (Days)</label>
+          <input type="number" id="pValidity" min="1" step="1" value="60" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pDescription">Description</label>
+        <input type="text" id="pDescription" placeholder="One short line shown on the card">
+      </div>
+
+      <div class="field">
+        <label for="pFeatures">Features (one per line)</label>
+        <textarea id="pFeatures" rows="4" placeholder="All SSC typing mocks
+Access throughout the validity period
+Non-recurring" style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-body);font-size:0.95rem;"></textarea>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="pOrder">Display Order</label>
+          <input type="number" id="pOrder" value="0" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="pActive">Status</label>
+          <select id="pActive">
+            <option value="true" selected>Active (visible to students)</option>
+            <option value="false">Inactive (hidden)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn" id="submitBtn">Add Product</button>
+        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- PASS PLANS LIST -->
+  <div class="card">
+    <div class="card-label">Pass Plans</div>
+    <div id="passListBody"><div class="loading-strip">Loading...</div></div>
+  </div>
+
+  <!-- CREDIT PACKAGES LIST -->
+  <div class="card">
+    <div class="card-label">Credit Packages</div>
+    <div id="creditListBody"><div class="loading-strip">Loading...</div></div>
+  </div>
+
+</main>
+
+<footer class="site-foot">TypeShala Admin Panel</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin-products.js"></script>
+
+</body>
+</html>
