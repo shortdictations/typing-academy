@@ -22,9 +22,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("productForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
+  document.getElementById("saveFreeCreditsBtn").addEventListener("click", saveFreeCredits);
 
+  await loadFreeCreditsSetting();
   await loadProducts();
 });
+
+async function loadFreeCreditsSetting() {
+  const { data, error } = await supabaseClient
+    .from("app_settings")
+    .select("free_signup_credits")
+    .eq("id", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error(error);
+    return;
+  }
+  document.getElementById("freeCreditsInput").value = data.free_signup_credits;
+}
+
+async function saveFreeCredits() {
+  const errorEl = document.getElementById("settingsError");
+  const successEl = document.getElementById("settingsSuccess");
+  errorEl.style.display = "none";
+  successEl.style.display = "none";
+
+  const value = parseInt(document.getElementById("freeCreditsInput").value, 10);
+  if (isNaN(value) || value < 0) {
+    errorEl.textContent = "Please enter a valid number (0 or more).";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  const btn = document.getElementById("saveFreeCreditsBtn");
+  btn.disabled = true;
+
+  const { error } = await supabaseClient
+    .from("app_settings")
+    .update({ free_signup_credits: value })
+    .eq("id", true);
+
+  btn.disabled = false;
+
+  if (error) {
+    errorEl.textContent = error.message || "Could not save. Please try again.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  successEl.textContent = "Saved. This applies to new signups from now on — existing users' credits are unaffected.";
+  successEl.style.display = "block";
+  setTimeout(() => { successEl.style.display = "none"; }, 4000);
+}
 
 function updateTypeFields() {
   const type = document.getElementById("pType").value;
