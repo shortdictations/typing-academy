@@ -403,16 +403,20 @@ p.lede{
   overflow-y: auto;
   user-select: none;
 }
+/* Clean, minimal typing feedback — the current LETTER is the
+   strongest signal; everything else stays quiet and readable. */
 .passage-box .char{ color: var(--ink-soft); }
-.passage-box .char.correct{ color: var(--ok); background: #E9F1EC; }
-.passage-box .char.wrong{ color: var(--white); background: var(--stamp); }
-.passage-box .char.current{ background: var(--brass-light); outline: 1px solid var(--brass); }
+.passage-box .char.correct{ color: var(--ink); }
+.passage-box .char.wrong{ color: var(--stamp); font-weight: 600; }
+.passage-box .char.current{
+  background: rgba(169, 128, 63, 0.16);
+  border-bottom: 2px solid var(--brass);
+  border-radius: 2px;
+}
 
-/* Word-level highlighting (SSC / Court exam style) — layers on
-   top of the per-character correct/wrong/current classes above */
-.passage-box .char.word-current{ background: var(--brass-light); box-shadow: 0 2px 0 var(--brass); }
-.passage-box .char.word-correct{ background: #E9F1EC; text-decoration: underline; text-decoration-color: var(--ok); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.passage-box .char.word-wrong{ text-decoration: underline; text-decoration-color: var(--stamp); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+/* Current word: only the not-yet-typed part gets a hair more
+   contrast than future words — no background, no box, no underline. */
+.passage-box .char.word-current{ color: var(--ink); opacity: 0.6; }
 
 .test-warning-banner{
   background: #FBEAE7;
