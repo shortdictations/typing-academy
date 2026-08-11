@@ -58,65 +58,22 @@
     </div>
   </section>
 
-  <!-- CHOOSE YOUR PLAN -->
+  <!-- CHOOSE YOUR PLAN — loaded live from the products table, the
+       same catalog the Admin Panel and subscriptions.html both use.
+       No plan/price is hardcoded here anymore. -->
   <h2 style="margin-top:20px;">Choose Your Plan</h2>
-  <p class="lede" style="margin-bottom:18px;">Each pass unlocks premium mocks for 60 days.</p>
+  <p class="lede" style="margin-bottom:18px;">Each pass unlocks premium mocks for its validity period.</p>
 
-  <div class="passes-grid">
-    <div class="card pass-card">
-      <div class="card-label">SSC Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All SSC typing mocks</li>
-        <li>Access throughout the validity period</li>
-        <li>Non-recurring</li>
-      </ul>
-      <a class="btn btn-full" href="login.html">Get Started</a>
-    </div>
-
-    <div class="card pass-card">
-      <div class="card-label">Legal Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All High Court / Legal typing mocks</li>
-        <li>Access throughout the validity period</li>
-        <li>Non-recurring</li>
-      </ul>
-      <a class="btn btn-full" href="login.html">Get Started</a>
-    </div>
-
-    <div class="card pass-card featured">
-      <span class="best-value-badge">Best Value</span>
-      <div class="card-label">Combo Pass</div>
-      <div class="pass-price">₹___</div>
-      <div class="pass-duration">60 Days &middot; Non-recurring</div>
-      <ul class="plan-features">
-        <li>All SSC typing mocks</li>
-        <li>All Legal typing mocks</li>
-        <li>One pass for both categories</li>
-        <li>Non-recurring</li>
-      </ul>
-      <a class="btn btn-full" href="login.html">Get Started</a>
-    </div>
+  <div class="passes-grid" id="homePassGrid">
+    <div class="loading-strip">Loading plans...</div>
   </div>
 
   <!-- CREDIT-BASED TESTS -->
   <h2 style="margin-top:36px;">Credit-Based Tests</h2>
-  <p class="lede" style="margin-bottom:18px;">Don't want a full pass? Unlock individual tests one at a time — separate from any Pass.</p>
+  <p class="lede" style="margin-bottom:18px;">Don't want a full pass? Unlock individual tests one at a time — separate from any Pass. New users get 3 Free Credits automatically.</p>
 
-  <div class="card" style="max-width:520px; border-style:dashed;">
-    <div class="card-label">1 Credit = 1 Test</div>
-    <div class="pass-price">₹99</div>
-    <div class="pass-duration">10 Credits &middot; Valid for 365 Days</div>
-    <ul class="plan-features">
-      <li>&#127873; New users get 3 Free Credits automatically</li>
-      <li>Each Credit-Based Test costs exactly 1 credit</li>
-      <li>Independent of SSC Pass, Legal Pass, or Combo Pass</li>
-      <li>Once consumed, a test is permanently completed — view your result, no retakes</li>
-    </ul>
-    <a class="btn btn-full" href="login.html">Get Started</a>
+  <div class="passes-grid" id="homeCreditGrid">
+    <div class="loading-strip">Loading credit packages...</div>
   </div>
 
 </main>
@@ -137,6 +94,63 @@
     window.location.href = "dashboard.html";
   }
 })();
+
+// Loads the SAME products table used by Admin Panel and
+// subscriptions.html — no plan/price is duplicated or hardcoded
+// here. RLS's "active = true" clause requires no login, so this
+// works correctly for logged-out visitors too.
+(async () => {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true });
+
+  const passGrid = document.getElementById("homePassGrid");
+  const creditGrid = document.getElementById("homeCreditGrid");
+
+  if (error) {
+    console.error(error);
+    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
+    creditGrid.innerHTML = '<div class="empty-state">Could not load credit packages.</div>';
+    return;
+  }
+
+  renderHomeProducts(data.filter(p => p.product_type === "PASS"), passGrid, false);
+  renderHomeProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid, true);
+})();
+
+function renderHomeProducts(products, grid, isCredit) {
+  if (products.length === 0) {
+    grid.innerHTML = '<div class="empty-state">Nothing available right now.</div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const featured = p.pass_type === "COMBO" ? " featured" : "";
+    const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
+    const duration = isCredit
+      ? p.credits + " Credits &middot; Valid for " + p.validity_days + " Days"
+      : p.validity_days + " Days &middot; Non-recurring";
+
+    return `
+      <div class="card pass-card${featured}">
+        ${badge}
+        <div class="card-label">${escapeHtmlHome(p.name)}</div>
+        <div class="pass-price">&#8377;${p.price}</div>
+        <div class="pass-duration">${duration}</div>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlHome(p.description) + "</p>" : ""}
+        ${p.features && p.features.length ? '<ul class="plan-features">' + p.features.map(f => "<li>" + escapeHtmlHome(f) + "</li>").join("") + "</ul>" : ""}
+        <a class="btn btn-full" href="login.html">Get Started</a>
+      </div>`;
+  }).join("");
+}
+
+function escapeHtmlHome(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
 </script>
 
 </body>
