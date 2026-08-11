@@ -1,9 +1,13 @@
 /* ============================================================
    dashboard.js
    ------------------------------------------------------------
-   Loads the logged-in student's saved results from the
-   typing_results table and renders: their name, summary stats,
-   and their last 10 typing tests.
+   Powers the Performance Dashboard from mock_test_results — the
+   SAME table already used by mock-test-attempt.js for SSC Mock
+   Tests, Legal Mock Tests, AND Credit-Based Tests (all three test
+   types share this one result table; confirmed by inspecting the
+   save logic in js/mock-test-attempt.js). No merge with
+   typing_results is needed or performed — that table belonged to
+   the retired practice system and is no longer read here at all.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -13,9 +17,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   showStudentName(user);
   await showAdminLinkIfApplicable(user);
 
+  // mock_tests(access_type) is joined via the existing mock_test_id
+  // foreign key so each row's Test Type (SSC/Legal/Credit-Based) can
+  // be shown without guessing or storing a duplicate field.
   const { data: results, error } = await supabaseClient
-    .from("typing_results")
-    .select("*")
+    .from("mock_test_results")
+    .select("*, mock_tests(access_type)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -27,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   renderSummary(results);
-  renderHistoryTable(results.slice(0, 10)); // last 10 tests only
+  renderMockTestHistory(results); // complete history — no 10-row limit
   renderCharts(results);
 });
 
@@ -45,10 +52,25 @@ async function showAdminLinkIfApplicable(user) {
   if (link && admin) link.style.display = "inline-block";
 }
 
+// Test Type is derived from the joined mock_tests row, not stored
+// redundantly. Falls back gracefully if the original mock_tests row
+// was ever deleted (mock_test_id -> SET NULL on delete).
+function testTypeLabel(row) {
+  if (!row.mock_tests) return "Mock Test";
+  if (row.mock_tests.access_type === "credit") return "Credit-Based Test";
+  return row.category === "ssc" ? "SSC Mock Test" : "Legal Mock Test";
+}
+
 function renderSummary(results) {
   const testsTaken = results.length;
+
+  // Primary WPM metric: Net WPM — the same accuracy-adjusted figure
+  // already used for grading (gradeFor()) on the result page itself,
+  // so the dashboard's headline number matches what students already
+  // see immediately after finishing a test. Gross WPM remains visible
+  // per-row in the history table below, just not used for this average.
   const avgWpm = testsTaken
-    ? Math.round(results.reduce((sum, r) => sum + r.wpm, 0) / testsTaken)
+    ? Math.round(results.reduce((sum, r) => sum + r.net_wpm, 0) / testsTaken)
     : 0;
   const avgAccuracy = testsTaken
     ? Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / testsTaken)
@@ -58,20 +80,21 @@ function renderSummary(results) {
   document.getElementById("statAvgWpm").textContent = avgWpm;
   document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
 
-  const lastPracticeEl = document.getElementById("statLastPractice");
+  const lastTestEl = document.getElementById("statLastTest");
   if (testsTaken) {
     // results is ordered newest-first, so index 0 is the most recent test
     const lastDate = new Date(results[0].created_at);
-    lastPracticeEl.textContent = lastDate.toLocaleDateString("en-IN", {
+    lastTestEl.textContent = lastDate.toLocaleDateString("en-IN", {
       day: "2-digit", month: "short", year: "numeric"
     });
   } else {
-    lastPracticeEl.textContent = "—";
+    lastTestEl.textContent = "—";
   }
 }
 
-// Draws the WPM and Accuracy line charts using Chart.js, oldest test
-// first (left) to most recent (right).
+// Draws the WPM (Net WPM) and Accuracy line charts using Chart.js,
+// oldest test first (left) to most recent (right). Same chart
+// implementation as before — only the data source and field changed.
 function renderCharts(results) {
   if (results.length === 0) {
     document.getElementById("wpmChart").style.display = "none";
@@ -81,15 +104,13 @@ function renderCharts(results) {
     return;
   }
 
-  // results comes in newest-first; charts should read left-to-right
-  // in chronological order, so reverse a copy for plotting.
   const chronological = results.slice().reverse();
 
   const labels = chronological.map(r => {
     const d = new Date(r.created_at);
     return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
   });
-  const wpmValues = chronological.map(r => r.wpm);
+  const wpmValues = chronological.map(r => r.net_wpm);
   const accuracyValues = chronological.map(r => r.accuracy);
 
   new Chart(document.getElementById("wpmChart"), {
@@ -97,7 +118,7 @@ function renderCharts(results) {
     data: {
       labels: labels,
       datasets: [{
-        label: "WPM",
+        label: "Net WPM",
         data: wpmValues,
         borderColor: "#B23A2E",
         backgroundColor: "rgba(178,58,46,0.12)",
@@ -135,32 +156,50 @@ function renderCharts(results) {
   });
 }
 
-function renderHistoryTable(results) {
+// Complete Mock Test History — SSC + Legal + Credit-Based unified,
+// newest first, no row limit. "View Result" reuses the same inline-
+// expand pattern already used on mock-history.html, rather than
+// building a separate result-viewing page.
+function renderMockTestHistory(results) {
   const container = document.getElementById("historyBody");
 
   if (results.length === 0) {
     container.innerHTML =
-      '<div class="empty-state">No practice sessions yet. Start your first typing test to see your history here.</div>';
+      '<div class="empty-state">No tests completed yet.<br><br>' +
+      '<a class="btn" href="mock-test.html">Take a Mock Test</a></div>';
     return;
   }
 
   let rows = "";
-  results.forEach(r => {
+  results.forEach((r, i) => {
     const date = new Date(r.created_at);
     const dateStr = date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+    const categoryLabel = r.category === "ssc" ? "SSC" : (r.category === "legal" ? "Legal" : "-");
+    const rowId = "hist-" + i;
 
     rows += `
       <tr>
-        <td>${dateStr}<br><span style="opacity:0.6;font-size:0.75rem">${timeStr}</span></td>
-        <td>${escapeHtml(r.passage_title || "-")}</td>
-        <td>${r.duration} min</td>
-        <td>${r.wpm}</td>
-        <td>${r.gross_wpm != null ? r.gross_wpm : "-"}</td>
-        <td>${r.net_wpm != null ? r.net_wpm : "-"}</td>
+        <td>${escapeHtml(r.mock_name || r.passage_title || "-")}</td>
+        <td><span class="pill">${escapeHtml(testTypeLabel(r))}</span></td>
+        <td>${escapeHtml(categoryLabel)}</td>
+        <td>${r.net_wpm}</td>
         <td>${r.accuracy}%</td>
-        <td>${r.errors}</td>
-        <td>${r.total_words != null ? r.total_words : "-"}</td>
+        <td>${dateStr}<br><span style="opacity:0.6;font-size:0.75rem">${timeStr}</span></td>
+        <td><button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleHistoryDetail('${rowId}')">View Result</button></td>
+      </tr>
+      <tr id="${rowId}" style="display:none;">
+        <td colspan="7" style="background:var(--paper-dark); font-size:0.85rem;">
+          <strong>Passage:</strong> ${escapeHtml(r.passage_title || "-")}
+          &nbsp;&middot;&nbsp;
+          <strong>Duration:</strong> ${r.duration} min
+          &nbsp;&middot;&nbsp;
+          <strong>Gross WPM:</strong> ${r.gross_wpm}
+          &nbsp;&middot;&nbsp;
+          <strong>Errors:</strong> ${r.errors}
+          &nbsp;&middot;&nbsp;
+          <strong>Total Words:</strong> ${r.total_words}
+        </td>
       </tr>`;
   });
 
@@ -169,20 +208,23 @@ function renderHistoryTable(results) {
     <table class="marksheet">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Passage</th>
-          <th>Duration</th>
+          <th>Test Name</th>
+          <th>Test Type</th>
+          <th>Category</th>
           <th>WPM</th>
-          <th>Gross WPM</th>
-          <th>Net WPM</th>
           <th>Accuracy</th>
-          <th>Errors</th>
-          <th>Total Words</th>
+          <th>Date</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
     </div>`;
+}
+
+function toggleHistoryDetail(rowId) {
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = row.style.display === "none" ? "table-row" : "none";
 }
 
 function escapeHtml(str) {
