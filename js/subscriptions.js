@@ -24,7 +24,91 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderPassStatus("LEGAL", passes || [], document.getElementById("accessLegal"));
   renderPassStatus("COMBO", passes || [], document.getElementById("accessCombo"));
   renderCreditStatus(credits || [], document.getElementById("accessCredits"));
+
+  await loadProductCatalog();
 });
+
+// Reads the admin-managed products catalog and renders both
+// sections. "Buy" stays an inert placeholder — no payment gateway
+// is connected yet.
+async function loadProductCatalog() {
+  const passGrid = document.getElementById("passProductsGrid");
+  const creditGrid = document.getElementById("creditProductsGrid");
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
+    creditGrid.innerHTML = '<div class="empty-state">Could not load credit packages.</div>';
+    return;
+  }
+
+  renderPassProducts(data.filter(p => p.product_type === "PASS"), passGrid);
+  renderCreditProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid);
+}
+
+function featuresListHtml(features) {
+  if (!features || features.length === 0) return "";
+  return '<ul class="plan-features">' +
+    features.map(f => "<li>" + escapeHtmlLocal(f) + "</li>").join("") +
+    "</ul>";
+}
+
+function renderPassProducts(products, grid) {
+  if (products.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No plans available right now.</div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const featured = p.pass_type === "COMBO" ? " featured" : "";
+    const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
+    return `
+      <div class="card pass-card${featured}">
+        ${badge}
+        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
+        <div class="pass-price">&#8377;${p.price}</div>
+        <div class="pass-duration">${p.validity_days} Days &middot; Non-recurring</div>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        ${featuresListHtml(p.features)}
+        <button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+          data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">
+          Buy ${escapeHtmlLocal(p.name)} — Coming Soon
+        </button>
+      </div>`;
+  }).join("");
+}
+
+function renderCreditProducts(products, grid) {
+  if (products.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No credit packages available right now.</div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => `
+      <div class="card pass-card">
+        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
+        <div class="pass-price">&#8377;${p.price}</div>
+        <div class="pass-duration">${p.credits} Credits &middot; Valid for ${p.validity_days} Days</div>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        ${featuresListHtml(p.features)}
+        <button class="btn btn-ghost btn-full" disabled style="opacity:0.6; cursor:not-allowed;"
+          data-product-id="${p.id}" data-product-type="CREDIT" data-credits="${p.credits}">
+          Buy ${escapeHtmlLocal(p.name)} — Coming Soon
+        </button>
+      </div>`).join("");
+}
+
+function escapeHtmlLocal(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()
 // AND status != 'cancelled' — same rule the database access-control
