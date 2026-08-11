@@ -53,14 +53,24 @@
   </div>
 
   <!-- CREDIT-BASED TESTS — a separate system from SSC/Legal/Combo Pass.
-       Gateway only: individual CBT tests live on cbt.html / cbt-list.html,
-       never listed here. -->
+       Two category cards directly here — no intermediate page.
+       Individual CBT tests live only on cbt-list.html, never listed here. -->
   <h2 style="margin-top:36px;">Credit-Based Tests</h2>
-  <div class="feature" style="padding:24px; max-width:480px;">
-    <div class="num">CBT</div>
-    <h3>1 Credit = 1 Test</h3>
-    <p>Independent of any Pass. New users receive 3 Free Credits automatically. Once a test is completed, it cannot be retaken.</p>
-    <a class="btn" style="margin-top:14px;" href="cbt.html">View CBT Tests</a>
+  <p class="lede" style="margin-bottom:14px;">1 Credit = 1 Test. New users receive 3 Free Credits.</p>
+
+  <div class="passes-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="feature" style="padding:24px;">
+      <div class="num">SSC CBT</div>
+      <h3>SSC Credit-Based Tests</h3>
+      <p>SSC-specific Credit-Based Tests. 1 Credit = 1 Test.</p>
+      <a class="btn" style="margin-top:14px;" href="cbt-list.html?category=ssc">View Tests</a>
+    </div>
+    <div class="feature" style="padding:24px;">
+      <div class="num">LEGAL CBT</div>
+      <h3>Legal Credit-Based Tests</h3>
+      <p>Legal/Court-specific Credit-Based Tests. 1 Credit = 1 Test.</p>
+      <a class="btn" style="margin-top:14px;" href="cbt-list.html?category=legal">View Tests</a>
+    </div>
   </div>
 
 </main>
