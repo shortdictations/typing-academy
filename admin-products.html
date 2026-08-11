@@ -37,6 +37,21 @@
   <h1>Subscription &amp; Credit Products</h1>
   <p class="lede">Manage the Pass Plans and Credit Packages shown on the student Subscription page. This is the price list only — connecting real payments is a separate, later step.</p>
 
+  <!-- FREE SIGNUP CREDITS SETTING -->
+  <div class="card" style="max-width:420px;">
+    <div class="card-label">New User Free Credits</div>
+    <div class="error-msg" id="settingsError"></div>
+    <div class="success-msg" id="settingsSuccess"></div>
+    <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:0;">Every new account automatically receives this many free credits, once.</p>
+    <div style="display:flex; gap:10px; align-items:flex-end;">
+      <div class="field" style="margin-bottom:0;">
+        <label for="freeCreditsInput">Free Credits</label>
+        <input type="number" id="freeCreditsInput" min="0" step="1" style="width:100px;">
+      </div>
+      <button type="button" class="btn" id="saveFreeCreditsBtn">Save</button>
+    </div>
+  </div>
+
   <!-- ADD / EDIT FORM -->
   <div class="card">
     <div class="card-label" id="formLabel">Add a New Product</div>
