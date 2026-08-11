@@ -18,10 +18,13 @@
       </span>
     </a>
     <nav class="nav-links">
-      <span id="userChip"></span>
-      <a href="dashboard.html">Dashboard</a>
       <a href="admin-mock-tests.html">Mock Tests</a>
-      <button id="logoutBtn">Logout</button>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
