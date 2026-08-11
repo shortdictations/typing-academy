@@ -219,7 +219,7 @@ function startMockTest() {
 
   secondsLeft = mockTest.duration * 60;
   updateTimerDisplay();
-  updateLiveStats(0, 100);
+  updateLiveStats(0, 100, 0);
 
   testActive = false;
   testScreenOpen = true;
@@ -349,7 +349,8 @@ function onTypingInput(e) {
   const accuracy = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
   const minutesElapsed = testStartTime ? (Date.now() - testStartTime) / 60000 : 0;
   const wpm = minutesElapsed > 0 ? Math.round((correct / 5) / minutesElapsed) : 0;
-  updateLiveStats(wpm, accuracy);
+  const liveMistakes = computeWordMistakeCount(typed);
+  updateLiveStats(wpm, accuracy, liveMistakes);
 
   if (typed.length >= passageChars.length) {
     endMockTest("completed");
@@ -357,27 +358,59 @@ function onTypingInput(e) {
 }
 
 function applyWordHighlighting(typed) {
+  // Visual word-level decoration removed per redesign — correctness is
+  // conveyed purely by each character's own color (.correct/.wrong).
+  // word-current only gives the not-yet-typed part of the active word
+  // a hair more contrast than future text; no background/box/underline.
   const cursorPos = typed.length;
   wordRanges.forEach(w => {
     for (let i = w.start; i < w.end; i++) {
       const span = document.getElementById("amch-" + i);
       if (!span) continue;
-      span.classList.remove("word-current", "word-correct", "word-wrong");
-
-      if (w.end <= cursorPos) {
-        const typedWord = typed.substring(w.start, w.end);
-        span.classList.add(typedWord === w.text ? "word-correct" : "word-wrong");
-      } else if (cursorPos >= w.start && cursorPos <= w.end) {
+      span.classList.remove("word-current");
+      if (cursorPos >= w.start && cursorPos <= w.end) {
         span.classList.add("word-current");
       }
     }
   });
 }
 
+// Word-wise mistake count (Requirement: 1+ wrong chars in a word = 1
+// mistake, never more). Compares only the portion of each word actually
+// typed so far, so it's accurate live (a word can start counting as a
+// mistake mid-word, before it's finished) and identical at test end.
+function computeWordMistakeCount(typed) {
+  let mistakes = 0;
+  wordRanges.forEach(w => {
+    const typedEnd = Math.min(typed.length, w.end);
+    if (typedEnd <= w.start) return; // nothing typed in this word yet
+    const typedPortion = typed.substring(w.start, typedEnd);
+    const expectedPortion = w.text.substring(0, typedEnd - w.start);
+    if (typedPortion !== expectedPortion) mistakes++;
+  });
+  return mistakes;
+}
+
+// Auto-scroll: only moves the passage box's own scroll position when
+// the current character is about to leave a comfortable "safe zone"
+// (top 20%–75% of the box) — never on every keystroke, never touches
+// page scroll, never touches focus. Repositions the line into the
+// lower-middle of the box, not jammed against an edge.
 function scrollCurrentLineIntoView(typed) {
   const idx = Math.min(typed.length, passageChars.length - 1);
   const span = document.getElementById("amch-" + idx);
-  if (span) span.scrollIntoView({ block: "nearest", inline: "nearest" });
+  const box = document.getElementById("passageBox");
+  if (!span || !box) return;
+
+  const boxRect = box.getBoundingClientRect();
+  const spanRect = span.getBoundingClientRect();
+  const safeTop = boxRect.top + boxRect.height * 0.20;
+  const safeBottom = boxRect.top + boxRect.height * 0.75;
+
+  if (spanRect.top < safeTop || spanRect.bottom > safeBottom) {
+    const delta = (spanRect.top - boxRect.top) - (boxRect.height * 0.35);
+    box.scrollTo({ top: box.scrollTop + delta, behavior: "smooth" });
+  }
 }
 
 function computeWordStats(typed) {
@@ -406,9 +439,11 @@ function updateTimerDisplay() {
   document.getElementById("timerBox").textContent = m + ":" + s;
 }
 
-function updateLiveStats(wpm, accuracy) {
+function updateLiveStats(wpm, accuracy, mistakes) {
   document.getElementById("liveWpm").textContent = wpm;
   document.getElementById("liveAccuracy").textContent = accuracy + "%";
+  const mistakesEl = document.getElementById("liveMistakes");
+  if (mistakesEl) mistakesEl.textContent = mistakes;
 }
 
 function showWarningBanner(text) {
@@ -448,7 +483,11 @@ async function endMockTest(reason) {
   const totalTypedChars = typed.length;
   const accuracy = totalTypedChars > 0 ? Math.round((correct / totalTypedChars) * 100) : 0;
   const wordStats = computeWordStats(typed);
-  const errors = totalTypedChars - correct;
+  // "errors"/"Mistakes" now means incorrectly-typed WORDS, not characters.
+  // Accuracy above is untouched — it was already character-based and
+  // does not depend on this value, per the explicit instruction not to
+  // change it unless it directly relied on the old character-error count.
+  const errors = computeWordMistakeCount(typed);
 
   const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : mockTest.duration;
   const minutesForWpm = reason === "time_up" ? mockTest.duration : Math.max(elapsedMinutes, 0.05);
