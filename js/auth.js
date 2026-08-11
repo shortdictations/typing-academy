@@ -103,8 +103,10 @@ async function initAuthHeader(user) {
       <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
       <div class="avatar-dropdown-email">${escapeHtmlAuth(user.email)}</div>
     </div>
-    <div class="avatar-dropdown-row"><span>Current Plan</span><strong id="ddPlan">—</strong></div>
-    <div class="avatar-dropdown-row"><span>Total Credits</span><strong id="ddCredits">—</strong></div>
+    <div class="avatar-dropdown-stats">
+      <div class="avatar-dropdown-row"><span class="row-label"><span class="row-icon">&#127891;</span>Current Plan</span><strong id="ddPlan">—</strong></div>
+      <div class="avatar-dropdown-row"><span class="row-label"><span class="row-icon">&#129689;</span>Total Credits</span><strong id="ddCredits">—</strong></div>
+    </div>
     <button class="avatar-dropdown-logout" id="logoutBtn" type="button">Logout</button>`;
 
   trigger.addEventListener("click", (e) => {
