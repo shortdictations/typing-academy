@@ -17,24 +17,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   showStudentName(user);
   await showAdminLinkIfApplicable(user);
 
-  // mock_tests(access_type) is joined via the existing mock_test_id
-  // foreign key so each row's Test Type (SSC/Legal/Credit-Based) can
-  // be shown without guessing or storing a duplicate field.
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
-    .select("*, mock_tests(access_type)")
+    .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error(error);
-    document.getElementById("historyBody").innerHTML =
-      '<div class="empty-state">Could not load your history. Please refresh the page.</div>';
     return;
   }
 
   renderSummary(results);
-  renderMockTestHistory(results); // complete history — no 10-row limit
   renderCharts(results);
 });
 
@@ -50,15 +44,6 @@ async function showAdminLinkIfApplicable(user) {
   const admin = await isAdminUser(user.id);
   const link = document.getElementById("adminLink");
   if (link && admin) link.style.display = "inline-block";
-}
-
-// Test Type is derived from the joined mock_tests row, not stored
-// redundantly. Falls back gracefully if the original mock_tests row
-// was ever deleted (mock_test_id -> SET NULL on delete).
-function testTypeLabel(row) {
-  if (!row.mock_tests) return "Mock Test";
-  if (row.mock_tests.access_type === "credit") return "Credit-Based Test";
-  return row.category === "ssc" ? "SSC Mock Test" : "Legal Mock Test";
 }
 
 function renderSummary(results) {
@@ -154,81 +139,4 @@ function renderCharts(results) {
       scales: { y: { beginAtZero: true, max: 100 } }
     }
   });
-}
-
-// Complete Mock Test History — SSC + Legal + Credit-Based unified,
-// newest first, no row limit. "View Result" reuses the same inline-
-// expand pattern already used on mock-history.html, rather than
-// building a separate result-viewing page.
-function renderMockTestHistory(results) {
-  const container = document.getElementById("historyBody");
-
-  if (results.length === 0) {
-    container.innerHTML =
-      '<div class="empty-state">No tests completed yet.<br><br>' +
-      '<a class="btn" href="mock-test.html">Take a Mock Test</a></div>';
-    return;
-  }
-
-  let rows = "";
-  results.forEach((r, i) => {
-    const date = new Date(r.created_at);
-    const dateStr = date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
-    const categoryLabel = r.category === "ssc" ? "SSC" : (r.category === "legal" ? "Legal" : "-");
-    const rowId = "hist-" + i;
-
-    rows += `
-      <tr>
-        <td>${escapeHtml(r.mock_name || r.passage_title || "-")}</td>
-        <td><span class="pill">${escapeHtml(testTypeLabel(r))}</span></td>
-        <td>${escapeHtml(categoryLabel)}</td>
-        <td>${r.net_wpm}</td>
-        <td>${r.accuracy}%</td>
-        <td>${dateStr}<br><span style="opacity:0.6;font-size:0.75rem">${timeStr}</span></td>
-        <td><button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleHistoryDetail('${rowId}')">View Result</button></td>
-      </tr>
-      <tr id="${rowId}" style="display:none;">
-        <td colspan="7" style="background:var(--paper-dark); font-size:0.85rem;">
-          <strong>Passage:</strong> ${escapeHtml(r.passage_title || "-")}
-          &nbsp;&middot;&nbsp;
-          <strong>Duration:</strong> ${r.duration} min
-          &nbsp;&middot;&nbsp;
-          <strong>Gross WPM:</strong> ${r.gross_wpm}
-          &nbsp;&middot;&nbsp;
-          <strong>Errors:</strong> ${r.errors}
-          &nbsp;&middot;&nbsp;
-          <strong>Total Words:</strong> ${r.total_words}
-        </td>
-      </tr>`;
-  });
-
-  container.innerHTML = `
-    <div style="overflow-x:auto;">
-    <table class="marksheet">
-      <thead>
-        <tr>
-          <th>Test Name</th>
-          <th>Test Type</th>
-          <th>Category</th>
-          <th>WPM</th>
-          <th>Accuracy</th>
-          <th>Date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-    </div>`;
-}
-
-function toggleHistoryDetail(rowId) {
-  const row = document.getElementById(rowId);
-  if (row) row.style.display = row.style.display === "none" ? "table-row" : "none";
-}
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
 }
