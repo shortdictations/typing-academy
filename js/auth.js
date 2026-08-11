@@ -43,7 +43,7 @@ async function loginStudent(email, password) {
 // Log the current student out, then send them to the login page
 async function logoutStudent() {
   await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
 // Get the currently logged-in user (or null if nobody is logged in)
