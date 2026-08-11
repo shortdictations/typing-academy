@@ -200,6 +200,14 @@ a{ color: inherit; }
 }
 .user-menu-trigger:hover{ opacity: 0.85; }
 .user-menu-trigger:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
+/* Beats ".nav-links button" (which was drawing the border/padding
+   box around the avatar) via higher specificity — two classes vs
+   one class + one element. This is the actual, confirmed fix. */
+.nav-links .user-menu-trigger{
+  border: none;
+  padding: 0;
+  background: transparent;
+}
 .user-menu-dropdown{
   position: absolute;
   top: 100%;
@@ -288,13 +296,13 @@ a{ color: inherit; }
 }
 .avatar-dropdown-name{ font-weight: 700; font-family: var(--font-display); font-size: 0.95rem; color: var(--ink); }
 .avatar-dropdown-email{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 3px; word-break: break-all; }
-.avatar-dropdown-stats{ padding: 8px 8px; }
+.avatar-dropdown-stats{ padding: 6px 8px; }
 .avatar-dropdown-row{
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 9px 10px;
+  padding: 9px 8px;
   font-size: 0.8rem;
   color: var(--ink-soft);
   border-radius: 6px;
@@ -303,7 +311,7 @@ a{ color: inherit; }
 .avatar-dropdown-row .row-icon{ font-size: 0.95rem; flex: none; }
 .avatar-dropdown-row strong{ color: var(--ink); text-align: right; font-weight: 600; }
 .user-menu-dropdown .avatar-dropdown-logout{
-  margin: 4px 10px 12px;
+  margin: 4px 16px 12px;
   padding: 10px;
   text-align: center;
   border-radius: 6px;
@@ -314,6 +322,14 @@ a{ color: inherit; }
   transition: background 0.15s ease;
 }
 .user-menu-dropdown .avatar-dropdown-logout:hover{ background: var(--stamp-dark); }
+
+/* Current Plan / Total Credits are clickable — same subtle hover
+   treatment as the plain dropdown links elsewhere on the site */
+.avatar-dropdown-row.clickable{
+  cursor: pointer;
+  text-decoration: none;
+}
+.avatar-dropdown-row.clickable:hover{ background: var(--paper-dark); }
 
 /* ---------- Hamburger + mobile sidebar, built via JS ---------- */
 .hamburger-btn{
