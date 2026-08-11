@@ -17,10 +17,6 @@
         <span class="subtitle">Typing Practice Centre</span>
       </span>
     </a>
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="login.html">Login</a>
-    </nav>
   </div>
 </header>
 
@@ -36,15 +32,19 @@
     <form id="registerForm">
       <div class="field">
         <label for="regName">Full name</label>
-        <input type="text" id="regName" required autocomplete="name">
+        <input type="text" id="regName" placeholder="Write your full name" required autocomplete="name">
       </div>
       <div class="field">
         <label for="regEmail">Email</label>
-        <input type="email" id="regEmail" required autocomplete="email">
+        <input type="email" id="regEmail" placeholder="Enter your mail address" required autocomplete="email">
       </div>
       <div class="field">
         <label for="regPassword">Password</label>
-        <input type="password" id="regPassword" required minlength="6" autocomplete="new-password">
+        <input type="password" id="regPassword" placeholder="Enter your password" required minlength="6" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="regConfirmPassword">Confirm Password</label>
+        <input type="password" id="regConfirmPassword" placeholder="Rewrite your password" required minlength="6" autocomplete="new-password">
       </div>
       <button type="submit" class="btn btn-full" id="registerBtn">Create account</button>
     </form>
@@ -99,6 +99,15 @@ function showSuccess(text) {
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideMessages();
+
+  const password = document.getElementById('regPassword').value;
+  const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+  if (password !== confirmPassword) {
+    showError('Passwords do not match.');
+    return; // Supabase signup is never called when passwords don't match
+  }
+
   const btn = document.getElementById('registerBtn');
   btn.disabled = true;
   btn.textContent = 'Creating account...';
@@ -106,8 +115,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   try {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
-    const password = document.getElementById('regPassword').value;
-    await registerStudent(name, email, password);
+    await registerStudent(name, email, password); // only the actual password is ever sent
     showSuccess('Account created! Redirecting you to login...');
     document.getElementById('registerForm').reset();
     setTimeout(() => { window.location.href = 'login.html'; }, 1500);
