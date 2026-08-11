@@ -18,10 +18,15 @@
       </span>
     </a>
     <nav class="nav-links">
-      <span id="userChip"></span>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="mock-test.html">Mock Test</a>
-      <button id="logoutBtn">Logout</button>
+      <a href="mock-test.html">Mock Tests</a>
+      <a href="subscriptions.html">Credits</a>
+      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
