@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     .from("mock_tests")
     .select("*")
     .eq("category", category)
+    .neq("access_type", "credit") // Credit-Based Tests never appear in the pass-based lists
     .eq("active", true)
     .order("display_order", { ascending: true });
 
