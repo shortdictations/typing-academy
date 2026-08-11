@@ -117,6 +117,15 @@ async function handleSubmit(e) {
     active: document.getElementById("pActive").value === "true"
   };
 
+  // plan_code is only ever set on CREATION — the field is disabled during
+  // edit and excluded from the payload entirely, so an existing product's
+  // stable identifier can never be silently changed and break the meaning
+  // behind entitlements that already reference it.
+  if (!editingId) {
+    const planCode = document.getElementById("pPlanCode").value.trim();
+    if (planCode) payload.plan_code = planCode;
+  }
+
   if (type === "CREDIT" && !payload.credits) {
     showFormError("Please enter the number of credits for this package.");
     submitBtn.disabled = false;
@@ -149,6 +158,8 @@ function startEdit(id) {
   editingId = id;
   document.getElementById("pType").value = p.product_type;
   updateTypeFields();
+  document.getElementById("pPlanCode").value = p.plan_code || "";
+  document.getElementById("pPlanCode").disabled = true;
   if (p.product_type === "PASS") document.getElementById("pPassType").value = p.pass_type;
   if (p.product_type === "CREDIT") document.getElementById("pCredits").value = p.credits;
   document.getElementById("pName").value = p.name;
@@ -168,6 +179,7 @@ function startEdit(id) {
 function exitEditMode() {
   editingId = null;
   document.getElementById("productForm").reset();
+  document.getElementById("pPlanCode").disabled = false;
   updateTypeFields();
   document.getElementById("formLabel").textContent = "Add a New Product";
   document.getElementById("submitBtn").textContent = "Add Product";
