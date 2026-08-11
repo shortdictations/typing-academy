@@ -115,6 +115,57 @@ a{ color: inherit; }
 }
 .nav-links button:hover{ background: var(--brass); color: var(--ink); }
 
+/* ---------- Public homepage header only (index.html) ----------
+   Scoped entirely to .public-header so no other page's header,
+   nav, or button styling is affected — the shared .letterhead-inner,
+   .brand, and .btn rules above are untouched for every other page. */
+.public-header{
+  flex-wrap: nowrap; /* the header itself never wraps to a 2nd row */
+}
+.public-header .brand{
+  min-width: 0;    /* lets the brand shrink instead of forcing overflow */
+  flex-shrink: 1;
+}
+.public-header .brand-text{ min-width: 0; overflow: hidden; }
+.public-header .brand-text .title{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.public-header .nav-links{
+  flex-wrap: nowrap;
+  flex-shrink: 0; /* Get Started never shrinks/wraps, brand shrinks first */
+}
+.public-header .btn{
+  /* Fixes the "invisible until hover" bug: base .btn defaults to the
+     same navy as this header's background. Brass gives real contrast
+     in the normal (non-hover) state, matching the site's palette. */
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.public-header .btn:hover{
+  background: var(--stamp);
+  border-color: var(--stamp);
+  color: var(--paper);
+}
+
+@media (max-width: 480px){
+  .public-header .seal{ width: 28px; height: 28px; font-size: 12px; }
+  .public-header .brand{ gap: 6px; }
+  .public-header .brand-text .title{ font-size: 1.02rem; }
+  .public-header .brand-text .subtitle{ font-size: 0.58rem; letter-spacing: 0.08em; }
+  .public-header .btn{ padding: 8px 14px; font-size: 0.8rem; }
+}
+
+@media (max-width: 360px){
+  /* Subtitle hidden only at the narrowest widths, per spec — TS,
+     TypeShala, and Get Started all remain visible on one row. */
+  .public-header .brand-text .subtitle{ display: none; }
+}
+
 /* ---------- Authenticated header: user menu dropdown + credit badge ---------- */
 .credit-badge{
   display: inline-flex;
