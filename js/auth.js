@@ -104,8 +104,8 @@ async function initAuthHeader(user) {
       <div class="avatar-dropdown-email">${escapeHtmlAuth(user.email)}</div>
     </div>
     <div class="avatar-dropdown-stats">
-      <div class="avatar-dropdown-row"><span class="row-label"><span class="row-icon">&#127891;</span>Current Plan</span><strong id="ddPlan">—</strong></div>
-      <div class="avatar-dropdown-row"><span class="row-label"><span class="row-icon">&#129689;</span>Total Credits</span><strong id="ddCredits">—</strong></div>
+      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#127891;</span>Current Plan</span><strong id="ddPlan">—</strong></a>
+      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#129689;</span>Total Credits</span><strong id="ddCredits">—</strong></a>
     </div>
     <button class="avatar-dropdown-logout" id="logoutBtn" type="button">Logout</button>`;
 
@@ -267,7 +267,7 @@ function buildMobileSidebar(user, displayName, avatarUrl, planText, creditsTotal
 
   const linksWrap = document.createElement("nav");
   linksWrap.className = "mobile-sidebar-links";
-  const existingLinks = navLinks.querySelectorAll("a:not(.credit-badge)");
+  const existingLinks = navLinks.querySelectorAll(":scope > a:not(.credit-badge)");
   existingLinks.forEach(a => {
     const clone = document.createElement("a");
     clone.href = a.getAttribute("href");
