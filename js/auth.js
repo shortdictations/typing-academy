@@ -104,8 +104,8 @@ async function initAuthHeader(user) {
       <div class="avatar-dropdown-email">${escapeHtmlAuth(user.email)}</div>
     </div>
     <div class="avatar-dropdown-stats">
-      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#127891;</span>Current Plan</span><strong id="ddPlan">—</strong></a>
-      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#129689;</span>Total Credits</span><strong id="ddCredits">—</strong></a>
+      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#127891;</span>Plan</span><strong id="ddPlan" title="">—</strong></a>
+      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#129689;</span>Credits</span><strong id="ddCredits" title="">—</strong></a>
     </div>
     <button class="avatar-dropdown-logout" id="logoutBtn" type="button">Logout</button>`;
 
@@ -128,8 +128,8 @@ async function initAuthHeader(user) {
   ]);
   const ddPlan = document.getElementById("ddPlan");
   const ddCredits = document.getElementById("ddCredits");
-  if (ddPlan) ddPlan.textContent = planText;
-  if (ddCredits) ddCredits.textContent = creditsTotal;
+  if (ddPlan) { ddPlan.textContent = planText; ddPlan.title = planText; }
+  if (ddCredits) { ddCredits.textContent = creditsTotal; ddCredits.title = String(creditsTotal); }
 
   // Existing top-bar credit badge (🪙 N), if this page has one —
   // unchanged from before, just reuses the total already fetched.
