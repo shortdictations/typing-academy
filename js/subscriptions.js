@@ -208,13 +208,21 @@ function renderPassStatus(passType, passes, el) {
     new Date(p.expires_at) > now
   );
 
+  const card = el.closest(".access-card");
+
   if (validRow) {
     const expiryText = new Date(validRow.expires_at).toLocaleDateString("en-IN", {
       day: "2-digit", month: "short", year: "numeric"
     });
-    el.innerHTML = 'Active until<br><strong style="color:var(--ink);">' + expiryText + '</strong>';
+    if (card) card.classList.add("is-active");
+    el.innerHTML =
+      '<span class="access-status-badge"><span class="access-status-dot"></span>Active</span>' +
+      '<div class="access-card-detail">Valid until <strong>' + expiryText + '</strong></div>';
   } else {
-    el.textContent = "Not active";
+    if (card) card.classList.remove("is-active");
+    el.innerHTML =
+      '<span class="access-status-badge">Not Active</span>' +
+      '<div class="access-card-detail">Purchase below to unlock</div>';
   }
 }
 
@@ -225,8 +233,12 @@ function renderCreditStatus(credits, el) {
   const purchased = unexpired.filter(c => c.credit_type === "purchased").reduce((sum, c) => sum + c.credits_remaining, 0);
   const total = free + purchased;
 
+  const card = el.closest(".access-card");
+  if (card) card.classList.toggle("is-active", total > 0);
+
   el.innerHTML =
-    '&#127873; Free: ' + free + '<br>' +
-    '&#128179; Purchased: ' + purchased + '<br>' +
-    '<strong>Total: ' + total + '</strong>';
+    '<span class="access-status-badge">' +
+      (total > 0 ? '<span class="access-status-dot"></span>' : '') +
+      total + ' Available</span>' +
+    '<div class="access-card-detail">&#127873; Free: <strong>' + free + '</strong> &middot; &#128179; Purchased: <strong>' + purchased + '</strong></div>';
 }
