@@ -103,11 +103,27 @@ async function initAuthHeader(user) {
       <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
       <div class="avatar-dropdown-email">${escapeHtmlAuth(user.email)}</div>
     </div>
-    <div class="avatar-dropdown-stats">
-      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#127891;</span>Plan</span><strong id="ddPlan" title="">—</strong></a>
-      <a class="avatar-dropdown-row clickable" href="subscriptions.html"><span class="row-label"><span class="row-icon">&#129689;</span>Credits</span><strong id="ddCredits" title="">—</strong></a>
+    <div class="avatar-dropdown-credits">
+      <div class="credits-card-top">
+        <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
+        <span class="credits-card-value">&#129689; <span id="ddCredits">—</span></span>
+      </div>
+      <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
     </div>
-    <button class="avatar-dropdown-logout" id="logoutBtn" type="button">Logout</button>`;
+    <div class="avatar-dropdown-menu">
+      <a class="avatar-menu-row" href="subscriptions.html">
+        <span class="avatar-menu-icon">&#127891;</span>
+        <span class="avatar-menu-text">
+          <span class="avatar-menu-label">Manage Plan</span>
+          <span class="avatar-menu-sub" id="ddPlan">—</span>
+        </span>
+      </a>
+    </div>
+    <div class="avatar-dropdown-divider"></div>
+    <button class="avatar-menu-row avatar-menu-logout" id="logoutBtn" type="button">
+      <span class="avatar-menu-icon">&#8674;</span>
+      <span class="avatar-menu-label">Logout</span>
+    </button>`;
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
