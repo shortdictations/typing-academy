@@ -750,17 +750,19 @@ p.lede{
   gap: 6px;
   flex-wrap: wrap;
 }
-.mock-card-top{
+.mock-card-bottom{
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
 .mock-card-meta{
   font-size: 0.78rem;
   color: var(--ink-soft);
-  margin-top: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .mock-card .btn{
   white-space: nowrap;
