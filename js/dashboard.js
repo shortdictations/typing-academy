@@ -63,11 +63,10 @@ async function initTargetWpm(userId, avgWpm) {
 }
 
 function openTargetModal(isFirstLogin) {
-  document.getElementById("welcomeCard").style.display = isFirstLogin ? "block" : "none";
   document.getElementById("targetCardHeading").textContent = isFirstLogin ? "Set Your Target WPM" : "Change Your Target WPM";
 
-  // Pre-fill the current target (if any) when reopened later, so the
-  // student sees their existing choice rather than a blank picker.
+  // Pre-fill the current target (if any), so reopening later shows
+  // the existing choice rather than a blank picker.
   document.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
   const customInput = document.getElementById("targetWpmCustom");
   customInput.value = "";
@@ -85,9 +84,56 @@ function openTargetModal(isFirstLogin) {
   }
 
   document.getElementById("onboardingOverlay").style.display = "flex";
+
+  // First login walks through both cards via "Next"; reopening later
+  // (via the dashboard's "Change" button) jumps straight to the
+  // target picker — no need to re-show the welcome message every time.
+  goToStep(isFirstLogin ? 1 : 2, /* animate */ false);
+}
+
+// Handles the slide/fade transition between the two onboarding cards
+// and keeps the step-dot indicator in sync.
+function goToStep(stepNumber, animate) {
+  const cards = document.querySelectorAll(".onboarding-card");
+  cards.forEach(card => {
+    const isTarget = parseInt(card.dataset.step, 10) === stepNumber;
+    const wasActive = card.classList.contains("step-active");
+
+    if (isTarget && !wasActive) {
+      card.classList.remove("step-exit");
+      card.classList.add("step-active");
+      if (animate) {
+        card.classList.add("step-enter");
+        card.addEventListener("animationend", function handler(){
+          card.classList.remove("step-enter");
+          card.removeEventListener("animationend", handler);
+        }, { once: true });
+      }
+    } else if (!isTarget && wasActive) {
+      if (animate) {
+        card.classList.add("step-exit");
+        card.addEventListener("animationend", function handler(){
+          card.classList.remove("step-active", "step-exit");
+          card.removeEventListener("animationend", handler);
+        }, { once: true });
+      } else {
+        card.classList.remove("step-active");
+      }
+    } else if (!isTarget) {
+      card.classList.remove("step-active", "step-enter", "step-exit");
+    }
+  });
+
+  document.querySelectorAll(".step-dot").forEach(dot => {
+    dot.classList.toggle("active", parseInt(dot.dataset.step, 10) === stepNumber);
+  });
 }
 
 function wireTargetModalControls(userId, avgWpm) {
+  document.getElementById("welcomeNextBtn").addEventListener("click", () => {
+    goToStep(2, /* animate */ true);
+  });
+
   const optionsWrap = document.getElementById("targetWpmOptions");
   const customInput = document.getElementById("targetWpmCustom");
   const saveBtn = document.getElementById("saveTargetBtn");
