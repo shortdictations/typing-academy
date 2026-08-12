@@ -275,27 +275,50 @@ function buildMobileSidebar(user, displayName, avatarUrl, planText, creditsTotal
   sidebar.appendChild(userRow);
 
   const stats = document.createElement("div");
-  stats.className = "mobile-sidebar-stats";
-  stats.innerHTML =
-    '<div><span>Current Plan</span><strong>' + escapeHtmlAuth(planText) + '</strong></div>' +
-    '<div><span>Total Credits</span><strong>' + escapeHtmlAuth(String(creditsTotal)) + '</strong></div>';
+  stats.className = "avatar-dropdown-credits mobile-sidebar-credits";
+  stats.innerHTML = `
+    <div class="credits-card-top">
+      <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
+      <span class="credits-card-value">&#129689; ${escapeHtmlAuth(String(creditsTotal))}</span>
+    </div>
+    <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>`;
   sidebar.appendChild(stats);
+
+  const planRow = document.createElement("a");
+  planRow.className = "avatar-menu-row mobile-sidebar-menu-row";
+  planRow.href = "subscriptions.html";
+  planRow.innerHTML = `
+    <span class="avatar-menu-icon">&#127891;</span>
+    <span class="avatar-menu-text">
+      <span class="avatar-menu-label">Manage Plan</span>
+      <span class="avatar-menu-sub">${escapeHtmlAuth(planText)}</span>
+    </span>`;
+  sidebar.appendChild(planRow);
+
+  const sidebarDivider = document.createElement("div");
+  sidebarDivider.className = "avatar-dropdown-divider mobile-sidebar-divider";
+  sidebar.appendChild(sidebarDivider);
 
   const linksWrap = document.createElement("nav");
   linksWrap.className = "mobile-sidebar-links";
   const existingLinks = navLinks.querySelectorAll(":scope > a:not(.credit-badge)");
   existingLinks.forEach(a => {
     const clone = document.createElement("a");
+    clone.className = "avatar-menu-row mobile-sidebar-menu-row";
     clone.href = a.getAttribute("href");
-    clone.textContent = a.textContent;
+    clone.innerHTML = '<span class="avatar-menu-icon">&#8226;</span><span class="avatar-menu-label">' + escapeHtmlAuth(a.textContent) + '</span>';
     linksWrap.appendChild(clone);
   });
   sidebar.appendChild(linksWrap);
 
+  const linksDivider = document.createElement("div");
+  linksDivider.className = "avatar-dropdown-divider mobile-sidebar-divider";
+  sidebar.appendChild(linksDivider);
+
   const logoutBtn = document.createElement("button");
   logoutBtn.type = "button";
-  logoutBtn.className = "mobile-sidebar-logout";
-  logoutBtn.textContent = "Logout";
+  logoutBtn.className = "avatar-menu-row avatar-menu-logout mobile-sidebar-menu-row";
+  logoutBtn.innerHTML = '<span class="avatar-menu-icon">&#8674;</span><span class="avatar-menu-label">Logout</span>';
   logoutBtn.addEventListener("click", logoutStudent);
   sidebar.appendChild(logoutBtn);
 
