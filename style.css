@@ -290,74 +290,88 @@ a{ color: inherit; }
 
 .user-menu-dropdown.avatar-dropdown{ min-width: 270px; }
 .avatar-dropdown-header{
-  padding: 16px 18px;
+  padding: 14px 16px 12px;
   background: var(--paper);
   border-bottom: 1px solid var(--paper-line);
 }
 .avatar-dropdown-name{ font-weight: 700; font-family: var(--font-display); font-size: 0.95rem; color: var(--ink); }
 .avatar-dropdown-email{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 3px; word-break: break-all; }
-.avatar-dropdown-stats{ padding: 8px; }
-/* Beats ".user-menu-dropdown a" (display:block, padding:10px 14px),
-   which was overriding these rows back to block and stacking the
-   label above the value instead of side-by-side — same class of
-   specificity bug as the earlier trigger-button fix. */
-.user-menu-dropdown .avatar-dropdown-row{
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px !important;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  border-radius: 6px;
-  white-space: nowrap; /* label + value always stay on one line */
+
+/* ---- Credits card: its own highlighted panel with a Buy Credits CTA ---- */
+.avatar-dropdown-credits{
+  margin: 12px 14px;
+  padding: 12px 14px;
+  background: var(--paper-dark);
+  border-radius: 10px;
 }
-.avatar-dropdown-row .row-label{
+.credits-card-top{
   display: flex;
   align-items: center;
-  gap: 7px;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1 1 auto;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
 }
-.avatar-dropdown-row .row-icon{ font-size: 0.95rem; flex: none; }
-.avatar-dropdown-row strong{
-  flex: 0 0 auto;
-  color: var(--ink);
-  font-weight: 600;
-  white-space: nowrap;
-  max-width: 55%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Logout's box now shares the EXACT same 8px inset as the rows
-   above (.avatar-dropdown-stats padding: 8px) — that was the actual
-   misalignment: it previously used 16px, double the rows' real inset. */
-.user-menu-dropdown .avatar-dropdown-logout{
-  display: block !important;
+.credits-card-label{ display: flex; align-items: center; gap: 4px; }
+.credits-card-label .info-dot{ font-size: 0.75rem; opacity: 0.6; cursor: help; }
+.credits-card-value{ display: flex; align-items: center; gap: 5px; font-weight: 700; color: var(--ink); font-size: 0.95rem; }
+.credits-buy-btn{
+  display: block;
+  width: 100%;
   box-sizing: border-box;
-  width: auto;
-  margin: 4px 8px 10px !important;
-  padding: 10px !important;
-  text-align: center !important;
-  border-radius: 6px;
-  background: var(--stamp);
+  text-align: center;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--brass), var(--stamp));
   color: var(--white);
   font-weight: 600;
   font-size: 0.85rem;
-  transition: background 0.15s ease;
-}
-.user-menu-dropdown .avatar-dropdown-logout:hover{ background: var(--stamp-dark); }
-
-/* Current Plan / Total Credits are clickable — same subtle hover
-   treatment as the plain dropdown links elsewhere on the site */
-.avatar-dropdown-row.clickable{
-  cursor: pointer;
+  border-radius: 8px;
   text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.avatar-dropdown-row.clickable:hover{ background: var(--paper-dark); }
+.credits-buy-btn:hover{ opacity: 0.92; transform: translateY(-1px); }
+
+/* ---- Plain icon menu rows (Manage Plan, Logout) — beats the older
+   generic ".user-menu-dropdown a/button{display:block;...}" rule via
+   the same higher-specificity + !important pattern used earlier,
+   since that recurring conflict is exactly what caused the last two
+   rounds of misalignment. ---- */
+.avatar-dropdown-menu{ padding: 4px 8px 6px; }
+.user-menu-dropdown .avatar-menu-row{
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 8px !important;
+  margin: 0 !important;
+  border-radius: 6px;
+  text-decoration: none;
+  text-align: left !important;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.user-menu-dropdown .avatar-menu-row:hover{ background: var(--paper-dark); }
+.avatar-menu-icon{ font-size: 1rem; flex: none; width: 20px; text-align: center; }
+.avatar-menu-text{ display: flex; flex-direction: column; min-width: 0; }
+.avatar-menu-label{ font-weight: 600; }
+.avatar-menu-sub{ font-size: 0.72rem; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.avatar-dropdown-divider{ height: 1px; background: var(--paper-line); margin: 2px 0; }
+
+/* Logout: a plain row like the others, not a solid button — accent
+   color only, exactly matching the reference. */
+.user-menu-dropdown .avatar-menu-row.avatar-menu-logout{
+  color: var(--stamp) !important;
+  font-weight: 600;
+  padding: 10px 8px !important;
+  margin: 4px 0 6px !important;
+}
+.user-menu-dropdown .avatar-menu-row.avatar-menu-logout:hover{ background: #FBEAE7 !important; }
 
 /* ---------- Hamburger + mobile sidebar, built via JS ---------- */
 .hamburger-btn{
