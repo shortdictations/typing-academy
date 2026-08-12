@@ -1122,3 +1122,65 @@ footer.site-foot{
   border-top: 1px solid var(--paper-line);
   margin-top: 40px;
 }
+
+/* ---------- New minimal auth flow (login.html / register.html) ---------- */
+.auth-choice-btn{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.92rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1px solid var(--paper-line);
+  background: var(--white);
+  color: var(--ink);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.auth-choice-btn:hover{ border-color: var(--brass); background: var(--paper); }
+.auth-choice-btn.primary{ background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.auth-choice-btn.primary:hover{ background: var(--stamp); border-color: var(--stamp); }
+
+.input-icon-field{ position: relative; margin-bottom: 14px; }
+.input-icon-field .field-icon{
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.input-icon-field input{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px 12px 40px;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.input-icon-field input:focus{ outline: 2px solid var(--brass); outline-offset: 1px; background: var(--white); }
+
+.auth-back-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.auth-back-link:hover{ color: var(--ink); }
