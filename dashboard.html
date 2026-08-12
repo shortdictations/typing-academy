@@ -33,6 +33,35 @@
 
 <main class="page">
 
+  <!-- First-login onboarding modal — shown only when the student has
+       no user_preferences row yet (or hasn't completed it), and again
+       when they click "Change"/"Set Target" later. -->
+  <div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
+    <div class="onboarding-modal">
+      <div class="onboarding-card" id="welcomeCard">
+        <h2>Welcome to TypeShala &#128075;</h2>
+        <p>TypeShala helps you track your typing performance over time — measuring your speed (WPM) and accuracy on every SSC, Legal, and Credit-Based test you take, so you can see exactly how you're improving.</p>
+      </div>
+      <div class="onboarding-card">
+        <h2 id="targetCardHeading">Set Your Target WPM</h2>
+        <p>Pick a speed goal to aim for. You can change this anytime from your dashboard.</p>
+        <div class="target-wpm-options" id="targetWpmOptions">
+          <button type="button" class="target-wpm-btn" data-value="30">30</button>
+          <button type="button" class="target-wpm-btn" data-value="40">40</button>
+          <button type="button" class="target-wpm-btn" data-value="50">50</button>
+          <button type="button" class="target-wpm-btn" data-value="60">60</button>
+          <button type="button" class="target-wpm-btn" data-value="70">70</button>
+          <button type="button" class="target-wpm-btn" data-value="80">80</button>
+        </div>
+        <div class="field" style="margin-top:14px; margin-bottom:0;">
+          <label for="targetWpmCustom">Or enter a custom target</label>
+          <input type="number" id="targetWpmCustom" min="1" step="1" placeholder="e.g. 45">
+        </div>
+        <button type="button" class="btn btn-full" id="saveTargetBtn" style="margin-top:16px;" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+
   <p class="eyebrow">Your Progress</p>
   <h1>Welcome, <span id="welcomeName">Student</span></h1>
   <p class="lede">A record of every typing test you've taken, with your speed and accuracy over time.</p>
@@ -53,6 +82,23 @@
     <div class="summary-card">
       <div class="big" id="statLastTest" style="font-size:1.1rem;">—</div>
       <div class="lab">Last Test</div>
+    </div>
+    <div class="summary-card">
+      <div class="big" id="statTargetWpm" style="font-size:1.3rem;">—</div>
+      <div class="lab">Target WPM</div>
+      <button type="button" id="changeTargetBtn" style="margin-top:6px; background:none; border:none; color:var(--stamp); font-size:0.7rem; cursor:pointer; text-decoration:underline; padding:0; font-family:var(--font-body);">Set Target</button>
+    </div>
+  </div>
+
+  <!-- Actual vs Target WPM comparison bar — only shown once a target is set -->
+  <div class="card" id="targetProgressCard" style="display:none; margin-bottom:20px;">
+    <div class="card-label" style="border:none; margin:0 0 10px; padding:0;">Progress Toward Your Target</div>
+    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;">
+      <span>Average WPM: <strong id="progressActual" style="color:var(--ink);">0</strong></span>
+      <span>Target: <strong id="progressTarget" style="color:var(--ink);">0</strong></span>
+    </div>
+    <div style="background:var(--paper-dark); border-radius:8px; height:10px; overflow:hidden;">
+      <div id="progressBarFill" style="background:linear-gradient(90deg, var(--brass), var(--stamp)); height:100%; width:0%; transition:width 0.5s ease;"></div>
     </div>
   </div>
 
