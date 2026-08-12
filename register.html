@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register — TypeShala</title>
+<title>Sign Up — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,51 +22,31 @@
 
 <main class="page page-narrow">
 
-  <p class="eyebrow">Student Access</p>
-  <h1>Create your student account</h1>
-
   <div class="card">
+    <a href="login.html" class="auth-back-link">&larr; Back</a>
+    <h1 style="font-size:1.5rem; margin-bottom:18px;">Create Account</h1>
+
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
     <form id="registerForm">
-      <div class="field">
-        <label for="regName">Full name</label>
-        <input type="text" id="regName" placeholder="Write your full name" required autocomplete="name">
+      <div class="input-icon-field">
+        <span class="field-icon" aria-hidden="true">&#128100;</span>
+        <input type="text" id="regName" placeholder="Enter your name" required autocomplete="name">
       </div>
-      <div class="field">
-        <label for="regEmail">Email</label>
-        <input type="email" id="regEmail" placeholder="Enter your mail address" required autocomplete="email">
+      <div class="input-icon-field">
+        <span class="field-icon" aria-hidden="true">&#9993;</span>
+        <input type="email" id="regEmail" placeholder="Enter your mail id" required autocomplete="email">
       </div>
-      <div class="field">
-        <label for="regPassword">Password</label>
+      <div class="input-icon-field">
+        <span class="field-icon" aria-hidden="true">&#128274;</span>
         <input type="password" id="regPassword" placeholder="Enter your password" required minlength="6" autocomplete="new-password">
       </div>
-      <div class="field">
-        <label for="regConfirmPassword">Confirm Password</label>
-        <input type="password" id="regConfirmPassword" placeholder="Rewrite your password" required minlength="6" autocomplete="new-password">
-      </div>
-      <button type="submit" class="btn btn-full" id="registerBtn">Create account</button>
+      <button type="submit" class="btn btn-full" id="registerBtn" style="margin-top:4px;">Sign Up</button>
     </form>
 
-    <div style="display:flex; align-items:center; gap:10px; margin:18px 0;">
-      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
-      <span style="font-size:0.72rem; color:var(--ink-soft); letter-spacing:0.06em; white-space:nowrap;">OR SIGN UP WITH</span>
-      <div style="flex:1; height:1px; background:var(--paper-line);"></div>
-    </div>
-
-    <button type="button" class="btn btn-ghost btn-full" id="googleSignupBtn" style="display:flex; align-items:center; justify-content:center; gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:none;">
-        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/>
-        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/>
-        <path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/>
-        <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/>
-      </svg>
-      <span>Continue with Google</span>
-    </button>
-
     <p class="foot-link">
-      Already registered? <a href="login.html">Sign in</a>
+      Already have an account? <a href="login.html">Sign in</a>
     </p>
   </div>
 
@@ -95,18 +75,11 @@ function showSuccess(text) {
   document.getElementById('errorMsg').style.display = 'none';
 }
 
-// Handle registration
+// Handle registration — no Confirm Password field/check anymore, per
+// this redesign. Only the actual password is ever sent to Supabase.
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideMessages();
-
-  const password = document.getElementById('regPassword').value;
-  const confirmPassword = document.getElementById('regConfirmPassword').value;
-
-  if (password !== confirmPassword) {
-    showError('Passwords do not match.');
-    return; // Supabase signup is never called when passwords don't match
-  }
 
   const btn = document.getElementById('registerBtn');
   btn.disabled = true;
@@ -115,41 +88,16 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   try {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
-    await registerStudent(name, email, password); // only the actual password is ever sent
+    const password = document.getElementById('regPassword').value;
+    await registerStudent(name, email, password);
     showSuccess('Account created! Redirecting you to login...');
     document.getElementById('registerForm').reset();
     setTimeout(() => { window.location.href = 'login.html'; }, 1500);
   } catch (err) {
     showError(err.message || 'Registration failed. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Create account';
+    btn.textContent = 'Sign Up';
   }
-});
-
-// Handle Google sign-up — reuses the same supabaseClient from
-// js/supabase-config.js (same one email/password registration
-// above uses); no second client, no OAuth secrets in this code.
-document.getElementById('googleSignupBtn').addEventListener('click', async () => {
-  hideMessages();
-  const btn = document.getElementById('googleSignupBtn');
-  if (btn.disabled) return; // prevent double-click / multiple OAuth attempts
-  btn.disabled = true;
-  const label = btn.querySelector('span');
-  const originalText = label.textContent;
-  label.textContent = 'Connecting...';
-
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + '/dashboard.html' }
-  });
-
-  if (error) {
-    showError(error.message || 'Could not start Google sign-up. Please try again.');
-    btn.disabled = false;
-    label.textContent = originalText;
-  }
-  // On success, Supabase redirects the browser to Google immediately —
-  // no further code runs here.
 });
 
 // If already logged in, skip straight to dashboard
