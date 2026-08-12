@@ -750,17 +750,21 @@ p.lede{
   gap: 8px;
   flex-wrap: wrap;
 }
+.mock-card-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
 .mock-card-meta{
   font-size: 0.85rem;
   color: var(--ink-soft);
-  margin-top: 6px;
-  margin-bottom: 16px;
+  margin-top: 10px;
 }
 .mock-card .btn{
-  margin-top: auto;
-  align-self: flex-end;
-  text-align: center;
   white-space: nowrap;
+  flex: none;
 }
 
 /* ---------- Typing test page ---------- */
