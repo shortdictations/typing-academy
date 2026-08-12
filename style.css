@@ -765,6 +765,8 @@ p.lede{
 .mock-card .btn{
   white-space: nowrap;
   flex: none;
+  min-width: 190px; /* every button (Start/Retake/Get SSC Pass/Get Legal Pass) renders at the same width, sized to fit the longest text */
+  text-align: center;
 }
 
 /* ---------- Typing test page ---------- */
