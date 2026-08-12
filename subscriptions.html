@@ -34,6 +34,8 @@
 
   <p class="eyebrow">Your Account</p>
   <h1>Choose Your Access</h1>
+  <div class="error-msg" id="purchaseError" style="display:none; max-width:520px;"></div>
+  <div class="success-msg" id="purchaseSuccess" style="display:none; max-width:520px;"></div>
   <p class="lede">Unlock premium Mock Tests with a category pass, or pay only for the individual mocks you want with Test Credits.</p>
 
   <!-- MY CURRENT ACCESS -->
@@ -76,11 +78,16 @@
 
 </main>
 
-<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+<footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/payments.js"></script>
 <script src="js/subscriptions.js"></script>
 
 </body>
