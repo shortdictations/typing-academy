@@ -38,11 +38,20 @@
        when they click "Change"/"Set Target" later. -->
   <div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
     <div class="onboarding-modal">
-      <div class="onboarding-card" id="welcomeCard">
-        <h2>Welcome to TypeShala &#128075;</h2>
-        <p>TypeShala helps you track your typing performance over time — measuring your speed (WPM) and accuracy on every SSC, Legal, and Credit-Based test you take, so you can see exactly how you're improving.</p>
+      <div class="onboarding-steps" id="onboardingSteps">
+        <span class="step-dot" data-step="1"></span>
+        <span class="step-dot" data-step="2"></span>
       </div>
-      <div class="onboarding-card">
+
+      <div class="onboarding-card" id="welcomeCard" data-step="1">
+        <span class="step-icon">&#128075;</span>
+        <h2>Welcome to TypeShala</h2>
+        <p>TypeShala helps you track your typing performance over time — measuring your speed (WPM) and accuracy on every SSC, Legal, and Credit-Based test you take, so you can see exactly how you're improving.</p>
+        <button type="button" class="btn btn-full" id="welcomeNextBtn" style="margin-top:20px;">Next</button>
+      </div>
+
+      <div class="onboarding-card" id="targetCard" data-step="2">
+        <span class="step-icon">&#127919;</span>
         <h2 id="targetCardHeading">Set Your Target WPM</h2>
         <p>Pick a speed goal to aim for. You can change this anytime from your dashboard.</p>
         <div class="target-wpm-options" id="targetWpmOptions">
