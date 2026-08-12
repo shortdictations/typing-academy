@@ -758,6 +758,7 @@ p.lede{
 }
 .mock-card .btn{
   margin-top: auto;
+  align-self: flex-end;
   text-align: center;
   white-space: nowrap;
 }
