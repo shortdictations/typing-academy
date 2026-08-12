@@ -87,7 +87,8 @@ async function loadUnlockedCategories(userId) {
 
 function renderMockList(mocks, completedIds, unlockedCategories) {
   const wrap = document.getElementById("mockListBody");
-  wrap.innerHTML = "";
+  wrap.innerHTML = '<div class="mock-grid"></div>';
+  const grid = wrap.querySelector(".mock-grid");
 
   mocks.forEach(m => {
     const isPremium = m.access_type === "premium";
@@ -96,38 +97,29 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
     const categoryLabel = m.category === "ssc" ? "SSC" : "Legal";
 
     const card = document.createElement("div");
-    card.className = "card";
-    card.style.marginBottom = "14px";
+    card.className = "mock-card";
 
     let actionHtml;
     if (hasAccess) {
       actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' +
         (isCompleted ? "Retake" : "Start") + '</a>';
     } else {
-      actionHtml =
-        '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">' +
-          '<span style="font-size:0.85rem; color:var(--ink-soft); white-space:nowrap;">&#128274; Premium</span>' +
-          '<a class="btn" href="subscriptions.html?plan=' + m.category + '">Get ' + categoryLabel + ' Subscription</a>' +
-        '</div>';
+      // Lock icon lives inside the button itself; no separate "Premium"
+      // label elsewhere on the card — the button already says it all.
+      actionHtml = '<a class="btn" href="subscriptions.html?plan=' + m.category + '">&#128274; Get ' + categoryLabel + ' Pass</a>';
     }
 
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <div>
-          <div style="font-family:var(--font-display); font-weight:700; font-size:1.1rem;">
-            ${escapeHtml(m.title)}
-            ${isCompleted ? '<span class="pill" style="margin-left:8px;">Completed</span>' : ""}
-          </div>
-          <div style="font-size:0.85rem; color:var(--ink-soft); margin-top:4px;">
-            ${m.duration} minutes &middot; ${isPremium ? "Premium" : "Free"}
-          </div>
-        </div>
-        <div>
-          ${actionHtml}
-        </div>
-      </div>`;
+    const metaText = isPremium ? (m.duration + " minutes") : (m.duration + " minutes &middot; Free");
 
-    wrap.appendChild(card);
+    card.innerHTML = `
+      <div class="mock-card-title">
+        ${escapeHtml(m.title)}
+        ${isCompleted ? '<span class="pill">Completed</span>' : ""}
+      </div>
+      <div class="mock-card-meta">${metaText}</div>
+      ${actionHtml}`;
+
+    grid.appendChild(card);
   });
 }
 
