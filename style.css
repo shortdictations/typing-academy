@@ -718,6 +718,51 @@ p.lede{
 .feature p{ font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
 .feature > .btn{ margin-top: auto; align-self: flex-start; } /* pins the button to the bottom, matching however much description text sits above it */
 
+/* ---------- Mock/CBT test list cards (mock-test-list.html, cbt-list.html) ---------- */
+.mock-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 4px;
+}
+@media (max-width: 650px){ .mock-grid{ grid-template-columns: 1fr; } }
+.mock-card{
+  border: 1px solid var(--paper-line);
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(27, 42, 61, 0.06);
+}
+.mock-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(27, 42, 61, 0.12);
+}
+.mock-card-title{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mock-card-meta{
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+.mock-card .btn{
+  margin-top: auto;
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* ---------- Typing test page ---------- */
 .setup-grid{
   display: grid;
