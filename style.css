@@ -687,16 +687,26 @@ p.lede{
 
 .feature-grid{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-top: 30px;
 }
-@media (max-width: 700px){ .feature-grid{ grid-template-columns: 1fr; } }
+@media (max-width: 650px){ .feature-grid{ grid-template-columns: 1fr; } }
 .feature{
   border: 1px solid var(--paper-line);
   background: var(--white);
-  padding: 18px;
+  padding: 20px;
   border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(27, 42, 61, 0.06);
+}
+.feature:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(27, 42, 61, 0.12);
 }
 .feature .num{
   font-family: var(--font-mono);
@@ -706,6 +716,7 @@ p.lede{
 }
 .feature h3{ font-family: var(--font-display); font-size: 1.05rem; margin: 6px 0; }
 .feature p{ font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+.feature > .btn{ margin-top: auto; align-self: flex-start; } /* pins the button to the bottom, matching however much description text sits above it */
 
 /* ---------- Typing test page ---------- */
 .setup-grid{
