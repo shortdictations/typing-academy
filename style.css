@@ -721,11 +721,10 @@ p.lede{
 /* ---------- Mock/CBT test list cards (mock-test-list.html, cbt-list.html) ---------- */
 .mock-grid{
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 16px;
   margin-top: 4px;
 }
-@media (max-width: 650px){ .mock-grid{ grid-template-columns: 1fr; } }
 .mock-card{
   border: 1px solid var(--paper-line);
   background: var(--white);
