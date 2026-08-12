@@ -1286,3 +1286,65 @@ footer.site-foot{
 .input-icon-field:nth-of-type(1){ animation-delay: 0.06s; }
 .input-icon-field:nth-of-type(2){ animation-delay: 0.11s; }
 .input-icon-field:nth-of-type(3){ animation-delay: 0.16s; }
+
+/* ---------- Dashboard: first-login onboarding modal ---------- */
+.onboarding-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 42, 61, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.onboarding-modal{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 440px;
+  width: 100%;
+}
+.onboarding-card{
+  background: var(--white);
+  border-radius: 12px;
+  padding: 26px 24px;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.28);
+  animation: authCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.onboarding-card h2{
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.onboarding-card p{
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 0;
+  line-height: 1.6;
+}
+.target-wpm-options{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+.target-wpm-btn{
+  padding: 10px 0;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.target-wpm-btn:hover{ border-color: var(--brass); }
+.target-wpm-btn.selected{
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
