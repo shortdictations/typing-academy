@@ -112,14 +112,14 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
     const metaText = isPremium ? (m.duration + " minutes") : (m.duration + " minutes &middot; Free");
 
     card.innerHTML = `
-      <div class="mock-card-top">
-        <div class="mock-card-title">
-          ${escapeHtml(m.title)}
-          ${isCompleted ? '<span class="pill">Completed</span>' : ""}
-        </div>
-        ${actionHtml}
+      <div class="mock-card-title">
+        ${escapeHtml(m.title)}
+        ${isCompleted ? '<span class="pill">Completed</span>' : ""}
       </div>
-      <div class="mock-card-meta">${metaText}</div>`;
+      <div class="mock-card-bottom">
+        <div class="mock-card-meta">${metaText}</div>
+        ${actionHtml}
+      </div>`;
 
     grid.appendChild(card);
   });
