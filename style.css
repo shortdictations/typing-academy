@@ -715,8 +715,8 @@ p.lede{
   font-weight: 700;
 }
 .feature h3{ font-family: var(--font-display); font-size: 1.05rem; margin: 6px 0; }
-.feature p{ font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
-.feature > .btn{ margin-top: auto; align-self: flex-start; } /* pins the button to the bottom, matching however much description text sits above it */
+.feature p{ font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 18px; } /* guarantees breathing room above the button even on a tightly-filled card, independent of the button's own auto push-to-bottom */
+.feature > .btn{ margin-top: auto; align-self: flex-start; padding: 11px 24px; } /* pins the button to the bottom, matching however much description text sits above it */
 
 /* ---------- Mock/CBT test list cards (mock-test-list.html, cbt-list.html) ---------- */
 .mock-grid{
