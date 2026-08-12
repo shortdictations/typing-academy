@@ -493,7 +493,22 @@ a{ color: inherit; }
   margin: 0 auto;
   padding: 36px 20px 80px;
 }
-.page-narrow{ max-width: 520px; }
+.page-narrow{
+  max-width: 520px;
+  position: relative;
+}
+.page-narrow::before{
+  content: "";
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(169,128,63,0.10) 0%, rgba(169,128,63,0) 70%);
+  pointer-events: none;
+  z-index: -1;
+}
 
 .eyebrow{
   font-size: 0.72rem;
@@ -1184,3 +1199,77 @@ footer.site-foot{
   font-family: var(--font-body);
 }
 .auth-back-link:hover{ color: var(--ink); }
+
+/* ---------- Auth pages: entrance animation + polish ---------- */
+@keyframes authCardIn{
+  from{ opacity: 0; transform: translateY(14px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+.page-narrow .card{
+  animation: authCardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
+  overflow: hidden;
+}
+.page-narrow .card::before{
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brass), var(--stamp), var(--brass));
+  background-size: 200% 100%;
+  animation: authAccentSlide 3s ease-in-out infinite;
+}
+@keyframes authAccentSlide{
+  0%, 100%{ background-position: 0% 0; }
+  50%{ background-position: 100% 0; }
+}
+
+.page-narrow h1{
+  animation: authCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+/* Smooth crossfade between Choice/Sign-In views instead of an
+   instant display:none/block jump */
+#viewChoice, #viewSignIn{
+  animation: authCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-choice-btn{
+  transform: translateY(0);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-choice-btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,42,61,0.1); }
+.auth-choice-btn:active{ transform: translateY(0); box-shadow: none; }
+.auth-choice-btn.primary:hover{ box-shadow: 0 6px 16px rgba(178,58,46,0.25); }
+
+.input-icon-field input{
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.input-icon-field input:focus{
+  border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgba(169,128,63,0.15);
+}
+.input-icon-field .field-icon{ transition: opacity 0.15s ease, color 0.15s ease; }
+.input-icon-field input:focus ~ .field-icon,
+.input-icon-field:focus-within .field-icon{ opacity: 0.9; color: var(--brass); }
+
+#loginBtn, #registerBtn{
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+#loginBtn:hover:not(:disabled), #registerBtn:hover:not(:disabled){
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(178,58,46,0.25);
+}
+#loginBtn:active:not(:disabled), #registerBtn:active:not(:disabled){ transform: translateY(0); }
+
+.auth-back-link{ transition: color 0.15s ease, gap 0.15s ease; }
+.auth-back-link:hover{ gap: 9px; }
+
+.page-narrow .foot-link a{ transition: color 0.15s ease; }
+
+.input-icon-field{
+  animation: authCardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.input-icon-field:nth-of-type(1){ animation-delay: 0.06s; }
+.input-icon-field:nth-of-type(2){ animation-delay: 0.11s; }
+.input-icon-field:nth-of-type(3){ animation-delay: 0.16s; }
