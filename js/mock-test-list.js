@@ -53,39 +53,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const completedIds = new Set((results || []).map(r => r.mock_test_id));
 
-  // Real subscription check (reads actual DB rows — this is display
-  // logic only; the real security is the can_access_mock() check
-  // enforced at the database level when a result is saved).
-  const unlockedCategories = await loadUnlockedCategories(user.id);
+  // Real access check per mock — calls the SAME can_access_mock()
+  // function that actually enforces this (in the mock_test_results
+  // insert policy), instead of re-implementing the unlock rule here
+  // a second time. This is what makes it impossible for this list
+  // to ever diverge from the real enforcement again — previously it
+  // checked the legacy `subscriptions` table only, which Razorpay
+  // fulfillment (writing to user_passes) never touched.
+  const accessMap = await loadAccessMap(mocks);
 
-  renderMockList(mocks, completedIds, unlockedCategories);
+  renderMockList(mocks, completedIds, accessMap);
 });
 
-// Returns a Set of subscription_type values ('legal' / 'ssc') the
-// student currently has ACTIVE, unexpired access to.
-async function loadUnlockedCategories(userId) {
-  const { data: subs, error } = await supabaseClient
-    .from("subscriptions")
-    .select("subscription_type, status, expiry_date")
-    .eq("user_id", userId)
-    .eq("status", "active");
+// One can_access_mock() RPC per premium mock in this list (free
+// mocks never need checking). Small lists, so this stays cheap,
+// and it's the only way to guarantee this page can't drift out of
+// sync with the real access rule again.
+async function loadAccessMap(mocks) {
+  const map = {};
+  const premiumMocks = mocks.filter(m => m.access_type === "premium");
 
-  if (error || !subs) {
-    console.error("Could not load subscriptions:", error);
-    return new Set();
-  }
+  await Promise.all(premiumMocks.map(async (m) => {
+    const { data, error } = await supabaseClient.rpc("can_access_mock", { mock_id: m.id });
+    map[m.id] = error ? false : !!data;
+  }));
 
-  const now = new Date();
-  const unlocked = new Set();
-  subs.forEach(s => {
-    if (!s.expiry_date || new Date(s.expiry_date) > now) {
-      unlocked.add(s.subscription_type);
-    }
-  });
-  return unlocked;
+  return map;
 }
 
-function renderMockList(mocks, completedIds, unlockedCategories) {
+function renderMockList(mocks, completedIds, accessMap) {
   const wrap = document.getElementById("mockListBody");
   wrap.innerHTML = '<div class="mock-grid"></div>';
   const grid = wrap.querySelector(".mock-grid");
@@ -93,7 +89,7 @@ function renderMockList(mocks, completedIds, unlockedCategories) {
   mocks.forEach(m => {
     const isPremium = m.access_type === "premium";
     const isCompleted = completedIds.has(m.id);
-    const hasAccess = !isPremium || unlockedCategories.has(m.category);
+    const hasAccess = !isPremium || accessMap[m.id] === true;
     const categoryLabel = m.category === "ssc" ? "SSC" : "Legal";
 
     const card = document.createElement("div");
