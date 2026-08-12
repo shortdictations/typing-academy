@@ -1137,6 +1137,19 @@ footer.site-foot{
   border-top: 1px solid var(--paper-line);
   margin-top: 40px;
 }
+.site-foot-line{ margin-bottom: 8px; }
+.site-foot-credit{
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+.site-foot-copyright{
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  margin-top: 3px;
+  letter-spacing: 0.03em;
+}
 
 /* ---------- New minimal auth flow (login.html / register.html) ---------- */
 .auth-choice-btn{
