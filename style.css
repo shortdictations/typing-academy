@@ -329,6 +329,19 @@ a{ color: inherit; }
   text-decoration: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
+/* Beats ".user-menu-dropdown a" (background:none, color:ink,
+   text-align:left, text-decoration:none-but-dark) — same recurring
+   specificity conflict as the earlier row/logout fixes, now hitting
+   this button too since it's also an <a> inside .user-menu-dropdown. */
+.user-menu-dropdown .credits-buy-btn{
+  display: block !important;
+  background: linear-gradient(135deg, var(--brass), var(--stamp)) !important;
+  color: var(--white) !important;
+  text-align: center !important;
+  padding: 10px !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+}
 .credits-buy-btn:hover{ opacity: 0.92; transform: translateY(-1px); }
 
 /* ---- Plain icon menu rows (Manage Plan, Logout) — beats the older
