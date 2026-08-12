@@ -102,8 +102,39 @@ async function loadProductCatalog() {
     return;
   }
 
-  renderPassProducts(data.filter(p => p.product_type === "PASS"), passGrid);
+  // Real active-pass check, read fresh from user_passes every time
+  // this runs (page load AND right after a successful purchase) —
+  // never cached, so it can't go stale. Deliberately NOT applied to
+  // credit products — those stay purchasable multiple times.
+  const activePassTypes = await loadActivePassTypes();
+
+  renderPassProducts(data.filter(p => p.product_type === "PASS"), passGrid, activePassTypes);
   renderCreditProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid);
+}
+
+// Same validity rule as get_mock_access(): status != 'cancelled' AND
+// starts_at <= now() AND expires_at > now(). An expired pass simply
+// won't be in this set, so its Buy button re-enables automatically
+// on the next load — no separate "re-enable" logic needed.
+async function loadActivePassTypes() {
+  const { data: user } = await supabaseClient.auth.getUser();
+  if (!user || !user.user) return new Set();
+
+  const { data, error } = await supabaseClient
+    .from("user_passes")
+    .select("pass_type, status, starts_at, expires_at")
+    .eq("user_id", user.user.id);
+
+  if (error || !data) return new Set();
+
+  const now = new Date();
+  const active = new Set();
+  data.forEach(p => {
+    if (p.status !== "cancelled" && new Date(p.starts_at) <= now && new Date(p.expires_at) > now) {
+      active.add(p.pass_type);
+    }
+  });
+  return active;
 }
 
 function featuresListHtml(features) {
@@ -113,7 +144,7 @@ function featuresListHtml(features) {
     "</ul>";
 }
 
-function renderPassProducts(products, grid) {
+function renderPassProducts(products, grid, activePassTypes) {
   if (products.length === 0) {
     grid.innerHTML = '<div class="empty-state">No plans available right now.</div>';
     return;
@@ -122,6 +153,10 @@ function renderPassProducts(products, grid) {
   grid.innerHTML = products.map(p => {
     const featured = p.pass_type === "COMBO" ? " featured" : "";
     const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
+    const isActive = activePassTypes.has(p.pass_type);
+    const buttonHtml = isActive
+      ? '<button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;">&#10003; Active</button>'
+      : '<button class="btn btn-full buy-product-btn" data-product-id="' + p.id + '" data-product-type="PASS" data-pass-type="' + p.pass_type + '">Buy ' + escapeHtmlLocal(p.name) + '</button>';
     return `
       <div class="card pass-card${featured}">
         ${badge}
@@ -130,10 +165,7 @@ function renderPassProducts(products, grid) {
         <div class="pass-duration">${p.validity_days} Days &middot; Non-recurring</div>
         ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
         ${featuresListHtml(p.features)}
-        <button class="btn btn-full buy-product-btn"
-          data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">
-          Buy ${escapeHtmlLocal(p.name)}
-        </button>
+        ${buttonHtml}
       </div>`;
   }).join("");
 }
