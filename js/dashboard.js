@@ -28,9 +28,137 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  renderSummary(results);
+  const avgWpm = renderSummary(results);
   renderCharts(results);
+  await initTargetWpm(user.id, avgWpm);
 });
+
+/* ---------------- Target WPM: onboarding modal + persistence ---------------- */
+
+let currentTargetWpm = null;
+
+async function initTargetWpm(userId, avgWpm) {
+  const { data, error } = await supabaseClient
+    .from("user_preferences")
+    .select("target_wpm, onboarding_completed")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Could not load preferences:", error);
+  }
+
+  currentTargetWpm = data ? data.target_wpm : null;
+  renderTargetWpmCard(avgWpm);
+
+  document.getElementById("changeTargetBtn").addEventListener("click", () => openTargetModal(false));
+  wireTargetModalControls(userId, avgWpm);
+
+  // No row at all, or a row that was never completed -> first-login
+  // onboarding. This is the ONLY case the modal opens automatically;
+  // afterward it only reopens via the explicit "Change"/"Set Target" button.
+  if (!data || !data.onboarding_completed) {
+    openTargetModal(true);
+  }
+}
+
+function openTargetModal(isFirstLogin) {
+  document.getElementById("welcomeCard").style.display = isFirstLogin ? "block" : "none";
+  document.getElementById("targetCardHeading").textContent = isFirstLogin ? "Set Your Target WPM" : "Change Your Target WPM";
+
+  // Pre-fill the current target (if any) when reopened later, so the
+  // student sees their existing choice rather than a blank picker.
+  document.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
+  const customInput = document.getElementById("targetWpmCustom");
+  customInput.value = "";
+  const saveBtn = document.getElementById("saveTargetBtn");
+  saveBtn.disabled = true;
+
+  if (currentTargetWpm) {
+    const matchBtn = document.querySelector('.target-wpm-btn[data-value="' + currentTargetWpm + '"]');
+    if (matchBtn) {
+      matchBtn.classList.add("selected");
+    } else {
+      customInput.value = currentTargetWpm;
+    }
+    saveBtn.disabled = false;
+  }
+
+  document.getElementById("onboardingOverlay").style.display = "flex";
+}
+
+function wireTargetModalControls(userId, avgWpm) {
+  const optionsWrap = document.getElementById("targetWpmOptions");
+  const customInput = document.getElementById("targetWpmCustom");
+  const saveBtn = document.getElementById("saveTargetBtn");
+
+  optionsWrap.querySelectorAll(".target-wpm-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      optionsWrap.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      customInput.value = "";
+      saveBtn.disabled = false;
+    });
+  });
+
+  customInput.addEventListener("input", () => {
+    if (customInput.value.trim() !== "") {
+      optionsWrap.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
+      saveBtn.disabled = false;
+    } else {
+      saveBtn.disabled = !optionsWrap.querySelector(".target-wpm-btn.selected");
+    }
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const selectedBtn = optionsWrap.querySelector(".target-wpm-btn.selected");
+    const value = customInput.value.trim() !== ""
+      ? parseInt(customInput.value, 10)
+      : (selectedBtn ? parseInt(selectedBtn.dataset.value, 10) : null);
+
+    if (!value || value <= 0) return;
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+
+    const { error } = await supabaseClient
+      .from("user_preferences")
+      .upsert({ user_id: userId, target_wpm: value, onboarding_completed: true }, { onConflict: "user_id" });
+
+    saveBtn.textContent = "Continue";
+    saveBtn.disabled = false;
+
+    if (error) {
+      console.error("Could not save target WPM:", error);
+      return;
+    }
+
+    currentTargetWpm = value;
+    document.getElementById("onboardingOverlay").style.display = "none";
+    renderTargetWpmCard(avgWpm);
+  });
+}
+
+function renderTargetWpmCard(avgWpm) {
+  const el = document.getElementById("statTargetWpm");
+  const changeBtn = document.getElementById("changeTargetBtn");
+  const progressCard = document.getElementById("targetProgressCard");
+
+  if (currentTargetWpm) {
+    el.textContent = "\u{1F3AF} " + currentTargetWpm;
+    changeBtn.textContent = "Change";
+
+    progressCard.style.display = "block";
+    document.getElementById("progressActual").textContent = avgWpm;
+    document.getElementById("progressTarget").textContent = currentTargetWpm;
+    const pct = Math.max(0, Math.min(100, Math.round((avgWpm / currentTargetWpm) * 100)));
+    document.getElementById("progressBarFill").style.width = pct + "%";
+  } else {
+    el.textContent = "—";
+    changeBtn.textContent = "Set Target";
+    progressCard.style.display = "none";
+  }
+}
 
 function showStudentName(user) {
   const name = user.user_metadata && user.user_metadata.full_name
@@ -75,6 +203,8 @@ function renderSummary(results) {
   } else {
     lastTestEl.textContent = "—";
   }
+
+  return avgWpm; // needed by initTargetWpm() for the Actual-vs-Target comparison
 }
 
 // Draws the WPM (Net WPM) and Accuracy line charts using Chart.js,
