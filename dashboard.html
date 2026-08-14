@@ -41,21 +41,25 @@
   <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
     <div class="onboarding-grid-bg"></div>
     <div class="onboarding-modal">
-      <!-- Persistent TypeShala wordmark — lives OUTSIDE the single
-           card frame below, so it is rendered once and never
-           recreated or moved when slides change. Types in once per
-           onboarding session (see startWordmarkTyping() in
-           dashboard.js), then just keeps blinking. -->
-      <div class="onboarding-wordmark" id="onboardingWordmark">
-        <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
-      </div>
-
       <!-- ONE persistent card frame (background/border/shadow/accent-bar)
            — this element is never replaced or resized abruptly.
            Only the .onboarding-slide panels inside the viewport
-           crossfade; the frame itself, the wordmark above it, and
-           the progress bar within it never move. -->
+           crossfade; the frame itself, the wordmark inside it, and
+           the progress bar never move. -->
       <div class="onboarding-card">
+        <!-- Persistent TypeShala wordmark — lives OUTSIDE the slide
+             viewport below, so it is rendered once and never
+             recreated when slides change. Types out once, during
+             the very first slide shown this session (either the
+             Welcome step for a new user, or the Welcome Back step
+             for a returning one) — every other slide/reopen after
+             that just shows the already-completed word with its
+             cursor blinking. See startWordmarkTyping() in
+             dashboard.js for the one-time guard. -->
+        <div class="onboarding-wordmark" id="onboardingWordmark">
+          <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
+        </div>
+
         <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
 
           <!-- STEP 1: WELCOME -->
@@ -67,7 +71,7 @@
               <div class="onboarding-goal-title">Build your baseline</div>
               <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
             </div>
-            <button type="button" class="btn btn-full onboarding-btn" id="welcomeNextBtn">Set my pace &rarr;</button>
+            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
             <div class="onboarding-autoadvance">
               <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
             </div>
@@ -86,7 +90,7 @@
               <span>Fast flow</span>
             </div>
 
-            <button type="button" class="btn btn-full onboarding-btn" id="saveTargetBtn" style="margin-top:20px;">Start practicing &#10003;</button>
+            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing &#10003;</button>
             <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
           </div>
 
@@ -95,7 +99,7 @@
             <p class="onboarding-eyebrow">Your space is ready</p>
             <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
             <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
-            <button type="button" class="btn btn-full onboarding-btn" id="beginSessionBtn" style="margin-top:24px;">Begin a session &rarr;</button>
+            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
           </div>
 
           <!-- RETURNING-USER WELCOME BACK — standalone slide, no
@@ -104,7 +108,7 @@
             <p class="onboarding-eyebrow">Good to see you</p>
             <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
             <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
-            <button type="button" class="btn btn-full onboarding-btn" id="continueWelcomeBackBtn" style="margin-top:24px;">Continue &rarr;</button>
+            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
           </div>
 
         </div>
