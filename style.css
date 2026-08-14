@@ -1378,7 +1378,8 @@ footer.site-foot{
    height, and released back to auto once settled. */
 .onboarding-slide-viewport{
   position: relative;
-  min-height: 380px; /* fixed regardless of which slide is showing */
+  height: 420px; /* fixed (not min-height) — a slide's content can never silently grow this and shift the button position on other slides */
+  overflow-y: auto; /* safety net only, in case content ever exceeds this on an unusual screen */
 }
 /* Pins each slide's primary action button to the same Y position
    across every slide, regardless of how much text/content precedes
@@ -1540,7 +1541,7 @@ footer.site-foot{
   .onboarding-card{ padding: 26px 20px; border-radius: 14px; }
   .onboarding-card h2{ font-size: 1.3rem; }
   .onboarding-wordmark{ font-size: 1.05rem; margin-bottom: 14px; }
-  .onboarding-slide-viewport{ min-height: 340px; }
+  .onboarding-slide-viewport{ height: 380px; }
   .onboarding-wpm-display #wpmSliderValue{ font-size: 2.2rem; }
 }
 
