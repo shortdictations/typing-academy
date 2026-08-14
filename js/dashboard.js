@@ -71,9 +71,7 @@ function openWelcomeBackModal(user) {
     : "there";
   document.getElementById("welcomeBackName").textContent = firstName;
 
-  // Hide the "01/02" step indicator — this is a single standalone
-  // card, not part of the first-time step wizard.
-  document.getElementById("onboardingSteps").style.display = "none";
+  startWordmarkTyping();
 
   document.querySelectorAll(".onboarding-card").forEach(c => {
     c.classList.remove("step-active", "step-enter", "step-exit");
@@ -94,10 +92,6 @@ function openWelcomeBackModal(user) {
 function closeWelcomeBackModal() {
   document.getElementById("onboardingOverlay").style.display = "none";
   document.getElementById("welcomeBackCard").classList.remove("step-active", "step-enter", "step-exit");
-  // Restore the step indicator for the first-time flow, so the two
-  // flows can't bleed into each other if this ever runs again later
-  // in the same page lifetime.
-  document.getElementById("onboardingSteps").style.display = "flex";
 }
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
@@ -110,7 +104,7 @@ function closeWelcomeBackModal() {
 
 let currentTargetWpm = null;
 let autoAdvanceInterval = null;
-let autoAdvanceRemaining = 6;
+let wordmarkTyped = false; // ensures the TypeShala typing animation runs at most once per page load
 
 async function initTargetWpm(userId, avgWpm) {
   // Load onboarding state BEFORE showing anything, so a completed
@@ -165,6 +159,7 @@ function openTargetModal(isFirstLogin) {
   // reopening later via "Change"/"Set Target" jumps straight to the
   // slider — no need to replay the welcome message every time.
   if (isFirstLogin) {
+    startWordmarkTyping();
     goToStep(1, false);
     startAutoAdvance();
   } else {
@@ -173,46 +168,39 @@ function openTargetModal(isFirstLogin) {
   }
 }
 
-// 6-second auto-advance on Step 1, with a visual fill bar. Cleared
-// on manual advance, on going back, and on modal close — never left
-// running in the background.
+// ~5-second auto-advance on Step 1, driven by the bottom progress
+// bar only — no countdown text anywhere. Cleared on manual advance,
+// on going back, and on modal close — this is the ONLY slide timer;
+// nothing else creates a competing interval.
+const AUTO_ADVANCE_SECONDS = 5;
+
 function startAutoAdvance() {
   stopAutoAdvance();
-  autoAdvanceRemaining = 6;
   const fill = document.getElementById("autoAdvanceFill");
-  const secondsEl = document.getElementById("autoAdvanceSeconds");
   fill.style.transition = "none";
   fill.style.width = "0%";
-  secondsEl.textContent = autoAdvanceRemaining;
 
   requestAnimationFrame(() => {
-    fill.style.transition = "width 1s linear";
+    fill.style.transition = "width " + AUTO_ADVANCE_SECONDS + "s linear";
+    fill.style.width = "100%";
   });
 
-  autoAdvanceInterval = setInterval(() => {
-    autoAdvanceRemaining -= 1;
-    secondsEl.textContent = Math.max(autoAdvanceRemaining, 0);
-    fill.style.width = ((6 - autoAdvanceRemaining) / 6 * 100) + "%";
-
-    if (autoAdvanceRemaining <= 0) {
-      stopAutoAdvance();
-      goToStep(2, true);
-    }
-  }, 1000);
+  autoAdvanceInterval = setTimeout(() => {
+    stopAutoAdvance();
+    goToStep(2, true);
+  }, AUTO_ADVANCE_SECONDS * 1000);
 }
 
 function stopAutoAdvance() {
   if (autoAdvanceInterval) {
-    clearInterval(autoAdvanceInterval);
+    clearTimeout(autoAdvanceInterval);
     autoAdvanceInterval = null;
   }
 }
 
-// Handles the slide/fade transition between onboarding cards and
-// keeps the "01/02" step-label indicator in sync. Step 3
-// (completion) is reached only programmatically after a successful
-// save, never via the step-label indicator (which only covers 1/2,
-// matching the spec).
+// Handles the slide/fade transition between onboarding cards. No
+// step-number indicator exists anymore — the bottom progress bar is
+// the only progress indication, matching the current design.
 function goToStep(stepNumber, animate) {
   const cards = document.querySelectorAll(".onboarding-card");
   cards.forEach(card => {
@@ -243,10 +231,40 @@ function goToStep(stepNumber, animate) {
       card.classList.remove("step-active", "step-enter", "step-exit");
     }
   });
+}
 
-  document.querySelectorAll(".step-label").forEach(label => {
-    label.classList.toggle("active", parseInt(label.dataset.step, 10) === stepNumber);
-  });
+// Types "TypeShala" character-by-character exactly once per page
+// load, regardless of which onboarding entry point triggers it
+// (first-time or returning-user) — guarded by wordmarkTyped so a
+// second call (which shouldn't happen, since the two flows are
+// mutually exclusive per session, but is guarded anyway) is a no-op.
+// Runs independently of the slide timer — nothing here ever
+// restarts it, and slide changes never touch this element.
+function startWordmarkTyping() {
+  if (wordmarkTyped) return;
+  wordmarkTyped = true;
+
+  const word = "TypeShala";
+  const textEl = document.getElementById("wordmarkText");
+  const cursorEl = document.getElementById("wordmarkCursor");
+  if (!textEl) return;
+
+  cursorEl.style.animation = "none"; // solid (non-blinking) cursor while actively typing
+  let i = 0;
+
+  const typeNext = () => {
+    i += 1;
+    textEl.textContent = word.slice(0, i);
+    if (i < word.length) {
+      setTimeout(typeNext, 100 + Math.random() * 40); // 100-140ms/char
+    } else {
+      setTimeout(() => {
+        cursorEl.style.animation = ""; // resume normal blinking after typing completes
+      }, 300);
+    }
+  };
+
+  setTimeout(typeNext, 100 + Math.random() * 40);
 }
 
 function wireOnboardingControls(userId, avgWpm) {
