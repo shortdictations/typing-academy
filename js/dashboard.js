@@ -139,7 +139,7 @@ function openTargetModal(isFirstLogin) {
   } else {
     heading.innerHTML = 'Change your<br><span class="onboarding-highlight">target speed.</span>';
     eyebrow.textContent = "Update anytime";
-    saveBtn.innerHTML = "Start practicing &#10003;";
+    saveBtn.innerHTML = "Start practicing";
   }
 
   const slider = document.getElementById("targetWpmSlider");
@@ -337,7 +337,7 @@ function wireOnboardingControls(userId, avgWpm) {
       .upsert({ user_id: userId, target_wpm: value, onboarding_completed: true }, { onConflict: "user_id" });
 
     saveBtn.disabled = false;
-    saveBtn.innerHTML = wasFirstLogin ? "Continue &rarr;" : "Start practicing &#10003;";
+    saveBtn.innerHTML = wasFirstLogin ? "Continue &rarr;" : "Start practicing";
 
     if (error) {
       // Do NOT mark complete, do NOT close the modal — let the
