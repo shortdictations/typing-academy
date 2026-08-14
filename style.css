@@ -1378,20 +1378,24 @@ footer.site-foot{
    height, and released back to auto once settled. */
 .onboarding-slide-viewport{
   position: relative;
-  min-height: 380px; /* fixed regardless of which slide is showing — content centers within this, so the card frame never resizes between slides */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  min-height: 380px; /* fixed regardless of which slide is showing */
 }
-.onboarding-slide{ width: 100%; }
+/* Pins each slide's primary action button to the same Y position
+   across every slide, regardless of how much text/content precedes
+   it — whatever comes before flows normally from the top, this is
+   always pushed to the bottom of the fixed-height slide. */
+.onboarding-primary-action{ margin-top: auto; }
 
 .onboarding-slide{
   display: none;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
   opacity: 0;
   transform: translateY(8px);
 }
 .onboarding-slide.slide-active{
-  display: block;
+  display: flex; /* fills the fixed-height viewport as a column, so .onboarding-primary-action's margin-top:auto can pin it to the same bottom position on every slide */
   opacity: 1;
   transform: translateY(0);
 }
