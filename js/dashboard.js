@@ -15,8 +15,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!user) return;
 
   showStudentName(user);
-  await showAdminLinkIfApplicable(user);
   showOnboardingWelcomeName(user);
+
+  // Onboarding / "Welcome back" must appear as soon as possible after
+  // login — checked and shown BEFORE the (slower) dashboard stats
+  // fetch below, not after, so there's no perceptible delay between
+  // logging in and seeing the welcome slides.
+  const onboardingCompleted = await initTargetWpm(user.id);
+  maybeShowWelcomeBack(user, onboardingCompleted);
+
+  showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
@@ -29,10 +37,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const avgWpm = renderSummary(results);
+  currentAvgWpm = renderSummary(results);
   renderCharts(results);
-  const onboardingCompleted = await initTargetWpm(user.id, avgWpm);
-  maybeShowWelcomeBack(user, onboardingCompleted);
+  renderTargetWpmCard(); // re-render the Target WPM card now that the real average is known
 });
 
 /* ---------------- Returning-user "Welcome back" — session-scoped only ----------------
@@ -92,11 +99,12 @@ function openWelcomeBackModal(user) {
    modal is closed. */
 
 let currentTargetWpm = null;
+let currentAvgWpm = 0; // populated once dashboard stats load; renderTargetWpmCard() reads this directly instead of taking it as a parameter, so the onboarding modal can open before stats are fetched
 let autoAdvanceInterval = null;
 let wordmarkTyped = false; // ensures the TypeShala typing animation runs at most once per page load
 let openedAsFirstLogin = false; // tracks which flow the target slide was opened from, so Save/Back behave correctly for each
 
-async function initTargetWpm(userId, avgWpm) {
+async function initTargetWpm(userId) {
   // Load onboarding state BEFORE showing anything, so a completed
   // user never even briefly sees the modal.
   const { data, error } = await supabaseClient
@@ -110,10 +118,10 @@ async function initTargetWpm(userId, avgWpm) {
   }
 
   currentTargetWpm = data ? data.target_wpm : null;
-  renderTargetWpmCard(avgWpm);
+  renderTargetWpmCard();
 
   document.getElementById("changeTargetBtn").addEventListener("click", () => openTargetModal(false));
-  wireOnboardingControls(userId, avgWpm);
+  wireOnboardingControls(userId);
 
   // No row at all, or a row that was never completed -> first-login
   // onboarding. This is the ONLY case the modal opens automatically;
@@ -124,6 +132,13 @@ async function initTargetWpm(userId, avgWpm) {
   }
 
   return onboardingCompleted; // lets DOMContentLoaded decide whether the returning-user welcome applies
+}
+
+function updateWpmProgressFill(value) {
+  const fill = document.getElementById("wpmProgressFill");
+  if (!fill) return;
+  const pct = ((value - 20) / (120 - 20)) * 100;
+  fill.style.width = Math.max(0, Math.min(100, pct)) + "%";
 }
 
 function openTargetModal(isFirstLogin) {
@@ -146,6 +161,7 @@ function openTargetModal(isFirstLogin) {
   const startValue = currentTargetWpm || 55;
   slider.value = startValue;
   document.getElementById("wpmSliderValue").textContent = startValue;
+  updateWpmProgressFill(startValue);
 
   hideOnboardingError();
   document.getElementById("onboardingOverlay").style.display = "flex";
@@ -297,7 +313,7 @@ function showCompleteSlide(options) {
   showSlide(document.getElementById("completeCard"), true);
 }
 
-function wireOnboardingControls(userId, avgWpm) {
+function wireOnboardingControls(userId) {
   const slider = document.getElementById("targetWpmSlider");
   const valueEl = document.getElementById("wpmSliderValue");
   const saveBtn = document.getElementById("saveTargetBtn");
@@ -320,6 +336,7 @@ function wireOnboardingControls(userId, avgWpm) {
 
   slider.addEventListener("input", () => {
     valueEl.textContent = slider.value;
+    updateWpmProgressFill(slider.value);
   });
 
   saveBtn.addEventListener("click", async () => {
@@ -348,7 +365,7 @@ function wireOnboardingControls(userId, avgWpm) {
     }
 
     currentTargetWpm = value;
-    renderTargetWpmCard(avgWpm);
+    renderTargetWpmCard();
 
     if (wasFirstLogin) {
       // First-time flow: advance to the completion slide.
@@ -382,7 +399,7 @@ function hideOnboardingError() {
   if (el) el.style.display = "none";
 }
 
-function renderTargetWpmCard(avgWpm) {
+function renderTargetWpmCard() {
   const el = document.getElementById("statTargetWpm");
   const changeBtn = document.getElementById("changeTargetBtn");
   const progressCard = document.getElementById("targetProgressCard");
@@ -392,9 +409,9 @@ function renderTargetWpmCard(avgWpm) {
     changeBtn.textContent = "Change";
 
     progressCard.style.display = "block";
-    document.getElementById("progressActual").textContent = avgWpm;
+    document.getElementById("progressActual").textContent = currentAvgWpm;
     document.getElementById("progressTarget").textContent = currentTargetWpm;
-    const pct = Math.max(0, Math.min(100, Math.round((avgWpm / currentTargetWpm) * 100)));
+    const pct = Math.max(0, Math.min(100, Math.round((currentAvgWpm / currentTargetWpm) * 100)));
     document.getElementById("progressBarFill").style.width = pct + "%";
   } else {
     el.textContent = "—";
@@ -456,7 +473,7 @@ function renderSummary(results) {
     lastTestEl.textContent = "—";
   }
 
-  return avgWpm; // needed by initTargetWpm() for the Actual-vs-Target comparison
+  return avgWpm; // read by DOMContentLoaded into currentAvgWpm, for the Target WPM card's Actual-vs-Target comparison
 }
 
 // Draws the WPM (Net WPM) and Accuracy line charts using Chart.js,
