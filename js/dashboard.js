@@ -78,12 +78,9 @@ function openWelcomeBackModal(user) {
 
   document.getElementById("onboardingOverlay").style.display = "flex";
 
-  document.getElementById("continueWelcomeBackBtn").addEventListener("click", closeWelcomeBackModal, { once: true });
-}
-
-function closeWelcomeBackModal() {
-  document.getElementById("onboardingOverlay").style.display = "none";
-  document.getElementById("welcomeBackCard").classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
+  document.getElementById("continueWelcomeBackBtn").addEventListener("click", () => {
+    showCompleteSlide({ withBackLink: false }); // returning flow has no "target" slide to go back to
+  }, { once: true });
 }
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
@@ -97,6 +94,7 @@ function closeWelcomeBackModal() {
 let currentTargetWpm = null;
 let autoAdvanceInterval = null;
 let wordmarkTyped = false; // ensures the TypeShala typing animation runs at most once per page load
+let openedAsFirstLogin = false; // tracks which flow the target slide was opened from, so Save/Back behave correctly for each
 
 async function initTargetWpm(userId, avgWpm) {
   // Load onboarding state BEFORE showing anything, so a completed
@@ -129,14 +127,19 @@ async function initTargetWpm(userId, avgWpm) {
 }
 
 function openTargetModal(isFirstLogin) {
+  openedAsFirstLogin = isFirstLogin;
+
   const heading = document.getElementById("targetCardHeading");
   const eyebrow = document.getElementById("targetEyebrow");
+  const saveBtn = document.getElementById("saveTargetBtn");
   if (isFirstLogin) {
     heading.innerHTML = 'Choose your<br><span class="onboarding-highlight">target speed.</span>';
     eyebrow.textContent = "Your starting point";
+    saveBtn.innerHTML = "Continue &rarr;";
   } else {
     heading.innerHTML = 'Change your<br><span class="onboarding-highlight">target speed.</span>';
     eyebrow.textContent = "Update anytime";
+    saveBtn.innerHTML = "Start practicing &#10003;";
   }
 
   const slider = document.getElementById("targetWpmSlider");
@@ -286,6 +289,14 @@ function startWordmarkTyping() {
   setTimeout(typeNext, 100 + Math.random() * 40);
 }
 
+function showCompleteSlide(options) {
+  const backLink = document.getElementById("backToTargetBtn");
+  // Only meaningful in the first-time sequential flow — the
+  // returning-user flow doesn't have a "target" slide to go back to.
+  backLink.style.display = (options && options.withBackLink) ? "" : "none";
+  showSlide(document.getElementById("completeCard"), true);
+}
+
 function wireOnboardingControls(userId, avgWpm) {
   const slider = document.getElementById("targetWpmSlider");
   const valueEl = document.getElementById("wpmSliderValue");
@@ -303,6 +314,10 @@ function wireOnboardingControls(userId, avgWpm) {
     startAutoAdvance(); // resets correctly on return, per spec
   });
 
+  document.getElementById("backToTargetBtn").addEventListener("click", () => {
+    goToStep(2, true);
+  });
+
   slider.addEventListener("input", () => {
     valueEl.textContent = slider.value;
   });
@@ -312,15 +327,17 @@ function wireOnboardingControls(userId, avgWpm) {
     if (!value || value < 20 || value > 120) return; // matches the DB check constraint from Part 2
 
     hideOnboardingError();
+    const wasFirstLogin = openedAsFirstLogin; // capture before any async gap
+    const savingLabel = wasFirstLogin ? "Continuing..." : "Saving...";
     saveBtn.disabled = true;
-    saveBtn.textContent = "Saving...";
+    saveBtn.textContent = savingLabel;
 
     const { error } = await supabaseClient
       .from("user_preferences")
       .upsert({ user_id: userId, target_wpm: value, onboarding_completed: true }, { onConflict: "user_id" });
 
     saveBtn.disabled = false;
-    saveBtn.textContent = "Start practicing \u2713";
+    saveBtn.innerHTML = wasFirstLogin ? "Continue &rarr;" : "Start practicing &#10003;";
 
     if (error) {
       // Do NOT mark complete, do NOT close the modal — let the
@@ -332,7 +349,15 @@ function wireOnboardingControls(userId, avgWpm) {
 
     currentTargetWpm = value;
     renderTargetWpmCard(avgWpm);
-    goToStep(3, true);
+
+    if (wasFirstLogin) {
+      // First-time flow: advance to the completion slide.
+      showCompleteSlide({ withBackLink: true });
+    } else {
+      // "Change Speed" from the dashboard: save and close directly —
+      // no completion slide.
+      document.getElementById("onboardingOverlay").style.display = "none";
+    }
   });
 
   document.getElementById("beginSessionBtn").addEventListener("click", () => {
