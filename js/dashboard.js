@@ -31,8 +31,46 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const avgWpm = renderSummary(results);
   renderCharts(results);
-  await initTargetWpm(user.id, avgWpm);
+  const onboardingCompleted = await initTargetWpm(user.id, avgWpm);
+  maybeShowWelcomeBack(user, onboardingCompleted);
 });
+
+/* ---------------- Returning-user "Welcome back" — session-scoped only ----------------
+   Deliberately NOT a database field (per spec): onboarding_completed
+   only ever means "has the user finished first-time setup," and must
+   stay that way. This flag lives in sessionStorage, which persists
+   across refreshes/navigation within the SAME tab but is explicitly
+   cleared in logoutStudent() (js/auth.js) — so it always resets on a
+   genuinely new login, without ever touching the database. */
+
+const WELCOME_BACK_SESSION_KEY = "ts_welcome_back_shown";
+
+function hasShownWelcomeBackThisSession() {
+  return sessionStorage.getItem(WELCOME_BACK_SESSION_KEY) === "true";
+}
+function markWelcomeBackShown() {
+  sessionStorage.setItem(WELCOME_BACK_SESSION_KEY, "true");
+}
+
+// Decides whether the returning-user welcome applies, and (for now)
+// triggers a plain placeholder — the real visual "Welcome back" card
+// is Part 3's job, not this one. No target WPM setup is shown here
+// under any circumstance; the user's saved target is left untouched.
+function maybeShowWelcomeBack(user, onboardingCompleted) {
+  if (!onboardingCompleted) return; // first-time modal (initTargetWpm) already handles this case entirely
+  if (hasShownWelcomeBackThisSession()) return;
+
+  markWelcomeBackShown();
+
+  const firstName = (user.user_metadata && user.user_metadata.full_name)
+    ? user.user_metadata.full_name.trim().split(/\s+/)[0]
+    : "there";
+
+  // TEMPORARY placeholder so the state logic above is fully
+  // end-to-end testable without building any visual UI yet.
+  // Part 3 replaces this alert with the real design.
+  alert("Welcome back, " + firstName + "!");
+}
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
    Data layer unchanged from Part 2 (user_preferences.target_wpm /
@@ -68,9 +106,12 @@ async function initTargetWpm(userId, avgWpm) {
   // No row at all, or a row that was never completed -> first-login
   // onboarding. This is the ONLY case the modal opens automatically;
   // afterward it only reopens via the explicit "Change"/"Set Target" button.
-  if (!data || !data.onboarding_completed) {
+  const onboardingCompleted = !!(data && data.onboarding_completed);
+  if (!onboardingCompleted) {
     openTargetModal(true);
   }
+
+  return onboardingCompleted; // lets DOMContentLoaded decide whether the returning-user welcome applies
 }
 
 function openTargetModal(isFirstLogin) {
