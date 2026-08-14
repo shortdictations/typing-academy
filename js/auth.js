@@ -42,6 +42,10 @@ async function loginStudent(email, password) {
 
 // Log the current student out, then send them to the login page
 async function logoutStudent() {
+  // Clears the per-session "welcome back" flag so a fresh login
+  // always shows it again — this is intentionally NOT a database
+  // field (see dashboard.js), so it must be cleared here explicitly.
+  sessionStorage.removeItem("ts_welcome_back_shown");
   await supabaseClient.auth.signOut();
   window.location.href = "index.html";
 }
