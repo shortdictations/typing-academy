@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   showStudentName(user);
   await showAdminLinkIfApplicable(user);
+  showOnboardingWelcomeName(user);
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
@@ -33,11 +34,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   await initTargetWpm(user.id, avgWpm);
 });
 
-/* ---------------- Target WPM: onboarding modal + persistence ---------------- */
+/* ---------------- Target WPM: onboarding modal + persistence ----------------
+   Data layer unchanged from Part 2 (user_preferences.target_wpm /
+   onboarding_completed, same upsert, same authenticated user.id).
+   This is the visual/interaction layer: 3-step wizard (Welcome ->
+   Target slider -> Complete), 6s auto-advance on step 1, live slider
+   value, and careful timer cleanup so nothing keeps running once the
+   modal is closed. */
 
 let currentTargetWpm = null;
+let autoAdvanceInterval = null;
+let autoAdvanceRemaining = 6;
 
 async function initTargetWpm(userId, avgWpm) {
+  // Load onboarding state BEFORE showing anything, so a completed
+  // user never even briefly sees the modal.
   const { data, error } = await supabaseClient
     .from("user_preferences")
     .select("target_wpm, onboarding_completed")
@@ -52,7 +63,7 @@ async function initTargetWpm(userId, avgWpm) {
   renderTargetWpmCard(avgWpm);
 
   document.getElementById("changeTargetBtn").addEventListener("click", () => openTargetModal(false));
-  wireTargetModalControls(userId, avgWpm);
+  wireOnboardingControls(userId, avgWpm);
 
   // No row at all, or a row that was never completed -> first-login
   // onboarding. This is the ONLY case the modal opens automatically;
@@ -63,36 +74,76 @@ async function initTargetWpm(userId, avgWpm) {
 }
 
 function openTargetModal(isFirstLogin) {
-  document.getElementById("targetCardHeading").textContent = isFirstLogin ? "Set Your Target WPM" : "Change Your Target WPM";
-
-  // Pre-fill the current target (if any), so reopening later shows
-  // the existing choice rather than a blank picker.
-  document.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
-  const customInput = document.getElementById("targetWpmCustom");
-  customInput.value = "";
-  const saveBtn = document.getElementById("saveTargetBtn");
-  saveBtn.disabled = true;
-
-  if (currentTargetWpm) {
-    const matchBtn = document.querySelector('.target-wpm-btn[data-value="' + currentTargetWpm + '"]');
-    if (matchBtn) {
-      matchBtn.classList.add("selected");
-    } else {
-      customInput.value = currentTargetWpm;
-    }
-    saveBtn.disabled = false;
+  const heading = document.getElementById("targetCardHeading");
+  const eyebrow = document.getElementById("targetEyebrow");
+  if (isFirstLogin) {
+    heading.innerHTML = 'Choose your<br><span class="onboarding-highlight">target speed.</span>';
+    eyebrow.textContent = "Your starting point";
+  } else {
+    heading.innerHTML = 'Change your<br><span class="onboarding-highlight">target speed.</span>';
+    eyebrow.textContent = "Update anytime";
   }
 
+  const slider = document.getElementById("targetWpmSlider");
+  const startValue = currentTargetWpm || 55;
+  slider.value = startValue;
+  document.getElementById("wpmSliderValue").textContent = startValue;
+
+  hideOnboardingError();
   document.getElementById("onboardingOverlay").style.display = "flex";
 
-  // First login walks through both cards via "Next"; reopening later
-  // (via the dashboard's "Change" button) jumps straight to the
-  // target picker — no need to re-show the welcome message every time.
-  goToStep(isFirstLogin ? 1 : 2, /* animate */ false);
+  // First login walks through Welcome (with auto-advance) -> Target;
+  // reopening later via "Change"/"Set Target" jumps straight to the
+  // slider — no need to replay the welcome message every time.
+  if (isFirstLogin) {
+    goToStep(1, false);
+    startAutoAdvance();
+  } else {
+    stopAutoAdvance();
+    goToStep(2, false);
+  }
 }
 
-// Handles the slide/fade transition between the two onboarding cards
-// and keeps the step-dot indicator in sync.
+// 6-second auto-advance on Step 1, with a visual fill bar. Cleared
+// on manual advance, on going back, and on modal close — never left
+// running in the background.
+function startAutoAdvance() {
+  stopAutoAdvance();
+  autoAdvanceRemaining = 6;
+  const fill = document.getElementById("autoAdvanceFill");
+  const secondsEl = document.getElementById("autoAdvanceSeconds");
+  fill.style.transition = "none";
+  fill.style.width = "0%";
+  secondsEl.textContent = autoAdvanceRemaining;
+
+  requestAnimationFrame(() => {
+    fill.style.transition = "width 1s linear";
+  });
+
+  autoAdvanceInterval = setInterval(() => {
+    autoAdvanceRemaining -= 1;
+    secondsEl.textContent = Math.max(autoAdvanceRemaining, 0);
+    fill.style.width = ((6 - autoAdvanceRemaining) / 6 * 100) + "%";
+
+    if (autoAdvanceRemaining <= 0) {
+      stopAutoAdvance();
+      goToStep(2, true);
+    }
+  }, 1000);
+}
+
+function stopAutoAdvance() {
+  if (autoAdvanceInterval) {
+    clearInterval(autoAdvanceInterval);
+    autoAdvanceInterval = null;
+  }
+}
+
+// Handles the slide/fade transition between onboarding cards and
+// keeps the "01/02" step-label indicator in sync. Step 3
+// (completion) is reached only programmatically after a successful
+// save, never via the step-label indicator (which only covers 1/2,
+// matching the spec).
 function goToStep(stepNumber, animate) {
   const cards = document.querySelectorAll(".onboarding-card");
   cards.forEach(card => {
@@ -124,46 +175,37 @@ function goToStep(stepNumber, animate) {
     }
   });
 
-  document.querySelectorAll(".step-dot").forEach(dot => {
-    dot.classList.toggle("active", parseInt(dot.dataset.step, 10) === stepNumber);
+  document.querySelectorAll(".step-label").forEach(label => {
+    label.classList.toggle("active", parseInt(label.dataset.step, 10) === stepNumber);
   });
 }
 
-function wireTargetModalControls(userId, avgWpm) {
-  document.getElementById("welcomeNextBtn").addEventListener("click", () => {
-    goToStep(2, /* animate */ true);
-  });
-
-  const optionsWrap = document.getElementById("targetWpmOptions");
-  const customInput = document.getElementById("targetWpmCustom");
+function wireOnboardingControls(userId, avgWpm) {
+  const slider = document.getElementById("targetWpmSlider");
+  const valueEl = document.getElementById("wpmSliderValue");
   const saveBtn = document.getElementById("saveTargetBtn");
 
-  optionsWrap.querySelectorAll(".target-wpm-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      optionsWrap.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      customInput.value = "";
-      saveBtn.disabled = false;
-    });
+  // "Set my pace" advances immediately and cancels the timer — the
+  // student is never made to wait once they've acted.
+  document.getElementById("welcomeNextBtn").addEventListener("click", () => {
+    stopAutoAdvance();
+    goToStep(2, true);
   });
 
-  customInput.addEventListener("input", () => {
-    if (customInput.value.trim() !== "") {
-      optionsWrap.querySelectorAll(".target-wpm-btn").forEach(b => b.classList.remove("selected"));
-      saveBtn.disabled = false;
-    } else {
-      saveBtn.disabled = !optionsWrap.querySelector(".target-wpm-btn.selected");
-    }
+  document.getElementById("backToWelcomeBtn").addEventListener("click", () => {
+    goToStep(1, true);
+    startAutoAdvance(); // resets correctly on return, per spec
+  });
+
+  slider.addEventListener("input", () => {
+    valueEl.textContent = slider.value;
   });
 
   saveBtn.addEventListener("click", async () => {
-    const selectedBtn = optionsWrap.querySelector(".target-wpm-btn.selected");
-    const value = customInput.value.trim() !== ""
-      ? parseInt(customInput.value, 10)
-      : (selectedBtn ? parseInt(selectedBtn.dataset.value, 10) : null);
+    const value = parseInt(slider.value, 10);
+    if (!value || value < 20 || value > 120) return; // matches the DB check constraint from Part 2
 
-    if (!value || value < 20 || value > 120) return;
-
+    hideOnboardingError();
     saveBtn.disabled = true;
     saveBtn.textContent = "Saving...";
 
@@ -171,18 +213,42 @@ function wireTargetModalControls(userId, avgWpm) {
       .from("user_preferences")
       .upsert({ user_id: userId, target_wpm: value, onboarding_completed: true }, { onConflict: "user_id" });
 
-    saveBtn.textContent = "Continue";
     saveBtn.disabled = false;
+    saveBtn.textContent = "Start practicing \u2713";
 
     if (error) {
+      // Do NOT mark complete, do NOT close the modal — let the
+      // student retry.
       console.error("Could not save target WPM:", error);
+      showOnboardingError("Could not save your target. Please check your connection and try again.");
       return;
     }
 
     currentTargetWpm = value;
-    document.getElementById("onboardingOverlay").style.display = "none";
     renderTargetWpmCard(avgWpm);
+    goToStep(3, true);
   });
+
+  document.getElementById("beginSessionBtn").addEventListener("click", () => {
+    document.getElementById("onboardingOverlay").style.display = "none";
+    stopAutoAdvance();
+  });
+}
+
+function showOnboardingError(text) {
+  let el = document.getElementById("onboardingError");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "onboardingError";
+    el.style.cssText = "margin-top:14px;padding:10px 12px;border-radius:8px;background:rgba(178,58,46,0.15);border:1px solid rgba(178,58,46,0.4);color:#F2B8B0;font-size:0.8rem;";
+    document.getElementById("targetCard").appendChild(el);
+  }
+  el.textContent = text;
+  el.style.display = "block";
+}
+function hideOnboardingError() {
+  const el = document.getElementById("onboardingError");
+  if (el) el.style.display = "none";
 }
 
 function renderTargetWpmCard(avgWpm) {
@@ -212,6 +278,15 @@ function showStudentName(user) {
     : user.email;
   const el = document.getElementById("welcomeName");
   if (el) el.textContent = name;
+}
+
+// Onboarding modal greeting uses just the first name — never the
+// email as a fallback, since that would look wrong in this context.
+function showOnboardingWelcomeName(user) {
+  const el = document.getElementById("welcomeUserName");
+  if (!el) return;
+  const fullName = user.user_metadata && user.user_metadata.full_name;
+  el.textContent = fullName ? fullName.trim().split(/\s+/)[0] : "there";
 }
 
 async function showAdminLinkIfApplicable(user) {
