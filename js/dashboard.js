@@ -73,16 +73,8 @@ function openWelcomeBackModal(user) {
 
   startWordmarkTyping();
 
-  document.querySelectorAll(".onboarding-card").forEach(c => {
-    c.classList.remove("step-active", "step-enter", "step-exit");
-  });
-
   const card = document.getElementById("welcomeBackCard");
-  card.classList.add("step-active", "step-enter");
-  card.addEventListener("animationend", function handler(){
-    card.classList.remove("step-enter");
-    card.removeEventListener("animationend", handler);
-  }, { once: true });
+  showSlide(card, false); // first thing shown this modal-open, so no exit animation needed
 
   document.getElementById("onboardingOverlay").style.display = "flex";
 
@@ -91,7 +83,7 @@ function openWelcomeBackModal(user) {
 
 function closeWelcomeBackModal() {
   document.getElementById("onboardingOverlay").style.display = "none";
-  document.getElementById("welcomeBackCard").classList.remove("step-active", "step-enter", "step-exit");
+  document.getElementById("welcomeBackCard").classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
 }
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
@@ -198,39 +190,75 @@ function stopAutoAdvance() {
   }
 }
 
-// Handles the slide/fade transition between onboarding cards. No
-// step-number indicator exists anymore — the bottom progress bar is
-// the only progress indication, matching the current design.
+// Root-cause fix for the jerky transition: instead of swapping
+// between separate full-card elements via display:none/block, there
+// is now ONE persistent card frame and each "step" is a plain
+// content panel inside it. This function crossfades panels — old
+// fades+lifts out, THEN new fades+lifts in — using real CSS
+// transitions driven by transitionend events (never a guessed
+// setTimeout), so it can't desync from the actual animation. The
+// viewport height is locked before the transition and animated to
+// the new panel's natural height, so the card frame itself never
+// jumps — and the frame, the wordmark above it, and the progress
+// bar inside the active panel are never touched by any of this.
 function goToStep(stepNumber, animate) {
-  const cards = document.querySelectorAll(".onboarding-card");
-  cards.forEach(card => {
-    const isTarget = parseInt(card.dataset.step, 10) === stepNumber;
-    const wasActive = card.classList.contains("step-active");
+  const target = document.querySelector('.onboarding-slide[data-step="' + stepNumber + '"]');
+  showSlide(target, animate);
+}
 
-    if (isTarget && !wasActive) {
-      card.classList.remove("step-exit");
-      card.classList.add("step-active");
-      if (animate) {
-        card.classList.add("step-enter");
-        card.addEventListener("animationend", function handler(){
-          card.classList.remove("step-enter");
-          card.removeEventListener("animationend", handler);
-        }, { once: true });
-      }
-    } else if (!isTarget && wasActive) {
-      if (animate) {
-        card.classList.add("step-exit");
-        card.addEventListener("animationend", function handler(){
-          card.classList.remove("step-active", "step-exit");
-          card.removeEventListener("animationend", handler);
-        }, { once: true });
-      } else {
-        card.classList.remove("step-active");
-      }
-    } else if (!isTarget) {
-      card.classList.remove("step-active", "step-enter", "step-exit");
-    }
+function showSlide(targetSlide, animate) {
+  if (!targetSlide) return;
+  const viewport = document.getElementById("onboardingSlideViewport");
+  const oldSlide = document.querySelector(".onboarding-slide.slide-active");
+  if (targetSlide === oldSlide) return;
+
+  if (!animate || !oldSlide) {
+    document.querySelectorAll(".onboarding-slide").forEach(s => {
+      s.classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
+    });
+    targetSlide.classList.add("slide-active", "slide-settled");
+    viewport.style.height = "auto";
+    return;
+  }
+
+  // Lock the current height so the frame can't jump the instant the
+  // old panel starts leaving.
+  const startHeight = viewport.getBoundingClientRect().height;
+  viewport.style.height = startHeight + "px";
+
+  oldSlide.classList.add("slide-animating");
+  requestAnimationFrame(() => {
+    oldSlide.classList.remove("slide-settled");
+    oldSlide.classList.add("slide-exiting");
   });
+
+  function onOldExit(e) {
+    if (e.propertyName !== "opacity") return; // opacity and transform both transition; only act once
+    oldSlide.removeEventListener("transitionend", onOldExit);
+    oldSlide.classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
+
+    // Reveal the new panel at its "about to enter" state (opacity 0,
+    // translateY(8px), from the base .onboarding-slide rule) so its
+    // real height can be measured before animating the frame to it.
+    targetSlide.classList.add("slide-active");
+    const targetHeight = targetSlide.scrollHeight;
+    viewport.style.height = targetHeight + "px";
+
+    void targetSlide.offsetWidth; // force layout so the enter transition below actually starts from the base state
+    targetSlide.classList.add("slide-animating");
+    requestAnimationFrame(() => {
+      targetSlide.classList.add("slide-settled");
+    });
+
+    function onNewEnter(e2) {
+      if (e2.propertyName !== "opacity") return;
+      targetSlide.removeEventListener("transitionend", onNewEnter);
+      targetSlide.classList.remove("slide-animating");
+      viewport.style.height = "auto"; // release the lock now that sizes match, so future content changes reflow naturally
+    }
+    targetSlide.addEventListener("transitionend", onNewEnter);
+  }
+  oldSlide.addEventListener("transitionend", onOldExit);
 }
 
 // Types "TypeShala" character-by-character exactly once per page
