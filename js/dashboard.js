@@ -197,10 +197,9 @@ function stopAutoAdvance() {
 // fades+lifts out, THEN new fades+lifts in — using real CSS
 // transitions driven by transitionend events (never a guessed
 // setTimeout), so it can't desync from the actual animation. The
-// viewport height is locked before the transition and animated to
-// the new panel's natural height, so the card frame itself never
-// jumps — and the frame, the wordmark above it, and the progress
-// bar inside the active panel are never touched by any of this.
+// slide viewport has a fixed min-height (see style.css), so all
+// slides render at the same size regardless of content — the card
+// frame, the wordmark above it, and the progress bar never move.
 function goToStep(stepNumber, animate) {
   const target = document.querySelector('.onboarding-slide[data-step="' + stepNumber + '"]');
   showSlide(target, animate);
@@ -208,7 +207,6 @@ function goToStep(stepNumber, animate) {
 
 function showSlide(targetSlide, animate) {
   if (!targetSlide) return;
-  const viewport = document.getElementById("onboardingSlideViewport");
   const oldSlide = document.querySelector(".onboarding-slide.slide-active");
   if (targetSlide === oldSlide) return;
 
@@ -217,14 +215,8 @@ function showSlide(targetSlide, animate) {
       s.classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
     });
     targetSlide.classList.add("slide-active", "slide-settled");
-    viewport.style.height = "auto";
     return;
   }
-
-  // Lock the current height so the frame can't jump the instant the
-  // old panel starts leaving.
-  const startHeight = viewport.getBoundingClientRect().height;
-  viewport.style.height = startHeight + "px";
 
   oldSlide.classList.add("slide-animating");
   requestAnimationFrame(() => {
@@ -237,14 +229,8 @@ function showSlide(targetSlide, animate) {
     oldSlide.removeEventListener("transitionend", onOldExit);
     oldSlide.classList.remove("slide-active", "slide-settled", "slide-animating", "slide-exiting");
 
-    // Reveal the new panel at its "about to enter" state (opacity 0,
-    // translateY(8px), from the base .onboarding-slide rule) so its
-    // real height can be measured before animating the frame to it.
-    targetSlide.classList.add("slide-active");
-    const targetHeight = targetSlide.scrollHeight;
-    viewport.style.height = targetHeight + "px";
-
-    void targetSlide.offsetWidth; // force layout so the enter transition below actually starts from the base state
+    targetSlide.classList.add("slide-active"); // starts at the base "entering" state (opacity 0, translateY(8px))
+    void targetSlide.offsetWidth; // force layout so the enter transition below actually starts from that state
     targetSlide.classList.add("slide-animating");
     requestAnimationFrame(() => {
       targetSlide.classList.add("slide-settled");
@@ -254,7 +240,6 @@ function showSlide(targetSlide, animate) {
       if (e2.propertyName !== "opacity") return;
       targetSlide.removeEventListener("transitionend", onNewEnter);
       targetSlide.classList.remove("slide-animating");
-      viewport.style.height = "auto"; // release the lock now that sizes match, so future content changes reflow naturally
     }
     targetSlide.addEventListener("transitionend", onNewEnter);
   }
