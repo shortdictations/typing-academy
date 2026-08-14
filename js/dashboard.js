@@ -146,12 +146,18 @@ function openTargetModal(isFirstLogin) {
 
   hideOnboardingError();
   document.getElementById("onboardingOverlay").style.display = "flex";
+  startWordmarkTyping(); // guarded to run only once per session, regardless of entry point
+
+  // "Back to welcome" only makes sense as part of the sequential
+  // first-time flow — reopening via the dashboard's "Change"/"Set
+  // Target" button opens the target step alone, with nothing to
+  // go back to.
+  document.getElementById("backToWelcomeBtn").style.display = isFirstLogin ? "" : "none";
 
   // First login walks through Welcome (with auto-advance) -> Target;
   // reopening later via "Change"/"Set Target" jumps straight to the
   // slider — no need to replay the welcome message every time.
   if (isFirstLogin) {
-    startWordmarkTyping();
     goToStep(1, false);
     startAutoAdvance();
   } else {
