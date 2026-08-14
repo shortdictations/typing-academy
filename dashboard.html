@@ -35,38 +35,59 @@
 
   <!-- First-login onboarding modal — shown only when the student has
        no user_preferences row yet (or hasn't completed it), and again
-       when they click "Change"/"Set Target" later. -->
-  <div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
+       (skipping straight to the target step) when they click
+       "Change"/"Set Target" later. Dashboard stays mounted/visible
+       (dimmed) behind this overlay. -->
+  <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
+    <div class="onboarding-grid-bg"></div>
     <div class="onboarding-modal">
       <div class="onboarding-steps" id="onboardingSteps">
-        <span class="step-dot" data-step="1"></span>
-        <span class="step-dot" data-step="2"></span>
+        <span class="step-label" data-step="1">01 / 02</span>
+        <span class="step-label" data-step="2">02 / 02</span>
       </div>
 
+      <!-- STEP 1: WELCOME -->
       <div class="onboarding-card" id="welcomeCard" data-step="1">
-        <span class="step-icon">&#128075;</span>
-        <h2>Welcome to TypeShala</h2>
-        <p>TypeShala helps you track your typing performance over time — measuring your speed (WPM) and accuracy on every SSC, Legal, and Credit-Based test you take, so you can see exactly how you're improving.</p>
-        <button type="button" class="btn btn-full" id="welcomeNextBtn" style="margin-top:20px;">Next</button>
+        <div class="onboarding-orbit"><span class="onboarding-orbit-icon">&#128075;</span></div>
+        <p class="onboarding-eyebrow">A little context before we begin</p>
+        <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
+        <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
+        <div class="onboarding-goal-box">
+          <div class="onboarding-goal-title">Build your baseline</div>
+          <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
+        </div>
+        <button type="button" class="btn btn-full onboarding-btn" id="welcomeNextBtn">Set my pace &rarr;</button>
+        <div class="onboarding-autoadvance">
+          <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
+          <span>Automatically continuing in <span id="autoAdvanceSeconds">6</span> seconds</span>
+        </div>
       </div>
 
+      <!-- STEP 2: TARGET WPM -->
       <div class="onboarding-card" id="targetCard" data-step="2">
-        <span class="step-icon">&#127919;</span>
-        <h2 id="targetCardHeading">Set Your Target WPM</h2>
-        <p>Pick a speed goal to aim for. You can change this anytime from your dashboard.</p>
-        <div class="target-wpm-options" id="targetWpmOptions">
-          <button type="button" class="target-wpm-btn" data-value="30">30</button>
-          <button type="button" class="target-wpm-btn" data-value="40">40</button>
-          <button type="button" class="target-wpm-btn" data-value="50">50</button>
-          <button type="button" class="target-wpm-btn" data-value="60">60</button>
-          <button type="button" class="target-wpm-btn" data-value="70">70</button>
-          <button type="button" class="target-wpm-btn" data-value="80">80</button>
+        <div class="onboarding-orbit"><span class="onboarding-orbit-icon">&#127919;</span></div>
+        <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
+        <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
+        <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
+
+        <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
+        <input type="range" id="targetWpmSlider" class="onboarding-slider" min="20" max="120" step="1" value="55">
+        <div class="onboarding-slider-labels">
+          <span>Easy pace</span>
+          <span>Fast flow</span>
         </div>
-        <div class="field" style="margin-top:14px; margin-bottom:0;">
-          <label for="targetWpmCustom">Or enter a custom target</label>
-          <input type="number" id="targetWpmCustom" min="1" step="1" placeholder="e.g. 45">
-        </div>
-        <button type="button" class="btn btn-full" id="saveTargetBtn" style="margin-top:16px;" disabled>Continue</button>
+
+        <button type="button" class="btn btn-full onboarding-btn" id="saveTargetBtn" style="margin-top:20px;">Start practicing &#10003;</button>
+        <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
+      </div>
+
+      <!-- STEP 3: COMPLETION -->
+      <div class="onboarding-card" id="completeCard" data-step="3">
+        <div class="onboarding-orbit onboarding-orbit-done"><span class="onboarding-orbit-icon">&#10003;</span></div>
+        <p class="onboarding-eyebrow">Your space is ready</p>
+        <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
+        <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
+        <button type="button" class="btn btn-full onboarding-btn" id="beginSessionBtn" style="margin-top:24px;">Begin a session &rarr;</button>
       </div>
     </div>
   </div>
