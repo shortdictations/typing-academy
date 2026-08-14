@@ -52,24 +52,52 @@ function markWelcomeBackShown() {
   sessionStorage.setItem(WELCOME_BACK_SESSION_KEY, "true");
 }
 
-// Decides whether the returning-user welcome applies, and (for now)
-// triggers a plain placeholder — the real visual "Welcome back" card
-// is Part 3's job, not this one. No target WPM setup is shown here
-// under any circumstance; the user's saved target is left untouched.
+// Decides whether the returning-user welcome applies, and opens the
+// real custom "Welcome back" card (part of the same onboarding
+// modal/overlay as the first-time flow) — never a browser alert.
+// No target WPM setup is shown here under any circumstance; the
+// user's saved target is left completely untouched.
 function maybeShowWelcomeBack(user, onboardingCompleted) {
   if (!onboardingCompleted) return; // first-time modal (initTargetWpm) already handles this case entirely
   if (hasShownWelcomeBackThisSession()) return;
 
   markWelcomeBackShown();
+  openWelcomeBackModal(user);
+}
 
+function openWelcomeBackModal(user) {
   const firstName = (user.user_metadata && user.user_metadata.full_name)
     ? user.user_metadata.full_name.trim().split(/\s+/)[0]
     : "there";
+  document.getElementById("welcomeBackName").textContent = firstName;
 
-  // TEMPORARY placeholder so the state logic above is fully
-  // end-to-end testable without building any visual UI yet.
-  // Part 3 replaces this alert with the real design.
-  alert("Welcome back, " + firstName + "!");
+  // Hide the "01/02" step indicator — this is a single standalone
+  // card, not part of the first-time step wizard.
+  document.getElementById("onboardingSteps").style.display = "none";
+
+  document.querySelectorAll(".onboarding-card").forEach(c => {
+    c.classList.remove("step-active", "step-enter", "step-exit");
+  });
+
+  const card = document.getElementById("welcomeBackCard");
+  card.classList.add("step-active", "step-enter");
+  card.addEventListener("animationend", function handler(){
+    card.classList.remove("step-enter");
+    card.removeEventListener("animationend", handler);
+  }, { once: true });
+
+  document.getElementById("onboardingOverlay").style.display = "flex";
+
+  document.getElementById("continueWelcomeBackBtn").addEventListener("click", closeWelcomeBackModal, { once: true });
+}
+
+function closeWelcomeBackModal() {
+  document.getElementById("onboardingOverlay").style.display = "none";
+  document.getElementById("welcomeBackCard").classList.remove("step-active", "step-enter", "step-exit");
+  // Restore the step indicator for the first-time flow, so the two
+  // flows can't bleed into each other if this ever runs again later
+  // in the same page lifetime.
+  document.getElementById("onboardingSteps").style.display = "flex";
 }
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
