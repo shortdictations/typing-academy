@@ -1378,8 +1378,12 @@ footer.site-foot{
    height, and released back to auto once settled. */
 .onboarding-slide-viewport{
   position: relative;
-  transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  min-height: 380px; /* fixed regardless of which slide is showing — content centers within this, so the card frame never resizes between slides */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+.onboarding-slide{ width: 100%; }
 
 .onboarding-slide{
   display: none;
@@ -1532,6 +1536,7 @@ footer.site-foot{
   .onboarding-card{ padding: 26px 20px; border-radius: 14px; }
   .onboarding-card h2{ font-size: 1.3rem; }
   .onboarding-wordmark{ font-size: 1.05rem; margin-bottom: 14px; }
+  .onboarding-slide-viewport{ min-height: 340px; }
   .onboarding-wpm-display #wpmSliderValue{ font-size: 2.2rem; }
 }
 
