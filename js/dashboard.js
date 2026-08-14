@@ -162,7 +162,7 @@ function wireTargetModalControls(userId, avgWpm) {
       ? parseInt(customInput.value, 10)
       : (selectedBtn ? parseInt(selectedBtn.dataset.value, 10) : null);
 
-    if (!value || value <= 0) return;
+    if (!value || value < 20 || value > 120) return;
 
     saveBtn.disabled = true;
     saveBtn.textContent = "Saving...";
