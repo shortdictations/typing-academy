@@ -41,14 +41,17 @@
   <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
     <div class="onboarding-grid-bg"></div>
     <div class="onboarding-modal">
-      <div class="onboarding-steps" id="onboardingSteps">
-        <span class="step-label" data-step="1">01 / 02</span>
-        <span class="step-label" data-step="2">02 / 02</span>
+      <!-- Persistent TypeShala wordmark — lives OUTSIDE the individual
+           slide cards below, so it is rendered once and never
+           recreated when slides change. Types in once per onboarding
+           session (see startWordmarkTyping() in dashboard.js), then
+           just keeps blinking. Replaces the old per-card icons. -->
+      <div class="onboarding-wordmark" id="onboardingWordmark">
+        <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
       </div>
 
       <!-- STEP 1: WELCOME -->
       <div class="onboarding-card" id="welcomeCard" data-step="1">
-        <div class="onboarding-orbit"><span class="onboarding-orbit-icon">&#128075;</span></div>
         <p class="onboarding-eyebrow">A little context before we begin</p>
         <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
         <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
@@ -59,13 +62,11 @@
         <button type="button" class="btn btn-full onboarding-btn" id="welcomeNextBtn">Set my pace &rarr;</button>
         <div class="onboarding-autoadvance">
           <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
-          <span>Automatically continuing in <span id="autoAdvanceSeconds">6</span> seconds</span>
         </div>
       </div>
 
       <!-- STEP 2: TARGET WPM -->
       <div class="onboarding-card" id="targetCard" data-step="2">
-        <div class="onboarding-orbit"><span class="onboarding-orbit-icon">&#127919;</span></div>
         <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
         <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
         <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
@@ -83,7 +84,6 @@
 
       <!-- STEP 3: COMPLETION -->
       <div class="onboarding-card" id="completeCard" data-step="3">
-        <div class="onboarding-orbit onboarding-orbit-done"><span class="onboarding-orbit-icon">&#10003;</span></div>
         <p class="onboarding-eyebrow">Your space is ready</p>
         <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
         <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
@@ -94,7 +94,6 @@
            indicator, no WPM setup. Reuses the same modal/overlay and
            visual language as the first-time flow above. -->
       <div class="onboarding-card" id="welcomeBackCard">
-        <div class="onboarding-orbit"><span class="onboarding-orbit-icon">&#128075;</span></div>
         <p class="onboarding-eyebrow">Good to see you</p>
         <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
         <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
