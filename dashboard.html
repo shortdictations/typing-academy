@@ -64,12 +64,14 @@
 
           <!-- STEP 1: WELCOME -->
           <div class="onboarding-slide" id="welcomeCard" data-step="1">
-            <p class="onboarding-eyebrow">A little context before we begin</p>
-            <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
-            <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
-            <div class="onboarding-goal-box">
-              <div class="onboarding-goal-title">Build your baseline</div>
-              <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
+            <div class="onboarding-slide-content">
+              <p class="onboarding-eyebrow">A little context before we begin</p>
+              <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
+              <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
+              <div class="onboarding-goal-box">
+                <div class="onboarding-goal-title">Build your baseline</div>
+                <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
+              </div>
             </div>
             <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
             <div class="onboarding-autoadvance">
@@ -79,15 +81,25 @@
 
           <!-- STEP 2: TARGET WPM -->
           <div class="onboarding-slide" id="targetCard" data-step="2">
-            <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
-            <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
-            <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
+            <div class="onboarding-slide-content">
+              <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
+              <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
+              <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
 
-            <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
-            <input type="range" id="targetWpmSlider" class="onboarding-slider" min="20" max="120" step="1" value="55">
-            <div class="onboarding-slider-labels">
-              <span>Easy pace</span>
-              <span>Fast flow</span>
+              <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
+              <!-- Progress-bar-styled range control — same visual
+                   language as the auto-advance bar, not a plain
+                   slider. Still a real <input type="range"> under
+                   the hood, so drag/click/keyboard all still work
+                   to set 20-120. -->
+              <div class="onboarding-progress-slider">
+                <div class="onboarding-progress-slider-track"><div class="onboarding-progress-slider-fill" id="wpmProgressFill"></div></div>
+                <input type="range" id="targetWpmSlider" min="20" max="120" step="1" value="55">
+              </div>
+              <div class="onboarding-slider-labels">
+                <span>Easy pace</span>
+                <span>Fast flow</span>
+              </div>
             </div>
 
             <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing</button>
@@ -97,9 +109,11 @@
           <!-- STEP 3: COMPLETION — also reused as the 2nd slide of the
                returning-user flow (see welcomeBackCard below). -->
           <div class="onboarding-slide" id="completeCard" data-step="3">
-            <p class="onboarding-eyebrow">Your space is ready</p>
-            <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
-            <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
+            <div class="onboarding-slide-content">
+              <p class="onboarding-eyebrow">Your space is ready</p>
+              <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
+              <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
+            </div>
             <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
             <button type="button" class="onboarding-back-link" id="backToTargetBtn">&larr; Back</button>
           </div>
@@ -107,9 +121,11 @@
           <!-- RETURNING-USER WELCOME BACK — standalone slide, no
                step indicator, no WPM setup. -->
           <div class="onboarding-slide" id="welcomeBackCard">
-            <p class="onboarding-eyebrow">Good to see you</p>
-            <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
-            <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
+            <div class="onboarding-slide-content">
+              <p class="onboarding-eyebrow">Good to see you</p>
+              <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
+              <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
+            </div>
             <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
           </div>
 
