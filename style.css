@@ -39,15 +39,7 @@ body{
   font-family: var(--font-body);
   line-height: 1.5;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
-/* Sticky footer: on a short page (e.g. mock-history.html with few
-   or no results), main grows to fill the remaining viewport height
-   so the footer always sits at the bottom edge, consistent with
-   longer pages, instead of trailing right after sparse content. */
-main{ flex: 1 0 auto; }
-footer.site-foot{ flex-shrink: 0; }
 
 a{ color: inherit; }
 
@@ -652,6 +644,12 @@ html.sidebar-scroll-lock, body.sidebar-scroll-lock{
 .mobile-sidebar-footer-text{ display: flex; flex-direction: column; }
 .mobile-sidebar-footer-name{ font-family: var(--font-display); font-weight: 700; color: var(--paper); font-size: 0.9rem; }
 .mobile-sidebar-footer-tagline{ font-size: 0.68rem; color: rgba(255,255,255,0.5); }
+#userChip{
+  font-size: 0.75rem;
+  color: var(--brass-light);
+  border-right: 1px solid rgba(255,255,255,0.2);
+  padding-right: 14px;
+}
 
 /* ---------- Page shell ---------- */
 .page{
@@ -2044,11 +2042,10 @@ footer.site-foot{
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: underline;
   font-family: var(--font-body);
   display: block;
 }
-.dash-change-link:hover{ color: #2F49B8; text-decoration: none; }
 .dash-target-divider{
   width: 1px;
   align-self: stretch;
@@ -2127,26 +2124,9 @@ footer.site-foot{
   .dash-progress-pct{ font-size: 0.66rem; margin-top: 4px; }
 }
 @media (max-width: 480px){
-  .dash-target-card{ padding: 14px 16px; gap: 10px; }
-  .dash-target-left{ width: 30%; flex: 0 0 30%; gap: 8px; }
-  .dash-target-right{ width: 70%; flex: 1 1 70%; }
-  .dash-target-icon{ width: 32px; height: 32px; font-size: 0.9rem; }
-  .dash-target-left .big{ font-size: 1.15rem; }
-  .dash-target-sub{ font-size: 0.6rem; line-height: 1.4; }
-  .dash-change-link{ font-size: 0.6rem; }
-}
-@media (max-width: 360px){
-  /* At true small-phone widths, 30% still leaves too little room next
-     to the icon for "Target WPM · Change" to wrap cleanly — widen
-     the left column further so it settles into 2 tidy lines instead
-     of several ragged ones. */
-  .dash-target-card{ padding: 12px 14px; gap: 8px; }
-  .dash-target-left{ width: 38%; flex: 0 0 38%; }
-  .dash-target-right{ width: 62%; flex: 1 1 62%; }
-  .dash-target-right-numbers{ flex-wrap: wrap; gap: 2px 10px; font-size: 0.68rem; }
-  .dash-stats-grid{ gap: 8px; }
-  .dash-stat-card{ padding: 8px; gap: 6px; }
-  #statLastTest{ font-size: 0.85rem !important; } /* inline style on this element needs !important to override at this width */
+  .dash-target-card{ padding: 14px 16px; }
+  .dash-target-left{ width: 27%; flex: 0 0 27%; }
+  .dash-target-right{ width: 73%; flex: 1 1 73%; }
 }
 
 .dash-chart-label{
@@ -2174,62 +2154,13 @@ footer.site-foot{
 .dash-target-sub{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
 .dash-target-sub .dash-change-link{ display: inline; margin: 0; font-size: 0.72rem; }
 
-/* Removed the notebook-line pattern entirely on the dashboard —
-   just the existing --paper color, no lines, no gradient, no new
-   texture. Every other page keeps the original lined background;
-   this selector only ever matched dashboard.html. */
+/* Softer background rule lines specifically on the dashboard — same
+   pattern, lower contrast, so it doesn't compete with the cards. */
 body.dashboard-page{
-  background-image: none;
-  background-color: var(--paper);
+  background-image: linear-gradient(rgba(217, 210, 190, 0.45) 1px, transparent 1px);
 }
 
 /* Tighter vertical rhythm throughout the dashboard */
 .dashboard-page .page{ padding-top: 24px; padding-bottom: 40px; }
 .dashboard-page .dash-actions{ margin-top: 16px; margin-bottom: 4px; }
 .dashboard-page footer.site-foot{ margin-top: 20px; }
-
-/* ---------- mock-history.html: mobile-friendly results table ----------
-   Scoped to .history-table specifically (not the shared .marksheet
-   class used by admin pages) so this only ever affects the student
-   results table on mock-history.html. On narrow screens the table
-   restructures into a stack of labeled cards instead of forcing
-   horizontal scroll to read basic results. */
-@media (max-width: 700px){
-  table.history-table, table.history-table thead, table.history-table tbody,
-  table.history-table th, table.history-table td, table.history-table tr{
-    display: block;
-  }
-  table.history-table thead{ display: none; }
-  table.history-table tr{
-    background: var(--white);
-    border: 1px solid var(--paper-line);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-  }
-  table.history-table tr.history-detail-row{
-    border: none;
-    padding: 0;
-    margin-top: -10px;
-    margin-bottom: 10px;
-    border-radius: 0 0 10px 10px;
-  }
-  table.history-table td{
-    border: none;
-    padding: 6px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-  table.history-table td[data-label]::before{
-    content: attr(data-label);
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--ink-soft);
-    flex: none;
-  }
-  table.history-table td[data-label="Result"]{ justify-content: flex-end; }
-}
