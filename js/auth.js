@@ -175,6 +175,7 @@ async function initAuthHeader(user) {
     fetchTotalCredits(user.id)
   ]);
   renderDropdownPlans(activePasses);
+  initSubscribeMenu(activePasses); // header "Subscribe" menu, if this page has one
   const ddCredits = document.getElementById("ddCredits");
   if (ddCredits) { ddCredits.textContent = creditsTotal; ddCredits.title = String(creditsTotal); }
 
@@ -258,8 +259,8 @@ function passTypeLabel(passType) {
   return passType;
 }
 
-function renderDropdownPlans(activePasses) {
-  const list = document.getElementById("ddPlansList");
+function renderDropdownPlans(activePasses, targetId) {
+  const list = document.getElementById(targetId || "ddPlansList");
   if (!list) return;
 
   if (activePasses.length === 0) {
@@ -279,6 +280,30 @@ function renderDropdownPlans(activePasses) {
       '</span>' +
     '</div>';
   }).join("");
+}
+
+// Header "Subscribe" menu (desktop) — a small hover/click dropdown
+// reusing the exact same Active Plans list markup and data already
+// fetched for the avatar dropdown, so there's no second query and
+// no duplicated plan-rendering logic. Only present on pages that
+// actually have the header markup for it (currently dashboard.html),
+// so this is a no-op elsewhere.
+function initSubscribeMenu(activePasses) {
+  const trigger = document.getElementById("subscribeMenuTrigger");
+  const dropdown = document.getElementById("subscribeMenuDropdown");
+  if (!trigger || !dropdown) return;
+
+  renderDropdownPlans(activePasses, "subscribeMenuPlansList");
+
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+      dropdown.classList.remove("open");
+    }
+  });
 }
 
 async function fetchTotalCredits(userId) {
@@ -391,7 +416,7 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
     { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" },
     { href: "mock-test.html", icon: "&#128203;", tint: "tile-orange", title: "Mock Test", sub: "Take a new mock test" },
     { href: "mock-history.html", icon: "&#128200;", tint: "tile-purple", title: "Mock History", sub: "View your mock test history" },
-    { href: "subscriptions.html", icon: "&#129689;", tint: "tile-blue", title: "Subscribe", sub: "View plans & credits" }
+    { href: "subscriptions.html", icon: "&#128081;", tint: "tile-blue", title: "Subscribe", sub: "View plans & credits" }
   ];
   const ALWAYS_PRESENT_HREFS = menuEntries.map(e => e.href);
 
