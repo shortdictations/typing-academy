@@ -194,7 +194,7 @@
     </div>
   </div>
 
-  <div class="charts-row dashboard-charts-row">
+  <div class="charts-row dashboard-charts-row" id="dashboardChartsRow">
     <div class="card chart-card">
       <div class="card-label dash-chart-label">
         <span>&#128200; WPM Progress</span>
@@ -216,6 +216,11 @@
       </div>
       <p class="dash-chart-note" id="accuracyChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
     </div>
+  </div>
+
+  <div class="dash-carousel-dots" id="chartCarouselDots">
+    <button type="button" class="dash-dot active" data-index="0" aria-label="Show WPM Progress"></button>
+    <button type="button" class="dash-dot" data-index="1" aria-label="Show Accuracy Progress"></button>
   </div>
 
   <div class="dash-actions">
