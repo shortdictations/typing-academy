@@ -151,8 +151,8 @@ function renderPassProducts(products, grid, activePassTypes) {
   }
 
   grid.innerHTML = products.map(p => {
-    const featured = p.pass_type === "COMBO" ? " featured" : "";
-    const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
+    const featured = p.best_value ? " featured" : "";
+    const badge = p.best_value ? '<span class="best-value-badge">Best Value</span>' : "";
     const isActive = activePassTypes.has(p.pass_type);
     const buttonHtml = isActive
       ? '<button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;">&#10003; Active</button>'
