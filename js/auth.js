@@ -383,8 +383,9 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   // aren't real TypeShala pages.
   const menuSection = document.createElement("div");
   menuSection.className = "mobile-sidebar-section";
-  let menuRowsHtml = '<div class="mobile-sidebar-section-heading"><span>Menu</span></div>';
-  menuRowsHtml += mobileMenuRowHtml("dashboard.html", "&#128202;", "tile-purple", "Dashboard", "Overview & stats");
+  const menuEntries = [
+    { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" }
+  ];
 
   const existingLinks = navLinks.querySelectorAll(":scope > a:not(.credit-badge)");
   existingLinks.forEach(a => {
@@ -392,7 +393,27 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
     const href = a.getAttribute("href");
     if (href === "dashboard.html") return; // don't duplicate the Dashboard row above
     const meta = mobileMenuIconFor(label);
-    menuRowsHtml += mobileMenuRowHtml(href, meta.icon, meta.tint, label, meta.sub);
+    menuEntries.push({ href, icon: meta.icon, tint: meta.tint, title: label, sub: meta.sub });
+  });
+
+  // Fixed priority order — independent of whatever order this
+  // page's own nav happens to list its links in (which varies: some
+  // pages don't even have a Mock History link, so relying on
+  // per-page DOM order was unreliable). Anything not in this list
+  // keeps its natural position at the end.
+  const MENU_PRIORITY = ["dashboard.html", "mock-test.html", "mock-test-list.html", "mock-history.html", "subscriptions.html"];
+  menuEntries.sort((a, b) => {
+    const ai = MENU_PRIORITY.indexOf(a.href);
+    const bi = MENU_PRIORITY.indexOf(b.href);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
+  let menuRowsHtml = '<div class="mobile-sidebar-section-heading"><span>Menu</span></div>';
+  menuEntries.forEach(e => {
+    menuRowsHtml += mobileMenuRowHtml(e.href, e.icon, e.tint, e.title, e.sub);
   });
   menuSection.innerHTML = menuRowsHtml;
   body.appendChild(menuSection);
