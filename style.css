@@ -1136,7 +1136,7 @@ p.lede{
   gap: 14px;
   margin-bottom: 20px;
 }
-@media (max-width: 700px){ .charts-row{ grid-template-columns: 1fr; gap: 12px; } }
+@media (max-width: 700px){ .charts-row{ gap: 8px; } }
 .chart-card{
   padding: 14px 16px;
   margin: 0;
@@ -1146,6 +1146,30 @@ p.lede{
   padding-bottom: 6px;
 }
 .charts-row .card + .card{ margin-top: 0; } /* override the default .card+.card stacking margin inside the grid row */
+
+/* Dashboard-only: charts stay side-by-side even on narrow mobile
+   (down to 320px) — this intentionally overrides the old rule that
+   used to stack them on mobile. */
+.dashboard-charts-row{
+  grid-template-columns: 1fr 1fr;
+}
+.dash-chart-canvas-wrap{
+  position: relative;
+  height: 140px; /* fixed compact height instead of Chart.js's default tall aspect ratio */
+}
+@media (max-width: 480px){
+  .dash-chart-canvas-wrap{ height: 110px; }
+  .chart-card{ padding: 10px 8px; }
+  .dashboard-charts-row{ gap: 6px; }
+  .dash-chart-label span{ font-size: 0.72rem; }
+}
+.dash-chart-note{
+  font-size: 0.66rem;
+  color: var(--ink-soft);
+  text-align: center;
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
 
 table.marksheet{
   width: 100%;
@@ -2032,9 +2056,18 @@ footer.site-foot{
   margin-top: 5px;
 }
 @media (max-width: 560px){
-  .dash-target-card{ flex-direction: column; align-items: flex-start; }
+  .dash-target-card{ flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px; }
   .dash-target-divider{ display: none; }
   .dash-target-right{ width: 100%; }
+  .dash-target-left{ gap: 10px; }
+  .dash-target-icon{ width: 38px; height: 38px; font-size: 1.05rem; }
+  .dash-target-left .big{ font-size: 1.4rem; }
+  .dash-target-left .lab{ font-size: 0.6rem; }
+  .dash-change-link{ font-size: 0.66rem; }
+  .dash-target-right-heading{ font-size: 0.6rem; margin-bottom: 6px; }
+  .dash-target-right-numbers{ font-size: 0.72rem; margin-bottom: 5px; }
+  .dash-progress-track{ height: 8px; }
+  .dash-progress-pct{ font-size: 0.66rem; margin-top: 4px; }
 }
 
 .dash-chart-label{
@@ -2049,3 +2082,26 @@ footer.site-foot{
   padding: 9px 20px;
   font-size: 0.82rem;
 }
+
+
+
+/* ---------- Dashboard mobile-improvement pass ---------- */
+@media (max-width: 480px){
+  .dashboard-h1{ font-size: 1.5rem; }
+}
+.dash-stat-nowrap{ white-space: nowrap; }
+
+/* Target WPM card: tighter, no leftover empty area */
+.dash-target-sub{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
+.dash-target-sub .dash-change-link{ display: inline; margin: 0; font-size: 0.72rem; }
+
+/* Softer background rule lines specifically on the dashboard — same
+   pattern, lower contrast, so it doesn't compete with the cards. */
+body.dashboard-page{
+  background-image: linear-gradient(rgba(217, 210, 190, 0.45) 1px, transparent 1px);
+}
+
+/* Tighter vertical rhythm throughout the dashboard */
+.dashboard-page .page{ padding-top: 24px; padding-bottom: 40px; }
+.dashboard-page .dash-actions{ margin-top: 16px; margin-bottom: 4px; }
+.dashboard-page footer.site-foot{ margin-top: 20px; }
