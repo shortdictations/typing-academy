@@ -458,11 +458,13 @@ function renderTargetWpmCard() {
 }
 
 function showStudentName(user) {
-  const name = user.user_metadata && user.user_metadata.full_name
-    ? user.user_metadata.full_name
-    : user.email;
+  // Display-only — the stored full_name in Supabase is never
+  // touched, only the greeting shows a shortened version of it.
+  const fullName = user.user_metadata && user.user_metadata.full_name;
+  const firstName = fullName ? fullName.trim().split(/\s+/)[0] : null;
+
   const el = document.getElementById("welcomeName");
-  if (el) el.textContent = name;
+  if (el) el.textContent = firstName || "there"; // graceful fallback if no name is set at all
 }
 
 // Onboarding modal greeting uses just the first name — never the
