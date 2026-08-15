@@ -115,6 +115,20 @@ a{ color: inherit; }
 }
 .nav-links button:hover{ background: var(--brass); color: var(--ink); }
 
+.nav-subscribe-btn{
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--brass);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brass-light);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav-subscribe-btn:hover{ background: var(--brass); color: var(--ink); }
+
 /* ---------- Public homepage header only (index.html) ----------
    Scoped entirely to .public-header so no other page's header,
    nav, or button styling is affected — the shared .letterhead-inner,
@@ -614,6 +628,7 @@ html.sidebar-scroll-lock, body.sidebar-scroll-lock{
 }
 .tile-purple{ background: #EDE9F7; }
 .tile-orange{ background: #FBEADB; }
+.tile-blue{ background: #E7ECFB; }
 .tile-danger{ background: #FBEAE7; color: var(--stamp); }
 .mobile-sidebar-menu-text{ display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
 .mobile-sidebar-menu-title{ font-weight: 700; color: var(--ink); font-size: 0.82rem; }
@@ -757,6 +772,7 @@ p.lede{
   color: var(--paper);
   cursor: pointer;
   letter-spacing: 0.02em;
+  text-decoration: none;
 }
 .btn:hover{ background: var(--stamp); border-color: var(--stamp); }
 .btn:disabled{ opacity: 0.5; cursor: not-allowed; }
@@ -1917,38 +1933,42 @@ footer.site-foot{
 .dash-stats-grid{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (min-width: 700px){
+  .dash-stats-grid{ grid-template-columns: repeat(4, 1fr); }
 }
 .dash-stat-card{
   background: var(--white);
   border: 1px solid var(--paper-line);
-  border-radius: 12px;
-  padding: 13px;
+  border-radius: 11px;
+  padding: 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 2px 6px rgba(27, 42, 61, 0.05);
 }
 .dash-stat-icon{
-  width: 40px; height: 40px; flex: none;
-  border-radius: 11px;
+  width: 34px; height: 34px; flex: none;
+  border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
 }
 .dash-tile-blue{ background: #E7ECFB; }
 .dash-tile-green{ background: #E6F4EA; }
 .dash-tile-orange{ background: #FDEEE2; }
 .dash-tile-purple{ background: #F1EAFB; }
-.dash-stat-text .big{ font-size: 1.25rem; line-height: 1.1; }
-.dash-stat-text .lab{ font-size: 0.64rem; margin-top: 2px; }
+.dash-stat-text .big{ font-size: 1.1rem; line-height: 1.1; }
+.dash-stat-text .lab{ font-size: 0.6rem; margin-top: 1px; }
 
 .dash-target-card{
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  padding: 16px;
 }
 .dash-target-left{ display: flex; align-items: center; gap: 14px; flex: none; }
 .dash-target-icon{
@@ -2024,10 +2044,8 @@ footer.site-foot{
   flex-wrap: wrap;
   gap: 8px;
 }
-.dash-actions{ margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+.dash-actions{ margin-top: 20px; }
 .dash-btn-primary{
-  background: #3B5BDB;
-  border-color: #3B5BDB;
-  text-align: center;
+  padding: 9px 20px;
+  font-size: 0.82rem;
 }
-.dash-btn-primary:hover{ background: #2F49B8; border-color: #2F49B8; }
