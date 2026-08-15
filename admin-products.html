@@ -21,6 +21,7 @@
       <a href="admin.html">Passages</a>
       <a href="admin-mock-tests.html">Mock Tests</a>
       <a href="admin-products.html">Subscription &amp; Credits</a>
+      <a href="admin-announcements.html">Announcements</a>
       <div class="user-menu">
         <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
         <div class="user-menu-dropdown" id="userMenuDropdown">
@@ -74,6 +75,14 @@
           <option value="LEGAL">Legal</option>
           <option value="COMBO">Combo</option>
         </select>
+      </div>
+
+      <div class="field" id="bestValueWrap">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="pBestValue" style="width:auto;">
+          Best Value
+        </label>
+        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Only one Pass Plan can be Best Value at a time — marking this one automatically removes it from any other plan.</p>
       </div>
 
       <div class="field" id="creditsWrap" style="display:none;">
