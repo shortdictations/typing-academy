@@ -320,11 +320,15 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   sidebar.className = "mobile-sidebar";
   sidebar.id = "mobileSidebar";
 
+  // ---- Dark header: avatar, name, email, close ----
+  const header = document.createElement("div");
+  header.className = "mobile-sidebar-header";
+
   const closeBtn = document.createElement("button");
   closeBtn.type = "button";
   closeBtn.className = "mobile-sidebar-close";
   closeBtn.innerHTML = "&times;";
-  sidebar.appendChild(closeBtn);
+  header.appendChild(closeBtn);
 
   const userRow = document.createElement("div");
   userRow.className = "mobile-sidebar-user";
@@ -334,63 +338,90 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
     '<div class="mobile-sidebar-name">' + escapeHtmlAuth(displayName) + '</div>' +
     '<div class="mobile-sidebar-email">' + escapeHtmlAuth(user.email) + '</div>';
   userRow.appendChild(userText);
-  sidebar.appendChild(userRow);
+  header.appendChild(userRow);
 
-  const stats = document.createElement("div");
-  stats.className = "avatar-dropdown-credits mobile-sidebar-credits";
-  stats.innerHTML = `
-    <div class="credits-card-top">
-      <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
-      <span class="credits-card-value">&#129689; ${escapeHtmlAuth(String(creditsTotal))}</span>
-    </div>
-    <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>`;
-  sidebar.appendChild(stats);
+  const creditsCard = document.createElement("div");
+  creditsCard.className = "mobile-sidebar-credits-card";
+  creditsCard.innerHTML =
+    '<span class="mobile-sidebar-credits-icon">&#129689;</span>' +
+    '<span class="mobile-sidebar-credits-text">' +
+      '<span class="mobile-sidebar-credits-label">Credits Available</span>' +
+      '<span class="mobile-sidebar-credits-num">' + escapeHtmlAuth(String(creditsTotal)) + '</span>' +
+    '</span>' +
+    '<a class="mobile-sidebar-credits-btn" href="subscriptions.html">Buy Credits &#10024;</a>';
+  header.appendChild(creditsCard);
+  sidebar.appendChild(header);
 
-  const plansBlock = document.createElement("div");
-  plansBlock.className = "avatar-dropdown-plans mobile-sidebar-plans";
-  const plansListHtml = activePasses.length === 0
+  // ---- Light body: Active Plans, then Menu ----
+  const body = document.createElement("div");
+  body.className = "mobile-sidebar-body";
+
+  const plansSection = document.createElement("div");
+  plansSection.className = "mobile-sidebar-section";
+  const plansRowsHtml = activePasses.length === 0
     ? '<div class="avatar-dropdown-plan-empty">No active pass</div>'
     : activePasses.map(p => {
         const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-        return '<div class="avatar-dropdown-plan-row">' +
-          '<span class="avatar-dropdown-plan-check">&#10003;</span>' +
-          '<span class="avatar-dropdown-plan-text">' +
-            '<span class="avatar-dropdown-plan-name">' + escapeHtmlAuth(p.label) + '</span>' +
-            '<span class="avatar-dropdown-plan-expiry">Active until ' + expiresText + '</span>' +
+        return '<a class="mobile-sidebar-plan-row" href="subscriptions.html">' +
+          '<span class="mobile-sidebar-plan-check">&#10003;</span>' +
+          '<span class="mobile-sidebar-plan-text">' +
+            '<span class="mobile-sidebar-plan-name">' + escapeHtmlAuth(p.label) + '</span>' +
+            '<span class="mobile-sidebar-plan-expiry">Active until ' + expiresText + '</span>' +
           '</span>' +
-        '</div>';
+          '<span class="mobile-sidebar-chevron">&#8250;</span>' +
+        '</a>';
       }).join("");
-  plansBlock.innerHTML =
-    '<a class="avatar-dropdown-plans-heading" href="subscriptions.html"><span>Active Plans</span><span class="avatar-menu-icon">&#127891;</span></a>' +
-    '<div class="avatar-dropdown-plans-list">' + plansListHtml + '</div>';
-  sidebar.appendChild(plansBlock);
+  plansSection.innerHTML =
+    '<div class="mobile-sidebar-section-heading"><span>Active Plans</span><span>&#127891;</span></div>' +
+    plansRowsHtml;
+  body.appendChild(plansSection);
 
-  const sidebarDivider = document.createElement("div");
-  sidebarDivider.className = "avatar-dropdown-divider mobile-sidebar-divider";
-  sidebar.appendChild(sidebarDivider);
+  // Menu — Dashboard is always included (real page, always valid to
+  // link to); the rest are this page's own real nav links, cloned
+  // exactly as before, just restyled as icon-tile rows. Nothing
+  // fictional like "My Wallet" or "Question Bank" is added — those
+  // aren't real TypeShala pages.
+  const menuSection = document.createElement("div");
+  menuSection.className = "mobile-sidebar-section";
+  let menuRowsHtml = '<div class="mobile-sidebar-section-heading"><span>Menu</span></div>';
+  menuRowsHtml += mobileMenuRowHtml("dashboard.html", "&#128202;", "tile-purple", "Dashboard", "Overview & stats");
 
-  const linksWrap = document.createElement("nav");
-  linksWrap.className = "mobile-sidebar-links";
   const existingLinks = navLinks.querySelectorAll(":scope > a:not(.credit-badge)");
   existingLinks.forEach(a => {
-    const clone = document.createElement("a");
-    clone.className = "avatar-menu-row mobile-sidebar-menu-row";
-    clone.href = a.getAttribute("href");
-    clone.innerHTML = '<span class="avatar-menu-icon">&#8226;</span><span class="avatar-menu-label">' + escapeHtmlAuth(a.textContent) + '</span>';
-    linksWrap.appendChild(clone);
+    const label = a.textContent.trim();
+    const href = a.getAttribute("href");
+    if (href === "dashboard.html") return; // don't duplicate the Dashboard row above
+    const meta = mobileMenuIconFor(label);
+    menuRowsHtml += mobileMenuRowHtml(href, meta.icon, meta.tint, label, meta.sub);
   });
-  sidebar.appendChild(linksWrap);
-
-  const linksDivider = document.createElement("div");
-  linksDivider.className = "avatar-dropdown-divider mobile-sidebar-divider";
-  sidebar.appendChild(linksDivider);
+  menuSection.innerHTML = menuRowsHtml;
+  body.appendChild(menuSection);
 
   const logoutBtn = document.createElement("button");
   logoutBtn.type = "button";
-  logoutBtn.className = "avatar-menu-row avatar-menu-logout mobile-sidebar-menu-row";
-  logoutBtn.innerHTML = '<span class="avatar-menu-icon">&#8674;</span><span class="avatar-menu-label">Logout</span>';
+  logoutBtn.className = "mobile-sidebar-logout-row";
+  logoutBtn.innerHTML =
+    '<span class="mobile-sidebar-tile tile-danger">&#8674;</span>' +
+    '<span class="mobile-sidebar-menu-text">' +
+      '<span class="mobile-sidebar-menu-title">Logout</span>' +
+      '<span class="mobile-sidebar-menu-sub">Sign out from your account</span>' +
+    '</span>' +
+    '<span class="mobile-sidebar-chevron">&#8250;</span>';
   logoutBtn.addEventListener("click", logoutStudent);
-  sidebar.appendChild(logoutBtn);
+  body.appendChild(logoutBtn);
+
+  sidebar.appendChild(body);
+
+  // ---- Dark footer ----
+  const footer = document.createElement("div");
+  footer.className = "mobile-sidebar-footer";
+  footer.innerHTML =
+    '<span class="mobile-sidebar-footer-seal">TS</span>' +
+    '<span class="mobile-sidebar-footer-text">' +
+      '<span class="mobile-sidebar-footer-name">TypeShala</span>' +
+      '<span class="mobile-sidebar-footer-tagline">Typing Practice Centre</span>' +
+    '</span>';
+  sidebar.appendChild(footer);
 
   document.body.appendChild(overlay);
   document.body.appendChild(sidebar);
@@ -401,6 +432,32 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   hamburger.addEventListener("click", openSidebar);
   closeBtn.addEventListener("click", closeSidebar);
   overlay.addEventListener("click", closeSidebar);
+}
+
+function mobileMenuRowHtml(href, icon, tint, title, sub) {
+  return '<a class="mobile-sidebar-menu-row" href="' + href + '">' +
+    '<span class="mobile-sidebar-tile ' + tint + '">' + icon + '</span>' +
+    '<span class="mobile-sidebar-menu-text">' +
+      '<span class="mobile-sidebar-menu-title">' + escapeHtmlAuth(title) + '</span>' +
+      '<span class="mobile-sidebar-menu-sub">' + escapeHtmlAuth(sub) + '</span>' +
+    '</span>' +
+    '<span class="mobile-sidebar-chevron">&#8250;</span>' +
+  '</a>';
+}
+
+// Best-effort icon/subtitle for whichever real nav links this page
+// happens to have — since different pages show different links
+// (Mock Tests, Mock History, Credits, admin links, etc.), this
+// pattern-matches on the label rather than hardcoding a fixed list.
+function mobileMenuIconFor(label) {
+  const l = label.toLowerCase();
+  if (l.includes("history")) return { icon: "&#128200;", tint: "tile-purple", sub: "View your mock test history" };
+  if (l.includes("mock")) return { icon: "&#128203;", tint: "tile-orange", sub: "Take a new mock test" };
+  if (l.includes("credit")) return { icon: "&#129689;", tint: "tile-purple", sub: "View or buy credits" };
+  if (l.includes("subscription")) return { icon: "&#128179;", tint: "tile-purple", sub: "Manage your plan" };
+  if (l.includes("passage")) return { icon: "&#128220;", tint: "tile-purple", sub: "Manage passages" };
+  if (l.includes("admin")) return { icon: "&#128736;", tint: "tile-purple", sub: "Admin tools" };
+  return { icon: "&#8226;", tint: "tile-purple", sub: "" };
 }
 
 function escapeHtmlAuth(str) {
