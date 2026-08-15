@@ -405,14 +405,15 @@ function renderTargetWpmCard() {
   const progressCard = document.getElementById("targetProgressCard");
 
   if (currentTargetWpm) {
-    el.textContent = "\u{1F3AF} " + currentTargetWpm;
+    el.textContent = currentTargetWpm; // icon is now its own separate element in the card, not inline with the number
     changeBtn.textContent = "Change";
 
-    progressCard.style.display = "block";
+    progressCard.style.display = "flex";
     document.getElementById("progressActual").textContent = currentAvgWpm;
     document.getElementById("progressTarget").textContent = currentTargetWpm;
     const pct = Math.max(0, Math.min(100, Math.round((currentAvgWpm / currentTargetWpm) * 100)));
     document.getElementById("progressBarFill").style.width = pct + "%";
+    document.getElementById("progressPct").textContent = pct + "%";
   } else {
     el.textContent = "—";
     changeBtn.textContent = "Set Target";
@@ -504,8 +505,8 @@ function renderCharts(results) {
       datasets: [{
         label: "Net WPM",
         data: wpmValues,
-        borderColor: "#B23A2E",
-        backgroundColor: "rgba(178,58,46,0.12)",
+        borderColor: "#3B5BDB",
+        backgroundColor: "rgba(59,91,219,0.12)",
         tension: 0.25,
         fill: true,
         pointRadius: 3
