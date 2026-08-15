@@ -2032,9 +2032,18 @@ footer.site-foot{
   margin-top: 5px;
 }
 @media (max-width: 560px){
-  .dash-target-card{ flex-direction: column; align-items: flex-start; }
+  .dash-target-card{ flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px; }
   .dash-target-divider{ display: none; }
   .dash-target-right{ width: 100%; }
+  .dash-target-left{ gap: 10px; }
+  .dash-target-icon{ width: 38px; height: 38px; font-size: 1.05rem; }
+  .dash-target-left .big{ font-size: 1.4rem; }
+  .dash-target-left .lab{ font-size: 0.6rem; }
+  .dash-change-link{ font-size: 0.66rem; }
+  .dash-target-right-heading{ font-size: 0.6rem; margin-bottom: 6px; }
+  .dash-target-right-numbers{ font-size: 0.72rem; margin-bottom: 5px; }
+  .dash-progress-track{ height: 8px; }
+  .dash-progress-pct{ font-size: 0.66rem; margin-top: 4px; }
 }
 
 .dash-chart-label{
