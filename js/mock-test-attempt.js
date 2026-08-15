@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     '<div class="mock-test-message">Your passage has already been assigned — it will appear the moment you click start.</div>';
 
   const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "flex";
+  startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
 
   const input = document.getElementById("typeInput");
