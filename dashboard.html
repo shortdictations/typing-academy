@@ -20,7 +20,14 @@
     <nav class="nav-links">
       <a href="mock-test.html">Mock Tests</a>
       <a href="mock-history.html">Mock History</a>
-      <a href="subscriptions.html" class="nav-subscribe-btn">Subscribe</a>
+      <div class="subscribe-menu">
+        <button class="nav-subscribe-btn" type="button" id="subscribeMenuTrigger">Subscribe &#9662;</button>
+        <div class="subscribe-menu-dropdown" id="subscribeMenuDropdown">
+          <div class="subscribe-menu-heading">Active Plans</div>
+          <div class="avatar-dropdown-plans-list" id="subscribeMenuPlansList">—</div>
+          <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
+        </div>
+      </div>
       <a href="subscriptions.html">Credits</a>
       <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
