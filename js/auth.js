@@ -390,7 +390,8 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   const menuEntries = [
     { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" },
     { href: "mock-test.html", icon: "&#128203;", tint: "tile-orange", title: "Mock Test", sub: "Take a new mock test" },
-    { href: "mock-history.html", icon: "&#128200;", tint: "tile-purple", title: "Mock History", sub: "View your mock test history" }
+    { href: "mock-history.html", icon: "&#128200;", tint: "tile-purple", title: "Mock History", sub: "View your mock test history" },
+    { href: "subscriptions.html", icon: "&#129689;", tint: "tile-blue", title: "Subscribe", sub: "View plans & credits" }
   ];
   const ALWAYS_PRESENT_HREFS = menuEntries.map(e => e.href);
 
