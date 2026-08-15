@@ -128,14 +128,12 @@ async function initAuthHeader(user) {
       </div>
       <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
     </div>
-    <div class="avatar-dropdown-menu">
-      <a class="avatar-menu-row" href="subscriptions.html">
+    <div class="avatar-dropdown-plans">
+      <a class="avatar-dropdown-plans-heading" href="subscriptions.html">
+        <span>Active Plans</span>
         <span class="avatar-menu-icon">&#127891;</span>
-        <span class="avatar-menu-text">
-          <span class="avatar-menu-label">Manage Plan</span>
-          <span class="avatar-menu-sub" id="ddPlan">—</span>
-        </span>
       </a>
+      <div class="avatar-dropdown-plans-list" id="ddPlansList">—</div>
     </div>
     <div class="avatar-dropdown-divider"></div>
     <button class="avatar-menu-row avatar-menu-logout" id="logoutBtn" type="button">
@@ -170,15 +168,14 @@ async function initAuthHeader(user) {
     });
   }
 
-  // ---- Populate plan + credits (used by both the dropdown and,
+  // ---- Populate plans + credits (used by both the dropdown and,
   // if built, the mobile sidebar) ----
-  const [planText, creditsTotal] = await Promise.all([
-    fetchCurrentPlanLabel(user.id),
+  const [activePasses, creditsTotal] = await Promise.all([
+    fetchActivePasses(user.id),
     fetchTotalCredits(user.id)
   ]);
-  const ddPlan = document.getElementById("ddPlan");
+  renderDropdownPlans(activePasses);
   const ddCredits = document.getElementById("ddCredits");
-  if (ddPlan) { ddPlan.textContent = planText; ddPlan.title = planText; }
   if (ddCredits) { ddCredits.textContent = creditsTotal; ddCredits.title = String(creditsTotal); }
 
   // Existing top-bar credit badge (🪙 N), if this page has one —
@@ -186,7 +183,7 @@ async function initAuthHeader(user) {
   const badgeEl = document.getElementById("creditBadgeNum");
   if (badgeEl) badgeEl.textContent = creditsTotal;
 
-  buildMobileSidebar(user, displayName, avatarUrl, planText, creditsTotal);
+  buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsTotal);
 }
 
 // Google OAuth users get their real profile photo; everyone else
@@ -230,27 +227,58 @@ function colorForName(name) {
 // "Current Plan" reads the same user_passes table the access-
 // control system itself uses — a pass counts only while it's
 // actually valid (status/expiry checked), same rule as everywhere
-// else in the app.
-async function fetchCurrentPlanLabel(userId) {
+// else in the app. Returns EVERY currently active pass (not just
+// the first) — the caller decides how to render them.
+async function fetchActivePasses(userId) {
   const { data, error } = await supabaseClient
     .from("user_passes")
     .select("pass_type, status, starts_at, expires_at")
     .eq("user_id", userId);
 
-  if (error || !data) return "No active plan";
+  if (error || !data) return [];
 
   const now = new Date();
-  const active = data.find(p =>
-    p.status !== "cancelled" &&
-    new Date(p.starts_at) <= now &&
-    new Date(p.expires_at) > now
-  );
+  return data
+    .filter(p =>
+      p.status !== "cancelled" &&
+      new Date(p.starts_at) <= now &&
+      new Date(p.expires_at) > now
+    )
+    .map(p => ({
+      label: passTypeLabel(p.pass_type),
+      expiresAt: p.expires_at
+    }))
+    .sort((a, b) => new Date(a.expiresAt) - new Date(b.expiresAt));
+}
 
-  if (!active) return "No active plan";
-  if (active.pass_type === "COMBO") return "Combo Pass";
-  if (active.pass_type === "SSC") return "SSC Pass";
-  if (active.pass_type === "LEGAL") return "Legal Pass";
-  return active.pass_type;
+function passTypeLabel(passType) {
+  if (passType === "COMBO") return "Combo Pass";
+  if (passType === "SSC") return "SSC Pass";
+  if (passType === "LEGAL") return "Legal Pass";
+  return passType;
+}
+
+function renderDropdownPlans(activePasses) {
+  const list = document.getElementById("ddPlansList");
+  if (!list) return;
+
+  if (activePasses.length === 0) {
+    list.innerHTML = '<div class="avatar-dropdown-plan-empty">No active pass</div>';
+    return;
+  }
+
+  list.innerHTML = activePasses.map(p => {
+    const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric"
+    });
+    return '<div class="avatar-dropdown-plan-row">' +
+      '<span class="avatar-dropdown-plan-check">&#10003;</span>' +
+      '<span class="avatar-dropdown-plan-text">' +
+        '<span class="avatar-dropdown-plan-name">' + escapeHtmlAuth(p.label) + '</span>' +
+        '<span class="avatar-dropdown-plan-expiry">Active until ' + expiresText + '</span>' +
+      '</span>' +
+    '</div>';
+  }).join("");
 }
 
 async function fetchTotalCredits(userId) {
@@ -273,7 +301,7 @@ async function fetchTotalCredits(userId) {
 // only the hamburger), and the sidebar/overlay are appended to
 // <body>. Sidebar nav links are cloned from whatever links this
 // page's .nav-links already had — no per-page link list needed.
-function buildMobileSidebar(user, displayName, avatarUrl, planText, creditsTotal) {
+function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsTotal) {
   const navLinks = document.querySelector(".nav-links");
   if (!navLinks || document.getElementById("hamburgerBtn")) return; // already built, or no header here
 
@@ -318,16 +346,24 @@ function buildMobileSidebar(user, displayName, avatarUrl, planText, creditsTotal
     <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>`;
   sidebar.appendChild(stats);
 
-  const planRow = document.createElement("a");
-  planRow.className = "avatar-menu-row mobile-sidebar-menu-row";
-  planRow.href = "subscriptions.html";
-  planRow.innerHTML = `
-    <span class="avatar-menu-icon">&#127891;</span>
-    <span class="avatar-menu-text">
-      <span class="avatar-menu-label">Manage Plan</span>
-      <span class="avatar-menu-sub">${escapeHtmlAuth(planText)}</span>
-    </span>`;
-  sidebar.appendChild(planRow);
+  const plansBlock = document.createElement("div");
+  plansBlock.className = "avatar-dropdown-plans mobile-sidebar-plans";
+  const plansListHtml = activePasses.length === 0
+    ? '<div class="avatar-dropdown-plan-empty">No active pass</div>'
+    : activePasses.map(p => {
+        const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+        return '<div class="avatar-dropdown-plan-row">' +
+          '<span class="avatar-dropdown-plan-check">&#10003;</span>' +
+          '<span class="avatar-dropdown-plan-text">' +
+            '<span class="avatar-dropdown-plan-name">' + escapeHtmlAuth(p.label) + '</span>' +
+            '<span class="avatar-dropdown-plan-expiry">Active until ' + expiresText + '</span>' +
+          '</span>' +
+        '</div>';
+      }).join("");
+  plansBlock.innerHTML =
+    '<a class="avatar-dropdown-plans-heading" href="subscriptions.html"><span>Active Plans</span><span class="avatar-menu-icon">&#127891;</span></a>' +
+    '<div class="avatar-dropdown-plans-list">' + plansListHtml + '</div>';
+  sidebar.appendChild(plansBlock);
 
   const sidebarDivider = document.createElement("div");
   sidebarDivider.className = "avatar-dropdown-divider mobile-sidebar-divider";
