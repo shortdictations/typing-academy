@@ -1147,11 +1147,57 @@ p.lede{
 }
 .charts-row .card + .card{ margin-top: 0; } /* override the default .card+.card stacking margin inside the grid row */
 
-/* Dashboard-only: charts stay side-by-side even on narrow mobile
-   (down to 320px) — this intentionally overrides the old rule that
-   used to stack them on mobile. */
+/* Dashboard-only: mobile-first horizontal swipe carousel — one
+   slide (≈92% width) visible at a time with a peek of the next,
+   snapping cleanly per slide. Desktop override below restores the
+   original side-by-side grid. */
 .dashboard-charts-row{
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  grid-template-columns: unset;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 10px;
+  padding-bottom: 2px; /* small buffer so the snap doesn't clip card shadows */
+}
+/* Hides the scrollbar visually while keeping touch/trackpad scroll */
+.dashboard-charts-row{ scrollbar-width: none; -ms-overflow-style: none; }
+.dashboard-charts-row::-webkit-scrollbar{ display: none; }
+
+.dashboard-charts-row .chart-card{
+  flex: 0 0 92%;
+  scroll-snap-align: start;
+}
+
+.dash-carousel-dots{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+.dash-dot{
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--paper-line);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.dash-dot.active{ background: var(--brass); transform: scale(1.25); }
+
+@media (min-width: 700px){
+  /* Desktop/tablet: back to the original two-column layout, no
+     scroll/snap, no dots. */
+  .dashboard-charts-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+  .dashboard-charts-row .chart-card{ flex: unset; scroll-snap-align: none; }
+  .dash-carousel-dots{ display: none; }
 }
 .dash-chart-canvas-wrap{
   position: relative;
