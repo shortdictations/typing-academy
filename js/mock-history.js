@@ -44,16 +44,16 @@ function renderHistory(results) {
 
     rows += `
       <tr>
-        <td>${escapeHtml(r.mock_name || "-")}</td>
-        <td><span class="pill">${escapeHtml((r.category || "-").toUpperCase())}</span></td>
-        <td>${dateStr}<br><span style="opacity:0.6;font-size:0.75rem">${timeStr}</span></td>
-        <td>${r.gross_wpm}</td>
-        <td>${r.net_wpm}</td>
-        <td>${r.accuracy}%</td>
-        <td>${r.errors}</td>
-        <td><button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleDetail('${rowId}')">View Result</button></td>
+        <td data-label="Mock Name">${escapeHtml(r.mock_name || "-")}</td>
+        <td data-label="Category"><span class="pill">${escapeHtml((r.category || "-").toUpperCase())}</span></td>
+        <td data-label="Date">${dateStr}<br><span style="opacity:0.6;font-size:0.75rem">${timeStr}</span></td>
+        <td data-label="Gross WPM">${r.gross_wpm}</td>
+        <td data-label="Net WPM">${r.net_wpm}</td>
+        <td data-label="Accuracy">${r.accuracy}%</td>
+        <td data-label="Errors">${r.errors}</td>
+        <td data-label="Result"><button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleDetail('${rowId}')">View Result</button></td>
       </tr>
-      <tr id="${rowId}" style="display:none;">
+      <tr id="${rowId}" class="history-detail-row" style="display:none;">
         <td colspan="8" style="background:var(--paper-dark); font-size:0.85rem;">
           <strong>Passage:</strong> ${escapeHtml(r.passage_title || "-")}
           &nbsp;&middot;&nbsp;
@@ -66,7 +66,7 @@ function renderHistory(results) {
 
   container.innerHTML = `
     <div style="overflow-x:auto;">
-    <table class="marksheet">
+    <table class="marksheet history-table">
       <thead>
         <tr>
           <th>Mock Name</th>
