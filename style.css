@@ -467,7 +467,7 @@ a{ color: inherit; }
 
 .mobile-sidebar{
   position: fixed; top: 0; right: 0; bottom: 0;
-  width: min(300px, 85vw);
+  width: min(320px, 88vw);
   background: var(--paper);
   box-shadow: -8px 0 24px rgba(0,0,0,0.2);
   transform: translateX(100%);
@@ -479,57 +479,157 @@ a{ color: inherit; }
 }
 .mobile-sidebar.open{ transform: translateX(0); }
 
+/* ---- Dark header: close, avatar/name/email, credits card ---- */
+.mobile-sidebar-header{
+  background: linear-gradient(165deg, #1E2E42, var(--ink) 70%);
+  padding: 14px 16px 18px;
+  flex: none;
+}
 .mobile-sidebar-close{
-  align-self: flex-end;
-  margin: 10px 12px 0;
+  display: block;
+  margin-left: auto;
   background: none;
   border: none;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   line-height: 1;
-  color: var(--ink-soft);
+  color: rgba(255,255,255,0.75);
   cursor: pointer;
+  padding: 4px;
 }
 .mobile-sidebar-user{
-  padding: 14px 16px 16px;
-  border-bottom: 1px solid var(--paper-line);
   display: flex;
   gap: 12px;
   align-items: center;
+  margin: 6px 4px 16px;
 }
-.mobile-sidebar-user .avatar-btn{ width: 46px; height: 46px; font-size: 1rem; }
-.mobile-sidebar-name{ font-weight: 700; font-family: var(--font-display); color: var(--ink); font-size: 0.95rem; }
-.mobile-sidebar-email{ font-size: 0.72rem; color: var(--ink-soft); word-break: break-all; }
+.mobile-sidebar-user .avatar-btn{ width: 44px; height: 44px; font-size: 0.95rem; }
+.mobile-sidebar-name{ font-weight: 700; font-family: var(--font-display); color: var(--paper); font-size: 0.98rem; }
+.mobile-sidebar-email{ font-size: 0.72rem; color: rgba(255,255,255,0.55); word-break: break-all; }
 
-/* Reuses the exact same credits-card / menu-row look as the desktop
-   dropdown, scoped to .mobile-sidebar so it applies here too — one
-   consistent design instead of a second, different-looking version. */
-.mobile-sidebar .avatar-dropdown-credits{ margin: 10px 16px; }
-.mobile-sidebar .avatar-menu-row{
+.mobile-sidebar-credits-card{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #4B3F7A, var(--stamp) 130%);
+}
+.mobile-sidebar-credits-icon{
+  width: 38px; height: 38px; flex: none;
+  border-radius: 50%;
+  background: var(--brass);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+}
+.mobile-sidebar-credits-text{ display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.mobile-sidebar-credits-label{ font-size: 0.72rem; color: rgba(255,255,255,0.75); }
+.mobile-sidebar-credits-num{ font-size: 1.35rem; font-weight: 700; color: var(--paper); font-family: var(--font-display); }
+.mobile-sidebar-credits-btn{
+  flex: none;
+  padding: 8px 12px;
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  color: var(--brass);
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ---- Light body: Active Plans + Menu ---- */
+.mobile-sidebar-body{
+  background: var(--paper);
+  padding: 18px 14px 8px;
+  flex: 1 1 auto;
+}
+.mobile-sidebar-section{ margin-bottom: 18px; }
+.mobile-sidebar-section-heading{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  padding: 0 4px 8px;
+}
+
+.mobile-sidebar-plan-row{
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--white);
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  text-decoration: none;
+}
+.mobile-sidebar-plan-check{
+  width: 26px; height: 26px; flex: none;
+  border-radius: 50%;
+  background: #E9F1EC;
+  color: var(--ok);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+}
+.mobile-sidebar-plan-text{ display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.mobile-sidebar-plan-name{ font-weight: 700; color: var(--ink); font-size: 0.88rem; }
+.mobile-sidebar-plan-expiry{ font-size: 0.74rem; color: var(--ink-soft); }
+.mobile-sidebar-chevron{ flex: none; color: var(--ink-soft); font-size: 1.1rem; }
+
+.mobile-sidebar-menu-row, .mobile-sidebar-logout-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   box-sizing: border-box;
-  padding: 12px 16px;
-  border-radius: 0;
+  padding: 10px 4px;
   text-decoration: none;
-  text-align: left;
-  color: var(--ink);
-  font-size: 0.9rem;
-  font-family: var(--font-body);
   background: none;
   border: none;
+  border-bottom: 1px solid var(--paper-line);
   cursor: pointer;
+  text-align: left;
 }
-.mobile-sidebar .avatar-menu-row:hover{ background: var(--paper-dark); }
-.mobile-sidebar .avatar-menu-row.avatar-menu-logout{
-  color: var(--stamp);
-  font-weight: 600;
-  margin-top: auto; /* pushes Logout to the bottom of the sidebar, unambiguously — targets only this element */
+.mobile-sidebar-tile{
+  width: 36px; height: 36px; flex: none;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
 }
-.mobile-sidebar .avatar-menu-row.avatar-menu-logout:hover{ background: #FBEAE7; }
-.mobile-sidebar-divider{ margin: 4px 0; }
-.mobile-sidebar-links{ display: flex; flex-direction: column; padding: 4px 0; }
+.tile-purple{ background: #EDE9F7; }
+.tile-orange{ background: #FBEADB; }
+.tile-danger{ background: #FBEAE7; color: var(--stamp); }
+.mobile-sidebar-menu-text{ display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.mobile-sidebar-menu-title{ font-weight: 700; color: var(--ink); font-size: 0.9rem; }
+.mobile-sidebar-menu-sub{ font-size: 0.74rem; color: var(--ink-soft); }
+.mobile-sidebar-logout-row{ margin-top: 8px; border-radius: 10px; background: #FBEAE7; border-bottom: none; }
+.mobile-sidebar-logout-row .mobile-sidebar-menu-title{ color: var(--stamp); }
+
+.avatar-dropdown-plan-empty{ padding: 10px 4px; font-size: 0.82rem; color: var(--ink-soft); }
+
+/* ---- Dark footer ---- */
+.mobile-sidebar-footer{
+  flex: none;
+  background: linear-gradient(165deg, #1E2E42, var(--ink) 70%);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-sidebar-footer-seal{
+  width: 30px; height: 30px; flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--brass);
+  color: var(--brass);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
+}
+.mobile-sidebar-footer-text{ display: flex; flex-direction: column; }
+.mobile-sidebar-footer-name{ font-family: var(--font-display); font-weight: 700; color: var(--paper); font-size: 0.9rem; }
+.mobile-sidebar-footer-tagline{ font-size: 0.68rem; color: rgba(255,255,255,0.5); }
 #userChip{
   font-size: 0.75rem;
   color: var(--brass-light);
