@@ -350,6 +350,56 @@ a{ color: inherit; }
    since that recurring conflict is exactly what caused the last two
    rounds of misalignment. ---- */
 .avatar-dropdown-menu{ padding: 4px 8px 6px; }
+
+/* ---- Active Plans list (shows every currently active pass, not
+   just one) — scrolls internally past a sensible height so it can
+   never push the dropdown off-screen when a user has many passes. ---- */
+.avatar-dropdown-plans{ padding: 6px 8px 4px; }
+.avatar-dropdown-plans-heading{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-radius: 6px;
+}
+.avatar-dropdown-plans-heading:hover{ background: var(--paper-dark); }
+/* Beats ".user-menu-dropdown a" (display:block, padding:10px 14px,
+   text-align:left) — the same recurring specificity conflict fixed
+   earlier on .avatar-menu-row/.credits-buy-btn; this element needs
+   the identical guaranteed-specificity treatment since it's also an
+   <a> inside .user-menu-dropdown. */
+.user-menu-dropdown .avatar-dropdown-plans-heading{
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: 6px 8px !important;
+  text-align: left !important;
+}
+.avatar-dropdown-plans-list{
+  max-height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.avatar-dropdown-plan-row{
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 6px;
+}
+.avatar-dropdown-plan-row:hover{ background: var(--paper-dark); }
+.avatar-dropdown-plan-check{ color: var(--ok); font-size: 0.85rem; flex: none; margin-top: 1px; }
+.avatar-dropdown-plan-text{ display: flex; flex-direction: column; min-width: 0; }
+.avatar-dropdown-plan-name{ font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+.avatar-dropdown-plan-expiry{ font-size: 0.72rem; color: var(--ink-soft); }
+.avatar-dropdown-plan-empty{ padding: 8px; font-size: 0.82rem; color: var(--ink-soft); }
 .user-menu-dropdown .avatar-menu-row{
   display: flex !important;
   align-items: center;
