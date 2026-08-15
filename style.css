@@ -2135,6 +2135,19 @@ footer.site-foot{
   .dash-target-sub{ font-size: 0.6rem; line-height: 1.4; }
   .dash-change-link{ font-size: 0.6rem; }
 }
+@media (max-width: 360px){
+  /* At true small-phone widths, 30% still leaves too little room next
+     to the icon for "Target WPM · Change" to wrap cleanly — widen
+     the left column further so it settles into 2 tidy lines instead
+     of several ragged ones. */
+  .dash-target-card{ padding: 12px 14px; gap: 8px; }
+  .dash-target-left{ width: 38%; flex: 0 0 38%; }
+  .dash-target-right{ width: 62%; flex: 1 1 62%; }
+  .dash-target-right-numbers{ flex-wrap: wrap; gap: 2px 10px; font-size: 0.68rem; }
+  .dash-stats-grid{ gap: 8px; }
+  .dash-stat-card{ padding: 8px; gap: 6px; }
+  #statLastTest{ font-size: 0.85rem !important; } /* inline style on this element needs !important to override at this width */
+}
 
 .dash-chart-label{
   display: flex;
