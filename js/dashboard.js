@@ -10,6 +10,41 @@
    the retired practice system and is no longer read here at all.
    ============================================================ */
 
+// Mobile-only swipe carousel for the two chart cards: keeps the
+// pagination dots in sync with whichever slide is actually visible
+// (via IntersectionObserver, so it works for swipe, trackpad, or a
+// dot click alike), and makes the dots themselves clickable as a
+// convenience — touch/swipe remains the primary interaction, this
+// is purely optional extra navigation. Does nothing on desktop,
+// where the CSS grid layout has no scroll container to observe.
+function initChartCarouselDots() {
+  const row = document.getElementById("dashboardChartsRow");
+  const dotsWrap = document.getElementById("chartCarouselDots");
+  if (!row || !dotsWrap) return;
+
+  const slides = Array.from(row.querySelectorAll(".chart-card"));
+  const dots = Array.from(dotsWrap.querySelectorAll(".dash-dot"));
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        const index = slides.indexOf(entry.target);
+        dots.forEach((d, i) => d.classList.toggle("active", i === index));
+      }
+    });
+  }, { root: row, threshold: [0.6] });
+
+  slides.forEach(slide => observer.observe(slide));
+
+  dots.forEach(dot => {
+    dot.addEventListener("click", () => {
+      const index = parseInt(dot.dataset.index, 10);
+      const target = slides[index];
+      if (target) target.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin(); // redirects to login.html if not logged in
   if (!user) return;
@@ -25,6 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   maybeShowWelcomeBack(user, onboardingCompleted);
 
   showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
+  initChartCarouselDots(); // independent of results data — safe to wire up immediately
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
