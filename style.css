@@ -1741,3 +1741,9 @@ footer.site-foot{
 @media (max-width: 480px){
   .verify-success-email{ font-size: 0.76rem; padding: 5px 10px; }
 }
+
+.verify-exists-icon{
+  background: #FBEAE7;
+  border-color: rgba(178,58,46,0.28);
+  color: var(--stamp);
+}
