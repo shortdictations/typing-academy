@@ -2073,6 +2073,56 @@ footer.site-foot{
 /* ---------- dashboard.html redesign (mobile-first, scoped to this page) ---------- */
 .dashboard-greeting-sub{ margin-top: 2px; }
 
+.announcement-board{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 20px;
+}
+.announcement-card{
+  background: var(--white);
+  border: 1px solid var(--paper-line);
+  border-left: 4px solid var(--ink-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 1px 0 var(--paper-line);
+}
+.announcement-card.type-important{ border-left-color: var(--stamp); }
+.announcement-card.type-update{ border-left-color: var(--brass); }
+.announcement-card.type-general{ border-left-color: var(--ink-soft); }
+.announcement-head{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.announcement-icon{ font-size: 0.95rem; line-height: 1; }
+.announcement-type-badge{
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.announcement-title{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.announcement-message{
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.announcement-action{
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+}
+
 .dash-stats-grid{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
