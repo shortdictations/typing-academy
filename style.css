@@ -2136,10 +2136,60 @@ footer.site-foot{
   flex-wrap: wrap;
   gap: 8px;
 }
-.dash-actions{ margin-top: 20px; }
+.dash-actions{
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
 .dash-btn-primary{
-  padding: 9px 20px;
-  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  min-height: 50px;
+  padding: 0 24px;
+  margin: 4px 0 4px;
+
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 9px;
+
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(27, 42, 61, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.dash-btn-primary:hover{
+  background: var(--ink);
+  border-color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(27, 42, 61, 0.22);
+  text-decoration: none;
+}
+.dash-btn-primary:active{
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(27, 42, 61, 0.16);
+}
+.dash-btn-primary:focus{ outline: none; }
+.dash-btn-primary:focus-visible{
+  outline: 2px solid rgba(27, 42, 61, 0.35);
+  outline-offset: 3px;
+}
+@media (max-width: 768px){
+  .dash-btn-primary{
+    width: 220px;
+    min-height: 48px;
+    padding: 0 20px;
+    font-size: 14px;
+  }
 }
 
 
