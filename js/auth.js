@@ -152,22 +152,6 @@ async function initAuthHeader(user) {
   });
   document.getElementById("logoutBtn").addEventListener("click", logoutStudent);
 
-  // Credits are now shown inside the dropdown (the Credits card +
-  // Buy Credits button below) and, on mobile, inside the sidebar —
-  // so the standalone "Credits" text link and the 🪙-count badge no
-  // longer need their own separate spot in the top header bar.
-  // Removed here (before the sidebar clones nav-links) so neither
-  // shows up duplicated in the mobile sidebar either.
-  const navLinksEl = document.querySelector(".nav-links");
-  if (navLinksEl) {
-    navLinksEl.querySelectorAll(".credit-badge").forEach(el => el.remove());
-    navLinksEl.querySelectorAll(":scope > a").forEach(a => {
-      if (a.textContent.trim() === "Credits" && a.getAttribute("href") === "subscriptions.html") {
-        a.remove();
-      }
-    });
-  }
-
   // ---- Populate plans + credits (used by both the dropdown and,
   // if built, the mobile sidebar) ----
   const [activePasses, creditsTotal] = await Promise.all([
