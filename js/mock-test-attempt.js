@@ -87,13 +87,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   document.getElementById("setupInfo").innerHTML =
-    '<div style="font-family:var(--font-display); font-size:1.3rem; font-weight:700;">' + escapeHtml(mockTest.title) + '</div>' +
-    '<div style="color:var(--ink-soft); margin-top:6px;">' + mockTest.duration + ' minutes &middot; ' +
+    '<div class="mock-test-title">' + escapeHtml(mockTest.title) + '</div>' +
+    '<div class="mock-test-meta">' + mockTest.duration + ' minutes &middot; ' +
     (mockTest.access_type === "credit" ? "1 Credit" : (mockTest.access_type === "premium" ? "Premium" : "Free")) + '</div>' +
-    '<div style="color:var(--ink-soft); margin-top:10px; font-size:0.85rem;">Your passage has already been assigned — it will appear the moment you click start.</div>';
+    '<div class="mock-test-message">Your passage has already been assigned — it will appear the moment you click start.</div>';
 
   const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "inline-block";
+  startBtn.style.display = "flex";
   startBtn.addEventListener("click", handleStartClick);
 
   const input = document.getElementById("typeInput");
