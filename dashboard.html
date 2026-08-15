@@ -6,7 +6,7 @@
 <title>Dashboard — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="dashboard-page">
 
 <header class="letterhead">
   <div class="letterhead-inner">
@@ -137,15 +137,15 @@
   </div>
 
   <p class="eyebrow dashboard-greeting">Good to see you again!</p>
-  <h1>Welcome, <span id="welcomeName">Student</span></h1>
-  <p class="lede" style="max-width:none;">Track your typing performance and improve your speed and accuracy every day.</p>
+  <h1 class="dashboard-h1">Welcome, <span id="welcomeName">Student</span></h1>
+  <p class="lede" style="max-width:none;">Track your performance and improve your speed &amp; accuracy.</p>
 
   <div class="dash-stats-grid">
     <div class="dash-stat-card">
       <div class="dash-stat-icon dash-tile-blue">&#128203;</div>
       <div class="dash-stat-text">
         <div class="big" id="statTests">0</div>
-        <div class="lab">Total Tests<br>Completed</div>
+        <div class="lab" id="statTestsLabel">Tests Completed</div>
       </div>
     </div>
     <div class="dash-stat-card">
@@ -165,8 +165,8 @@
     <div class="dash-stat-card">
       <div class="dash-stat-icon dash-tile-purple">&#128197;</div>
       <div class="dash-stat-text">
-        <div class="big" id="statLastTest" style="font-size:1.3rem;">—</div>
-        <div class="lab">Last<br>Test</div>
+        <div class="big dash-stat-nowrap" id="statLastTest" style="font-size:1.05rem;">—</div>
+        <div class="lab">Last Test</div>
       </div>
     </div>
   </div>
@@ -176,9 +176,8 @@
     <div class="dash-target-left">
       <div class="dash-target-icon">&#127919;</div>
       <div>
-        <div class="big" id="statTargetWpm" style="font-size:1.8rem;">—</div>
-        <div class="lab">Target WPM</div>
-        <button type="button" id="changeTargetBtn" class="dash-change-link">Set Target</button>
+        <div class="big" id="statTargetWpm" style="font-size:1.6rem;">—</div>
+        <div class="dash-target-sub">Target WPM &middot; <button type="button" id="changeTargetBtn" class="dash-change-link">Set Target</button></div>
       </div>
     </div>
     <div class="dash-target-divider"></div>
@@ -195,30 +194,32 @@
     </div>
   </div>
 
-  <div class="charts-row">
+  <div class="charts-row dashboard-charts-row">
     <div class="card chart-card">
       <div class="card-label dash-chart-label">
         <span>&#128200; WPM Progress</span>
       </div>
-      <div id="wpmChartWrap">
-        <canvas id="wpmChart" height="70"></canvas>
+      <div id="wpmChartWrap" class="dash-chart-canvas-wrap">
+        <canvas id="wpmChart"></canvas>
         <div class="empty-state" id="wpmChartEmpty" style="display:none;">Take a test to start tracking your WPM progress.</div>
       </div>
+      <p class="dash-chart-note" id="wpmChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
     </div>
 
     <div class="card chart-card">
       <div class="card-label dash-chart-label">
         <span>&#127919; Accuracy Progress</span>
       </div>
-      <div id="accuracyChartWrap">
-        <canvas id="accuracyChart" height="70"></canvas>
+      <div id="accuracyChartWrap" class="dash-chart-canvas-wrap">
+        <canvas id="accuracyChart"></canvas>
         <div class="empty-state" id="accuracyChartEmpty" style="display:none;">Take a test to start tracking your accuracy progress.</div>
       </div>
+      <p class="dash-chart-note" id="accuracyChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
     </div>
   </div>
 
   <div class="dash-actions">
-    <a class="btn dash-btn-primary" href="mock-test.html">&#128640; Start a Mock Test</a>
+    <a class="btn btn-full dash-btn-primary" href="mock-test.html">&#128640; Start a Mock Test</a>
     <a class="btn btn-ghost" href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
   </div>
 
