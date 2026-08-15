@@ -475,7 +475,7 @@ a{ color: inherit; }
   z-index: 100;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden; /* the sidebar itself never scrolls — header and footer stay pinned in place */
 }
 .mobile-sidebar.open{ transform: translateX(0); }
 
@@ -541,6 +541,8 @@ a{ color: inherit; }
   background: var(--paper);
   padding: 18px 14px 8px;
   flex: 1 1 auto;
+  min-height: 0; /* required for a flex child to actually be able to shrink and scroll internally */
+  overflow-y: auto;
 }
 .mobile-sidebar-section{ margin-bottom: 18px; }
 .mobile-sidebar-section-heading{
