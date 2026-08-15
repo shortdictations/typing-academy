@@ -1998,7 +1998,7 @@ footer.site-foot{
 }
 
 /* ---------- dashboard.html redesign (mobile-first, scoped to this page) ---------- */
-.dashboard-greeting{ color: #3B5BDB; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.dashboard-greeting-sub{ margin-top: 2px; }
 
 .dash-stats-grid{
   display: grid;
