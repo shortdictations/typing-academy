@@ -20,9 +20,9 @@
     <nav class="nav-links">
       <a href="mock-test.html">Mock Tests</a>
       <a href="mock-history.html">Mock History</a>
-      <a href="subscriptions.html">Plans</a>
-      <!--<a href="subscriptions.html">Credits</a>
-      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>-->
+      <a href="subscriptions.html">Subscribe</a>
+      <a href="subscriptions.html">Credits</a>
+      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
         <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
         <div class="user-menu-dropdown" id="userMenuDropdown">
@@ -138,6 +138,12 @@
 
   <h1 class="dashboard-h1">Hey, <span id="welcomeName">there</span>! &#128075;</h1>
   <p class="lede dashboard-greeting-sub" style="max-width:none;">Ready to improve your typing today?</p>
+
+  <!-- Admin-managed announcement board — hidden entirely (not just
+       empty) when there are no active, currently-scheduled
+       announcements. Populated by loadAnnouncements() in
+       dashboard.js. -->
+  <div class="announcement-board" id="announcementBoard" style="display:none;"></div>
 
   <div class="dash-stats-grid">
     <div class="dash-stat-card">
