@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
   initChartCarouselDots(); // independent of results data — safe to wire up immediately
+  loadAnnouncements(); // not awaited — independent of everything else on the page
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
@@ -480,6 +481,72 @@ async function showAdminLinkIfApplicable(user) {
   const admin = await isAdminUser(user.id);
   const link = document.getElementById("adminLink");
   if (link && admin) link.style.display = "inline-block";
+}
+
+/* ---------------- Announcement board ----------------
+   Admin-managed, read-only here. Shows only announcements that
+   are active AND (no start_at or start_at has passed) AND
+   (no end_at or end_at hasn't passed yet), respecting
+   display_order. The container is hidden completely — not just
+   left empty — when nothing currently qualifies. */
+async function loadAnnouncements() {
+  const board = document.getElementById("announcementBoard");
+  if (!board) return;
+
+  const { data, error } = await supabaseClient
+    .from("announcements")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true });
+
+  if (error || !data) {
+    console.error(error);
+    return; // board stays hidden (its default state)
+  }
+
+  const now = new Date();
+  const live = data.filter(a => {
+    const started = !a.start_at || new Date(a.start_at) <= now;
+    const notEnded = !a.end_at || new Date(a.end_at) >= now;
+    return started && notEnded;
+  });
+
+  if (live.length === 0) {
+    board.style.display = "none";
+    board.innerHTML = "";
+    return;
+  }
+
+  const typeMeta = {
+    IMPORTANT: { icon: "&#128226;", cls: "type-important" },
+    UPDATE:    { icon: "&#128172;", cls: "type-update" },
+    GENERAL:   { icon: "&#128276;", cls: "type-general" }
+  };
+
+  board.innerHTML = live.map(a => {
+    const meta = typeMeta[a.type] || typeMeta.GENERAL;
+    const action = (a.action_label && a.action_url)
+      ? '<a class="btn btn-ghost announcement-action" href="' + escapeHtmlDash(a.action_url) + '">' + escapeHtmlDash(a.action_label) + '</a>'
+      : "";
+    return `
+      <div class="announcement-card ${meta.cls}">
+        <div class="announcement-head">
+          <span class="announcement-icon">${meta.icon}</span>
+          <span class="announcement-type-badge">${escapeHtmlDash(a.type)}</span>
+        </div>
+        <div class="announcement-title">${escapeHtmlDash(a.title)}</div>
+        <div class="announcement-message">${escapeHtmlDash(a.message)}</div>
+        ${action}
+      </div>`;
+  }).join("");
+
+  board.style.display = "flex";
+}
+
+function escapeHtmlDash(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : str;
+  return div.innerHTML;
 }
 
 function renderSummary(results) {
