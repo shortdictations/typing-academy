@@ -460,6 +460,7 @@ function renderSummary(results) {
     : 0;
 
   document.getElementById("statTests").textContent = testsTaken;
+  document.getElementById("statTestsLabel").textContent = testsTaken === 1 ? "Test Completed" : "Tests Completed";
   document.getElementById("statAvgWpm").textContent = avgWpm;
   document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
 
@@ -478,9 +479,16 @@ function renderSummary(results) {
 }
 
 // Draws the WPM (Net WPM) and Accuracy line charts using Chart.js,
-// oldest test first (left) to most recent (right). Same chart
-// implementation as before — only the data source and field changed.
+// oldest test first (left) to most recent (right). Same data source
+// and calculation as before — only the presentation changed: fixed
+// compact height (maintainAspectRatio:false) and a dedicated,
+// non-alarming single-point state instead of a mostly-empty chart.
 function renderCharts(results) {
+  const wpmNote = document.getElementById("wpmChartNote");
+  const accuracyNote = document.getElementById("accuracyChartNote");
+  wpmNote.style.display = "none";
+  accuracyNote.style.display = "none";
+
   if (results.length === 0) {
     document.getElementById("wpmChart").style.display = "none";
     document.getElementById("accuracyChart").style.display = "none";
@@ -498,6 +506,17 @@ function renderCharts(results) {
   const wpmValues = chronological.map(r => r.net_wpm);
   const accuracyValues = chronological.map(r => r.accuracy);
 
+  // Only one real result exists — show that single point clearly
+  // (not a fabricated trend line) and let the student know a trend
+  // will appear once they have more.
+  const isSingleResult = results.length === 1;
+  if (isSingleResult) {
+    wpmNote.style.display = "block";
+    accuracyNote.style.display = "block";
+  }
+
+  const tickFont = { size: 10 };
+
   new Chart(document.getElementById("wpmChart"), {
     type: "line",
     data: {
@@ -509,13 +528,17 @@ function renderCharts(results) {
         backgroundColor: "rgba(59,91,219,0.12)",
         tension: 0.25,
         fill: true,
-        pointRadius: 3
+        pointRadius: isSingleResult ? 5 : 3
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
+      scales: {
+        y: { beginAtZero: true, ticks: { font: tickFont } },
+        x: { ticks: { font: tickFont } }
+      }
     }
   });
 
@@ -530,13 +553,17 @@ function renderCharts(results) {
         backgroundColor: "rgba(62,107,79,0.12)",
         tension: 0.25,
         fill: true,
-        pointRadius: 3
+        pointRadius: isSingleResult ? 5 : 3
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, max: 100 } }
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { font: tickFont } },
+        x: { ticks: { font: tickFont } }
+      }
     }
   });
 }
