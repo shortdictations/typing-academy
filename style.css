@@ -39,7 +39,15 @@ body{
   font-family: var(--font-body);
   line-height: 1.5;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+/* Sticky footer: on a short page (e.g. mock-history.html with few
+   or no results), main grows to fill the remaining viewport height
+   so the footer always sits at the bottom edge, consistent with
+   longer pages, instead of trailing right after sparse content. */
+main{ flex: 1 0 auto; }
+footer.site-foot{ flex-shrink: 0; }
 
 a{ color: inherit; }
 
@@ -644,12 +652,6 @@ html.sidebar-scroll-lock, body.sidebar-scroll-lock{
 .mobile-sidebar-footer-text{ display: flex; flex-direction: column; }
 .mobile-sidebar-footer-name{ font-family: var(--font-display); font-weight: 700; color: var(--paper); font-size: 0.9rem; }
 .mobile-sidebar-footer-tagline{ font-size: 0.68rem; color: rgba(255,255,255,0.5); }
-#userChip{
-  font-size: 0.75rem;
-  color: var(--brass-light);
-  border-right: 1px solid rgba(255,255,255,0.2);
-  padding-right: 14px;
-}
 
 /* ---------- Page shell ---------- */
 .page{
@@ -2042,10 +2044,11 @@ footer.site-foot{
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
   font-family: var(--font-body);
   display: block;
 }
+.dash-change-link:hover{ color: #2F49B8; text-decoration: none; }
 .dash-target-divider{
   width: 1px;
   align-self: stretch;
@@ -2154,10 +2157,13 @@ footer.site-foot{
 .dash-target-sub{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
 .dash-target-sub .dash-change-link{ display: inline; margin: 0; font-size: 0.72rem; }
 
-/* Softer background rule lines specifically on the dashboard — same
-   pattern, lower contrast, so it doesn't compete with the cards. */
+/* Removed the notebook-line pattern entirely on the dashboard —
+   just the existing --paper color, no lines, no gradient, no new
+   texture. Every other page keeps the original lined background;
+   this selector only ever matched dashboard.html. */
 body.dashboard-page{
-  background-image: linear-gradient(rgba(217, 210, 190, 0.45) 1px, transparent 1px);
+  background-image: none;
+  background-color: var(--paper);
 }
 
 /* Tighter vertical rhythm throughout the dashboard */
