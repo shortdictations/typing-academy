@@ -134,49 +134,71 @@
     </div>
   </div>
 
-  <p class="eyebrow">Your Progress</p>
+  <p class="eyebrow dashboard-greeting">Good to see you again!</p>
   <h1>Welcome, <span id="welcomeName">Student</span></h1>
-  <p class="lede" style="max-width:none;">A record of every typing test you've taken, with your speed and accuracy over time.</p>
+  <p class="lede" style="max-width:none;">Track your typing performance and improve your speed and accuracy every day.</p>
 
-  <div class="summary-strip">
-    <div class="summary-card">
-      <div class="big" id="statTests">0</div>
-      <div class="lab">Total Tests Completed</div>
+  <div class="dash-stats-grid">
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon dash-tile-blue">&#128203;</div>
+      <div class="dash-stat-text">
+        <div class="big" id="statTests">0</div>
+        <div class="lab">Total Tests<br>Completed</div>
+      </div>
     </div>
-    <div class="summary-card">
-      <div class="big" id="statAvgWpm">0</div>
-      <div class="lab">Average WPM</div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon dash-tile-green">&#128200;</div>
+      <div class="dash-stat-text">
+        <div class="big" id="statAvgWpm">0</div>
+        <div class="lab">Average<br>WPM</div>
+      </div>
     </div>
-    <div class="summary-card">
-      <div class="big" id="statAvgAccuracy">0%</div>
-      <div class="lab">Average Accuracy</div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon dash-tile-orange">&#127919;</div>
+      <div class="dash-stat-text">
+        <div class="big" id="statAvgAccuracy">0%</div>
+        <div class="lab">Average<br>Accuracy</div>
+      </div>
     </div>
-    <div class="summary-card">
-      <div class="big" id="statLastTest" style="font-size:1.1rem;">—</div>
-      <div class="lab">Last Test</div>
-    </div>
-    <div class="summary-card">
-      <div class="big" id="statTargetWpm" style="font-size:1.3rem;">—</div>
-      <div class="lab">Target WPM</div>
-      <button type="button" id="changeTargetBtn" style="margin-top:6px; background:none; border:none; color:var(--stamp); font-size:0.7rem; cursor:pointer; text-decoration:underline; padding:0; font-family:var(--font-body);">Set Target</button>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon dash-tile-purple">&#128197;</div>
+      <div class="dash-stat-text">
+        <div class="big" id="statLastTest" style="font-size:1.3rem;">—</div>
+        <div class="lab">Last<br>Test</div>
+      </div>
     </div>
   </div>
 
-  <!-- Actual vs Target WPM comparison bar — only shown once a target is set -->
-  <div class="card" id="targetProgressCard" style="display:none; margin-bottom:20px;">
-    <div class="card-label" style="border:none; margin:0 0 10px; padding:0;">Progress Toward Your Target</div>
-    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;">
-      <span>Average WPM: <strong id="progressActual" style="color:var(--ink);">0</strong></span>
-      <span>Target: <strong id="progressTarget" style="color:var(--ink);">0</strong></span>
+  <!-- Target WPM + Actual-vs-Target progress, unified into one card -->
+  <div class="card dash-target-card">
+    <div class="dash-target-left">
+      <div class="dash-target-icon">&#127919;</div>
+      <div>
+        <div class="big" id="statTargetWpm" style="font-size:1.8rem;">—</div>
+        <div class="lab">Target WPM</div>
+        <button type="button" id="changeTargetBtn" class="dash-change-link">Set Target</button>
+      </div>
     </div>
-    <div style="background:var(--paper-dark); border-radius:8px; height:10px; overflow:hidden;">
-      <div id="progressBarFill" style="background:linear-gradient(90deg, var(--brass), var(--stamp)); height:100%; width:0%; transition:width 0.5s ease;"></div>
+    <div class="dash-target-divider"></div>
+    <div class="dash-target-right" id="targetProgressCard" style="display:none;">
+      <div class="dash-target-right-heading">Progress Toward Your Target</div>
+      <div class="dash-target-right-numbers">
+        <span>Average WPM: <strong id="progressActual">0</strong></span>
+        <span>Target: <strong id="progressTarget">0</strong></span>
+      </div>
+      <div class="dash-progress-track">
+        <div id="progressBarFill" class="dash-progress-fill"></div>
+      </div>
+      <div class="dash-progress-pct" id="progressPct">0%</div>
     </div>
   </div>
 
   <div class="charts-row">
     <div class="card chart-card">
-      <div class="card-label">WPM Progress</div>
+      <div class="card-label dash-chart-label">
+        <span>&#128200; WPM Progress</span>
+        <span class="dash-range-pill">Last 7 Days &#9662;</span>
+      </div>
       <div id="wpmChartWrap">
         <canvas id="wpmChart" height="70"></canvas>
         <div class="empty-state" id="wpmChartEmpty" style="display:none;">Take a test to start tracking your WPM progress.</div>
@@ -184,7 +206,10 @@
     </div>
 
     <div class="card chart-card">
-      <div class="card-label">Accuracy Progress</div>
+      <div class="card-label dash-chart-label">
+        <span>&#127919; Accuracy Progress</span>
+        <span class="dash-range-pill">Last 7 Days &#9662;</span>
+      </div>
       <div id="accuracyChartWrap">
         <canvas id="accuracyChart" height="70"></canvas>
         <div class="empty-state" id="accuracyChartEmpty" style="display:none;">Take a test to start tracking your accuracy progress.</div>
@@ -192,10 +217,12 @@
     </div>
   </div>
 
-  <div style="margin-top:24px; display:flex; gap:10px; flex-wrap:wrap;">
-    <a class="btn" href="mock-test.html">Start a Mock Test</a>
-    <a class="btn btn-ghost" href="mock-history.html">Mock Test History</a>
-    <a class="btn btn-ghost" href="subscriptions.html">Subscriptions</a>
+  <div class="dash-actions">
+    <a class="btn dash-btn-primary" href="mock-test.html">&#128640; Start a Mock Test</a>
+    <div class="dash-actions-row">
+      <a class="btn btn-ghost dash-btn-secondary" href="mock-history.html">&#128337; Mock Test History</a>
+      <a class="btn btn-ghost dash-btn-secondary" href="subscriptions.html">&#128081; Subscriptions</a>
+    </div>
     <a class="btn btn-ghost" href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
   </div>
 
