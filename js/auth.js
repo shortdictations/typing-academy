@@ -383,25 +383,30 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   // aren't real TypeShala pages.
   const menuSection = document.createElement("div");
   menuSection.className = "mobile-sidebar-section";
+  // These three are always present, on every page, regardless of
+  // whether the current page's own header nav happens to link to
+  // them (e.g. dashboard.html has no Mock History link at all, and
+  // mock-test.html has no self-link to itself).
   const menuEntries = [
-    { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" }
+    { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" },
+    { href: "mock-test.html", icon: "&#128203;", tint: "tile-orange", title: "Mock Test", sub: "Take a new mock test" },
+    { href: "mock-history.html", icon: "&#128200;", tint: "tile-purple", title: "Mock History", sub: "View your mock test history" }
   ];
+  const ALWAYS_PRESENT_HREFS = menuEntries.map(e => e.href);
 
   const existingLinks = navLinks.querySelectorAll(":scope > a:not(.credit-badge)");
   existingLinks.forEach(a => {
     const label = a.textContent.trim();
     const href = a.getAttribute("href");
-    if (href === "dashboard.html") return; // don't duplicate the Dashboard row above
+    if (ALWAYS_PRESENT_HREFS.includes(href)) return; // already covered above, don't duplicate
     const meta = mobileMenuIconFor(label);
     menuEntries.push({ href, icon: meta.icon, tint: meta.tint, title: label, sub: meta.sub });
   });
 
-  // Fixed priority order — independent of whatever order this
-  // page's own nav happens to list its links in (which varies: some
-  // pages don't even have a Mock History link, so relying on
-  // per-page DOM order was unreliable). Anything not in this list
-  // keeps its natural position at the end.
-  const MENU_PRIORITY = ["dashboard.html", "mock-test.html", "mock-test-list.html", "mock-history.html", "subscriptions.html"];
+  // Fixed priority order for the always-present three; any other
+  // real page-specific link (Credits, admin pages, etc.) keeps its
+  // natural position after them.
+  const MENU_PRIORITY = ["dashboard.html", "mock-test.html", "mock-history.html"];
   menuEntries.sort((a, b) => {
     const ai = MENU_PRIORITY.indexOf(a.href);
     const bi = MENU_PRIORITY.indexOf(b.href);
