@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Announcements — TypeShala Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="dashboard.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Admin Panel</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="admin.html">Passages</a>
+      <a href="admin-mock-tests.html">Mock Tests</a>
+      <a href="admin-products.html">Subscription &amp; Credits</a>
+      <a href="admin-announcements.html">Announcements</a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Admin Only</p>
+  <h1>Announcements</h1>
+  <p class="lede">Manage the message board shown near the top of the student dashboard. Only announcements that are Active and within their date window (if set) appear to students.</p>
+
+  <!-- ADD / EDIT FORM -->
+  <div class="card">
+    <div class="card-label" id="formLabel">Create Announcement</div>
+    <div class="error-msg" id="formError"></div>
+    <div class="success-msg" id="formSuccess"></div>
+
+    <form id="announcementForm">
+      <div class="field">
+        <label for="aTitle">Title</label>
+        <input type="text" id="aTitle" placeholder="e.g. New SSC Mock Tests Available" required>
+      </div>
+
+      <div class="field">
+        <label for="aMessage">Message</label>
+        <textarea id="aMessage" rows="3" placeholder="e.g. 10 new passages have been added." style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-body);font-size:0.95rem;" required></textarea>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="aType">Type</label>
+          <select id="aType">
+            <option value="IMPORTANT">Important</option>
+            <option value="UPDATE">Update</option>
+            <option value="GENERAL" selected>General</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aActive">Status</label>
+          <select id="aActive">
+            <option value="true" selected>Active (visible to students)</option>
+            <option value="false">Inactive (hidden)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="aStartAt">Start Date (optional)</label>
+          <input type="datetime-local" id="aStartAt">
+        </div>
+        <div class="field">
+          <label for="aEndAt">End Date (optional)</label>
+          <input type="datetime-local" id="aEndAt">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="aOrder">Display Order</label>
+        <input type="number" id="aOrder" value="0" min="0" step="1" style="width:100px;">
+      </div>
+
+      <p class="lede" style="margin:18px 0 8px; font-size:0.85rem;">Optional action button (leave blank to hide it)</p>
+      <div class="setup-grid">
+        <div class="field">
+          <label for="aActionLabel">Button Label</label>
+          <input type="text" id="aActionLabel" placeholder="e.g. View Mock Tests">
+        </div>
+        <div class="field">
+          <label for="aActionUrl">Button Link</label>
+          <input type="text" id="aActionUrl" placeholder="e.g. mock-test.html">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn" id="submitBtn">Create Announcement</button>
+        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LIST -->
+  <div class="card">
+    <div class="card-label">All Announcements</div>
+    <div id="announcementListBody">
+      <div class="loading-strip">Loading announcements...</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin-announcements.js"></script>
+
+</body>
+</html>
