@@ -18,8 +18,22 @@ async function registerStudent(fullName, email, password) {
 
   if (error) throw error;
 
-  // Also create a row in our own "profiles" table so we can
-  // easily show the student's name on the dashboard later.
+  // Supabase deliberately does NOT throw an error for an email that's
+  // already registered (confirmed or not) — that would let an
+  // attacker enumerate which emails have accounts. Instead it returns
+  // a user object with an EMPTY identities array. This is the
+  // documented, actual signal to check — not a guess.
+  const alreadyExists = !!(data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0);
+
+  if (alreadyExists) {
+    // Do NOT create a profiles row for an account that already has
+    // one — the old code tried this unconditionally and the insert
+    // silently failed (no error check), which is what let this whole
+    // bug through undetected.
+    return { user: data.user, alreadyExists: true };
+  }
+
+  // Genuinely new account — safe to create the profile row now.
   if (data.user) {
     await supabaseClient.from("profiles").insert({
       id: data.user.id,
@@ -27,7 +41,7 @@ async function registerStudent(fullName, email, password) {
     });
   }
 
-  return data;
+  return { user: data.user, alreadyExists: false };
 }
 
 // Log an existing student in
