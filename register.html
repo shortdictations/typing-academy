@@ -66,6 +66,17 @@
         Already have an account? <a href="login.html">Sign in</a>
       </p>
     </div>
+
+    <!-- Shown instead of the success card when the email already
+         belongs to an account (confirmed or not) — never claims a
+         new account was created, never sends another verification
+         email itself. -->
+    <div class="verify-success" id="accountExistsCard" style="display:none;">
+      <div class="verify-success-icon verify-exists-icon">!</div>
+      <h2 class="verify-success-heading">Account already exists</h2>
+      <p class="verify-success-text">An account with this email already exists. Please sign in instead.</p>
+      <a href="login.html" class="btn btn-full" style="margin-top:16px; display:block; text-align:center; text-decoration:none;">Sign In</a>
+    </div>
   </div>
 
 </main>
@@ -114,7 +125,18 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
-    await registerStudent(name, email, password);
+    const result = await registerStudent(name, email, password);
+
+    if (result.alreadyExists) {
+      // Covers both a confirmed existing account AND an unconfirmed
+      // one — Supabase's own signal doesn't distinguish the two here,
+      // and either way the honest, non-misleading answer is the
+      // same: this isn't a new account, go sign in. No verification
+      // email is sent from this branch.
+      document.getElementById('registerFormSection').style.display = 'none';
+      document.getElementById('accountExistsCard').style.display = 'block';
+      return;
+    }
 
     // Account exists but isn't usable until the email link is
     // clicked — no redirect, no "Redirecting..." message. Swap the
@@ -124,6 +146,16 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     document.getElementById('registerFormSection').style.display = 'none';
     document.getElementById('verificationSuccessCard').style.display = 'block';
   } catch (err) {
+    // A minority of Supabase configurations DO throw an explicit
+    // error for a duplicate email instead of the identities-empty
+    // signal above — handled here as a fallback so either behavior
+    // is covered correctly.
+    const msg = (err && err.message ? err.message : '').toLowerCase();
+    if (msg.includes('already registered') || msg.includes('already exists')) {
+      document.getElementById('registerFormSection').style.display = 'none';
+      document.getElementById('accountExistsCard').style.display = 'block';
+      return;
+    }
     showError(err.message || 'Registration failed. Please try again.');
     btn.disabled = false;
     btn.textContent = 'Sign Up';
