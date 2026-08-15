@@ -452,8 +452,18 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   document.body.appendChild(overlay);
   document.body.appendChild(sidebar);
 
-  const openSidebar = () => { sidebar.classList.add("open"); overlay.classList.add("open"); };
-  const closeSidebar = () => { sidebar.classList.remove("open"); overlay.classList.remove("open"); };
+  const openSidebar = () => {
+    sidebar.classList.add("open");
+    overlay.classList.add("open");
+    document.documentElement.classList.add("sidebar-scroll-lock"); // prevents the page behind from scrolling while the sidebar is open
+    document.body.classList.add("sidebar-scroll-lock");
+  };
+  const closeSidebar = () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("open");
+    document.documentElement.classList.remove("sidebar-scroll-lock");
+    document.body.classList.remove("sidebar-scroll-lock");
+  };
 
   hamburger.addEventListener("click", openSidebar);
   closeBtn.addEventListener("click", closeSidebar);
