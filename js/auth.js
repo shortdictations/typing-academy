@@ -175,7 +175,6 @@ async function initAuthHeader(user) {
     fetchTotalCredits(user.id)
   ]);
   renderDropdownPlans(activePasses);
-  initSubscribeMenu(activePasses); // header "Subscribe" menu, if this page has one
   const ddCredits = document.getElementById("ddCredits");
   if (ddCredits) { ddCredits.textContent = creditsTotal; ddCredits.title = String(creditsTotal); }
 
@@ -280,30 +279,6 @@ function renderDropdownPlans(activePasses, targetId) {
       '</span>' +
     '</div>';
   }).join("");
-}
-
-// Header "Subscribe" menu (desktop) — a small hover/click dropdown
-// reusing the exact same Active Plans list markup and data already
-// fetched for the avatar dropdown, so there's no second query and
-// no duplicated plan-rendering logic. Only present on pages that
-// actually have the header markup for it (currently dashboard.html),
-// so this is a no-op elsewhere.
-function initSubscribeMenu(activePasses) {
-  const trigger = document.getElementById("subscribeMenuTrigger");
-  const dropdown = document.getElementById("subscribeMenuDropdown");
-  if (!trigger || !dropdown) return;
-
-  renderDropdownPlans(activePasses, "subscribeMenuPlansList");
-
-  trigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle("open");
-  });
-  document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
-      dropdown.classList.remove("open");
-    }
-  });
 }
 
 async function fetchTotalCredits(userId) {
