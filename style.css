@@ -463,6 +463,16 @@ a{ color: inherit; }
   display: none;
   z-index: 90;
 }
+
+/* Locks the page's own scroll while the sidebar is open — without
+   this, a touch-drag on the overlay/backdrop can still scroll the
+   page underneath by a few pixels on mobile. Applied to both html
+   and body directly via JS (not relying on the :has() selector) for
+   broader mobile browser support. */
+html.sidebar-scroll-lock, body.sidebar-scroll-lock{
+  overflow: hidden;
+  height: 100%;
+}
 .mobile-sidebar-overlay.open{ display: block; }
 
 .mobile-sidebar{
