@@ -23,36 +23,58 @@
 <main class="page page-narrow">
 
   <div class="card">
-    <a href="login.html" class="auth-back-link">&larr; Back</a>
-    <h1 style="font-size:1.5rem; margin-bottom:18px;">Create Account</h1>
+    <div id="registerFormSection">
+      <a href="login.html" class="auth-back-link">&larr; Back</a>
+      <h1 style="font-size:1.5rem; margin-bottom:18px;">Create Account</h1>
 
-    <div class="error-msg" id="errorMsg"></div>
-    <div class="success-msg" id="successMsg"></div>
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
 
-    <form id="registerForm">
-      <div class="input-icon-field">
-        <span class="field-icon" aria-hidden="true">&#128100;</span>
-        <input type="text" id="regName" placeholder="Enter your name" required autocomplete="name">
-      </div>
-      <div class="input-icon-field">
-        <span class="field-icon" aria-hidden="true">&#9993;</span>
-        <input type="email" id="regEmail" placeholder="Enter your mail id" required autocomplete="email">
-      </div>
-      <div class="input-icon-field">
-        <span class="field-icon" aria-hidden="true">&#128274;</span>
-        <input type="password" id="regPassword" placeholder="Enter your password" required minlength="6" autocomplete="new-password">
-      </div>
-      <button type="submit" class="btn btn-full" id="registerBtn" style="margin-top:4px;">Sign Up</button>
-    </form>
+      <form id="registerForm">
+        <div class="input-icon-field">
+          <span class="field-icon" aria-hidden="true">&#128100;</span>
+          <input type="text" id="regName" placeholder="Enter your name" required autocomplete="name">
+        </div>
+        <div class="input-icon-field">
+          <span class="field-icon" aria-hidden="true">&#9993;</span>
+          <input type="email" id="regEmail" placeholder="Enter your mail id" required autocomplete="email">
+        </div>
+        <div class="input-icon-field">
+          <span class="field-icon" aria-hidden="true">&#128274;</span>
+          <input type="password" id="regPassword" placeholder="Enter your password" required minlength="6" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-full" id="registerBtn" style="margin-top:4px;">Sign Up</button>
+      </form>
 
-    <p class="foot-link">
-      Already have an account? <a href="login.html">Sign in</a>
-    </p>
+      <p class="foot-link">
+        Already have an account? <a href="login.html">Sign in</a>
+      </p>
+    </div>
+
+    <!-- Shown in place of the form once signup succeeds — the account
+         exists but isn't usable until the email link is clicked, so
+         there is no auto-redirect here. -->
+    <div class="verify-success" id="verificationSuccessCard" style="display:none;">
+      <div class="verify-success-icon">&#10003;</div>
+      <h2 class="verify-success-heading">Account created!</h2>
+      <p class="verify-success-text">We've sent a verification link to your email.</p>
+      <div class="verify-success-email" id="verifySuccessEmail"></div>
+      <p class="verify-success-text">Please check your inbox and verify your account.</p>
+      <button type="button" class="verify-resend-btn" id="resendEmailBtn">Resend Email</button>
+      <p class="verify-resend-status" id="resendStatus"></p>
+      <p class="foot-link" style="margin-top:18px;">
+        Already have an account? <a href="login.html">Sign in</a>
+      </p>
+    </div>
   </div>
 
 </main>
 
-<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+<footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
@@ -77,6 +99,9 @@ function showSuccess(text) {
 
 // Handle registration — no Confirm Password field/check anymore, per
 // this redesign. Only the actual password is ever sent to Supabase.
+let lastRegisteredEmail = null;
+let resendInterval = null;
+
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideMessages();
@@ -90,15 +115,62 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     await registerStudent(name, email, password);
-    showSuccess('Account created! Redirecting you to login...');
-    document.getElementById('registerForm').reset();
-    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+
+    // Account exists but isn't usable until the email link is
+    // clicked — no redirect, no "Redirecting..." message. Swap the
+    // form out for the verification-success card instead.
+    lastRegisteredEmail = email;
+    document.getElementById('verifySuccessEmail').textContent = email;
+    document.getElementById('registerFormSection').style.display = 'none';
+    document.getElementById('verificationSuccessCard').style.display = 'block';
   } catch (err) {
     showError(err.message || 'Registration failed. Please try again.');
     btn.disabled = false;
     btn.textContent = 'Sign Up';
   }
 });
+
+// Resend uses the existing Supabase Auth client only — no new
+// authentication system, just its built-in signup-resend call.
+document.getElementById('resendEmailBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('resendEmailBtn');
+  const status = document.getElementById('resendStatus');
+  if (!lastRegisteredEmail) return;
+
+  btn.disabled = true;
+  status.textContent = '';
+  status.classList.remove('is-success', 'is-error');
+
+  try {
+    const { error } = await supabaseClient.auth.resend({ type: 'signup', email: lastRegisteredEmail });
+    if (error) throw error;
+    status.textContent = 'Verification email sent!';
+    status.classList.add('is-success');
+    startResendCountdown();
+  } catch (err) {
+    status.textContent = err.message || 'Could not resend. Please try again.';
+    status.classList.add('is-error');
+    btn.disabled = false;
+  }
+});
+
+function startResendCountdown() {
+  const btn = document.getElementById('resendEmailBtn');
+  let secondsLeft = 60;
+  btn.textContent = 'Resend Email (' + secondsLeft + 's)';
+
+  clearInterval(resendInterval);
+  resendInterval = setInterval(() => {
+    secondsLeft -= 1;
+    if (secondsLeft <= 0) {
+      clearInterval(resendInterval);
+      btn.disabled = false;
+      btn.textContent = 'Resend Email';
+    } else {
+      btn.textContent = 'Resend Email (' + secondsLeft + 's)';
+    }
+  }, 1000);
+}
 
 // If already logged in, skip straight to dashboard
 (async () => {
