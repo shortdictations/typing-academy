@@ -21,10 +21,8 @@
       <a href="mock-test.html">Mock Tests</a>
       <a href="mock-history.html">Mock History</a>
       <a href="subscriptions.html">Subscribe</a>
-      <a href="subscriptions.html">Credits</a>
-      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
-        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button">&#9662;</button>
         <div class="user-menu-dropdown" id="userMenuDropdown">
           <button id="logoutBtn" type="button">Logout</button>
         </div>
@@ -58,11 +56,11 @@
              that just shows the already-completed word with its
              cursor blinking. See startWordmarkTyping() in
              dashboard.js for the one-time guard. -->
-        <div class="onboarding-wordmark" id="onboardingWordmark">
+        <div class="onboarding-wordmark">
           <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
         </div>
 
-        <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
+        <div class="onboarding-slide-viewport">
 
           <!-- STEP 1: WELCOME -->
           <div class="onboarding-slide" id="welcomeCard" data-step="1">
@@ -198,7 +196,7 @@
       <div class="card-label dash-chart-label">
         <span>&#128200; WPM Progress</span>
       </div>
-      <div id="wpmChartWrap" class="dash-chart-canvas-wrap">
+      <div class="dash-chart-canvas-wrap">
         <canvas id="wpmChart"></canvas>
         <div class="empty-state" id="wpmChartEmpty" style="display:none;">Take a test to start tracking your WPM progress.</div>
       </div>
@@ -209,7 +207,7 @@
       <div class="card-label dash-chart-label">
         <span>&#127919; Accuracy Progress</span>
       </div>
-      <div id="accuracyChartWrap" class="dash-chart-canvas-wrap">
+      <div class="dash-chart-canvas-wrap">
         <canvas id="accuracyChart"></canvas>
         <div class="empty-state" id="accuracyChartEmpty" style="display:none;">Take a test to start tracking your accuracy progress.</div>
       </div>
