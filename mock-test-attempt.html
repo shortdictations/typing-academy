@@ -6,7 +6,7 @@
 <title>Mock Test — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="mock-attempt-page">
 
 <header class="letterhead">
   <div class="letterhead-inner">
@@ -36,8 +36,8 @@
   <!-- LOADING / SETUP CONFIRMATION -->
   <div class="card" id="setupCard">
     <div class="card-label">Mock Test</div>
-    <div id="setupInfo" class="loading-strip">Loading your mock test...</div>
-    <button class="btn" id="startBtn" style="display:none;">Start Mock Test</button>
+    <div id="setupInfo" class="loading-strip mock-test-setup-info">Loading your mock test...</div>
+    <button class="btn dash-btn-primary mock-test-start-btn" id="startBtn" style="display:none;">Start Mock Test</button>
   </div>
 
   <!-- LIVE TEST -->
@@ -117,7 +117,11 @@
 
 </main>
 
-<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+<footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
