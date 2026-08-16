@@ -5,6 +5,11 @@
    dashboard.html and index.html so the fetch/filter logic lives
    in exactly one place instead of being duplicated per page.
 
+   Renders as a single line of moving text directly over the page's
+   existing background — no visible bar, box, or border. The
+   full-bleed wrapper exists only to clip the scrolling text so it
+   can never cause page-level horizontal overflow.
+
    Call initAnnouncementTicker(containerId, locationKey) once per
    page, where locationKey is "dashboard" or "home" — it decides
    which announcements are eligible via the show_on column
@@ -63,16 +68,17 @@ function renderTicker(container, announcements) {
       : '<span class="announcement-ticker-item">' + text + '</span>';
   });
 
-  // The visible sequence, separated by a bullet.
-  const sequence = items.join('<span class="announcement-ticker-sep">&bull;</span>');
+  // The icon is part of the moving content itself — not a fixed
+  // element outside it — so the whole line travels together with
+  // no separate ticker structure around it.
+  const icon = '<span class="announcement-ticker-icon">&#128226;</span>';
+  const sequence = icon + items.join('<span class="announcement-ticker-sep">&bull;</span>');
 
   // Duplicated once back-to-back so the CSS animation can loop
   // seamlessly: scrolling exactly -50% of the track's width moves
   // the first copy fully out just as the second copy reaches the
   // start, with no visible seam or jump.
   container.innerHTML =
-    '<span class="announcement-ticker-icon">&#128226;</span>' +
-    '<span class="announcement-ticker-divider">|</span>' +
     '<div class="announcement-ticker-track">' +
       '<div class="announcement-ticker-content" id="' + container.id + 'Content">' +
         sequence + '<span class="announcement-ticker-sep">&bull;</span>' +
@@ -80,7 +86,7 @@ function renderTicker(container, announcements) {
       '</div>' +
     '</div>';
 
-  container.style.display = "flex";
+  container.style.display = "block";
 
   // Speed scales with content length so pace stays comfortable
   // whether there's one short announcement or several long ones,
