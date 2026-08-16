@@ -2,29 +2,36 @@
    admin-mock-tests.js
    ------------------------------------------------------------
    Powers admin-mock-tests.html: create / edit / delete / filter
-   mock tests across exactly three Test Types. Gated by
+   mock tests across exactly two Test Types. Gated by
    requireAdmin() — the real security is Supabase RLS on
    mock_tests, which rejects writes from non-admins regardless
    of the frontend.
 
-   IMPORTANT — Test Type vs Category vs Access, kept distinct:
-     Test Type  = 'ssc_mock' | 'legal_mock' | 'credit'
+   "Credit Based Test" was retired as a Test Type — it never
+   meant a different access rule for students in the first
+   place: an active eligible Pass for the mock's category is
+   always used first, and only falls back to 1 Credit when
+   there's no eligible Pass. The 5 legacy mock_tests rows that
+   used to carry access_type='credit' were relabeled to
+   'premium' (their linked passages relabeled from "Credit Based
+   Test" to "Mock Test") — a pure data relabel, since the two
+   access types already behaved identically. Nothing was
+   deleted.
+
+   Test Type vs Category vs Access, kept distinct:
+     Test Type  = 'ssc_mock' | 'legal_mock'
                   (a UI-level concept, derived from and stored
                   back into the existing category + access_type
                   columns — no new column was needed)
-     Category   = 'ssc' | 'legal' (organizational; for Credit
-                  Based Test it does NOT grant any pass access)
-     Access     = 'free' | 'premium' | 'credit' (stored in the
-                  existing access_type column, unchanged schema)
-
-   Mapping used everywhere below:
-     ssc_mock   -> category='ssc',   access_type='free'|'premium'
-     legal_mock -> category='legal', access_type='free'|'premium'
-     credit     -> category=admin's choice ('ssc'|'legal'), access_type='credit'
+     Category   = 'ssc' | 'legal' (organizational, AND
+                  determines Pass eligibility for every non-free
+                  test)
+     Access     = 'free' | 'premium' (stored in the existing
+                  access_type column, unchanged schema)
    ============================================================ */
 
 let editingId = null;
-let allPassages = []; // full list fetched once; filtered client-side per Test Type
+let allPassages = []; // full list fetched once; filtered client-side per category
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
@@ -33,7 +40,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadAllPassages();
 
   document.getElementById("mTestType").addEventListener("change", onTestTypeChange);
-  document.getElementById("mCategory").addEventListener("change", onCategoryChange);
   onTestTypeChange(); // set correct initial field visibility + passage list
 
   document.getElementById("mockForm").addEventListener("submit", handleSubmit);
@@ -44,39 +50,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadMockTests();
 });
 
-/* ---------------- Test Type <-> Category/Access wiring ---------------- */
+/* ---------------- Test Type <-> Category wiring ---------------- */
 
 function onTestTypeChange() {
   const testType = document.getElementById("mTestType").value;
   const categorySelect = document.getElementById("mCategory");
-  const accessWrap = document.getElementById("mAccessWrap");
-  const costWrap = document.getElementById("mCostWrap");
   const categoryNote = document.getElementById("mCategoryNote");
 
   if (testType === "ssc_mock") {
     categorySelect.value = "ssc";
-    categorySelect.disabled = true;
     categoryNote.textContent = "Fixed to SSC for this Test Type.";
-    accessWrap.style.display = "block";
-    costWrap.style.display = "none";
-  } else if (testType === "legal_mock") {
+  } else {
     categorySelect.value = "legal";
-    categorySelect.disabled = true;
     categoryNote.textContent = "Fixed to Legal for this Test Type.";
-    accessWrap.style.display = "block";
-    costWrap.style.display = "none";
-  } else { // credit
-    categorySelect.disabled = false;
-    categoryNote.textContent = "For organization/filtering only — does not grant Pass access.";
-    accessWrap.style.display = "none";
-    costWrap.style.display = "block";
   }
+  categorySelect.disabled = true;
 
-  refreshPassageOptions();
-}
-
-function onCategoryChange() {
-  // Only matters while Category is actually editable (Credit Based Test)
   refreshPassageOptions();
 }
 
@@ -89,6 +78,7 @@ async function loadAllPassages() {
   const { data, error } = await supabaseClient
     .from("passages")
     .select("id, title, passage_type, category, duration")
+    .eq("passage_type", "Mock Test")
     .order("title", { ascending: true });
 
   if (error || !data) {
@@ -100,26 +90,19 @@ async function loadAllPassages() {
   allPassages = data;
 }
 
-// Only shows passages matching the currently selected Test Type + Category:
-//   ssc_mock/legal_mock -> passage_type = 'Mock Test',        category matches
-//   credit               -> passage_type = 'Credit Based Test', category matches
+// Shows Mock Test passages matching the currently selected category.
 function refreshPassageOptions() {
   const select = document.getElementById("mPassage");
   const note = document.getElementById("mPassageNote");
-  const testType = document.getElementById("mTestType").value;
   const category = document.getElementById("mCategory").value; // 'ssc' | 'legal'
   const categoryLabel = category === "ssc" ? "SSC" : "Legal";
 
-  const requiredPassageType = testType === "credit" ? "Credit Based Test" : "Mock Test";
-
-  const matching = allPassages.filter(p =>
-    p.passage_type === requiredPassageType && p.category === categoryLabel
-  );
+  const matching = allPassages.filter(p => p.category === categoryLabel);
 
   select.innerHTML = "";
   if (matching.length === 0) {
     select.innerHTML = '<option value="">No matching passages — add one in Passages first</option>';
-    note.textContent = 'Looking for: Passage Type = "' + requiredPassageType + '", Category = "' + categoryLabel + '". None found yet.';
+    note.textContent = 'Looking for: Passage Type = "Mock Test", Category = "' + categoryLabel + '". None found yet.';
     return;
   }
 
@@ -129,19 +112,16 @@ function refreshPassageOptions() {
     opt.textContent = p.title + " — " + p.passage_type + " — " + p.category;
     select.appendChild(opt);
   });
-  note.textContent = 'Showing passages where Passage Type = "' + requiredPassageType + '" and Category = "' + categoryLabel + '".';
+  note.textContent = 'Showing passages where Passage Type = "Mock Test" and Category = "' + categoryLabel + '".';
 }
 
 /* ---------------- Loading / rendering the list ---------------- */
 
 function testTypeFromRow(m) {
-  if (m.access_type === "credit") return "credit";
   return m.category === "ssc" ? "ssc_mock" : "legal_mock";
 }
 function testTypeLabel(testType) {
-  if (testType === "credit") return "Credit Based Test";
-  if (testType === "ssc_mock") return "SSC Mock Test";
-  return "Legal Mock Test";
+  return testType === "ssc_mock" ? "SSC Mock Test" : "Legal Mock Test";
 }
 
 async function loadMockTests() {
@@ -160,12 +140,10 @@ async function loadMockTests() {
   if (categoryFilter !== "all") {
     query = query.eq("category", categoryFilter);
   }
-  if (testTypeFilter === "credit") {
-    query = query.eq("access_type", "credit");
-  } else if (testTypeFilter === "ssc_mock") {
-    query = query.eq("category", "ssc").neq("access_type", "credit");
+  if (testTypeFilter === "ssc_mock") {
+    query = query.eq("category", "ssc");
   } else if (testTypeFilter === "legal_mock") {
-    query = query.eq("category", "legal").neq("access_type", "credit");
+    query = query.eq("category", "legal");
   }
 
   const { data, error } = await query;
@@ -191,7 +169,7 @@ function renderList(mocks) {
   mocks.forEach(m => {
     const testType = testTypeFromRow(m);
     const passageTitle = m.passages ? m.passages.title : "(passage deleted)";
-    const costCell = testType === "credit" ? "Cost: 1 Credit" : (m.access_type === "free" ? "Free" : "Premium");
+    const costCell = m.access_type === "free" ? "Free" : "Pass, or 1 Credit";
 
     rows += `
       <tr>
@@ -244,18 +222,8 @@ async function handleSubmit(e) {
   submitBtn.disabled = true;
 
   const testType = document.getElementById("mTestType").value;
-  let category, accessType;
-
-  if (testType === "ssc_mock") {
-    category = "ssc";
-    accessType = document.getElementById("mAccess").value; // 'free' | 'premium'
-  } else if (testType === "legal_mock") {
-    category = "legal";
-    accessType = document.getElementById("mAccess").value;
-  } else {
-    category = document.getElementById("mCategory").value; // admin's choice
-    accessType = "credit"; // fixed, never editable
-  }
+  const category = testType === "ssc_mock" ? "ssc" : "legal";
+  const accessType = document.getElementById("mAccess").value; // 'free' | 'premium'
 
   const payload = {
     title: document.getElementById("mTitle").value.trim(),
@@ -301,16 +269,10 @@ function startEdit(id) {
 
   document.getElementById("mTitle").value = m.title;
   document.getElementById("mTestType").value = testType;
-  onTestTypeChange(); // sets category lock/unlock, shows Access or Cost, refreshes passage list
+  onTestTypeChange(); // sets category lock, refreshes passage list
+  document.getElementById("mAccess").value = m.access_type;
 
-  if (testType === "credit") {
-    document.getElementById("mCategory").value = m.category;
-    refreshPassageOptions();
-  } else {
-    document.getElementById("mAccess").value = m.access_type;
-  }
-
-  // Now that the passage list matches this row's Test Type/Category, select it
+  // Now that the passage list matches this row's category, select it
   document.getElementById("mPassage").value = m.passage_id;
 
   document.getElementById("mDuration").value = String(m.duration);
