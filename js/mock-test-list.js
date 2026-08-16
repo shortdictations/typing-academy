@@ -1,15 +1,27 @@
 /* ============================================================
    mock-test-list.js
    ------------------------------------------------------------
-   Shows every active mock test in one category (?category=legal
-   or ?category=ssc), in admin-set display order. The first 3
-   mocks in the category are Free; the rest follow whatever
-   access_type the admin assigned (this mirrors "first 3 free"
-   automatically as long as admin sets display_order 1-3 for the
-   free ones, but access_type is what's actually enforced/shown —
-   see the note in setup-mock-tests.sql about premium not yet
-   being access-controlled server-side, since payments aren't
-   built yet).
+   Shows EVERY active mock test in one category (?category=legal
+   or ssc) in one unified list — SSC/Legal Mock Tests and what
+   used to be separate "Credit-Based Tests" now live together
+   here, per the TypeShala access model update: PASS and CREDIT
+   are two access METHODS for the same test library, not two
+   separate libraries.
+
+   Access priority per test (mirrors the real server-side rule):
+     1. Free test (access_type='free')            -> always open
+     2. Active eligible Pass (checked via the same
+        can_access_mock() RPC mock-test-attempt.js uses)         -> PASS INCLUDED, unlimited
+     3. No eligible pass, but a credit is available
+        (and this test hasn't already been claimed
+        with a credit before)                                    -> 1 CREDIT
+     4. Already claimed with a credit previously                 -> Completed
+     5. None of the above                                        -> GET ACCESS (locked)
+
+   Frontend visibility here is NOT access control — the real
+   check/deduction happens server-side in start_mock_test()/
+   start_credit_test(), called from mock-test-attempt.js only
+   when Start is actually pressed.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -26,7 +38,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     .from("mock_tests")
     .select("*")
     .eq("category", category)
-    .neq("access_type", "credit") // Credit-Based Tests never appear in the pass-based lists
     .eq("active", true)
     .order("display_order", { ascending: true });
 
@@ -43,37 +54,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Find which of these mocks this student has already completed
+  // Which of these has this student already completed (any access method)?
   const mockIds = mocks.map(m => m.id);
   const { data: results } = await supabaseClient
     .from("mock_test_results")
     .select("mock_test_id")
     .eq("user_id", user.id)
     .in("mock_test_id", mockIds);
-
   const completedIds = new Set((results || []).map(r => r.mock_test_id));
 
-  // Real access check per mock — calls the SAME can_access_mock()
-  // function that actually enforces this (in the mock_test_results
-  // insert policy), instead of re-implementing the unlock rule here
-  // a second time. This is what makes it impossible for this list
-  // to ever diverge from the real enforcement again — previously it
-  // checked the legacy `subscriptions` table only, which Razorpay
-  // fulfillment (writing to user_passes) never touched.
-  const accessMap = await loadAccessMap(mocks);
+  // STEP 1 of the access priority, for every non-free test — real
+  // DB-level pass check via the SAME can_access_mock() function
+  // that actually enforces this (in the mock_test_results insert
+  // policy), never re-implemented client-side.
+  const accessMap = await loadPassAccessMap(mocks);
 
-  renderMockList(mocks, completedIds, accessMap);
+  // For tests where the pass check came back false, we also need
+  // this student's credit balance and which of those specific
+  // tests were already claimed with a credit before (STEP 3/4).
+  const needsCreditInfo = mocks.some(m => m.access_type !== "free" && !accessMap[m.id]);
+  const creditInfo = needsCreditInfo
+    ? await loadCreditFallbackInfo(user.id, mocks.filter(m => m.access_type !== "free" && !accessMap[m.id]))
+    : { balance: 0, unlockedIds: new Set() };
+
+  renderMockList(mocks, completedIds, accessMap, creditInfo);
 });
 
-// One can_access_mock() RPC per premium mock in this list (free
+// One can_access_mock() RPC per non-free mock in this list (free
 // mocks never need checking). Small lists, so this stays cheap,
 // and it's the only way to guarantee this page can't drift out of
-// sync with the real access rule again.
-async function loadAccessMap(mocks) {
+// sync with the real access rule.
+async function loadPassAccessMap(mocks) {
   const map = {};
-  const premiumMocks = mocks.filter(m => m.access_type === "premium");
+  const nonFreeMocks = mocks.filter(m => m.access_type !== "free");
 
-  await Promise.all(premiumMocks.map(async (m) => {
+  await Promise.all(nonFreeMocks.map(async (m) => {
     const { data, error } = await supabaseClient.rpc("can_access_mock", { mock_id: m.id });
     map[m.id] = error ? false : !!data;
   }));
@@ -81,31 +96,79 @@ async function loadAccessMap(mocks) {
   return map;
 }
 
-function renderMockList(mocks, completedIds, accessMap) {
+// Credit balance + which of the (pass-ineligible) tests were
+// already claimed with a credit before. Read-only — never deducts;
+// the actual spend only happens in start_credit_test(), called from
+// mock-test-attempt.js when Start is pressed.
+async function loadCreditFallbackInfo(userId, candidateMocks) {
+  const { data: walletRows, error: walletError } = await supabaseClient
+    .from("wallet_credits")
+    .select("credits_remaining, expires_at")
+    .eq("user_id", userId);
+
+  const now = new Date();
+  const balance = walletError
+    ? 0
+    : (walletRows || [])
+        .filter(row => new Date(row.expires_at) > now)
+        .reduce((sum, row) => sum + row.credits_remaining, 0);
+
+  const mockIds = candidateMocks.map(m => m.id);
+  let unlockedIds = new Set();
+  if (mockIds.length > 0) {
+    const { data: unlocks } = await supabaseClient
+      .from("mock_unlocks")
+      .select("mock_test_id")
+      .eq("user_id", userId)
+      .in("mock_test_id", mockIds);
+    unlockedIds = new Set((unlocks || []).map(u => u.mock_test_id));
+  }
+
+  return { balance, unlockedIds };
+}
+
+function renderMockList(mocks, completedIds, accessMap, creditInfo) {
   const wrap = document.getElementById("mockListBody");
   wrap.innerHTML = '<div class="mock-grid"></div>';
   const grid = wrap.querySelector(".mock-grid");
 
   mocks.forEach(m => {
-    const isPremium = m.access_type === "premium";
+    const isFree = m.access_type === "free";
+    const hasPass = !isFree && accessMap[m.id] === true;
     const isCompleted = completedIds.has(m.id);
-    const hasAccess = !isPremium || accessMap[m.id] === true;
-    const categoryLabel = m.category === "ssc" ? "SSC" : "Legal";
+    // Credit fallback only matters when there's no eligible pass.
+    const alreadyClaimedByCredit = !isFree && !hasPass && creditInfo.unlockedIds.has(m.id);
+    const hasCreditAvailable = !isFree && !hasPass && !alreadyClaimedByCredit && creditInfo.balance > 0;
+    const hasAccess = isFree || hasPass || hasCreditAvailable || alreadyClaimedByCredit;
 
     const card = document.createElement("div");
     card.className = "mock-card";
 
     let actionHtml;
-    if (hasAccess) {
+    let metaText;
+
+    if (isFree) {
+      metaText = m.duration + " minutes &middot; Free";
       actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' +
         (isCompleted ? "Retake" : "Start") + '</a>';
+    } else if (hasPass) {
+      metaText = m.duration + " minutes &middot; PASS INCLUDED";
+      actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">' +
+        (isCompleted ? "Retake" : "Start") + '</a>';
+    } else if (alreadyClaimedByCredit || (isCompleted && !hasAccess)) {
+      // Claimed with a credit before and no pass now covers it —
+      // matches the existing "1 credit, once" rule.
+      metaText = m.duration + " minutes";
+      actionHtml = '<a class="btn btn-ghost" href="mock-history.html">View Result</a>';
+    } else if (hasCreditAvailable) {
+      metaText = m.duration + " minutes &middot; 1 CREDIT";
+      actionHtml = '<a class="btn" href="mock-test-attempt.html?id=' + encodeURIComponent(m.id) + '">Use 1 Credit</a>';
     } else {
-      // Lock icon lives inside the button itself; no separate "Premium"
-      // label elsewhere on the card — the button already says it all.
-      actionHtml = '<a class="btn" href="subscriptions.html?plan=' + m.category + '">&#128274; Get ' + categoryLabel + ' Pass</a>';
+      // Neither an eligible pass nor a spendable credit.
+      metaText = m.duration + " minutes";
+      const categoryLabel = m.category === "ssc" ? "SSC" : "Legal";
+      actionHtml = '<a class="btn" href="subscriptions.html?plan=' + m.category + '">&#128274; Get ' + categoryLabel + ' Access</a>';
     }
-
-    const metaText = isPremium ? (m.duration + " minutes") : (m.duration + " minutes &middot; Free");
 
     card.innerHTML = `
       <div class="mock-card-title">
