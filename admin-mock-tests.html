@@ -36,7 +36,7 @@
 
   <p class="eyebrow">Admin Only</p>
   <h1>Manage Mock Tests</h1>
-  <p class="lede">Create the individual mock tests students pick from. Each one is either an SSC Mock Test or a Legal Mock Test, linked to one existing passage. Every non-free test resolves the same way for students: an eligible Pass for the matching category is used first, and only falls back to 1 Credit when there's no eligible Pass.</p>
+  <p class="lede">Create the individual mock tests students pick from, linked to one existing passage. Every non-free test resolves the same way for students: an eligible Pass for the matching category is used first, and only falls back to 1 Credit when there's no eligible Pass.</p>
 
   <!-- ADD / EDIT FORM -->
   <div class="card">
@@ -50,14 +50,6 @@
         <input type="text" id="mTitle" placeholder="e.g. Legal Mock 01" required>
       </div>
 
-      <div class="field">
-        <label for="mTestType">Test Type</label>
-        <select id="mTestType">
-          <option value="ssc_mock">SSC Mock Test</option>
-          <option value="legal_mock">Legal Mock Test</option>
-        </select>
-      </div>
-
       <div class="setup-grid">
         <div class="field">
           <label for="mCategory">Category</label>
@@ -65,7 +57,6 @@
             <option value="ssc">SSC</option>
             <option value="legal">Legal</option>
           </select>
-          <p class="test-rules-note" id="mCategoryNote" style="margin-top:6px;"></p>
         </div>
         <div class="field" id="mAccessWrap">
           <label for="mAccess">Access</label>
