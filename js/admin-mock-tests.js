@@ -39,8 +39,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadAllPassages();
 
-  document.getElementById("mTestType").addEventListener("change", onTestTypeChange);
-  onTestTypeChange(); // set correct initial field visibility + passage list
+  document.getElementById("mCategory").addEventListener("change", refreshPassageOptions);
+  refreshPassageOptions(); // set correct initial passage list
 
   document.getElementById("mockForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
@@ -49,25 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadMockTests();
 });
-
-/* ---------------- Test Type <-> Category wiring ---------------- */
-
-function onTestTypeChange() {
-  const testType = document.getElementById("mTestType").value;
-  const categorySelect = document.getElementById("mCategory");
-  const categoryNote = document.getElementById("mCategoryNote");
-
-  if (testType === "ssc_mock") {
-    categorySelect.value = "ssc";
-    categoryNote.textContent = "Fixed to SSC for this Test Type.";
-  } else {
-    categorySelect.value = "legal";
-    categoryNote.textContent = "Fixed to Legal for this Test Type.";
-  }
-  categorySelect.disabled = true;
-
-  refreshPassageOptions();
-}
 
 /* ---------------- Passage picker ---------------- */
 
@@ -221,8 +202,7 @@ async function handleSubmit(e) {
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = true;
 
-  const testType = document.getElementById("mTestType").value;
-  const category = testType === "ssc_mock" ? "ssc" : "legal";
+  const category = document.getElementById("mCategory").value; // 'ssc' | 'legal'
   const accessType = document.getElementById("mAccess").value; // 'free' | 'premium'
 
   const payload = {
@@ -265,12 +245,11 @@ function startEdit(id) {
   if (!m) return;
 
   editingId = id;
-  const testType = testTypeFromRow(m);
 
   document.getElementById("mTitle").value = m.title;
-  document.getElementById("mTestType").value = testType;
-  onTestTypeChange(); // sets category lock, refreshes passage list
+  document.getElementById("mCategory").value = m.category;
   document.getElementById("mAccess").value = m.access_type;
+  refreshPassageOptions(); // sets the passage list to match this row's category
 
   // Now that the passage list matches this row's category, select it
   document.getElementById("mPassage").value = m.passage_id;
@@ -289,7 +268,7 @@ function startEdit(id) {
 function exitEditMode() {
   editingId = null;
   document.getElementById("mockForm").reset();
-  onTestTypeChange();
+  refreshPassageOptions();
   document.getElementById("formLabel").textContent = "Add a New Mock Test";
   document.getElementById("submitBtn").textContent = "Add Mock Test";
   document.getElementById("cancelEditBtn").style.display = "none";
