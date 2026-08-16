@@ -9,16 +9,17 @@
    update/delete from a non-admin no matter what the browser
    does.
 
-   Passage Type is "Mock Test" (linked to a mock_tests catalog
-   row, pass-based access with a 1-Credit fallback). "Credit
-   Based Test" was retired as a passage type — it never meant a
-   genuinely different access rule for students in the first
-   place. "Practice" is no longer offered here — existing
-   Practice-tagged passages are intentionally excluded from this
-   list so they can't be accidentally mutated through this form,
-   but they remain fully untouched in the database and keep
-   working exactly as before on the regular typing practice page
-   (js/passages.js is unchanged).
+   Passage Type is not shown or editable in this form — every
+   passage created here is automatically passage_type='Mock
+   Test' (linked to a mock_tests catalog row, pass-based access
+   with a 1-Credit fallback), and existing passages' passage_type
+   is never touched on edit. Category (SSC/Legal) is the only
+   classification the admin sees. "Practice" is no longer offered
+   here — existing Practice-tagged passages are intentionally
+   excluded from this list so they can't be accidentally mutated
+   through this form, but they remain fully untouched in the
+   database and keep working exactly as before on the regular
+   typing practice page (js/passages.js is unchanged).
    ============================================================ */
 
 let editingId = null; // null = "add" mode, otherwise the id being edited
@@ -30,7 +31,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("passageForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
   document.getElementById("filterCategory").addEventListener("change", loadPassages);
-  document.getElementById("filterType").addEventListener("change", loadPassages);
 
   await loadPassages();
 });
@@ -42,12 +42,13 @@ async function loadPassages() {
   listBody.innerHTML = '<div class="loading-strip">Loading passages...</div>';
 
   const categoryFilter = document.getElementById("filterCategory").value;
-  const typeFilter = document.getElementById("filterType").value;
 
   // Only Mock Test passages ever appear here — Practice-tagged
   // passages are managed elsewhere (the regular typing practice
   // content pool) and are deliberately excluded so they can't be
-  // edited into an invalid state via this form.
+  // edited into an invalid state via this form. Passage Type is
+  // not admin-editable or filterable here — Category is the only
+  // classification the admin sees.
   let query = supabaseClient
     .from("passages")
     .select("*")
@@ -56,9 +57,6 @@ async function loadPassages() {
 
   if (categoryFilter !== "all") {
     query = query.eq("category", categoryFilter);
-  }
-  if (typeFilter !== "all") {
-    query = query.eq("passage_type", typeFilter);
   }
 
   const { data, error } = await query;
@@ -85,7 +83,6 @@ function renderList(passages) {
     rows += `
       <tr>
         <td>${escapeHtml(p.title)}</td>
-        <td><span class="pill">${escapeHtml(p.passage_type)}</span></td>
         <td><span class="pill">${escapeHtml(p.category)}</span></td>
         <td>${p.duration} min</td>
         <td>${p.active ? "Active" : "Inactive"}</td>
@@ -102,7 +99,6 @@ function renderList(passages) {
       <thead>
         <tr>
           <th>Title</th>
-          <th>Passage Type</th>
           <th>Category</th>
           <th>Duration</th>
           <th>Status</th>
@@ -130,13 +126,16 @@ async function handleSubmit(e) {
   const payload = {
     title: document.getElementById("pTitle").value.trim(),
     content: document.getElementById("pContent").value.trim(),
-    passage_type: document.getElementById("pType").value,
     category: document.getElementById("pCategory").value,
     duration: parseInt(document.getElementById("pDuration").value, 10),
     active: document.getElementById("pActive").value === "true"
     // No difficulty, no exam_name — removed from this form entirely.
     // Existing values for those columns (if any) are left untouched
     // on UPDATE since they're simply not included in this payload.
+    // passage_type is likewise NOT included here — see below: it's
+    // set automatically for new passages only, and left alone
+    // entirely on edit so an existing row's value is never
+    // unnecessarily overwritten.
   };
 
   try {
@@ -145,7 +144,9 @@ async function handleSubmit(e) {
       if (error) throw error;
       showFormSuccess("Passage updated.");
     } else {
-      const { error } = await supabaseClient.from("passages").insert(payload).select().single();
+      // New passages created from this form are always Mock Test
+      // passages — the admin no longer picks Passage Type.
+      const { error } = await supabaseClient.from("passages").insert({ ...payload, passage_type: "Mock Test" }).select().single();
       if (error) throw error;
       showFormSuccess("Passage added.");
     }
@@ -166,7 +167,6 @@ function startEdit(id) {
   editingId = id;
   document.getElementById("pTitle").value = p.title;
   document.getElementById("pContent").value = p.content;
-  document.getElementById("pType").value = p.passage_type;
   document.getElementById("pCategory").value = p.category;
   document.getElementById("pDuration").value = String(p.duration);
   document.getElementById("pActive").value = p.active ? "true" : "false";
