@@ -47,29 +47,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   mockTest = data;
   selectedPassage = data.passages;
 
-  // Real DB-level access check — reads the same can_access_mock()
-  // function used to enforce saving, so a student who reaches this
-  // page by guessing/pasting a premium mock's URL is stopped here
-  // too, not just left to discover it after finishing the test.
-  if (mockTest.access_type === "premium") {
-    const { data: allowed, error: accessError } = await supabaseClient.rpc("can_access_mock", { mock_id: mockTest.id });
+  // ---------------- Access priority (new TypeShala access model) ----------------
+  // PASS and CREDIT are now two access METHODS for the same SSC/Legal
+  // test library — not two separate libraries. For any non-free test:
+  //   STEP 1: does the student have an active eligible pass? (checked
+  //           via the SAME can_access_mock() function used to enforce
+  //           saving — never re-implemented client-side.) If yes:
+  //           unlimited access, no credit involved, regardless of
+  //           whether this specific test used to be "premium" or
+  //           "credit" — that distinction no longer changes behaviour.
+  //   STEP 2: no eligible pass — fall back to the existing credit
+  //           system exactly as before (1 credit, once).
+  //   STEP 3: neither — locked, show purchase options.
+  let hasEligiblePass = false;
 
-    if (accessError || !allowed) {
-      const categoryLabel = mockTest.category === "ssc" ? "SSC" : "Legal";
-      document.getElementById("setupInfo").innerHTML =
-        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">Premium — ' + categoryLabel + ' Subscription Required</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active ' + categoryLabel + ' subscription to take this mock test.</div>' +
-        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Subscription Plans</a>';
-      return; // startBtn is never shown, so the test cannot be started
-    }
+  if (mockTest.access_type !== "free") {
+    const { data: allowed, error: accessError } = await supabaseClient.rpc("can_access_mock", { mock_id: mockTest.id });
+    hasEligiblePass = !accessError && !!allowed;
   }
 
-  // Credit Based Test: read-only check here (never deducts) — if
-  // this specific test was already consumed by this student, show
-  // that plainly instead of a Start button that would just be
-  // rejected. The actual credit spend/consumption only happens
-  // inside start_credit_test(), called from handleStartClick below.
-  if (mockTest.access_type === "credit") {
+  if (mockTest.access_type !== "free" && !hasEligiblePass) {
+    // No eligible pass — read-only check here (never deducts) so a
+    // test already claimed with a credit shows that plainly instead
+    // of a Start button that would just be rejected. The actual
+    // credit spend only happens inside start_credit_test(), called
+    // from handleStartClick below.
     const { data: existingUnlock } = await supabaseClient
       .from("mock_unlocks")
       .select("id")
@@ -80,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (existingUnlock) {
       document.getElementById("setupInfo").innerHTML =
         '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this Credit Based Test. It cannot be retaken.</div>' +
+        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this test using a credit. It cannot be retaken unless you have an active eligible Pass.</div>' +
         '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
       return; // startBtn is never shown
     }
@@ -89,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("setupInfo").innerHTML =
     '<div class="mock-test-title">' + escapeHtml(mockTest.title) + '</div>' +
     '<div class="mock-test-meta">' + mockTest.duration + ' minutes &middot; ' +
-    (mockTest.access_type === "credit" ? "1 Credit" : (mockTest.access_type === "premium" ? "Premium" : "Free")) + '</div>' +
+    (mockTest.access_type === "free" ? "Free" : (hasEligiblePass ? "PASS INCLUDED" : "1 CREDIT")) + '</div>' +
     '<div class="mock-test-message">Your passage has already been assigned — it will appear the moment you click start.</div>';
 
   const startBtn = document.getElementById("startBtn");
@@ -138,61 +140,60 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function handleStartClick() {
   const startBtn = document.getElementById("startBtn");
 
-  if (mockTest.access_type === "premium") {
+  if (mockTest.access_type !== "free") {
+    // ---------------- STEP 1: eligible Pass ----------------
+    // Tried FIRST for every non-free test regardless of whether the
+    // test used to be "premium" or "credit" — an eligible pass always
+    // wins and NEVER consumes a credit. Re-verified atomically here
+    // (not just trusted from the page-load check).
     startBtn.disabled = true;
     startBtn.textContent = "Checking access...";
 
-    const { data, error } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
+    const { data: passData, error: passError } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
+    const passResult = Array.isArray(passData) ? passData[0] : passData;
+    const passGranted = !passError && passResult && passResult.has_access;
 
-    startBtn.disabled = false;
-    startBtn.textContent = "Start Mock Test";
+    if (!passGranted) {
+      // ---------------- STEP 2: Credit fallback ----------------
+      // No eligible pass — the ONLY place a credit is ever spent.
+      // Frontend visibility was never access control; this atomic,
+      // server-side check/deduct is what actually decides whether
+      // the test may start.
+      startBtn.textContent = "Checking credit balance...";
 
-    const result = Array.isArray(data) ? data[0] : data;
+      const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
 
-    if (error || !result || !result.has_access) {
-      const categoryLabel = mockTest.category === "ssc" ? "SSC" : "Legal";
-      document.getElementById("setupInfo").innerHTML =
-        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">Premium — ' + categoryLabel + ' Subscription Required</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active ' + categoryLabel + ' subscription, pass, or a remaining free sample to take this mock test.</div>' +
-        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Subscription Plans</a>';
-      startBtn.style.display = "none";
-      return;
+      startBtn.disabled = false;
+      startBtn.textContent = "Start Mock Test";
+
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (error || !result || !result.has_access) {
+        // ---------------- STEP 3: neither pass nor credit ----------------
+        document.getElementById("setupInfo").innerHTML =
+          '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">&#128274; Access Required</div>' +
+          '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active eligible Pass or at least 1 Credit to take this test.</div>' +
+          '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Passes &amp; Credits</a>';
+        startBtn.style.display = "none";
+        return;
+      }
+
+      if (result.access_reason === "ALREADY_COMPLETED") {
+        document.getElementById("setupInfo").innerHTML =
+          '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
+          '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this test using a credit. It cannot be retaken unless you have an active eligible Pass.</div>' +
+          '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
+        startBtn.style.display = "none";
+        return;
+      }
+      // result.access_reason === "CREDIT_USED" — 1 credit was just
+      // deducted and this test is now claimed for this student
+      // (unless/until an eligible Pass covers it later). Proceed to
+      // the timed test below.
+    } else {
+      startBtn.disabled = false;
+      startBtn.textContent = "Start Mock Test";
     }
-  } else if (mockTest.access_type === "credit") {
-    // The ONLY place a credit is ever spent — this call is the real
-    // security boundary. Frontend visibility on mock-test.html was
-    // never access control; this atomic, server-side check/deduct
-    // is what actually decides whether the test may start.
-    startBtn.disabled = true;
-    startBtn.textContent = "Checking credit balance...";
-
-    const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
-
-    startBtn.disabled = false;
-    startBtn.textContent = "Start Mock Test";
-
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (error || !result || !result.has_access) {
-      document.getElementById("setupInfo").innerHTML =
-        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">&#128274; No Credits Remaining</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need at least 1 credit to take this test.</div>' +
-        '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">Buy Credits</a>';
-      startBtn.style.display = "none";
-      return;
-    }
-
-    if (result.access_reason === "ALREADY_COMPLETED") {
-      document.getElementById("setupInfo").innerHTML =
-        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this Credit Based Test. It cannot be retaken.</div>' +
-        '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
-      startBtn.style.display = "none";
-      return;
-    }
-    // result.access_reason === "CREDIT_USED" — 1 credit was just
-    // deducted and this test is now permanently claimed for this
-    // student. Proceed to the timed test below.
   }
 
   startMockTest();
