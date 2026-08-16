@@ -90,6 +90,7 @@ async function loadPassAccessMap(mocks) {
 
   await Promise.all(nonFreeMocks.map(async (m) => {
     const { data, error } = await supabaseClient.rpc("can_access_mock", { mock_id: m.id });
+    if (error) console.error("can_access_mock RPC error for mock " + m.id + ":", error);
     map[m.id] = error ? false : !!data;
   }));
 
