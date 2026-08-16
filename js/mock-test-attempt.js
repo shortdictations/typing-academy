@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (mockTest.access_type !== "free") {
     const { data: allowed, error: accessError } = await supabaseClient.rpc("can_access_mock", { mock_id: mockTest.id });
+    if (accessError) console.error("can_access_mock RPC error:", accessError);
     hasEligiblePass = !accessError && !!allowed;
   }
 
@@ -150,6 +151,7 @@ async function handleStartClick() {
     startBtn.textContent = "Checking access...";
 
     const { data: passData, error: passError } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
+    if (passError) console.error("start_mock_test RPC error:", passError);
     const passResult = Array.isArray(passData) ? passData[0] : passData;
     const passGranted = !passError && passResult && passResult.has_access;
 
@@ -162,6 +164,7 @@ async function handleStartClick() {
       startBtn.textContent = "Checking credit balance...";
 
       const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
+      if (error) console.error("start_credit_test RPC error:", error);
 
       startBtn.disabled = false;
       startBtn.textContent = "Start Mock Test";
