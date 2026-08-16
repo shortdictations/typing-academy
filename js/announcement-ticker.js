@@ -72,6 +72,7 @@ function renderTicker(container, announcements) {
   // start, with no visible seam or jump.
   container.innerHTML =
     '<span class="announcement-ticker-icon">&#128226;</span>' +
+    '<span class="announcement-ticker-divider">|</span>' +
     '<div class="announcement-ticker-track">' +
       '<div class="announcement-ticker-content" id="' + container.id + 'Content">' +
         sequence + '<span class="announcement-ticker-sep">&bull;</span>' +
