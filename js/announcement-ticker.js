@@ -9,19 +9,24 @@
    existing background — no visible bar, box, or border. The
    wrapper's own size/position is computed in JS from the actual
    viewport (document.documentElement.clientWidth, which excludes
-   the scrollbar), not from a CSS vw unit — this is what actually
-   guarantees it can never cause page-level horizontal scroll,
-   rather than leaning on a blanket body-level overflow fix.
+   the scrollbar), not from a CSS vw unit — this is what guarantees
+   it can never cause page-level horizontal scroll.
 
-   The moving line is built from a repeating "unit" (icon + all
-   active announcements joined by a bullet). The unit's real
-   rendered width is measured, then just enough copies are placed
-   back-to-back to cover the full viewport width plus one extra —
-   so there is always a trailing copy ready to enter as the
-   leading one exits, however short or long the content is. The
-   track then animates by exactly one unit's width (measured, not
-   guessed), which is what makes the loop seamless regardless of
-   content length, screen width, or announcement count.
+   ONE-JOURNEY MODEL (not a repeated/duplicated track): all active
+   announcements are joined into a single sequence (icon + each
+   announcement separated by a bullet). That ONE element travels
+   once across the viewport per animation cycle — starting fully
+   off-screen right (translateX(100vw)) and ending fully off-screen
+   left (translateX(-100%), i.e. shifted left by exactly its own
+   width). There is never a second copy on screen at the same time,
+   however short the sequence is. The animation's iteration-count
+   is infinite with the same from/to positions, so the "reset" from
+   one journey to the next happens while the element is fully
+   off-screen on both sides — invisible by construction, no JS
+   reset logic needed. Only the animation-duration is computed in
+   JS, from the actual measured (viewport width + sequence width),
+   so a short single announcement still makes one full, correctly
+   paced journey instead of finishing too fast or too slow.
 
    Call initAnnouncementTicker(containerId, locationKey) once per
    page, where locationKey is "dashboard" or "home" — it decides
@@ -73,9 +78,8 @@ async function initAnnouncementTicker(containerId, locationKey) {
 }
 
 function setUpTicker(container, announcements) {
-  // The icon is part of the moving content itself — not a fixed
-  // element outside it — so the whole line travels together with
-  // no separate ticker structure around it.
+  // The icon is part of the sequence itself — not a fixed element
+  // outside it — so the whole line travels together as one piece.
   const icon = '<span class="announcement-ticker-icon">&#128226;</span>';
   const items = announcements.map(a => {
     const text = escapeHtmlTicker(a.title) +
@@ -84,21 +88,23 @@ function setUpTicker(container, announcements) {
       ? '<a class="announcement-ticker-item" href="' + escapeHtmlTicker(a.action_url) + '">' + text + '</a>'
       : '<span class="announcement-ticker-item">' + text + '</span>';
   });
-  const unitHtml = icon + items.join('<span class="announcement-ticker-sep">&bull;</span>');
+  // ALL active announcements combined into ONE sequence — this is
+  // the one and only thing that ever travels across the viewport,
+  // never independently animated per announcement.
+  const sequenceHtml = icon + items.join('<span class="announcement-ticker-sep">&bull;</span>');
 
   container.style.display = "block";
   container.innerHTML =
     '<div class="announcement-ticker-track">' +
-      '<div class="announcement-ticker-content" id="' + container.id + 'Content"></div>' +
+      '<span class="announcement-ticker-content" id="' + container.id + 'Content">' + sequenceHtml + '</span>' +
     '</div>';
 
-  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const content = document.getElementById(container.id + "Content");
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (reduceMotion) {
-    // Static single line, no repetition, no animation — the
-    // announcement itself is not removed, just not scrolling.
-    content.innerHTML = '<span class="announcement-ticker-unit" style="margin-right:0;">' + unitHtml + "</span>";
+    // Static single line, no animation — the announcement itself
+    // is not removed, just not scrolling.
     fullBleed(container);
     let resizeTimer = null;
     window.addEventListener("resize", () => {
@@ -111,41 +117,24 @@ function setUpTicker(container, announcements) {
   function rebuild() {
     fullBleed(container);
 
-    // Measure one unit's real rendered width (including its own
-    // trailing gap) before deciding how many copies are needed —
-    // never guessed, never hardcoded.
-    content.innerHTML = '<span class="announcement-ticker-unit" id="' + container.id + 'Probe">' + unitHtml + "</span>";
-    const probe = document.getElementById(container.id + "Probe");
-    const gapPx = parseFloat(getComputedStyle(probe).marginRight) || 0;
-    const pitch = probe.getBoundingClientRect().width + gapPx; // distance from one unit's start to the next
-
-    if (pitch <= 0) return; // nothing to animate (shouldn't happen — announcements always render some text)
-
     const viewportWidth = document.documentElement.clientWidth;
-    // Enough copies to cover the full viewport, plus one extra so a
-    // trailing copy is always already in place as the leading one
-    // exits — this is what removes any blank gap for short content.
-    const neededCopies = Math.ceil(viewportWidth / pitch) + 1;
+    const sequenceWidth = content.getBoundingClientRect().width;
 
-    let html = "";
-    for (let i = 0; i < neededCopies; i++) {
-      html += '<span class="announcement-ticker-unit">' + unitHtml + "</span>";
-    }
-    content.innerHTML = html;
-
-    // Distance and duration both come from the actual measured
-    // pitch, so speed stays a consistent ~50px/s and the loop
-    // point always lines up exactly, whatever the content is.
+    // One full journey = the sequence traveling from fully
+    // off-screen right to fully off-screen left, i.e. the viewport
+    // width plus the sequence's own width — never a fixed/guessed
+    // duration, so a short announcement isn't rushed or a long one
+    // dragged out.
     const pixelsPerSecond = 50;
-    const duration = Math.max(pitch / pixelsPerSecond, 6);
-    content.style.setProperty("--ticker-distance", pitch + "px");
+    const totalTravel = viewportWidth + sequenceWidth;
+    const duration = Math.max(totalTravel / pixelsPerSecond, 4);
     content.style.animationDuration = duration + "s";
 
     // Force a clean restart rather than letting the browser carry
-    // over the current animation progress against a new distance/
-    // duration — that's what would otherwise cause a visible jump
-    // on resize, since this is the same element being re-animated,
-    // not a fresh one.
+    // over the current animation progress against a new duration —
+    // that's what would otherwise cause a visible jump on resize,
+    // since this is the same element being re-animated, not a
+    // fresh one.
     content.classList.remove("is-animating");
     void content.offsetWidth; // forces reflow so the removal actually takes effect before re-adding
     content.classList.add("is-animating");
@@ -153,8 +142,8 @@ function setUpTicker(container, announcements) {
 
   rebuild();
 
-  // Recalculates on resize/orientation change so the loop never
-  // develops a gap or a jump when the viewport changes.
+  // Recalculates on resize/orientation change so the journey's
+  // pacing stays correct and the reset stays invisible.
   let resizeTimer = null;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
@@ -164,8 +153,7 @@ function setUpTicker(container, announcements) {
 
 // Makes the ticker span the true viewport width edge-to-edge,
 // computed from the actual DOM rather than a CSS vw unit — this is
-// what guarantees no page-level horizontal scroll, without relying
-// on a blanket overflow-x:hidden somewhere else on the page.
+// what guarantees no page-level horizontal scroll.
 function fullBleed(container) {
   container.style.width = "100%";
   container.style.marginLeft = "0";
