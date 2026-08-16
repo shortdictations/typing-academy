@@ -52,6 +52,7 @@ async function loadAnnouncements() {
       <tr>
         <td>${escapeHtmlAnn(a.title)}</td>
         <td><span class="pill">${escapeHtmlAnn(a.type)}</span></td>
+        <td>${escapeHtmlAnn(showOnLabel(a.show_on))}</td>
         <td>${a.active ? "Active" : "Inactive"}</td>
         <td>${formatDateCell(a.start_at)}</td>
         <td>${formatDateCell(a.end_at)}</td>
@@ -67,11 +68,22 @@ async function loadAnnouncements() {
     <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
-        <tr><th>Title</th><th>Type</th><th>Active</th><th>Start</th><th>End</th><th>Actions</th></tr>
+        <tr><th>Title</th><th>Type</th><th>Show On</th><th>Active</th><th>Start</th><th>End</th><th>Actions</th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
     </div>`;
+}
+
+// Human-readable Show On text — never exposes the raw array.
+function showOnLabel(showOn) {
+  const arr = showOn || [];
+  const hasDashboard = arr.includes("dashboard");
+  const hasHome = arr.includes("home");
+  if (hasDashboard && hasHome) return "Dashboard + Home Page";
+  if (hasDashboard) return "Dashboard";
+  if (hasHome) return "Home Page";
+  return "\u2014"; // shouldn't happen — the DB constraint requires at least one
 }
 
 function formatDateCell(iso) {
@@ -89,6 +101,10 @@ async function handleSubmit(e) {
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = true;
 
+  const showOn = [];
+  if (document.getElementById("aShowDashboard").checked) showOn.push("dashboard");
+  if (document.getElementById("aShowHome").checked) showOn.push("home");
+
   const payload = {
     title: document.getElementById("aTitle").value.trim(),
     message: document.getElementById("aMessage").value.trim(),
@@ -98,11 +114,18 @@ async function handleSubmit(e) {
     end_at: localInputToIso(document.getElementById("aEndAt").value),
     display_order: parseInt(document.getElementById("aOrder").value, 10) || 0,
     action_label: document.getElementById("aActionLabel").value.trim() || null,
-    action_url: document.getElementById("aActionUrl").value.trim() || null
+    action_url: document.getElementById("aActionUrl").value.trim() || null,
+    show_on: showOn
   };
 
   if (!payload.title || !payload.message) {
     showFormError("Title and message are required.");
+    submitBtn.disabled = false;
+    return;
+  }
+
+  if (showOn.length === 0) {
+    showFormError("Select at least one location — Dashboard, Home Page, or both.");
     submitBtn.disabled = false;
     return;
   }
@@ -147,6 +170,9 @@ function startEdit(id) {
   document.getElementById("aOrder").value = a.display_order;
   document.getElementById("aActionLabel").value = a.action_label || "";
   document.getElementById("aActionUrl").value = a.action_url || "";
+  const showOn = a.show_on || ["dashboard"];
+  document.getElementById("aShowDashboard").checked = showOn.includes("dashboard");
+  document.getElementById("aShowHome").checked = showOn.includes("home");
 
   document.getElementById("formLabel").textContent = "Editing: " + a.title;
   document.getElementById("submitBtn").textContent = "Update Announcement";
