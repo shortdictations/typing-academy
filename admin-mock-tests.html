@@ -36,7 +36,7 @@
 
   <p class="eyebrow">Admin Only</p>
   <h1>Manage Mock Tests</h1>
-  <p class="lede">Create the individual mock tests students pick from. Each one is exactly one of three Test Types — SSC Mock Test, Legal Mock Test, or Credit Based Test — linked to one existing passage.</p>
+  <p class="lede">Create the individual mock tests students pick from. Each one is either an SSC Mock Test or a Legal Mock Test, linked to one existing passage. Every non-free test resolves the same way for students: an eligible Pass for the matching category is used first, and only falls back to 1 Credit when there's no eligible Pass.</p>
 
   <!-- ADD / EDIT FORM -->
   <div class="card">
@@ -55,7 +55,6 @@
         <select id="mTestType">
           <option value="ssc_mock">SSC Mock Test</option>
           <option value="legal_mock">Legal Mock Test</option>
-          <option value="credit">Credit Based Test</option>
         </select>
       </div>
 
@@ -74,12 +73,7 @@
             <option value="free">Free</option>
             <option value="premium">Premium</option>
           </select>
-          <p class="test-rules-note" style="margin-top:6px;">Unlocked by the matching Pass (or free, for this category's first few mocks).</p>
-        </div>
-        <div class="field" id="mCostWrap" style="display:none;">
-          <label>Cost</label>
-          <div class="card" style="padding:10px 14px; background:var(--paper-dark);">Cost: 1 Credit</div>
-          <p class="test-rules-note" style="margin-top:6px;">Costs 1 credit only when the student has no eligible Pass — an active eligible Pass now unlocks this test too, unlimited, without spending a credit.</p>
+          <p class="test-rules-note" style="margin-top:6px;">Premium: unlocked by the matching Pass first, falls back to 1 Credit if the student has none (or free, for this category's first few mocks).</p>
         </div>
       </div>
 
@@ -138,7 +132,6 @@
           <option value="all">All Types</option>
           <option value="ssc_mock">SSC Mock Test</option>
           <option value="legal_mock">Legal Mock Test</option>
-          <option value="credit">Credit Based Test</option>
         </select>
       </div>
     </div>
