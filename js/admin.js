@@ -9,15 +9,16 @@
    update/delete from a non-admin no matter what the browser
    does.
 
-   Passage Type is now exactly two options: "Mock Test" (pass-
-   based access — SSC Pass/Legal Pass/Combo Pass, via the
-   mock_tests catalog) or "Credit Based Test" (1-credit access,
-   independent of any pass). "Practice" is no longer offered
-   here — existing Practice-tagged passages are intentionally
-   excluded from this list so they can't be accidentally
-   mutated through this form, but they remain fully untouched
-   in the database and keep working exactly as before on the
-   regular typing practice page (js/passages.js is unchanged).
+   Passage Type is "Mock Test" (linked to a mock_tests catalog
+   row, pass-based access with a 1-Credit fallback). "Credit
+   Based Test" was retired as a passage type — it never meant a
+   genuinely different access rule for students in the first
+   place. "Practice" is no longer offered here — existing
+   Practice-tagged passages are intentionally excluded from this
+   list so they can't be accidentally mutated through this form,
+   but they remain fully untouched in the database and keep
+   working exactly as before on the regular typing practice page
+   (js/passages.js is unchanged).
    ============================================================ */
 
 let editingId = null; // null = "add" mode, otherwise the id being edited
@@ -43,14 +44,14 @@ async function loadPassages() {
   const categoryFilter = document.getElementById("filterCategory").value;
   const typeFilter = document.getElementById("filterType").value;
 
-  // Only Mock Test / Credit Based Test passages ever appear here —
-  // Practice-tagged passages are managed elsewhere (the regular
-  // typing practice content pool) and are deliberately excluded so
-  // they can't be edited into an invalid state via this form.
+  // Only Mock Test passages ever appear here — Practice-tagged
+  // passages are managed elsewhere (the regular typing practice
+  // content pool) and are deliberately excluded so they can't be
+  // edited into an invalid state via this form.
   let query = supabaseClient
     .from("passages")
     .select("*")
-    .in("passage_type", ["Mock Test", "Credit Based Test"])
+    .eq("passage_type", "Mock Test")
     .order("created_at", { ascending: false });
 
   if (categoryFilter !== "all") {
@@ -139,27 +140,14 @@ async function handleSubmit(e) {
   };
 
   try {
-    let savedPassage;
     if (editingId) {
-      const { data, error } = await supabaseClient.from("passages").update(payload).eq("id", editingId).select().single();
+      const { error } = await supabaseClient.from("passages").update(payload).eq("id", editingId).select().single();
       if (error) throw error;
-      savedPassage = data;
       showFormSuccess("Passage updated.");
     } else {
-      const { data, error } = await supabaseClient.from("passages").insert(payload).select().single();
+      const { error } = await supabaseClient.from("passages").insert(payload).select().single();
       if (error) throw error;
-      savedPassage = data;
       showFormSuccess("Passage added.");
-    }
-
-    // Credit Based Test passages are 1:1 with a mock_tests catalog
-    // row — that's what mock-test.html actually reads from. Keep it
-    // in sync automatically so creating the passage here is the only
-    // step needed; no separate manual step on admin-mock-tests.html
-    // is required. (Mock Test passages are NOT auto-linked — those
-    // remain a deliberate, separate manual step, unchanged.)
-    if (savedPassage.passage_type === "Credit Based Test") {
-      await syncCreditMockTest(savedPassage);
     }
 
     exitEditMode();
@@ -209,34 +197,6 @@ async function deletePassage(id) {
     return;
   }
   await loadPassages();
-}
-
-// Creates or updates the single mock_tests row linked to this
-// Credit Based Test passage (matched by passage_id), so the
-// student-facing Credit-Based Tests section on mock-test.html —
-// which reads from mock_tests, not passages — always reflects
-// what's in the Add Passage form without a separate manual step.
-async function syncCreditMockTest(passage) {
-  const mockPayload = {
-    title: passage.title,
-    category: passage.category.toLowerCase(), // passages: 'SSC'/'Legal' -> mock_tests: 'ssc'/'legal'
-    access_type: "credit",
-    passage_id: passage.id,
-    duration: passage.duration,
-    active: passage.active
-  };
-
-  const { data: existing } = await supabaseClient
-    .from("mock_tests")
-    .select("id")
-    .eq("passage_id", passage.id)
-    .maybeSingle();
-
-  if (existing) {
-    await supabaseClient.from("mock_tests").update(mockPayload).eq("id", existing.id);
-  } else {
-    await supabaseClient.from("mock_tests").insert({ ...mockPayload, display_order: 0 });
-  }
 }
 
 /* ---------------- Small helpers ---------------- */
