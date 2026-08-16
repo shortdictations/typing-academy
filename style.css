@@ -657,6 +657,13 @@ html.sidebar-scroll-lock, body.sidebar-scroll-lock{
   margin: 0 auto;
   padding: 36px 20px 80px;
 }
+/* index.html only — removes .page's shared top padding so the
+   announcement ticker (which sits immediately before this element,
+   outside it) isn't followed by that 36px before the hero starts.
+   Does not touch .page itself, so every other page is unaffected. */
+.landing-page{
+  padding-top: 0;
+}
 .page-narrow{
   max-width: 520px;
   position: relative;
@@ -824,7 +831,14 @@ p.lede{
   grid-template-columns: 1.1fr 0.9fr;
   gap: 40px;
   align-items: center;
-  padding: 18px 0 30px;
+  padding: 50px 0 30px;
+}
+/* index.html only — with .landing-page zeroing out .page's 36px
+   top padding above, the announcement ticker sits directly above
+   .page's border edge, so this becomes the ONLY top spacing before
+   the hero: ~12px total, not 36+50px stacked. */
+.landing-page .hero{
+  padding: 12px 0 30px;
 }
 @media (max-width: 800px){ .hero{ grid-template-columns: 1fr; } }
 
