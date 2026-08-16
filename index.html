@@ -25,6 +25,12 @@
 
 <main class="page">
 
+  <!-- Admin-managed announcement ticker — hidden entirely (not just
+       empty) when there are no active, currently-scheduled
+       announcements selected to show on the Home Page. Populated by
+       initAnnouncementTicker() in js/announcement-ticker.js. -->
+  <div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+
   <section class="hero">
     <div class="hero-copy">
       <p class="eyebrow">For SSC &amp; Legal/Court Typing Aspirants</p>
@@ -87,6 +93,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/announcement-ticker.js"></script>
 <script>
 // Uses the SAME Supabase Auth session / getCurrentUser() helper every
 // other page relies on — no separate auth system. A logged-in user
@@ -98,6 +105,8 @@
     window.location.href = "dashboard.html";
   }
 })();
+
+initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — independent of everything else on the page
 
 // Loads the SAME products table used by Admin Panel and
 // subscriptions.html — no plan/price is duplicated or hardcoded
