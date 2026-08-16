@@ -39,6 +39,7 @@ body{
   font-family: var(--font-body);
   line-height: 1.5;
   min-height: 100vh;
+  overflow-x: hidden; /* guarantees the full-bleed announcement ticker below can never cause page-level horizontal scroll */
 }
 
 a{ color: inherit; }
@@ -2074,21 +2075,26 @@ footer.site-foot{
 .dashboard-greeting-sub{ margin-top: 2px; }
 
 /* ---------- Announcement ticker (dashboard.html + index.html) ----------
-   Reuses the letterhead's navy/gold identity so it reads as an
-   intentional TypeShala information strip, not a bolted-on widget. */
+   Full-bleed news-strip: breaks out of .page's max-width to span the
+   entire viewport edge-to-edge, one line, no card/box/border-radius.
+   Reuses the letterhead's navy/gold identity so it reads as a header
+   strip, not a bolted-on widget. */
 .announcement-ticker{
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   background: var(--ink);
   color: var(--paper);
-  border-top: 3px double var(--brass);
-  border-bottom: 3px double var(--brass);
-  padding: 10px 16px;
-  margin: 14px 0 20px;
-  border-radius: var(--radius);
+  border-bottom: 1px solid var(--brass);
+  height: 44px;
+  padding: 0 16px;
+  margin: 0 0 20px;
+  /* full-bleed: break out of the centered, max-width .page container */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
   overflow: hidden; /* clips the scrolling track — never the page */
-  max-width: 100%;
 }
 .announcement-ticker-icon{
   flex: 0 0 auto;
@@ -2096,10 +2102,21 @@ footer.site-foot{
   line-height: 1;
   color: var(--brass);
 }
+.announcement-ticker-divider{
+  flex: 0 0 auto;
+  color: var(--brass);
+  opacity: 0.5;
+  margin: 0 12px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
 .announcement-ticker-track{
   flex: 1 1 auto;
   overflow: hidden;
   min-width: 0; /* lets flex children shrink below content size so overflow:hidden actually clips */
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 .announcement-ticker-content{
   display: inline-flex;
@@ -2123,8 +2140,8 @@ footer.site-foot{
 }
 .announcement-ticker-item{
   color: var(--paper);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 400;
   text-decoration: none;
 }
 a.announcement-ticker-item:hover{ text-decoration: underline; }
@@ -2134,8 +2151,9 @@ a.announcement-ticker-item:hover{ text-decoration: underline; }
   font-size: 0.7rem;
 }
 @media (max-width: 700px){
-  .announcement-ticker{ padding: 9px 12px; gap: 8px; }
-  .announcement-ticker-item{ font-size: 0.82rem; }
+  .announcement-ticker{ height: 40px; padding: 0 12px; }
+  .announcement-ticker-item{ font-size: 14px; }
+  .announcement-ticker-divider{ margin: 0 10px; }
   .announcement-ticker-sep{ margin: 0 12px; }
 }
 @media (prefers-reduced-motion: reduce){
