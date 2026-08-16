@@ -39,7 +39,6 @@ body{
   font-family: var(--font-body);
   line-height: 1.5;
   min-height: 100vh;
-  overflow-x: hidden; /* guarantees the full-bleed announcement ticker below can never cause page-level horizontal scroll */
 }
 
 a{ color: inherit; }
@@ -2075,12 +2074,14 @@ footer.site-foot{
 .dashboard-greeting-sub{ margin-top: 2px; }
 
 /* ---------- Announcement ticker (dashboard.html + index.html) ----------
-   Full-bleed but INVISIBLE wrapper: breaks out of .page's max-width
-   so the moving text can travel edge-to-edge, but the wrapper itself
-   has no background/border/shadow — it exists only to clip the
-   scrolling text so it can never cause page-level horizontal
-   overflow. The notebook-paper page background stays fully visible
-   behind the text; this is not a bar, banner, or card. */
+   Invisible wrapper: no background/border/shadow, exists only to
+   clip the scrolling text so it can never cause page-level
+   horizontal overflow. The notebook-paper page background stays
+   fully visible behind the text; this is not a bar, banner, or
+   card. Width/position for full-bleed edge-to-edge span are set
+   directly by js/announcement-ticker.js from the real viewport
+   (document.documentElement.clientWidth) — the values below are
+   just a safe default before that JS runs. */
 .announcement-ticker{
   display: block;
   background: transparent;
@@ -2088,11 +2089,8 @@ footer.site-foot{
   box-shadow: none;
   height: 30px;
   margin: 0 0 16px;
-  /* full-bleed: break out of the centered, max-width .page container */
-  width: 100vw;
+  width: 100%;
   position: relative;
-  left: 50%;
-  margin-left: -50vw;
   overflow: hidden; /* clips the scrolling text — never the page */
 }
 .announcement-ticker-track{
@@ -2103,24 +2101,35 @@ footer.site-foot{
   align-items: center;
 }
 .announcement-ticker-content{
-  display: inline-flex;
+  display: flex;
   align-items: center;
   white-space: nowrap;
   width: max-content;
+}
+/* Animation is added only once js/announcement-ticker.js has
+   measured the real content width — --ticker-distance and
+   animation-duration are set inline per render, so the loop point
+   always matches the actual rendered content exactly. */
+.announcement-ticker-content.is-animating{
   animation-name: announcement-ticker-scroll;
-  animation-duration: 24s; /* overwritten per page from actual content width */
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 /* Desktop: hover pauses the scroll so it can actually be read.
    Mobile has no hover state, so touch scrolling of the page is
    never affected by this rule. */
-.announcement-ticker:hover .announcement-ticker-content{
+.announcement-ticker:hover .announcement-ticker-content.is-animating{
   animation-play-state: paused;
 }
 @keyframes announcement-ticker-scroll{
   from{ transform: translateX(0); }
-  to{ transform: translateX(-50%); } /* content is duplicated once, so -50% is exactly one full loop */
+  to{ transform: translateX(calc(-1 * var(--ticker-distance, 100%))); }
+}
+.announcement-ticker-unit{
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  margin-right: 110px; /* the gap between repeated copies, part of the measured pitch */
 }
 .announcement-ticker-icon{
   color: var(--brass);
@@ -2142,9 +2151,10 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
   .announcement-ticker{ height: 28px; }
   .announcement-ticker-item{ font-size: 14px; }
   .announcement-ticker-sep{ margin: 0 12px; }
+  .announcement-ticker-unit{ margin-right: 80px; }
 }
 @media (prefers-reduced-motion: reduce){
-  .announcement-ticker-content{ animation: none; }
+  .announcement-ticker-content.is-animating{ animation: none; }
 }
 
 .dash-stats-grid{
