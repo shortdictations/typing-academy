@@ -89,6 +89,7 @@ function renderList(passages) {
         <td style="white-space:nowrap;">
           <button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="startEdit('${p.id}')">Edit</button>
           <button type="button" class="btn" style="padding:5px 10px;font-size:0.75rem;" onclick="deletePassage('${p.id}')">Delete</button>
+          <button type="button" class="btn" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleActive('${p.id}')">${p.active ? "Deactivate" : "Activate"}</button>
         </td>
       </tr>`;
   });
@@ -184,6 +185,18 @@ function exitEditMode() {
   document.getElementById("formLabel").textContent = "Add a New Passage";
   document.getElementById("submitBtn").textContent = "Add Passage";
   document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+async function toggleActive(id) {
+  const p = window._passageLookup[id];
+  if (!p) return;
+
+  const { error } = await supabaseClient.from("passages").update({ active: !p.active }).eq("id", id);
+  if (error) {
+    alert("Could not update: " + error.message);
+    return;
+  }
+  await loadPassages();
 }
 
 async function deletePassage(id) {
