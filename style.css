@@ -2097,19 +2097,22 @@ footer.site-foot{
   width: 100%;
   height: 100%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
+  position: relative; /* establishes the containing block the traveling element's translateX is measured against */
 }
 .announcement-ticker-content{
-  display: flex;
+  display: inline-flex;
   align-items: center;
   white-space: nowrap;
   width: max-content;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%); /* static readable resting position — used as-is when not animating (e.g. prefers-reduced-motion) */
 }
-/* Animation is added only once js/announcement-ticker.js has
-   measured the real content width — --ticker-distance and
-   animation-duration are set inline per render, so the loop point
-   always matches the actual rendered content exactly. */
+/* Animation is added only once js/announcement-ticker.js has set
+   the correct duration for THIS content's measured width — a
+   short announcement and a long one both make one correctly-paced
+   journey, never a fixed/guessed duration. */
 .announcement-ticker-content.is-animating{
   animation-name: announcement-ticker-scroll;
   animation-timing-function: linear;
@@ -2121,15 +2124,16 @@ footer.site-foot{
 .announcement-ticker:hover .announcement-ticker-content.is-animating{
   animation-play-state: paused;
 }
+/* ONE journey per cycle: starts fully off-screen right, ends fully
+   off-screen left (shifted left by exactly its own width). With
+   animation-iteration-count:infinite, the snap back from "to" to
+   the next cycle's "from" happens while the element is off-screen
+   on BOTH sides — invisible by construction, no JS reset needed.
+   This is deliberately NOT a duplicated/repeated track — there is
+   only ever one copy of the sequence, however short it is. */
 @keyframes announcement-ticker-scroll{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(calc(-1 * var(--ticker-distance, 100%))); }
-}
-.announcement-ticker-unit{
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  margin-right: 110px; /* the gap between repeated copies, part of the measured pitch */
+  from{ transform: translate(100vw, -50%); }
+  to{ transform: translate(-100%, -50%); }
 }
 .announcement-ticker-icon{
   color: var(--brass);
@@ -2151,7 +2155,6 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
   .announcement-ticker{ height: 28px; }
   .announcement-ticker-item{ font-size: 14px; }
   .announcement-ticker-sep{ margin: 0 12px; }
-  .announcement-ticker-unit{ margin-right: 80px; }
 }
 @media (prefers-reduced-motion: reduce){
   .announcement-ticker-content.is-animating{ animation: none; }
