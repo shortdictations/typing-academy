@@ -14,21 +14,20 @@
    student has none.
 
    Passage availability safeguard: the Passage dropdown only
-   offers ACTIVE Mock Test passages. When a brand-new mock test
-   is created (never on edit), its assigned passage is
-   automatically set to active=false immediately after the
-   mock_tests insert succeeds — so the same passage can't be
-   accidentally assigned to a second mock test later. The passage
-   itself is never deleted or content-modified, and stays fully
-   visible (as Inactive) on the Passages admin page. Editing an
-   existing mock's own passage is kept selectable even though
-   it's inactive (see editingExtraPassage below), without ever
-   reactivating it.
+   offers Mock Test passages that are NOT already referenced by
+   some mock_tests.passage_id — this is derived entirely from the
+   existing mock_tests <-> passages relationship, never from a
+   passages.active column (no such requirement exists here, and
+   nothing in this file writes to passages at all). When editing
+   an existing mock, that mock's own currently-assigned passage
+   stays selectable even though it's "used" by this very row (see
+   editingExtraPassage below).
    ============================================================ */
 
 let editingId = null;
-let allPassages = []; // full list fetched once; filtered client-side per category — ACTIVE Mock Test passages only
-let editingExtraPassage = null; // set only while editing: {id, title, category} for that mock's currently-assigned passage, so it doesn't disappear from the dropdown just because it's now inactive
+let allPassages = []; // full list fetched once; filtered client-side per category
+let usedPassageIds = new Set(); // passage_id values already referenced by some mock_tests row
+let editingExtraPassage = null; // set only while editing: {id, title, category} for THIS mock's own passage, so it stays selectable even though it's "used" by this row
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
@@ -48,45 +47,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ---------------- Passage picker ---------------- */
 
+// Loads every Mock Test passage AND every passage_id already used by
+// an existing mock_tests row, so refreshPassageOptions() can exclude
+// already-assigned passages without ever touching passages.active.
 async function loadAllPassages() {
   const select = document.getElementById("mPassage");
   select.innerHTML = '<option>Loading passages...</option>';
 
-  const { data, error } = await supabaseClient
+  const { data: passages, error: passageError } = await supabaseClient
     .from("passages")
-    .select("id, title, passage_type, category, duration, active")
+    .select("id, title, passage_type, category, duration")
     .eq("passage_type", "Mock Test")
-    .eq("active", true)
     .order("title", { ascending: true });
 
-  if (error || !data) {
+  if (passageError || !passages) {
     select.innerHTML = '<option>Could not load passages</option>';
-    console.error(error);
+    console.error(passageError);
     return;
   }
 
-  allPassages = data;
+  const { data: mocks, error: mockError } = await supabaseClient
+    .from("mock_tests")
+    .select("id, passage_id");
+
+  if (mockError) {
+    console.error(mockError);
+    // Passages themselves loaded fine — fail safe by treating no
+    // passage as "used" rather than blocking the whole form.
+    usedPassageIds = new Set();
+  } else {
+    usedPassageIds = new Set(
+      (mocks || [])
+        .map(m => m.passage_id)
+        .filter(Boolean)
+    );
+  }
+
+  allPassages = passages;
 }
 
-// Shows Mock Test passages matching the currently selected category —
-// ACTIVE ones only (per the "assigned = no longer offered" workflow),
-// plus the current edit's own passage even if it's inactive, so
-// editing an existing mock never loses its assignment from the form.
+// Shows Mock Test passages matching the currently selected category,
+// excluding any passage already referenced by another mock_tests row
+// — except the passage currently assigned to the mock being edited
+// (see editingExtraPassage), which always stays selectable.
 function refreshPassageOptions() {
   const select = document.getElementById("mPassage");
   const note = document.getElementById("mPassageNote");
   const category = document.getElementById("mCategory").value; // 'ssc' | 'legal'
   const categoryLabel = category === "ssc" ? "SSC" : "Legal";
 
-  const matching = allPassages.filter(p => p.category === categoryLabel);
-
-  // Merge in the currently-edited mock's own passage if it isn't
-  // already present (it won't be, once deactivated) — never
-  // reactivated, just shown so the existing assignment is visible.
-  if (editingExtraPassage && editingExtraPassage.category === categoryLabel &&
-      !matching.some(p => p.id === editingExtraPassage.id)) {
-    matching.push(editingExtraPassage);
-  }
+  const matching = allPassages.filter(p =>
+    p.category === categoryLabel &&
+    (!usedPassageIds.has(p.id) || (editingExtraPassage && p.id === editingExtraPassage.id))
+  );
 
   select.innerHTML = "";
   if (matching.length === 0) {
@@ -98,8 +111,8 @@ function refreshPassageOptions() {
   matching.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.id;
-    const inactiveTag = editingExtraPassage && p.id === editingExtraPassage.id ? " (inactive — currently assigned)" : "";
-    opt.textContent = p.title + " — " + p.category + inactiveTag;
+    const currentTag = editingExtraPassage && p.id === editingExtraPassage.id ? " — currently assigned" : "";
+    opt.textContent = p.title + " — " + p.category + currentTag;
     select.appendChild(opt);
   });
   note.textContent = "Showing " + categoryLabel + " passages.";
@@ -216,48 +229,23 @@ async function handleSubmit(e) {
 
   try {
     if (editingId) {
-      // Editing an existing mock test never touches passage.active —
-      // that automatic deactivation only applies to brand-new mocks.
       const { error } = await supabaseClient.from("mock_tests").update(payload).eq("id", editingId);
       if (error) throw error;
       showFormSuccess("Mock test updated.");
-      exitEditMode();
-      await loadMockTests();
     } else {
-      // 1. Create the mock test first.
-      const { error } = await supabaseClient.from("mock_tests").insert(payload);
+      const { error } = await supabaseClient.from("mock_tests").insert(payload).select().single();
       if (error) throw error;
-
-      // 2. ONLY after that insert succeeded, deactivate the passage it
-      // used — a simple safeguard against accidentally assigning the
-      // same passage to more than one mock test. The passage is never
-      // deleted or content-modified, just hidden from future Passage
-      // dropdowns (it still shows up, as Inactive, on the Passages
-      // admin page).
-      const { error: passageError } = await supabaseClient
-        .from("passages")
-        .update({ active: false })
-        .eq("id", payload.passage_id);
-
-      if (passageError) {
-        // The mock test was already created — do NOT pretend this
-        // half-succeeded state is a full success.
-        console.error(passageError);
-        showFormError("Mock test was created, but the passage could not be deactivated. Please check the passage status.");
-        await loadAllPassages();
-        await loadMockTests();
-        return;
-      }
-
       showFormSuccess("Mock test added.");
-      // Refresh the in-memory passage list BEFORE resetting the form,
-      // so exitEditMode()'s call to refreshPassageOptions() below
-      // immediately reflects the passage's new inactive status —
-      // no browser refresh needed to see it disappear.
-      await loadAllPassages();
-      exitEditMode();
-      await loadMockTests();
     }
+
+    // Reload the used-passage set (and the passage list itself) so
+    // the just-assigned passage disappears from the dropdown
+    // immediately — no browser refresh needed. This is what
+    // actually enforces the safeguard: it's derived fresh from
+    // mock_tests.passage_id every time, never from a stored flag.
+    await loadAllPassages();
+    exitEditMode();
+    await loadMockTests();
   } catch (err) {
     showFormError(err.message || "Something went wrong. Please try again.");
   } finally {
@@ -275,10 +263,10 @@ function startEdit(id) {
   document.getElementById("mCategory").value = m.category;
   document.getElementById("mAccess").value = m.access_type;
 
-  // Keep this mock's own passage available in the dropdown even if
-  // it's inactive (e.g. it was deactivated when this very mock was
-  // created) — never reactivated, just shown so the assignment
-  // doesn't disappear from the edit form.
+  // This mock's own passage counts as "used" (it's referenced by
+  // this very row), so without this it would vanish from the
+  // dropdown while editing. Keep it selectable, tagged as the
+  // current assignment — never written back to the passage itself.
   editingExtraPassage = {
     id: m.passage_id,
     title: m.passages ? m.passages.title : "(passage deleted)",
@@ -321,6 +309,11 @@ async function deleteMockTest(id) {
     alert("Could not delete: " + error.message);
     return;
   }
+
+  // Deleting a mock test frees up its passage — reload the used-set
+  // so that passage reappears in the dropdown immediately.
+  await loadAllPassages();
+  refreshPassageOptions();
   await loadMockTests();
 }
 
