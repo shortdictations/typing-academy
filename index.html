@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TypeShala — SSC & Legal Typing Mock Tests</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="landing.css">
 </head>
-<body>
+<body class="landing-v2">
 
 <header class="letterhead">
   <div class="letterhead-inner public-header">
@@ -28,37 +29,55 @@
      announcements selected to show on the Home Page. Populated by
      initAnnouncementTicker() in js/announcement-ticker.js. Sits
      outside main.page so it isn't affected by .page's own top
-     padding — its height comes only from its own text line. -->
+     padding — its height comes only from its own text line.
+     UNTOUCHED by the redesign: still hidden by default, still a
+     separate element from the static banner below. -->
 <div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+
+<!-- Static "free credits" banner — purely visual, new in this
+     redesign. Independent of the admin ticker above. -->
+<div class="landing-banner">
+  <span aria-hidden="true">🎁</span>
+  <span>New users get <strong class="hl-blue">3 free credits</strong> to attempt test</span>
+</div>
 
 <main class="page landing-page">
 
   <section class="hero">
     <div class="hero-copy">
       <p class="eyebrow">For SSC &amp; Legal/Court Typing Aspirants</p>
-      <h1>Exam-ready typing tests, structured the way the real exam is.</h1>
+      <h1>Exam-ready typing tests, structured the way <span class="hl-blue">the real exam</span> is.</h1>
       <p class="lede">
         SSC Mock Tests and Legal/Court Mock Tests — unlocked by an eligible Pass or by Credits —
         full-screen, timed, and scored with Gross WPM, Net WPM, and Accuracy on every attempt.
       </p>
       <div class="hero-actions">
-        <a class="btn" href="login.html">Get Started</a>
+        <a class="btn" href="login.html">Get Started <span aria-hidden="true">&rarr;</span></a>
       </div>
     </div>
 
     <div class="hero-panel">
-      <div class="card-label">Live Preview</div>
+      <div class="card-label">LIVE PREVIEW <span class="live-dot" aria-hidden="true"></span></div>
       <div class="typewriter-line">The civil services form the steel<span class="cursor"></span></div>
       <div class="stat-row">
-        <div>
+        <div class="stat-item stat-blue">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 12 9 9"/><path d="M12 6v2"/></svg>
+          </div>
           <div class="stat-num">42</div>
           <div class="stat-label">Net WPM</div>
         </div>
-        <div>
+        <div class="stat-item stat-green">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+          </div>
           <div class="stat-num">97%</div>
           <div class="stat-label">Accuracy</div>
         </div>
-        <div>
+        <div class="stat-item stat-orange">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
           <div class="stat-num">10:00</div>
           <div class="stat-label">Test Duration</div>
         </div>
@@ -69,19 +88,34 @@
   <!-- CHOOSE YOUR PLAN — loaded live from the products table, the
        same catalog the Admin Panel and subscriptions.html both use.
        No plan/price is hardcoded here anymore. -->
-  <h2 style="margin-top:20px;">Choose Your Plan</h2>
-  <p class="lede" style="margin-bottom:18px;">Each pass unlocks premium mocks for its validity period.</p>
+  <h2 class="section-heading">Choose Your Plan</h2>
+  <p class="lede section-sub">Each pass unlocks premium mocks for its validity period.</p>
 
   <div class="passes-grid" id="homePassGrid">
     <div class="loading-strip">Loading plans...</div>
   </div>
 
   <!-- CREDITS -->
-  <h2 style="margin-top:36px;">Credits</h2>
-  <p class="lede" style="margin-bottom:18px;">Don't want a full Pass? Buy credits and use them on any SSC or Legal test — 1 Credit = 1 test attempt. New users get 3 Free Credits automatically.</p>
+  <h2 class="section-heading" style="margin-top:36px;">Credits</h2>
+  <p class="lede section-sub">Don't want a full Pass? Buy credits and use them on any SSC or Legal test — 1 Credit = 1 test attempt. New users get 3 Free Credits automatically.</p>
 
   <div class="passes-grid" id="homeCreditGrid">
     <div class="loading-strip">Loading credit packages...</div>
+  </div>
+
+  <div class="credit-info-strip">
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🎯</span>
+      <div><strong>1 Credit = 1 test attempt</strong>on any SSC or Legal test</div>
+    </div>
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🛡️</span>
+      <div><strong>Credits are used first</strong>before any Pass</div>
+    </div>
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🎁</span>
+      <div><strong>New users get 3 free credits</strong>automatically on signup</div>
+    </div>
   </div>
 
 </main>
@@ -135,6 +169,27 @@ initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — ind
   renderHomeProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid, true);
 })();
 
+// planThemeFor / planIconSvg are purely presentational additions for
+// the new design system — they only decide which CSS theme class and
+// icon glyph a card gets. They read pass_type but never write to it,
+// and don't touch any query, ID, or purchase logic below.
+function planThemeFor(p, isCredit) {
+  if (isCredit) return "credit";
+  if (p.pass_type === "LEGAL") return "legal";
+  if (p.pass_type === "COMBO") return "combo";
+  return "ssc";
+}
+
+function planIconSvg(theme) {
+  const icons = {
+    ssc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>',
+    legal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg>',
+    combo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a3 3 0 0 0 3 5"/><path d="M17 5h3a3 3 0 0 1-3 5"/></svg>',
+    credit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>'
+  };
+  return icons[theme] || icons.ssc;
+}
+
 function renderHomeProducts(products, grid, isCredit) {
   if (products.length === 0) {
     grid.innerHTML = '<div class="empty-state">Nothing available right now.</div>';
@@ -142,6 +197,7 @@ function renderHomeProducts(products, grid, isCredit) {
   }
 
   grid.innerHTML = products.map(p => {
+    const theme = planThemeFor(p, isCredit);
     const featured = p.pass_type === "COMBO" ? " featured" : "";
     const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
     const duration = isCredit
@@ -149,8 +205,9 @@ function renderHomeProducts(products, grid, isCredit) {
       : p.validity_days + " Days &middot; Non-recurring";
 
     return `
-      <div class="card pass-card${featured}">
+      <div class="card pass-card plan-${theme}${featured}">
         ${badge}
+        <div class="plan-icon">${planIconSvg(theme)}</div>
         <div class="card-label">${escapeHtmlHome(p.name)}</div>
         <div class="pass-price">&#8377;${p.price}</div>
         <div class="pass-duration">${duration}</div>

@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — TypeShala</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="app-shell.css">
 </head>
-<body class="dashboard-page">
+<body class="dashboard-page app-shell">
 
 <header class="letterhead">
   <div class="letterhead-inner">
@@ -18,10 +19,18 @@
       </span>
     </a>
     <nav class="nav-links">
+      <!-- Kept in the DOM (hidden via app-shell.css) — js/auth.js's
+           buildMobileSidebar() still reads these to build the legacy
+           mobile sidebar, which is also hidden on this page in favor
+           of the new sidebar/bottom nav below. Removing them would
+           only affect the (now-hidden) legacy menu's link list. -->
       <a href="mock-test.html">Mock Tests</a>
       <a href="mock-history.html">Mock History</a>
       <a href="subscriptions.html">Subscribe</a>
       <a href="subscriptions.html">Credits</a>
+      <span class="app-bell" aria-hidden="true" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </span>
       <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
         <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
@@ -33,221 +42,286 @@
   </div>
 </header>
 
-<!-- Admin-managed announcement ticker — hidden entirely (not just
-     empty) when there are no active, currently-scheduled
-     announcements selected to show on Dashboard. Populated by
-     initAnnouncementTicker() in js/announcement-ticker.js. Sits
-     outside main.page so it isn't affected by .page's own top
-     padding — its height comes only from its own text line. -->
+<!-- Admin-managed announcement ticker — unchanged behavior, still
+     hidden entirely when nothing is active/scheduled for "dashboard". -->
 <div class="announcement-ticker" id="announcementBoard" style="display:none;"></div>
 
-<main class="page">
+<div class="app-body">
 
-  <!-- First-login onboarding modal — shown only when the student has
-       no user_preferences row yet (or hasn't completed it), and again
-       (skipping straight to the target step) when they click
-       "Change"/"Set Target" later. Dashboard stays mounted/visible
-       (dimmed) behind this overlay. -->
-  <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
-    <div class="onboarding-grid-bg"></div>
-    <div class="onboarding-modal">
-      <!-- ONE persistent card frame (background/border/shadow/accent-bar)
-           — this element is never replaced or resized abruptly.
-           Only the .onboarding-slide panels inside the viewport
-           crossfade; the frame itself, the wordmark inside it, and
-           the progress bar never move. -->
-      <div class="onboarding-card">
-        <!-- Persistent TypeShala wordmark — lives OUTSIDE the slide
-             viewport below, so it is rendered once and never
-             recreated when slides change. Types out once, during
-             the very first slide shown this session (either the
-             Welcome step for a new user, or the Welcome Back step
-             for a returning one) — every other slide/reopen after
-             that just shows the already-completed word with its
-             cursor blinking. See startWordmarkTyping() in
-             dashboard.js for the one-time guard. -->
-        <div class="onboarding-wordmark" id="onboardingWordmark">
-          <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
+  <!-- Desktop persistent sidebar. Hidden under 700px in favor of the
+       bottom nav further down. All hrefs point at real existing
+       pages only. -->
+  <aside class="app-sidebar">
+    <a class="app-nav-link active" href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+      Dashboard
+    </a>
+    <a class="app-nav-link" href="mock-test.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
+      Start Test
+    </a>
+    <a class="app-nav-link" href="mock-history.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+      My Tests
+    </a>
+    <a class="app-nav-link" href="subscriptions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+      Pass &amp; Credits
+    </a>
+    <a class="app-nav-link" href="help-support.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg>
+      Help &amp; Support
+    </a>
+    <a class="app-nav-link" href="settings.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      Settings
+    </a>
+
+    <div class="app-sidebar-spacer"></div>
+
+    <a class="app-nav-link logout" href="#" id="sidebarLogoutBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      Log out
+    </a>
+    <div class="app-sidebar-divider"></div>
+    <a class="app-sidebar-profile" href="settings.html" id="sidebarProfileLink">
+      <span id="sidebarAvatarSlot"></span>
+      <span class="app-sidebar-profile-text">
+        <span class="app-sidebar-profile-name" id="sidebarProfileName">—</span>
+        <span class="app-sidebar-profile-email" id="sidebarProfileEmail">—</span>
+      </span>
+      <span class="app-sidebar-profile-chevron" aria-hidden="true">&#9662;</span>
+    </a>
+  </aside>
+
+  <div class="app-content">
+    <main class="page">
+
+      <!-- First-login onboarding modal — unchanged from before, same
+           IDs, same dashboard.js wiring. Shown only when the student
+           has no completed user_preferences row yet, or again when
+           they click "Change"/"Set Target". -->
+      <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
+        <div class="onboarding-grid-bg"></div>
+        <div class="onboarding-modal">
+          <div class="onboarding-card">
+            <div class="onboarding-wordmark" id="onboardingWordmark">
+              <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
+            </div>
+
+            <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
+
+              <div class="onboarding-slide" id="welcomeCard" data-step="1">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">A little context before we begin</p>
+                  <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
+                  <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
+                  <div class="onboarding-goal-box">
+                    <div class="onboarding-goal-title">Build your baseline</div>
+                    <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
+                <div class="onboarding-autoadvance">
+                  <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
+                </div>
+              </div>
+
+              <div class="onboarding-slide" id="targetCard" data-step="2">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
+                  <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
+                  <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
+
+                  <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
+                  <div class="onboarding-progress-slider">
+                    <div class="onboarding-progress-slider-track"><div class="onboarding-progress-slider-fill" id="wpmProgressFill"></div></div>
+                    <input type="range" id="targetWpmSlider" min="20" max="120" step="1" value="55">
+                  </div>
+                  <div class="onboarding-slider-labels">
+                    <span>Easy pace</span>
+                    <span>Fast flow</span>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing</button>
+                <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
+              </div>
+
+              <div class="onboarding-slide" id="completeCard" data-step="3">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">Your space is ready</p>
+                  <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
+                  <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
+                <button type="button" class="onboarding-back-link" id="backToTargetBtn">&larr; Back</button>
+              </div>
+
+              <div class="onboarding-slide" id="welcomeBackCard">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">Good to see you</p>
+                  <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
+                  <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
+              </div>
+
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
+      <div class="app-greeting-row">
+        <div>
+          <h1 class="dashboard-h1">Hey, <span id="welcomeName">there</span>! &#128075;</h1>
+          <p class="lede dashboard-greeting-sub" style="max-width:none;">Ready to improve your typing today?</p>
+        </div>
+        <a class="btn dash-btn-primary" href="mock-test.html">Start a Mock Test <span aria-hidden="true">&rarr;</span></a>
+      </div>
 
-          <!-- STEP 1: WELCOME -->
-          <div class="onboarding-slide" id="welcomeCard" data-step="1">
-            <div class="onboarding-slide-content">
-              <p class="onboarding-eyebrow">A little context before we begin</p>
-              <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
-              <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
-              <div class="onboarding-goal-box">
-                <div class="onboarding-goal-title">Build your baseline</div>
-                <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
-              </div>
-            </div>
-            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
-            <div class="onboarding-autoadvance">
-              <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
-            </div>
+      <div class="dash-stats-grid">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="4" rx="1"/><path d="M7 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1"/><path d="M9 13h6M9 17h4"/></svg></div>
+          <div class="dash-stat-text">
+            <div class="big" id="statTests">0</div>
+            <div class="lab" id="statTestsLabel">Tests Completed</div>
           </div>
-
-          <!-- STEP 2: TARGET WPM -->
-          <div class="onboarding-slide" id="targetCard" data-step="2">
-            <div class="onboarding-slide-content">
-              <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
-              <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
-              <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
-
-              <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
-              <!-- Progress-bar-styled range control — same visual
-                   language as the auto-advance bar, not a plain
-                   slider. Still a real <input type="range"> under
-                   the hood, so drag/click/keyboard all still work
-                   to set 20-120. -->
-              <div class="onboarding-progress-slider">
-                <div class="onboarding-progress-slider-track"><div class="onboarding-progress-slider-fill" id="wpmProgressFill"></div></div>
-                <input type="range" id="targetWpmSlider" min="20" max="120" step="1" value="55">
-              </div>
-              <div class="onboarding-slider-labels">
-                <span>Easy pace</span>
-                <span>Fast flow</span>
-              </div>
-            </div>
-
-            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing</button>
-            <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+          <div class="dash-stat-text">
+            <div class="big" id="statAvgWpm">0</div>
+            <div class="lab">Average<br>WPM</div>
           </div>
-
-          <!-- STEP 3: COMPLETION — also reused as the 2nd slide of the
-               returning-user flow (see welcomeBackCard below). -->
-          <div class="onboarding-slide" id="completeCard" data-step="3">
-            <div class="onboarding-slide-content">
-              <p class="onboarding-eyebrow">Your space is ready</p>
-              <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
-              <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
-            </div>
-            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
-            <button type="button" class="onboarding-back-link" id="backToTargetBtn">&larr; Back</button>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div>
+          <div class="dash-stat-text">
+            <div class="big" id="statAvgAccuracy">0%</div>
+            <div class="lab">Average<br>Accuracy</div>
           </div>
-
-          <!-- RETURNING-USER WELCOME BACK — standalone slide, no
-               step indicator, no WPM setup. -->
-          <div class="onboarding-slide" id="welcomeBackCard">
-            <div class="onboarding-slide-content">
-              <p class="onboarding-eyebrow">Good to see you</p>
-              <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
-              <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
-            </div>
-            <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="dash-stat-text">
+            <div class="big dash-stat-nowrap" id="statLastTest" style="font-size:1.05rem;">—</div>
+            <div class="lab">Last Test</div>
           </div>
-
         </div>
       </div>
-    </div>
+
+      <!-- Active Pass + Remaining Credits — new card, populated by
+           renderPassCreditsCard() in dashboard.js, which reuses the
+           SAME fetchActivePasses()/fetchTotalCredits() helpers from
+           js/auth.js that already power the header dropdown. -->
+      <div class="card app-pass-credits-card" id="passCreditsCard">
+        <div class="app-pc-block" id="passBlock"></div>
+        <div class="app-pc-divider"></div>
+        <div class="app-pc-block" id="creditsBlock"></div>
+      </div>
+
+      <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
+      <div class="card dash-target-card">
+        <div class="dash-target-left">
+          <div class="dash-target-icon">&#127919;</div>
+          <div>
+            <div class="big" id="statTargetWpm" style="font-size:1.6rem;">—</div>
+            <div class="dash-target-sub">Target WPM &middot; <button type="button" id="changeTargetBtn" class="dash-change-link">Set Target</button></div>
+          </div>
+        </div>
+        <div class="dash-target-divider"></div>
+        <div class="dash-target-right" id="targetProgressCard" style="display:none;">
+          <div class="dash-target-right-heading">Progress Toward Your Target</div>
+          <div class="dash-target-right-numbers">
+            <span>Average WPM: <strong id="progressActual">0</strong></span>
+            <span>Target: <strong id="progressTarget">0</strong></span>
+          </div>
+          <div class="dash-progress-track">
+            <div id="progressBarFill" class="dash-progress-fill"></div>
+          </div>
+          <div class="dash-progress-pct" id="progressPct">0%</div>
+        </div>
+      </div>
+
+      <!-- Overview — single combined WPM + Accuracy chart, replacing
+           the previous two-card swipe carousel. Same underlying data
+           (mock_test_results), rendered by renderOverviewChart() in
+           dashboard.js. -->
+      <div class="card app-overview-card">
+        <div class="app-overview-head">
+          <span class="card-label app-overview-title">Overview</span>
+          <select class="app-period-select" id="overviewPeriodSelect">
+            <option value="7" selected>Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+        <div class="app-overview-legend">
+          <span><span class="app-legend-dot" style="background:#2F5FEC;"></span>Avg. WPM</span>
+          <span><span class="app-legend-dot" style="background:#159A48;"></span>Avg. Accuracy</span>
+        </div>
+        <div class="app-overview-canvas-wrap">
+          <canvas id="overviewChart"></canvas>
+          <div class="empty-state" id="overviewChartEmpty" style="display:none;">Take a test to start tracking your progress.</div>
+        </div>
+        <p class="dash-chart-note" id="overviewChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
+      </div>
+
+      <!-- Recent Tests — reuses the same results already fetched
+           above for the stats/chart; renderRecentTests() in
+           dashboard.js just takes the first 5. -->
+      <div class="card app-recent-card">
+        <div class="app-recent-head">
+          <span class="card-label">Recent Tests</span>
+          <a href="mock-history.html">View All</a>
+        </div>
+        <div id="recentTestsBody"></div>
+      </div>
+
+      <div class="dash-actions">
+        <a class="btn btn-ghost" href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
+      </div>
+
+    </main>
+
+    <footer class="site-foot">
+      <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+      <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+      <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+    </footer>
   </div>
+</div>
 
-  <h1 class="dashboard-h1">Hey, <span id="welcomeName">there</span>! &#128075;</h1>
-  <p class="lede dashboard-greeting-sub" style="max-width:none;">Ready to improve your typing today?</p>
-
-  <div class="dash-stats-grid">
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon dash-tile-blue">&#128203;</div>
-      <div class="dash-stat-text">
-        <div class="big" id="statTests">0</div>
-        <div class="lab" id="statTestsLabel">Tests Completed</div>
-      </div>
-    </div>
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon dash-tile-green">&#128200;</div>
-      <div class="dash-stat-text">
-        <div class="big" id="statAvgWpm">0</div>
-        <div class="lab">Average<br>WPM</div>
-      </div>
-    </div>
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon dash-tile-orange">&#127919;</div>
-      <div class="dash-stat-text">
-        <div class="big" id="statAvgAccuracy">0%</div>
-        <div class="lab">Average<br>Accuracy</div>
-      </div>
-    </div>
-    <div class="dash-stat-card">
-      <div class="dash-stat-icon dash-tile-purple">&#128197;</div>
-      <div class="dash-stat-text">
-        <div class="big dash-stat-nowrap" id="statLastTest" style="font-size:1.05rem;">—</div>
-        <div class="lab">Last Test</div>
-      </div>
-    </div>
+<!-- Mobile bottom nav — real pages only, matches the sidebar's first
+     four items. Hidden on desktop (see app-shell.css). -->
+<nav class="app-bottom-nav">
+  <div class="app-bottom-nav-inner">
+    <a class="app-bottom-nav-link active" href="dashboard.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      Dashboard
+    </a>
+    <a class="app-bottom-nav-link" href="mock-test.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
+      Start Test
+    </a>
+    <a class="app-bottom-nav-link" href="mock-history.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg></span>
+      My Tests
+    </a>
+    <a class="app-bottom-nav-link" href="subscriptions.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>
+      Pass &amp; Credits
+    </a>
   </div>
-
-  <!-- Target WPM + Actual-vs-Target progress, unified into one card -->
-  <div class="card dash-target-card">
-    <div class="dash-target-left">
-      <div class="dash-target-icon">&#127919;</div>
-      <div>
-        <div class="big" id="statTargetWpm" style="font-size:1.6rem;">—</div>
-        <div class="dash-target-sub">Target WPM &middot; <button type="button" id="changeTargetBtn" class="dash-change-link">Set Target</button></div>
-      </div>
-    </div>
-    <div class="dash-target-divider"></div>
-    <div class="dash-target-right" id="targetProgressCard" style="display:none;">
-      <div class="dash-target-right-heading">Progress Toward Your Target</div>
-      <div class="dash-target-right-numbers">
-        <span>Average WPM: <strong id="progressActual">0</strong></span>
-        <span>Target: <strong id="progressTarget">0</strong></span>
-      </div>
-      <div class="dash-progress-track">
-        <div id="progressBarFill" class="dash-progress-fill"></div>
-      </div>
-      <div class="dash-progress-pct" id="progressPct">0%</div>
-    </div>
-  </div>
-
-  <div class="charts-row dashboard-charts-row" id="dashboardChartsRow">
-    <div class="card chart-card">
-      <div class="card-label dash-chart-label">
-        <span>&#128200; WPM Progress</span>
-      </div>
-      <div id="wpmChartWrap" class="dash-chart-canvas-wrap">
-        <canvas id="wpmChart"></canvas>
-        <div class="empty-state" id="wpmChartEmpty" style="display:none;">Take a test to start tracking your WPM progress.</div>
-      </div>
-      <p class="dash-chart-note" id="wpmChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
-    </div>
-
-    <div class="card chart-card">
-      <div class="card-label dash-chart-label">
-        <span>&#127919; Accuracy Progress</span>
-      </div>
-      <div id="accuracyChartWrap" class="dash-chart-canvas-wrap">
-        <canvas id="accuracyChart"></canvas>
-        <div class="empty-state" id="accuracyChartEmpty" style="display:none;">Take a test to start tracking your accuracy progress.</div>
-      </div>
-      <p class="dash-chart-note" id="accuracyChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
-    </div>
-  </div>
-
-  <div class="dash-carousel-dots" id="chartCarouselDots">
-    <button type="button" class="dash-dot active" data-index="0" aria-label="Show WPM Progress"></button>
-    <button type="button" class="dash-dot" data-index="1" aria-label="Show Accuracy Progress"></button>
-  </div>
-
-  <div class="dash-actions">
-    <a class="btn dash-btn-primary" href="mock-test.html">&#128640; Start a Mock Test</a>
-    <a class="btn btn-ghost" href="admin.html" id="adminLink" style="display:none;">Admin Panel</a>
-  </div>
-
-</main>
-
-<footer class="site-foot">
-  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
-  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
-  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
-</footer>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/announcement-ticker.js"></script>
+<script src="js/app-shell.js"></script>
 <script src="js/dashboard.js"></script>
 
 </body>

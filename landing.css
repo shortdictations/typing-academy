@@ -1,0 +1,469 @@
+/* ============================================================
+   TypeShala — Landing Page Design System (v2)
+   ------------------------------------------------------------
+   Everything in this file is scoped under body.landing-v2, which
+   is set ONLY on index.html. This guarantees zero effect on any
+   other page (dashboard, mock tests, subscriptions, admin, auth
+   flows, etc.) even where class names are shared/reused, e.g.
+   .card-label, .passes-grid, .lede, .eyebrow, h1/h2.
+
+   Sections: Variables · Reset · Header · Announcement · Hero ·
+   Preview · Plans · Credits · Footer · Responsive
+   ============================================================ */
+
+/* ---------- Variables ---------- */
+body.landing-v2{
+  --ts-navy:       #0B1C3F;
+  --ts-navy-soft:  #16294F;
+  --ts-blue:       #2F5FEC;
+  --ts-blue-dark:  #1E45C4;
+  --ts-blue-tint:  #EAF1FE;
+  --ts-green:      #159A48;
+  --ts-green-tint: #E9F7EE;
+  --ts-purple:     #7C3AED;
+  --ts-purple-tint:#F3ECFE;
+  --ts-gold:       #F5B301;
+  --ts-gold-dark:  #D99A00;
+  --ts-text:       #101828;
+  --ts-muted:      #5B6B85;
+  --ts-border:     #E4E9F2;
+  --ts-background: #FFFFFF;
+  --ts-radius-lg:  16px;
+  --ts-radius-md:  12px;
+  --ts-radius-sm:  8px;
+  --ts-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---------- Reset (landing only) ---------- */
+body.landing-v2{
+  background: var(--ts-background);
+  background-image: none;   /* removes the shared ruled-paper background */
+  font-family: var(--ts-font);
+  color: var(--ts-text);
+  /* Safety net: the decorative hero blob (see .hero::before) is
+     intentionally allowed to bleed slightly past its container for
+     a soft edge — this guarantees that never turns into a page-level
+     horizontal scrollbar, at any breakpoint. Scoped to this page only. */
+  overflow-x: hidden;
+}
+body.landing-v2 .landing-page h1,
+body.landing-v2 .landing-page h2{
+  font-family: var(--ts-font);
+  color: var(--ts-text);
+}
+body.landing-v2 .landing-page{
+  max-width: 1180px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* ---------- Header ---------- */
+body.landing-v2 .letterhead{
+  background: var(--ts-navy);
+  border-bottom: none;
+}
+body.landing-v2 .letterhead-inner{
+  max-width: 1180px;
+  padding: 16px 24px;
+}
+body.landing-v2 .public-header .brand{ gap: 12px; }
+body.landing-v2 .public-header .seal{
+  width: 38px; height: 38px;
+  border: 2px solid var(--ts-gold);
+  color: var(--ts-gold);
+  font-family: var(--ts-font);
+  font-weight: 700;
+  font-size: 14px;
+}
+body.landing-v2 .public-header .brand-text .title{
+  font-family: var(--ts-font);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+  color: #FFFFFF;
+}
+body.landing-v2 .public-header .brand-text .subtitle{
+  color: var(--ts-gold);
+  opacity: 1;
+  font-weight: 600;
+}
+body.landing-v2 .public-header .btn{
+  background: var(--ts-gold);
+  border-color: var(--ts-gold);
+  color: var(--ts-navy);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 10px 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.landing-v2 .public-header .btn:hover{
+  background: var(--ts-gold-dark);
+  border-color: var(--ts-gold-dark);
+  color: var(--ts-navy);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+/* ---------- Announcement ---------- */
+/* Static "free credits" banner — separate from the admin-managed
+   #homeAnnouncementTicker, which is left completely untouched
+   (still hidden by default, still full-width scrolling text). */
+body.landing-v2 .landing-banner{
+  background: var(--ts-blue-tint);
+  border-bottom: 1px solid var(--ts-border);
+  padding: 10px 24px;
+  font-size: 0.85rem;
+  color: var(--ts-text);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+body.landing-v2 .landing-banner .hl-blue{
+  color: var(--ts-blue);
+  font-weight: 700;
+}
+
+/* ---------- Hero ---------- */
+body.landing-v2 .landing-page .hero{
+  position: relative;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 56px;
+  padding: 56px 0 48px;
+  overflow: visible;
+}
+body.landing-v2 .hero::before{
+  /* soft decorative blob, purely visual, non-interactive */
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(47,95,236,0.08) 0%, rgba(47,95,236,0) 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+body.landing-v2 .hero-copy .eyebrow{
+  color: var(--ts-blue);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+}
+body.landing-v2 .hero-copy h1{
+  font-size: 2.7rem;
+  line-height: 1.18;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+body.landing-v2 .hero-copy h1 .hl-blue{
+  color: var(--ts-blue);
+  text-decoration: underline;
+  text-decoration-color: rgba(47,95,236,0.35);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+body.landing-v2 .landing-page p.lede{
+  color: var(--ts-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+body.landing-v2 .hero-actions .btn{
+  background: var(--ts-blue);
+  border-color: var(--ts-blue);
+  color: #FFFFFF;
+  border-radius: 999px;
+  padding: 13px 26px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.landing-v2 .hero-actions .btn:hover{
+  background: var(--ts-blue-dark);
+  border-color: var(--ts-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(47,95,236,0.28);
+}
+
+/* ---------- Live Preview panel ---------- */
+body.landing-v2 .hero-panel{
+  background: #FFFFFF;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 26px;
+  box-shadow: 0 16px 40px rgba(16,24,40,0.08);
+}
+body.landing-v2 .hero-panel .card-label{
+  border-bottom: none;
+  color: var(--ts-blue);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+body.landing-v2 .live-dot{
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ts-green);
+  display: inline-block;
+  animation: ts-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ts-pulse{
+  0%, 100%{ opacity: 1; transform: scale(1); }
+  50%{ opacity: 0.5; transform: scale(1.25); }
+}
+body.landing-v2 .typewriter-line{
+  background: #F7F9FC;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: var(--ts-text);
+}
+body.landing-v2 .typewriter-line .cursor{ background: var(--ts-blue); }
+body.landing-v2 .stat-row{
+  border-top: 1px dashed var(--ts-border);
+  margin-top: 20px;
+  padding-top: 18px;
+  gap: 12px;
+}
+body.landing-v2 .stat-item{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+body.landing-v2 .stat-icon{
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+body.landing-v2 .stat-icon svg{ width: 16px; height: 16px; }
+body.landing-v2 .stat-blue .stat-icon{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.landing-v2 .stat-green .stat-icon{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.landing-v2 .stat-orange .stat-icon{ background: #FDF0E4; color: #E07C2A; }
+body.landing-v2 .stat-num{
+  font-family: var(--ts-font);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ts-text);
+}
+body.landing-v2 .stat-label{
+  color: var(--ts-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Section heading ---------- */
+body.landing-v2 .section-heading{
+  text-align: center;
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+body.landing-v2 .section-heading::before,
+body.landing-v2 .section-heading::after{
+  content: "";
+  flex: 1 1 60px;
+  max-width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ts-gold));
+}
+body.landing-v2 .section-heading::after{
+  background: linear-gradient(90deg, var(--ts-gold), transparent);
+}
+body.landing-v2 .section-sub{
+  text-align: center;
+  margin: 8px auto 28px;
+}
+
+/* ---------- Plans grid ---------- */
+body.landing-v2 .passes-grid{
+  gap: 24px;
+}
+body.landing-v2 .pass-card{
+  border-radius: var(--ts-radius-lg);
+  border: 1px solid var(--ts-border);
+  box-shadow: none;
+  padding: 28px 24px;
+}
+body.landing-v2 .pass-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(16,24,40,0.10);
+}
+body.landing-v2 .plan-icon{
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+body.landing-v2 .plan-icon svg{ width: 22px; height: 22px; }
+body.landing-v2 .pass-card .card-label{
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+body.landing-v2 .pass-card .pass-price{
+  font-family: var(--ts-font);
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--ts-text);
+}
+body.landing-v2 .pass-card .pass-duration{
+  display: inline-block;
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgba(16,24,40,0.05);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+body.landing-v2 .plan-features li::before{ content: "\2713"; font-weight: 800; }
+body.landing-v2 .pass-card .btn{
+  border-radius: 10px;
+  font-weight: 700;
+  background: transparent;
+}
+
+/* Category theming — SSC (blue) */
+body.landing-v2 .plan-ssc{ background: var(--ts-blue-tint); border-color: rgba(47,95,236,0.25); }
+body.landing-v2 .plan-ssc .plan-icon{ background: rgba(47,95,236,0.14); color: var(--ts-blue); }
+body.landing-v2 .plan-ssc .card-label{ color: var(--ts-blue); }
+body.landing-v2 .plan-ssc .pass-duration{ background: rgba(47,95,236,0.10); color: var(--ts-blue-dark); }
+body.landing-v2 .plan-ssc .plan-features li::before{ color: var(--ts-blue); }
+body.landing-v2 .plan-ssc .btn{ border: 1.5px solid var(--ts-blue); color: var(--ts-blue); }
+body.landing-v2 .plan-ssc .btn:hover{ background: var(--ts-blue); color: #fff; }
+
+/* Category theming — Legal (green) */
+body.landing-v2 .plan-legal{ background: var(--ts-green-tint); border-color: rgba(21,154,72,0.25); }
+body.landing-v2 .plan-legal .plan-icon{ background: rgba(21,154,72,0.14); color: var(--ts-green); }
+body.landing-v2 .plan-legal .card-label{ color: var(--ts-green); }
+body.landing-v2 .plan-legal .pass-duration{ background: rgba(21,154,72,0.10); color: var(--ts-green); }
+body.landing-v2 .plan-legal .plan-features li::before{ color: var(--ts-green); }
+body.landing-v2 .plan-legal .btn{ border: 1.5px solid var(--ts-green); color: var(--ts-green); }
+body.landing-v2 .plan-legal .btn:hover{ background: var(--ts-green); color: #fff; }
+
+/* Category theming — Combo (purple) */
+body.landing-v2 .plan-combo{ background: var(--ts-purple-tint); border-color: rgba(124,58,237,0.28); }
+body.landing-v2 .plan-combo .plan-icon{ background: rgba(124,58,237,0.14); color: var(--ts-purple); }
+body.landing-v2 .plan-combo .card-label{ color: var(--ts-purple); }
+body.landing-v2 .plan-combo .pass-duration{ background: rgba(124,58,237,0.10); color: var(--ts-purple); }
+body.landing-v2 .plan-combo .plan-features li::before{ color: var(--ts-purple); }
+body.landing-v2 .plan-combo .btn{ border: 1.5px solid var(--ts-purple); color: var(--ts-purple); background: var(--ts-purple); color: #fff; }
+body.landing-v2 .plan-combo .btn:hover{ background: #6829d6; border-color: #6829d6; }
+body.landing-v2 .pass-card.featured{
+  border-width: 1.5px;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.12);
+}
+body.landing-v2 .pass-card.featured:hover{
+  box-shadow: 0 16px 32px rgba(124,58,237,0.20);
+}
+body.landing-v2 .best-value-badge{
+  top: 16px;
+  left: auto;
+  right: 16px;
+  transform: none;
+  background: var(--ts-purple);
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+/* Category theming — Credit packages (gold accent, neutral base) */
+body.landing-v2 .plan-credit{ background: #FFFDF4; border-color: rgba(245,179,1,0.35); }
+body.landing-v2 .plan-credit .plan-icon{ background: rgba(245,179,1,0.18); color: var(--ts-gold-dark); }
+body.landing-v2 .plan-credit .card-label{ color: var(--ts-gold-dark); }
+body.landing-v2 .plan-credit .pass-duration{ background: rgba(245,179,1,0.14); color: var(--ts-gold-dark); }
+body.landing-v2 .plan-credit .plan-features li::before{ color: var(--ts-gold-dark); }
+body.landing-v2 .plan-credit .btn{ border: 1.5px solid var(--ts-gold-dark); color: var(--ts-gold-dark); }
+body.landing-v2 .plan-credit .btn:hover{ background: var(--ts-gold-dark); color: #fff; }
+
+body.landing-v2 .loading-strip,
+body.landing-v2 .empty-state{
+  border-radius: var(--ts-radius-md);
+  border: 1px dashed var(--ts-border);
+  color: var(--ts-muted);
+}
+
+/* ---------- Credits info strip ---------- */
+body.landing-v2 .credit-info-strip{
+  margin-top: 24px;
+  background: #FFFFFF;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 22px 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+body.landing-v2 .credit-info-item{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--ts-muted);
+  position: relative;
+  padding-left: 20px;
+}
+body.landing-v2 .credit-info-item:not(:first-child)::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: var(--ts-border);
+}
+body.landing-v2 .credit-info-icon{
+  font-size: 1.15rem;
+  line-height: 1;
+  flex: none;
+}
+body.landing-v2 .credit-info-item strong{
+  display: block;
+  color: var(--ts-text);
+  font-size: 0.88rem;
+}
+
+/* ---------- Footer ---------- */
+body.landing-v2 footer.site-foot{
+  border-top: 1px solid var(--ts-border);
+}
+body.landing-v2 .site-foot-credit{
+  font-family: var(--ts-font);
+  color: var(--ts-text);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px){
+  body.landing-v2 .landing-page .hero{ grid-template-columns: 1fr; gap: 32px; padding-top: 32px; }
+  body.landing-v2 .hero-copy h1{ font-size: 2.1rem; }
+}
+@media (max-width: 700px){
+  body.landing-v2 .credit-info-strip{ grid-template-columns: 1fr; gap: 16px; }
+  body.landing-v2 .credit-info-item:not(:first-child)::before{ display: none; }
+}
+@media (max-width: 480px){
+  body.landing-v2 .hero::before{ width: 260px; height: 260px; right: -80px; top: -30px; }
+  body.landing-v2 .letterhead-inner{ padding: 12px 16px; }
+  body.landing-v2 .landing-page{ padding-left: 16px; padding-right: 16px; }
+  body.landing-v2 .landing-banner{ padding: 8px 16px; font-size: 0.78rem; justify-content: center; text-align: center; }
+  body.landing-v2 .hero-copy h1{ font-size: 1.7rem; }
+  body.landing-v2 .hero-copy .lede{ font-size: 0.92rem; }
+  body.landing-v2 .section-heading{ font-size: 1.35rem; gap: 10px; }
+  body.landing-v2 .hero-panel{ padding: 18px; }
+}

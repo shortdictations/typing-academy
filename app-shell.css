@@ -1,0 +1,472 @@
+/* ============================================================
+   TypeShala — Authenticated App Shell (v2)
+   ------------------------------------------------------------
+   Shared by every migrated authenticated page (dashboard.html,
+   settings.html, help-support.html, and more as they're migrated).
+   Everything here is scoped under body.app-shell, so pages that
+   haven't been migrated yet (mock-test.html, subscriptions.html,
+   etc.) are completely unaffected, even though they share classes
+   like .letterhead, .nav-links, .card, .btn, .field.
+
+   Sections: Variables · Header · Sidebar · Bottom nav · Cards ·
+   Page-specific (dashboard / settings / help) · Responsive
+   ============================================================ */
+
+/* ---------- Variables ---------- */
+body.app-shell{
+  --ts-navy:       #0B1C3F;
+  --ts-blue:       #2F5FEC;
+  --ts-blue-dark:  #1E45C4;
+  --ts-blue-tint:  #EAF1FE;
+  --ts-green:      #159A48;
+  --ts-green-tint: #E9F7EE;
+  --ts-purple:     #7C3AED;
+  --ts-purple-tint:#F3ECFE;
+  --ts-orange:     #E07C2A;
+  --ts-orange-tint:#FDF0E4;
+  --ts-gold:       #F5B301;
+  --ts-gold-dark:  #D99A00;
+  --ts-red:        #D14343;
+  --ts-red-tint:   #FBEAEA;
+  --ts-text:       #101828;
+  --ts-muted:      #5B6B85;
+  --ts-border:     #E4E9F2;
+  --ts-background: #F6F8FC;
+  --ts-radius-lg:  16px;
+  --ts-radius-md:  12px;
+  --ts-radius-sm:  8px;
+  --ts-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  background: var(--ts-background);
+  background-image: none;
+  font-family: var(--ts-font);
+  color: var(--ts-text);
+}
+body.app-shell h1, body.app-shell h2{ font-family: var(--ts-font); color: var(--ts-text); }
+body.app-shell .lede{ color: var(--ts-muted); }
+/* Safety net, matching the same reasoning as the public landing
+   page: guarantees no page-level horizontal scrollbar regardless of
+   any element's computed size, at any breakpoint. */
+body.app-shell{ overflow-x: hidden; }
+
+/* ---------- Header ---------- */
+body.app-shell .letterhead{ background: var(--ts-navy); border-bottom: none; }
+body.app-shell .letterhead-inner{ max-width: none; padding: 12px 24px; }
+body.app-shell .brand{ gap: 12px; }
+body.app-shell .seal{
+  width: 38px; height: 38px;
+  border: 2px solid var(--ts-gold);
+  color: var(--ts-gold);
+  font-family: var(--ts-font);
+  font-weight: 700;
+}
+body.app-shell .brand-text .title{
+  font-family: var(--ts-font);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #FFFFFF;
+}
+body.app-shell .brand-text .subtitle{ color: var(--ts-gold); opacity: 1; font-weight: 600; }
+
+/* Old top nav text links + hamburger are replaced by the sidebar /
+   bottom nav below. They stay in the DOM (auth.js still reads them
+   to build the legacy mobile sidebar), just hidden here. */
+body.app-shell .nav-links > a:not(.credit-badge),
+body.app-shell .hamburger-btn,
+body.app-shell .mobile-sidebar,
+body.app-shell .mobile-sidebar-overlay{
+  display: none !important;
+}
+body.app-shell .nav-links{ gap: 14px; }
+
+body.app-shell .app-bell{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  color: var(--ts-gold);
+  background: rgba(255,255,255,0.06);
+  flex: none;
+}
+body.app-shell .app-bell svg{ width: 18px; height: 18px; }
+
+body.app-shell .credit-badge{
+  background: rgba(245,179,1,0.14);
+  border-color: var(--ts-gold);
+  color: var(--ts-gold);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+body.app-shell .credit-badge:hover{ background: var(--ts-gold); color: var(--ts-navy); }
+
+body.app-shell .avatar-btn{ border-color: var(--ts-gold); }
+
+/* ---------- Layout: sidebar + content ---------- */
+body.app-shell .app-body{
+  display: flex;
+  align-items: flex-start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+body.app-shell .app-sidebar{
+  flex: 0 0 240px;
+  width: 240px;
+  background: #FFFFFF;
+  border-right: 1px solid var(--ts-border);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: calc(100vh - 60px);
+  box-sizing: border-box;
+}
+body.app-shell .app-content{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+body.app-shell .app-content .page{ max-width: 1160px; }
+
+body.app-shell .app-nav-link{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--ts-radius-sm);
+  color: var(--ts-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--ts-font);
+}
+body.app-shell .app-nav-link svg{ width: 18px; height: 18px; flex: none; }
+body.app-shell .app-nav-link:hover{ background: var(--ts-blue-tint); color: var(--ts-blue-dark); }
+body.app-shell .app-nav-link.active{ background: var(--ts-navy); color: #FFFFFF; }
+body.app-shell .app-nav-link.logout{ color: var(--ts-red); margin-top: 10px; }
+body.app-shell .app-nav-link.logout:hover{ background: var(--ts-red-tint); }
+body.app-shell .app-sidebar-divider{ height: 1px; background: var(--ts-border); margin: 10px 4px; }
+body.app-shell .app-sidebar-spacer{ flex: 1 1 auto; }
+
+body.app-shell .app-sidebar-profile{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  text-decoration: none;
+  color: var(--ts-text);
+}
+body.app-shell .app-sidebar-profile:hover{ background: var(--ts-blue-tint); }
+body.app-shell .app-sidebar-profile .avatar-btn{ width: 34px; height: 34px; font-size: 0.8rem; flex: none; }
+body.app-shell .app-sidebar-profile-text{ min-width: 0; flex: 1 1 auto; }
+body.app-shell .app-sidebar-profile-name{ font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.app-shell .app-sidebar-profile-email{ font-size: 0.72rem; color: var(--ts-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.app-shell .app-sidebar-profile-chevron{ color: var(--ts-muted); flex: none; }
+
+/* ---------- Mobile bottom nav ---------- */
+body.app-shell .app-bottom-nav{
+  display: none;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #FFFFFF;
+  border-top: 1px solid var(--ts-border);
+  padding: 6px 4px;
+  z-index: 40;
+  box-shadow: 0 -4px 16px rgba(16,24,40,0.06);
+}
+body.app-shell .app-bottom-nav-inner{
+  display: flex;
+  justify-content: space-around;
+}
+body.app-shell .app-bottom-nav-link{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  color: var(--ts-muted);
+  text-decoration: none;
+  font-size: 0.62rem;
+  font-weight: 600;
+  flex: 1 1 0;
+}
+body.app-shell .app-bottom-nav-link svg{ width: 20px; height: 20px; }
+body.app-shell .app-bottom-nav-link.active{ color: var(--ts-navy); }
+body.app-shell .app-bottom-nav-link.active .app-bottom-nav-icon{
+  background: var(--ts-navy);
+  color: #FFFFFF;
+  border-radius: 10px;
+}
+body.app-shell .app-bottom-nav-icon{
+  width: 34px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Announcement banner (existing ticker) restyle ---------- */
+body.app-shell .announcement-ticker{ background: #FFF7E6; }
+
+/* ---------- Cards ---------- */
+body.app-shell .card{
+  background: #FFFFFF;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 2px 8px rgba(16,24,40,0.04);
+}
+body.app-shell .card-label{
+  border-bottom: none;
+  color: var(--ts-muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+body.app-shell .btn{
+  border-radius: 10px;
+  font-weight: 700;
+}
+body.app-shell .dash-btn-primary{
+  background: var(--ts-navy);
+  box-shadow: 0 4px 10px rgba(11,28,63,0.2);
+}
+body.app-shell .dash-btn-primary:hover{ background: #142a54; }
+body.app-shell .btn-ghost{ border-color: var(--ts-border); color: var(--ts-text); }
+body.app-shell .btn-ghost:hover{ background: var(--ts-navy); border-color: var(--ts-navy); color: #fff; }
+
+/* ---------- Dashboard: greeting row ---------- */
+body.app-shell .dashboard-h1{ font-weight: 800; }
+body.app-shell .app-greeting-row{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+body.app-shell .app-greeting-row .btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* ---------- Dashboard: stat tiles ---------- */
+/* Root-cause fix, not just clipping: style.css's base rule forces a
+   hard 4-column grid from 700px up, sized for the FULL page width.
+   With the sidebar now eating ~240px on this shell, that 4-column
+   grid gets too narrow at tablet widths and a stat card's content
+   (e.g. the "16 Aug 2026" date) forces itself wider than its track.
+   auto-fit + minmax lets cards wrap to 2x2 whenever there isn't
+   genuinely enough room for 4, instead of overflowing. */
+body.app-shell .dash-stats-grid{
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
+body.app-shell .dash-stat-text{ min-width: 0; }
+body.app-shell .dash-stat-text .big{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; font-size: 1.3rem; }
+body.app-shell .dash-stat-icon{ border-radius: 10px; width: 38px; height: 38px; }
+body.app-shell .dash-stat-icon svg{ width: 18px; height: 18px; }
+body.app-shell .dash-tile-blue{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.app-shell .dash-tile-green{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .dash-tile-orange{ background: var(--ts-orange-tint); color: var(--ts-orange); }
+body.app-shell .dash-tile-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+
+/* ---------- Dashboard: Active Pass + Remaining Credits card ---------- */
+body.app-shell .app-pass-credits-card{
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  padding: 18px 22px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+body.app-shell .app-pc-block{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 220px;
+}
+body.app-shell .app-pc-icon{
+  width: 40px; height: 40px; flex: none;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .app-pc-icon svg{ width: 19px; height: 19px; }
+body.app-shell .app-pc-icon.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .app-pc-icon.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .app-pc-label{ font-size: 0.72rem; color: var(--ts-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+body.app-shell .app-pc-title{ font-weight: 800; font-size: 1rem; margin-top: 1px; }
+body.app-shell .app-pc-sub{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 1px; }
+body.app-shell .app-pc-pill{
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+body.app-shell .app-pc-pill.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .app-pc-pill.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .app-pc-divider{ width: 1px; background: var(--ts-border); align-self: stretch; flex: none; }
+body.app-shell .app-pc-cta{ font-size: 0.82rem; color: var(--ts-blue); font-weight: 700; text-decoration: none; }
+
+/* ---------- Dashboard: Target WPM card ---------- */
+body.app-shell .dash-target-card{ margin-top: 14px; box-shadow: none; }
+body.app-shell .dash-target-icon{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.app-shell .dash-progress-fill{ background: linear-gradient(90deg, var(--ts-blue), #6B8CFF); }
+
+/* ---------- Dashboard: combined Overview chart ---------- */
+body.app-shell .app-overview-card{ margin-top: 14px; padding: 18px 20px; }
+body.app-shell .app-overview-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+body.app-shell .app-overview-title{ font-weight: 800; font-size: 0.95rem; letter-spacing: 0; text-transform: none; color: var(--ts-text); }
+body.app-shell .app-period-select{
+  font-family: var(--ts-font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ts-text);
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fff;
+}
+body.app-shell .app-overview-legend{
+  display: flex;
+  gap: 16px;
+  font-size: 0.76rem;
+  color: var(--ts-muted);
+  margin: 6px 0 8px;
+}
+body.app-shell .app-overview-legend span{ display: inline-flex; align-items: center; gap: 6px; }
+body.app-shell .app-legend-dot{ width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+body.app-shell .app-overview-canvas-wrap{ position: relative; height: 260px; }
+@media (max-width: 480px){ body.app-shell .app-overview-canvas-wrap{ height: 200px; } }
+
+/* ---------- Recent tests table ---------- */
+body.app-shell .app-recent-card{ margin-top: 14px; padding: 18px 20px; }
+body.app-shell .app-recent-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+body.app-shell .app-recent-head .card-label{ margin: 0; }
+body.app-shell .app-recent-head a{ font-size: 0.82rem; color: var(--ts-blue); font-weight: 700; text-decoration: none; }
+body.app-shell .app-recent-table{ width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+body.app-shell .app-recent-table th{
+  text-align: left;
+  color: var(--ts-muted);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0 8px 10px;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .app-recent-table td{
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--ts-border);
+  color: var(--ts-text);
+}
+body.app-shell .app-recent-table tr:last-child td{ border-bottom: none; }
+body.app-shell .app-recent-table a.app-recent-row{ display: contents; color: inherit; text-decoration: none; }
+body.app-shell .app-test-name{ font-weight: 700; }
+body.app-shell .app-type-pill{
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+body.app-shell .app-type-pill.ssc{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.app-shell .app-type-pill.legal{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .app-type-pill.combo{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .app-accuracy-cell{ color: var(--ts-green); font-weight: 700; }
+body.app-shell .app-recent-chevron{ color: var(--ts-muted); text-align: right; }
+body.app-shell .app-recent-empty{ padding: 20px 0; text-align: center; color: var(--ts-muted); font-size: 0.85rem; }
+
+/* ---------- Form fields (shared: settings + help) ---------- */
+body.app-shell .field label{ color: var(--ts-muted); }
+body.app-shell .field input,
+body.app-shell .field select{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  color: var(--ts-text);
+  font-family: var(--ts-font);
+}
+body.app-shell .field input:focus,
+body.app-shell .field select:focus{
+  outline: none;
+  border-color: var(--ts-blue);
+  box-shadow: 0 0 0 3px rgba(47,95,236,0.15);
+  background: #fff;
+}
+body.app-shell .field textarea{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--ts-border);
+  background: #fff;
+  border-radius: var(--ts-radius-sm);
+  font-family: var(--ts-font);
+  font-size: 0.95rem;
+  color: var(--ts-text);
+  resize: vertical;
+}
+body.app-shell .error-msg{ background: var(--ts-red-tint); border-color: var(--ts-red); color: var(--ts-red); border-radius: var(--ts-radius-sm); }
+body.app-shell .success-msg{ background: var(--ts-green-tint); border-color: var(--ts-green); color: var(--ts-green); border-radius: var(--ts-radius-sm); }
+
+/* ---------- Settings page ---------- */
+body.app-shell .app-settings-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+body.app-shell .app-settings-card{ padding: 22px; }
+body.app-shell .app-settings-card h2{ font-size: 1.05rem; margin-bottom: 16px; }
+@media (max-width: 800px){ body.app-shell .app-settings-grid{ grid-template-columns: 1fr; } }
+
+/* ---------- Help & Support page ---------- */
+body.app-shell .app-help-wrap{ max-width: 640px; }
+body.app-shell .app-help-card{ padding: 26px; }
+body.app-shell .app-help-mail-note{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ts-blue-tint);
+  border-radius: var(--ts-radius-md);
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: var(--ts-blue-dark);
+  margin-bottom: 18px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px){
+  body.app-shell .app-sidebar{ flex: 0 0 200px; width: 200px; }
+}
+@media (max-width: 700px){
+  body.app-shell .app-sidebar{ display: none; }
+  body.app-shell .app-bottom-nav{ display: block; }
+  body.app-shell .app-content .page{ padding-bottom: 90px; }
+  body.app-shell .letterhead-inner{ padding: 10px 16px; }
+  body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; }
+  body.app-shell .app-greeting-row .btn{ justify-content: center; }
+  body.app-shell .app-pc-divider{ display: none; width: 100%; height: 1px; }
+  body.app-shell .app-pass-credits-card{ flex-direction: column; }
+  /* app-pc-block's flex-basis:220px is a WIDTH hint for the desktop
+     side-by-side layout — once the card stacks into a column above,
+     that basis applies to height instead and forces a tall empty
+     block. Reset it here so stacked blocks size to their content. */
+  body.app-shell .app-pc-block{ flex-basis: auto; }
+}
+@media (max-width: 480px){
+  body.app-shell .app-content .page{ padding-left: 14px; padding-right: 14px; }
+  body.app-shell .dash-stats-grid{ gap: 8px; }
+}
