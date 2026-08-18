@@ -202,23 +202,18 @@
             <div class="lab">Average<br>Accuracy</div>
           </div>
         </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-          <div class="dash-stat-text">
-            <div class="big dash-stat-nowrap" id="statLastTest" style="font-size:1.05rem;">—</div>
-            <div class="lab">Last Test</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Active Pass + Remaining Credits — new card, populated by
-           renderPassCreditsCard() in dashboard.js, which reuses the
-           SAME fetchActivePasses()/fetchTotalCredits() helpers from
-           js/auth.js that already power the header dropdown. -->
-      <div class="card app-pass-credits-card" id="passCreditsCard">
-        <div class="app-pc-block" id="passBlock"></div>
-        <div class="app-pc-divider"></div>
-        <div class="app-pc-block" id="creditsBlock"></div>
+        <!-- Active Pass + Remaining Credits — now the 4th (wider)
+             item in this same row, replacing the old separate "Last
+             Test" tile. Populated by renderPassCreditsCard() in
+             dashboard.js, which reuses the SAME
+             fetchActivePasses()/fetchTotalCredits() helpers from
+             js/auth.js that already power the header dropdown. -->
+        <div class="card app-pass-credits-card" id="passCreditsCard">
+          <div class="app-pc-block" id="passBlock"></div>
+          <div class="app-pc-divider"></div>
+          <div class="app-pc-block" id="creditsBlock"></div>
+        </div>
       </div>
 
       <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
@@ -244,39 +239,43 @@
         </div>
       </div>
 
-      <!-- Overview — single combined WPM + Accuracy chart, replacing
-           the previous two-card swipe carousel. Same underlying data
-           (mock_test_results), rendered by renderOverviewChart() in
-           dashboard.js. -->
-      <div class="card app-overview-card">
-        <div class="app-overview-head">
-          <span class="card-label app-overview-title">Overview</span>
-          <select class="app-period-select" id="overviewPeriodSelect">
-            <option value="7" selected>Last 7 Days</option>
-            <option value="30">Last 30 Days</option>
-            <option value="all">All Time</option>
-          </select>
+      <!-- Overview + Recent Tests — side by side on desktop, stacked
+           on narrower screens (see .app-dash-split in app-shell.css). -->
+      <div class="app-dash-split">
+        <!-- Overview — single combined WPM + Accuracy chart, replacing
+             the previous two-card swipe carousel. Same underlying data
+             (mock_test_results), rendered by renderOverviewChart() in
+             dashboard.js. -->
+        <div class="card app-overview-card">
+          <div class="app-overview-head">
+            <span class="card-label app-overview-title">Overview</span>
+            <select class="app-period-select" id="overviewPeriodSelect">
+              <option value="7" selected>Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <div class="app-overview-legend">
+            <span><span class="app-legend-dot" style="background:#2F5FEC;"></span>Avg. WPM</span>
+            <span><span class="app-legend-dot" style="background:#159A48;"></span>Avg. Accuracy</span>
+          </div>
+          <div class="app-overview-canvas-wrap">
+            <canvas id="overviewChart"></canvas>
+            <div class="empty-state" id="overviewChartEmpty" style="display:none;">Take a test to start tracking your progress.</div>
+          </div>
+          <p class="dash-chart-note" id="overviewChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
         </div>
-        <div class="app-overview-legend">
-          <span><span class="app-legend-dot" style="background:#2F5FEC;"></span>Avg. WPM</span>
-          <span><span class="app-legend-dot" style="background:#159A48;"></span>Avg. Accuracy</span>
-        </div>
-        <div class="app-overview-canvas-wrap">
-          <canvas id="overviewChart"></canvas>
-          <div class="empty-state" id="overviewChartEmpty" style="display:none;">Take a test to start tracking your progress.</div>
-        </div>
-        <p class="dash-chart-note" id="overviewChartNote" style="display:none;">Complete more tests to see your progress trend.</p>
-      </div>
 
-      <!-- Recent Tests — reuses the same results already fetched
-           above for the stats/chart; renderRecentTests() in
-           dashboard.js just takes the first 5. -->
-      <div class="card app-recent-card">
-        <div class="app-recent-head">
-          <span class="card-label">Recent Tests</span>
-          <a href="mock-history.html">View All</a>
+        <!-- Recent Tests — reuses the same results already fetched
+             above for the stats/chart; renderRecentTests() in
+             dashboard.js just takes the first 5. -->
+        <div class="card app-recent-card">
+          <div class="app-recent-head">
+            <span class="card-label">Recent Tests</span>
+            <a href="mock-history.html">View All</a>
+          </div>
+          <div id="recentTestsBody"></div>
         </div>
-        <div id="recentTestsBody"></div>
       </div>
 
       <div class="dash-actions">
