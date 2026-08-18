@@ -148,52 +148,6 @@ body.app-shell .app-nav-link{
 body.app-shell .app-nav-link svg{ width: 18px; height: 18px; flex: none; }
 body.app-shell .app-nav-link:hover{ background: var(--ts-blue-tint); color: var(--ts-blue-dark); }
 body.app-shell .app-nav-link.active{ background: var(--ts-navy); color: #FFFFFF; }
-body.app-shell .app-nav-link.logout{ color: var(--ts-red); margin-top: 10px; }
-body.app-shell .app-nav-link.logout:hover{ background: var(--ts-red-tint); }
-body.app-shell .app-sidebar-divider{ height: 1px; background: var(--ts-border); margin: 10px 4px; }
-body.app-shell .app-sidebar-spacer{ flex: 1 1 auto; }
-
-body.app-shell .app-sidebar-profile{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid var(--ts-border);
-  border-radius: var(--ts-radius-md);
-  text-decoration: none;
-  color: var(--ts-text);
-  /* Now a <button>, not an <a> — reset UA button chrome so it keeps
-     looking exactly the same as before. */
-  background: #fff;
-  font-family: var(--ts-font);
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-body.app-shell .app-sidebar-profile:hover{ background: var(--ts-blue-tint); }
-body.app-shell .app-sidebar-profile .avatar-btn{ width: 34px; height: 34px; font-size: 0.8rem; flex: none; }
-body.app-shell .app-sidebar-profile-text{ min-width: 0; flex: 1 1 auto; }
-body.app-shell .app-sidebar-profile-name{ font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-body.app-shell .app-sidebar-profile-email{ font-size: 0.72rem; color: var(--ts-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-body.app-shell .app-sidebar-profile-chevron{ color: var(--ts-muted); flex: none; }
-
-/* Account dropdown anchored to the sidebar profile button — reuses
-   .user-menu-dropdown's box styling/transitions (border, shadow,
-   fade+scale animation) from style.css, but opens UPWARD since this
-   trigger sits at the very bottom of the viewport, and is click-only
-   (this wrapper is deliberately NOT .user-menu, so the header's
-   hover-to-open rule — which needs that exact class — doesn't apply
-   here and no dropdown flashes open on a passing mouse). */
-body.app-shell .app-sidebar-menu{ position: relative; }
-body.app-shell .app-sidebar-menu .user-menu-dropdown{
-  top: auto;
-  bottom: 100%;
-  margin-top: 0;
-  margin-bottom: 10px;
-  left: 0;
-  right: auto;
-  transform-origin: bottom left;
-}
 
 /* ---------- Mobile bottom nav ---------- */
 body.app-shell .app-bottom-nav{
@@ -465,6 +419,24 @@ body.app-shell .app-help-mail-note{
   body.app-shell .app-content .page{ padding-bottom: 90px; }
   body.app-shell .letterhead-inner{ padding: 10px 16px; }
   body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; gap: 10px; }
+
+  /* Pre-existing bug, not introduced by this change: a base rule
+     from the old hamburger-menu system —
+     ".nav-links > *:not(.hamburger-btn){ display:none !important }"
+     in style.css — hides every direct child of the header nav except
+     the hamburger button once the viewport drops to this width. That
+     silently took the bell, credit badge, AND the avatar menu with
+     it. It went unnoticed while the sidebar dropdown still offered a
+     working mobile fallback for Profile/Settings/Logout; now that
+     the header avatar is the ONLY entry point, restoring these is
+     required, not optional. Restores each element's own normal
+     display value (not just "block"), since .credit-badge/.app-bell
+     are inline-flex and .user-menu-trigger is flex — "block" would
+     silently break their own internal alignment. */
+  body.app-shell .nav-links > .app-bell{ display: inline-flex !important; }
+  body.app-shell .nav-links > .credit-badge{ display: inline-flex !important; }
+  body.app-shell .nav-links > .user-menu{ display: block !important; }
+  body.app-shell .user-menu-trigger{ display: flex !important; }
 
   /* Compact CTA: same navy/rounded design, just shorter and smaller
      text — this is a secondary, oft-repeated action on a small
