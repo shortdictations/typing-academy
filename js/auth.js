@@ -98,51 +98,56 @@ async function requireLogin() {
 // and attached to the existing #userMenuTrigger/#userMenuDropdown
 // elements (or, for the sidebar, appended to <body>) — no HTML
 // file needed any markup changes for this.
-// Builds the account-dropdown content (name/email header, credits,
-// active plans, Logout) used by the header avatar dropdown —
-// parameterized IDs so it stays reusable if a second full instance
-// is ever needed elsewhere.
-function accountDropdownHtml(displayName, email, creditsElId, plansListId, logoutBtnId) {
+// Builds the account-dropdown content for the header avatar —
+// name/email, then Profile / Settings / Logout. Kept intentionally
+// minimal (no credits/plans here — those already have their own
+// cards on the dashboard and their own page).
+function accountDropdownHtml(displayName, email, logoutBtnId) {
   return `
     <div class="avatar-dropdown-header">
       <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
       <div class="avatar-dropdown-email">${escapeHtmlAuth(email)}</div>
     </div>
-    <div class="avatar-dropdown-credits">
-      <div class="credits-card-top">
-        <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
-        <span class="credits-card-value">&#129689; <span id="${creditsElId}">—</span></span>
-      </div>
-      <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
-    </div>
-    <div class="avatar-dropdown-plans">
-      <a class="avatar-dropdown-plans-heading" href="subscriptions.html">
-        <span>Active Plans</span>
-        <span class="avatar-menu-icon">&#127891;</span>
-      </a>
-      <div class="avatar-dropdown-plans-list" id="${plansListId}">—</div>
-    </div>
+    <div class="avatar-dropdown-divider"></div>
+    <a class="avatar-menu-row" href="settings.html">
+      <span class="avatar-menu-label">Profile</span>
+    </a>
+    <a class="avatar-menu-row" href="settings.html">
+      <span class="avatar-menu-label">Settings</span>
+    </a>
     <div class="avatar-dropdown-divider"></div>
     <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
-      <span class="avatar-menu-icon">&#8674;</span>
       <span class="avatar-menu-label">Logout</span>
     </button>`;
 }
 
-// Simpler variant for the sidebar profile dropdown — just name,
-// email, and Logout (no credits/plans, which are already shown in
-// their own dashboard cards and in the header dropdown).
-function simpleAccountDropdownHtml(displayName, email, logoutBtnId) {
-  return `
-    <div class="avatar-dropdown-header">
-      <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
-      <div class="avatar-dropdown-email">${escapeHtmlAuth(email)}</div>
-    </div>
-    <div class="avatar-dropdown-divider"></div>
-    <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
-      <span class="avatar-menu-icon">&#8674;</span>
-      <span class="avatar-menu-label">Logout</span>
-    </button>`;
+// Below ~700px, this project's header wraps onto two lines (brand on
+// top, nav icons below), so the avatar trigger often isn't flush
+// against the right edge of the screen the way the dropdown's
+// default CSS (position:absolute; right:0 relative to the trigger)
+// assumes — which can push the dropdown left of the viewport entirely.
+// This clamps it back on-screen with a fixed position, computed at
+// open-time, only when that assumption might not hold. Desktop/tablet
+// (where the header stays single-row and the trigger IS flush right)
+// are untouched — the default CSS positioning already works there.
+function repositionDropdownIfNarrow(trigger, dropdown) {
+  if (window.innerWidth > 700) {
+    dropdown.style.position = "";
+    dropdown.style.left = "";
+    dropdown.style.top = "";
+    dropdown.style.right = "";
+    return;
+  }
+  const triggerRect = trigger.getBoundingClientRect();
+  const ddWidth = dropdown.offsetWidth || 210;
+  const margin = 10;
+  let left = triggerRect.right - ddWidth;
+  left = Math.max(margin, Math.min(left, window.innerWidth - ddWidth - margin));
+  dropdown.style.position = "fixed";
+  dropdown.style.left = left + "px";
+  dropdown.style.top = (triggerRect.bottom + 8) + "px";
+  dropdown.style.right = "auto";
+  dropdown.style.marginTop = "0";
 }
 
 async function initAuthHeader(user) {
@@ -159,15 +164,17 @@ async function initAuthHeader(user) {
   trigger.innerHTML = "";
   trigger.appendChild(buildAvatarEl(displayName, avatarUrl));
 
-  // ---- Enriched dropdown content (name/email/plan/credits header,
+  // ---- Dropdown content: name/email, Profile, Settings, Logout.
   // existing #logoutBtn preserved so logoutStudent() wiring below
-  // still finds and works with the same element) ----
+  // still finds and works with the same element. ----
   dropdown.classList.add("avatar-dropdown");
-  dropdown.innerHTML = accountDropdownHtml(displayName, user.email, "ddCredits", "ddPlansList", "logoutBtn");
+  dropdown.innerHTML = accountDropdownHtml(displayName, user.email, "logoutBtn");
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
+    const opening = !dropdown.classList.contains("open");
     dropdown.classList.toggle("open");
+    if (opening) repositionDropdownIfNarrow(trigger, dropdown);
   });
   document.addEventListener("click", (e) => {
     if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
@@ -176,44 +183,15 @@ async function initAuthHeader(user) {
   });
   document.getElementById("logoutBtn").addEventListener("click", logoutStudent);
 
-  // ---- Optional second account menu: the sidebar profile button on
-  // migrated pages (dashboard.html, settings.html, help-support.html).
-  // Guarded — pages without these IDs (everything not yet migrated
-  // to the new app-shell sidebar) are completely unaffected. Simpler
-  // content than the header version (just name/email/Logout — no
-  // credits/plans, which already have their own dashboard cards),
-  // with its own DOM nodes/IDs so the two never collide, and its own
-  // click-to-toggle (this trigger's wrapper is NOT .user-menu, so
-  // the header's CSS hover-to-open rule doesn't apply here — see
-  // app-shell.css for why that's deliberate).
-  const sidebarTrigger = document.getElementById("sidebarUserMenuTrigger");
-  const sidebarDropdown = document.getElementById("sidebarUserMenuDropdown");
-  if (sidebarTrigger && sidebarDropdown) {
-    sidebarDropdown.classList.add("avatar-dropdown", "avatar-dropdown-simple");
-    sidebarDropdown.innerHTML = simpleAccountDropdownHtml(displayName, user.email, "sidebarDropdownLogoutBtn");
-
-    sidebarTrigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      sidebarDropdown.classList.toggle("open");
-    });
-    document.addEventListener("click", (e) => {
-      if (!sidebarDropdown.contains(e.target) && !sidebarTrigger.contains(e.target)) {
-        sidebarDropdown.classList.remove("open");
-      }
-    });
-    const sidebarDropdownLogoutBtn = document.getElementById("sidebarDropdownLogoutBtn");
-    if (sidebarDropdownLogoutBtn) sidebarDropdownLogoutBtn.addEventListener("click", logoutStudent);
-  }
-
-  // ---- Populate plans + credits (used by the header dropdown and
-  // the mobile sidebar) ----
+  // ---- Credits/active-passes are still fetched here (not shown in
+  // the dropdown anymore) because the top-bar credit badge and the
+  // legacy mobile hamburger sidebar (buildMobileSidebar, used on
+  // pages not yet migrated to the app-shell layout) both still need
+  // them. ----
   const [activePasses, creditsTotal] = await Promise.all([
     fetchActivePasses(user.id),
     fetchTotalCredits(user.id)
   ]);
-  renderDropdownPlans(activePasses);
-  const ddCredits = document.getElementById("ddCredits");
-  if (ddCredits) { ddCredits.textContent = creditsTotal; ddCredits.title = String(creditsTotal); }
 
   // Existing top-bar credit badge (🪙 N), if this page has one —
   // unchanged from before, just reuses the total already fetched.
