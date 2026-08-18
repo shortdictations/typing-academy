@@ -288,7 +288,7 @@ a{ color: inherit; }
 }
 .avatar-btn img{ width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.user-menu-dropdown.avatar-dropdown{ min-width: 270px; }
+.user-menu-dropdown.avatar-dropdown{ min-width: 210px; }
 .avatar-dropdown-header{
   padding: 14px 16px 12px;
   background: var(--paper);
