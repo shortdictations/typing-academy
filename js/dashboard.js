@@ -16,42 +16,62 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   showStudentName(user);
   showOnboardingWelcomeName(user);
-  wireAppShell(user); // populates the sidebar's bottom profile block + Log out link (js/app-shell.js)
+
+  // Every section below is independently guarded: this page has
+  // several unrelated widgets (sidebar profile, target WPM, pass/
+  // credits card, chart, recent tests), and a problem in any one of
+  // them should never silently prevent the others from rendering —
+  // which is exactly what an unguarded exception earlier in this
+  // function used to do, since everything after it is sequential.
+  try {
+    wireAppShell(user); // populates the sidebar's bottom profile block + Log out link (js/app-shell.js)
+  } catch (err) {
+    console.error("wireAppShell failed:", err);
+  }
 
   // Onboarding / "Welcome back" must appear as soon as possible after
   // login — checked and shown BEFORE the (slower) dashboard stats
   // fetch below, not after, so there's no perceptible delay between
   // logging in and seeing the welcome slides.
-  const onboardingCompleted = await initTargetWpm(user.id);
+  let onboardingCompleted = false;
+  try {
+    onboardingCompleted = await initTargetWpm(user.id);
+  } catch (err) {
+    console.error("initTargetWpm failed:", err);
+  }
   maybeShowWelcomeBack(user, onboardingCompleted);
 
   showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
   initAnnouncementTicker("announcementBoard", "dashboard"); // not awaited — independent of everything else on the page
-  renderPassCreditsCard(user); // not awaited — independent card, uses the same fetchActivePasses/fetchTotalCredits helpers as the header dropdown (js/auth.js)
+  renderPassCreditsCard(user); // not awaited — independent card, uses the same fetchActivePasses/fetchTotalCredits helpers as the header dropdown (js/auth.js); internally guarded too, see below
 
-  const { data: results, error } = await supabaseClient
-    .from("mock_test_results")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  try {
+    const { data: results, error } = await supabaseClient
+      .from("mock_test_results")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-  currentAvgWpm = renderSummary(results);
-  allResults = results; // kept so the Overview period dropdown can re-filter without a second fetch
-  renderOverviewChart(currentPeriodDays);
-  renderRecentTests(results);
-  renderTargetWpmCard(); // re-render the Target WPM card now that the real average is known
+    currentAvgWpm = renderSummary(results);
+    allResults = results; // kept so the Overview period dropdown can re-filter without a second fetch
+    renderOverviewChart(currentPeriodDays);
+    renderRecentTests(results);
+    renderTargetWpmCard(); // re-render the Target WPM card now that the real average is known
 
-  const periodSelect = document.getElementById("overviewPeriodSelect");
-  if (periodSelect) {
-    periodSelect.addEventListener("change", () => {
-      currentPeriodDays = periodSelect.value === "all" ? null : parseInt(periodSelect.value, 10);
-      renderOverviewChart(currentPeriodDays);
-    });
+    const periodSelect = document.getElementById("overviewPeriodSelect");
+    if (periodSelect) {
+      periodSelect.addEventListener("change", () => {
+        currentPeriodDays = periodSelect.value === "all" ? null : parseInt(periodSelect.value, 10);
+        renderOverviewChart(currentPeriodDays);
+      });
+    }
+  } catch (err) {
+    console.error("Could not load dashboard stats/chart/recent tests:", err);
   }
 });
 
@@ -133,7 +153,20 @@ async function initTargetWpm(userId) {
   currentTargetWpm = data ? data.target_wpm : null;
   renderTargetWpmCard();
 
-  document.getElementById("changeTargetBtn").addEventListener("click", () => openTargetModal(false));
+  // Guarded: previously an unguarded getElementById(...).addEventListener
+  // here meant ANY problem reaching this line (a missing element, a
+  // preferences-fetch hiccup) threw and aborted the whole awaited
+  // initTargetWpm() call in DOMContentLoaded — which silently prevented
+  // everything after it (the Active Pass/Credits card, Overview chart,
+  // Recent Tests) from ever running too. Isolating it here means a
+  // problem with the target button can't take the rest of the
+  // dashboard down with it.
+  const changeBtn = document.getElementById("changeTargetBtn");
+  if (changeBtn) {
+    changeBtn.addEventListener("click", () => openTargetModal(false));
+  } else {
+    console.error("changeTargetBtn not found — Set Target/Change button will not respond.");
+  }
   wireOnboardingControls(userId);
 
   // No row at all, or a row that was never completed -> first-login
@@ -416,6 +449,13 @@ function renderTargetWpmCard() {
   const el = document.getElementById("statTargetWpm");
   const changeBtn = document.getElementById("changeTargetBtn");
   const progressCard = document.getElementById("targetProgressCard");
+  // Guarded: this runs at multiple points (on load, after saving a
+  // new target), so a missing element here shouldn't be able to
+  // throw and take out whatever called it.
+  if (!el || !changeBtn || !progressCard) {
+    console.error("Target WPM card elements missing — skipping render.");
+    return;
+  }
 
   if (currentTargetWpm) {
     el.textContent = currentTargetWpm; // icon is now its own separate element in the card, not inline with the number
@@ -657,15 +697,44 @@ async function renderPassCreditsCard(user) {
   const card = document.getElementById("passCreditsCard");
   if (!card) return;
 
-  const [activePasses, creditsTotal, creditsExpiry] = await Promise.all([
+  const passBlock = document.getElementById("passBlock");
+  const creditsBlock = document.getElementById("creditsBlock");
+
+  try {
+    await renderPassCreditsCardInner(user, passBlock, creditsBlock);
+  } catch (err) {
+    console.error("renderPassCreditsCard failed:", err);
+    if (passBlock) passBlock.innerHTML = '<div class="app-pc-sub">Could not load — please refresh.</div>';
+    if (creditsBlock) creditsBlock.innerHTML = "";
+  }
+}
+
+async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
+  // Promise.allSettled instead of Promise.all: previously, if ANY one
+  // of these three fetches rejected (a network blip, an RLS/schema
+  // surprise on wallet_credits, etc.), the whole Promise.all rejected
+  // and BOTH blocks were left permanently blank — the entire card
+  // just silently never rendered. Handling each result independently
+  // means one failing fetch degrades gracefully instead of blanking
+  // out data that successfully loaded.
+  const [passResult, creditsResult, expiryResult] = await Promise.allSettled([
     fetchActivePasses(user.id),
     fetchTotalCredits(user.id),
     fetchNearestCreditExpiry(user.id)
   ]);
 
-  const passBlock = document.getElementById("passBlock");
-  if (activePasses.length === 0) {
-    passBlock.innerHTML =
+  if (passResult.status === "rejected") console.error("Could not load active pass:", passResult.reason);
+  if (creditsResult.status === "rejected") console.error("Could not load credits total:", creditsResult.reason);
+  if (expiryResult.status === "rejected") console.error("Could not load credits expiry:", expiryResult.reason);
+
+  const activePasses = passResult.status === "fulfilled" ? passResult.value : [];
+  const creditsTotal = creditsResult.status === "fulfilled" ? creditsResult.value : "—";
+  const creditsExpiry = expiryResult.status === "fulfilled" ? expiryResult.value : null;
+
+  if (passResult.status === "rejected") {
+    if (passBlock) passBlock.innerHTML = '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div><div><div class="app-pc-label">Active Pass</div><div class="app-pc-sub">Could not load — please refresh.</div></div>';
+  } else if (activePasses.length === 0) {
+    if (passBlock) passBlock.innerHTML =
       '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
       '<div><div class="app-pc-label">Active Pass</div>' +
       '<div class="app-pc-title">No active pass</div>' +
@@ -675,7 +744,7 @@ async function renderPassCreditsCard(user) {
     const daysLeft = Math.max(0, Math.ceil((new Date(p.expiresAt) - new Date()) / (24 * 60 * 60 * 1000)));
     const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     const moreNote = activePasses.length > 1 ? ' <a class="app-pc-cta" href="subscriptions.html">+' + (activePasses.length - 1) + ' more</a>' : "";
-    passBlock.innerHTML =
+    if (passBlock) passBlock.innerHTML =
       '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
       '<div><div class="app-pc-label">Active Pass</div>' +
       '<div class="app-pc-title">' + escapeHtmlDash(p.label) + '</div>' +
@@ -683,11 +752,10 @@ async function renderPassCreditsCard(user) {
       '<span class="app-pc-pill tint-green">' + daysLeft + ' days left</span>' + moreNote + '</div>';
   }
 
-  const creditsBlock = document.getElementById("creditsBlock");
   const creditsValidity = creditsExpiry
     ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
     : "—";
-  creditsBlock.innerHTML =
+  if (creditsBlock) creditsBlock.innerHTML =
     '<div class="app-pc-icon tint-purple">' + passCreditsIcon("credits") + '</div>' +
     '<div><div class="app-pc-label">Remaining Credits</div>' +
     '<div class="app-pc-title">' + escapeHtmlDash(String(creditsTotal)) + '</div>' +
