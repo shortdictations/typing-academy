@@ -279,44 +279,7 @@ body.app-shell .dash-tile-blue{ background: var(--ts-blue-tint); color: var(--ts
 body.app-shell .dash-tile-green{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .dash-tile-orange{ background: var(--ts-orange-tint); color: var(--ts-orange); }
 body.app-shell .dash-tile-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
-
-/* ---------- Dashboard: Active Pass / Remaining Credits cards ---------- */
-/* Two independent cards now (were one combined card with a divider) —
-   each is just another item in .dash-stats-grid, so it gets the same
-   card chrome as the stat tiles plus its own icon+text row layout. */
-body.app-shell .app-pc-card{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: var(--ts-radius-lg);
-  border-color: var(--ts-border);
-  box-shadow: none;
-  padding: 14px;
-  min-width: 0;
-}
-body.app-shell .app-pc-card > div{ min-width: 0; }
-body.app-shell .app-pc-icon{
-  width: 40px; height: 40px; flex: none;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-}
-body.app-shell .app-pc-icon svg{ width: 19px; height: 19px; }
-body.app-shell .app-pc-icon.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
-body.app-shell .app-pc-icon.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
-body.app-shell .app-pc-label{ font-size: 0.72rem; color: var(--ts-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
-body.app-shell .app-pc-title{ font-weight: 800; font-size: 1rem; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-body.app-shell .app-pc-sub{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-body.app-shell .app-pc-pill{
-  display: inline-block;
-  margin-top: 5px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: 999px;
-}
-body.app-shell .app-pc-pill.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
-body.app-shell .app-pc-pill.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
-body.app-shell .app-pc-cta{ font-size: 0.82rem; color: var(--ts-blue); font-weight: 700; text-decoration: none; }
+body.app-shell .dash-stat-text .dash-change-link{ color: var(--ts-blue); font-size: 0.64rem; margin-top: 0; }
 
 /* ---------- Dashboard: Target WPM card ---------- */
 body.app-shell .dash-target-card{ margin-top: 14px; box-shadow: none; }
@@ -515,23 +478,11 @@ body.app-shell .app-help-mail-note{
   body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
   body.app-shell .dash-stat-text .lab{ font-size: 0.64rem; line-height: 1.25; }
 
-  /* Active Pass and Remaining Credits: two of their own scroll-strip
-     items now (were one wider combined item) — sized a bit wider
-     than the plain stat cards since they carry more text ("Valid
-     till 14 Oct 2026", a pill), but each still fully independent. */
-  body.app-shell .app-pc-card{
-    flex: 0 0 168px;
-    scroll-snap-align: start;
-    padding: 10px;
-    gap: 8px;
-  }
-  body.app-shell .app-pc-icon{ width: 28px; height: 28px; }
-  body.app-shell .app-pc-icon svg{ width: 13px; height: 13px; }
-  body.app-shell .app-pc-label{ font-size: 0.6rem; }
-  body.app-shell .app-pc-title{ font-size: 0.82rem; }
-  body.app-shell .app-pc-sub{ font-size: 0.66rem; }
-  body.app-shell .app-pc-pill{ font-size: 0.58rem; padding: 1px 7px; margin-top: 3px; }
-  body.app-shell .app-pc-cta{ font-size: 0.7rem; }
+  /* Active Pass and Remaining Credits use this exact same
+     .dash-stat-card rule above (same class, not a separate one) —
+     so they automatically get the identical 118px scroll-strip width
+     as Tests Completed / Avg WPM / Avg Accuracy, with no risk of the
+     two ever drifting out of sync with each other. */
 
   /* Recent Tests: more compact rows */
   body.app-shell .app-recent-card{ padding: 14px 14px; }
