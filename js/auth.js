@@ -98,6 +98,53 @@ async function requireLogin() {
 // and attached to the existing #userMenuTrigger/#userMenuDropdown
 // elements (or, for the sidebar, appended to <body>) — no HTML
 // file needed any markup changes for this.
+// Builds the account-dropdown content (name/email header, credits,
+// active plans, Logout) used by the header avatar dropdown —
+// parameterized IDs so it stays reusable if a second full instance
+// is ever needed elsewhere.
+function accountDropdownHtml(displayName, email, creditsElId, plansListId, logoutBtnId) {
+  return `
+    <div class="avatar-dropdown-header">
+      <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
+      <div class="avatar-dropdown-email">${escapeHtmlAuth(email)}</div>
+    </div>
+    <div class="avatar-dropdown-credits">
+      <div class="credits-card-top">
+        <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
+        <span class="credits-card-value">&#129689; <span id="${creditsElId}">—</span></span>
+      </div>
+      <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
+    </div>
+    <div class="avatar-dropdown-plans">
+      <a class="avatar-dropdown-plans-heading" href="subscriptions.html">
+        <span>Active Plans</span>
+        <span class="avatar-menu-icon">&#127891;</span>
+      </a>
+      <div class="avatar-dropdown-plans-list" id="${plansListId}">—</div>
+    </div>
+    <div class="avatar-dropdown-divider"></div>
+    <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
+      <span class="avatar-menu-icon">&#8674;</span>
+      <span class="avatar-menu-label">Logout</span>
+    </button>`;
+}
+
+// Simpler variant for the sidebar profile dropdown — just name,
+// email, and Logout (no credits/plans, which are already shown in
+// their own dashboard cards and in the header dropdown).
+function simpleAccountDropdownHtml(displayName, email, logoutBtnId) {
+  return `
+    <div class="avatar-dropdown-header">
+      <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
+      <div class="avatar-dropdown-email">${escapeHtmlAuth(email)}</div>
+    </div>
+    <div class="avatar-dropdown-divider"></div>
+    <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
+      <span class="avatar-menu-icon">&#8674;</span>
+      <span class="avatar-menu-label">Logout</span>
+    </button>`;
+}
+
 async function initAuthHeader(user) {
   const trigger = document.getElementById("userMenuTrigger");
   const dropdown = document.getElementById("userMenuDropdown");
@@ -116,30 +163,7 @@ async function initAuthHeader(user) {
   // existing #logoutBtn preserved so logoutStudent() wiring below
   // still finds and works with the same element) ----
   dropdown.classList.add("avatar-dropdown");
-  dropdown.innerHTML = `
-    <div class="avatar-dropdown-header">
-      <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
-      <div class="avatar-dropdown-email">${escapeHtmlAuth(user.email)}</div>
-    </div>
-    <div class="avatar-dropdown-credits">
-      <div class="credits-card-top">
-        <span class="credits-card-label">Credits <span class="info-dot" title="Free + purchased credits available for Credit-Based Tests">&#9432;</span></span>
-        <span class="credits-card-value">&#129689; <span id="ddCredits">—</span></span>
-      </div>
-      <a class="credits-buy-btn" href="subscriptions.html">Buy Credits &#10024;</a>
-    </div>
-    <div class="avatar-dropdown-plans">
-      <a class="avatar-dropdown-plans-heading" href="subscriptions.html">
-        <span>Active Plans</span>
-        <span class="avatar-menu-icon">&#127891;</span>
-      </a>
-      <div class="avatar-dropdown-plans-list" id="ddPlansList">—</div>
-    </div>
-    <div class="avatar-dropdown-divider"></div>
-    <button class="avatar-menu-row avatar-menu-logout" id="logoutBtn" type="button">
-      <span class="avatar-menu-icon">&#8674;</span>
-      <span class="avatar-menu-label">Logout</span>
-    </button>`;
+  dropdown.innerHTML = accountDropdownHtml(displayName, user.email, "ddCredits", "ddPlansList", "logoutBtn");
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -152,8 +176,37 @@ async function initAuthHeader(user) {
   });
   document.getElementById("logoutBtn").addEventListener("click", logoutStudent);
 
-  // ---- Populate plans + credits (used by both the dropdown and,
-  // if built, the mobile sidebar) ----
+  // ---- Optional second account menu: the sidebar profile button on
+  // migrated pages (dashboard.html, settings.html, help-support.html).
+  // Guarded — pages without these IDs (everything not yet migrated
+  // to the new app-shell sidebar) are completely unaffected. Simpler
+  // content than the header version (just name/email/Logout — no
+  // credits/plans, which already have their own dashboard cards),
+  // with its own DOM nodes/IDs so the two never collide, and its own
+  // click-to-toggle (this trigger's wrapper is NOT .user-menu, so
+  // the header's CSS hover-to-open rule doesn't apply here — see
+  // app-shell.css for why that's deliberate).
+  const sidebarTrigger = document.getElementById("sidebarUserMenuTrigger");
+  const sidebarDropdown = document.getElementById("sidebarUserMenuDropdown");
+  if (sidebarTrigger && sidebarDropdown) {
+    sidebarDropdown.classList.add("avatar-dropdown", "avatar-dropdown-simple");
+    sidebarDropdown.innerHTML = simpleAccountDropdownHtml(displayName, user.email, "sidebarDropdownLogoutBtn");
+
+    sidebarTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      sidebarDropdown.classList.toggle("open");
+    });
+    document.addEventListener("click", (e) => {
+      if (!sidebarDropdown.contains(e.target) && !sidebarTrigger.contains(e.target)) {
+        sidebarDropdown.classList.remove("open");
+      }
+    });
+    const sidebarDropdownLogoutBtn = document.getElementById("sidebarDropdownLogoutBtn");
+    if (sidebarDropdownLogoutBtn) sidebarDropdownLogoutBtn.addEventListener("click", logoutStudent);
+  }
+
+  // ---- Populate plans + credits (used by the header dropdown and
+  // the mobile sidebar) ----
   const [activePasses, creditsTotal] = await Promise.all([
     fetchActivePasses(user.id),
     fetchTotalCredits(user.id)
