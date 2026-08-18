@@ -10,47 +10,13 @@
    the retired practice system and is no longer read here at all.
    ============================================================ */
 
-// Mobile-only swipe carousel for the two chart cards: keeps the
-// pagination dots in sync with whichever slide is actually visible
-// (via IntersectionObserver, so it works for swipe, trackpad, or a
-// dot click alike), and makes the dots themselves clickable as a
-// convenience — touch/swipe remains the primary interaction, this
-// is purely optional extra navigation. Does nothing on desktop,
-// where the CSS grid layout has no scroll container to observe.
-function initChartCarouselDots() {
-  const row = document.getElementById("dashboardChartsRow");
-  const dotsWrap = document.getElementById("chartCarouselDots");
-  if (!row || !dotsWrap) return;
-
-  const slides = Array.from(row.querySelectorAll(".chart-card"));
-  const dots = Array.from(dotsWrap.querySelectorAll(".dash-dot"));
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-        const index = slides.indexOf(entry.target);
-        dots.forEach((d, i) => d.classList.toggle("active", i === index));
-      }
-    });
-  }, { root: row, threshold: [0.6] });
-
-  slides.forEach(slide => observer.observe(slide));
-
-  dots.forEach(dot => {
-    dot.addEventListener("click", () => {
-      const index = parseInt(dot.dataset.index, 10);
-      const target = slides[index];
-      if (target) target.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-    });
-  });
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin(); // redirects to login.html if not logged in
   if (!user) return;
 
   showStudentName(user);
   showOnboardingWelcomeName(user);
+  wireAppShell(user); // populates the sidebar's bottom profile block + Log out link (js/app-shell.js)
 
   // Onboarding / "Welcome back" must appear as soon as possible after
   // login — checked and shown BEFORE the (slower) dashboard stats
@@ -60,8 +26,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   maybeShowWelcomeBack(user, onboardingCompleted);
 
   showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
-  initChartCarouselDots(); // independent of results data — safe to wire up immediately
   initAnnouncementTicker("announcementBoard", "dashboard"); // not awaited — independent of everything else on the page
+  renderPassCreditsCard(user); // not awaited — independent card, uses the same fetchActivePasses/fetchTotalCredits helpers as the header dropdown (js/auth.js)
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
@@ -75,8 +41,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   currentAvgWpm = renderSummary(results);
-  renderCharts(results);
+  allResults = results; // kept so the Overview period dropdown can re-filter without a second fetch
+  renderOverviewChart(currentPeriodDays);
+  renderRecentTests(results);
   renderTargetWpmCard(); // re-render the Target WPM card now that the real average is known
+
+  const periodSelect = document.getElementById("overviewPeriodSelect");
+  if (periodSelect) {
+    periodSelect.addEventListener("change", () => {
+      currentPeriodDays = periodSelect.value === "all" ? null : parseInt(periodSelect.value, 10);
+      renderOverviewChart(currentPeriodDays);
+    });
+  }
 });
 
 /* ---------------- Returning-user "Welcome back" — session-scoped only ----------------
@@ -503,41 +479,62 @@ function renderSummary(results) {
   document.getElementById("statAvgWpm").textContent = avgWpm;
   document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
 
+  // "Last Test" is no longer shown as its own tile (replaced in the
+  // grid by the Active Pass/Credits card), but the element is guarded
+  // rather than removed outright — harmless if a future layout brings
+  // it back, and this line can't silently throw if it doesn't exist.
   const lastTestEl = document.getElementById("statLastTest");
-  if (testsTaken) {
-    // results is ordered newest-first, so index 0 is the most recent test
-    const lastDate = new Date(results[0].created_at);
-    lastTestEl.textContent = lastDate.toLocaleDateString("en-IN", {
-      day: "2-digit", month: "short", year: "numeric"
-    });
-  } else {
-    lastTestEl.textContent = "—";
+  if (lastTestEl) {
+    if (testsTaken) {
+      // results is ordered newest-first, so index 0 is the most recent test
+      const lastDate = new Date(results[0].created_at);
+      lastTestEl.textContent = lastDate.toLocaleDateString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric"
+      });
+    } else {
+      lastTestEl.textContent = "—";
+    }
   }
 
   return avgWpm; // read by DOMContentLoaded into currentAvgWpm, for the Target WPM card's Actual-vs-Target comparison
 }
 
-// Draws the WPM (Net WPM) and Accuracy line charts using Chart.js,
-// oldest test first (left) to most recent (right). Same data source
-// and calculation as before — only the presentation changed: fixed
-// compact height (maintainAspectRatio:false) and a dedicated,
-// non-alarming single-point state instead of a mostly-empty chart.
-function renderCharts(results) {
-  const wpmNote = document.getElementById("wpmChartNote");
-  const accuracyNote = document.getElementById("accuracyChartNote");
-  wpmNote.style.display = "none";
-  accuracyNote.style.display = "none";
+/* ---------------- Overview chart: combined WPM + Accuracy ----------------
+   Same underlying data/calculation as before (net_wpm, accuracy,
+   created_at from mock_test_results) — now drawn as ONE chart with
+   two datasets on dual Y axes (WPM left, Accuracy % right), plus a
+   period filter (Last 7 Days / Last 30 Days / All Time) that
+   re-slices the already-fetched results client-side, no new fetch. */
 
-  if (results.length === 0) {
-    document.getElementById("wpmChart").style.display = "none";
-    document.getElementById("accuracyChart").style.display = "none";
-    document.getElementById("wpmChartEmpty").style.display = "block";
-    document.getElementById("accuracyChartEmpty").style.display = "block";
-    return;
+let allResults = [];
+let currentPeriodDays = 7;
+let overviewChartInstance = null;
+
+function renderOverviewChart(periodDays) {
+  const note = document.getElementById("overviewChartNote");
+  const emptyEl = document.getElementById("overviewChartEmpty");
+  const canvas = document.getElementById("overviewChart");
+  if (note) note.style.display = "none";
+
+  const now = new Date();
+  const filtered = periodDays
+    ? allResults.filter(r => (now - new Date(r.created_at)) <= periodDays * 24 * 60 * 60 * 1000)
+    : allResults;
+
+  if (overviewChartInstance) {
+    overviewChartInstance.destroy();
+    overviewChartInstance = null;
   }
 
-  const chronological = results.slice().reverse();
+  if (filtered.length === 0) {
+    canvas.style.display = "none";
+    if (emptyEl) emptyEl.style.display = "block";
+    return;
+  }
+  canvas.style.display = "block";
+  if (emptyEl) emptyEl.style.display = "none";
 
+  const chronological = filtered.slice().reverse();
   const labels = chronological.map(r => {
     const d = new Date(r.created_at);
     return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
@@ -548,61 +545,185 @@ function renderCharts(results) {
   // Only one real result exists — show that single point clearly
   // (not a fabricated trend line) and let the student know a trend
   // will appear once they have more.
-  const isSingleResult = results.length === 1;
-  if (isSingleResult) {
-    wpmNote.style.display = "block";
-    accuracyNote.style.display = "block";
-  }
+  const isSingleResult = filtered.length === 1;
+  if (isSingleResult && note) note.style.display = "block";
 
   const tickFont = { size: 10 };
 
-  new Chart(document.getElementById("wpmChart"), {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Net WPM",
-        data: wpmValues,
-        borderColor: "#3B5BDB",
-        backgroundColor: "rgba(59,91,219,0.12)",
-        tension: 0.25,
-        fill: true,
-        pointRadius: isSingleResult ? 5 : 3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, ticks: { font: tickFont } },
-        x: { ticks: { font: tickFont } }
-      }
-    }
-  });
+  // Guarded: a slow/blocked Chart.js CDN load shouldn't take the
+  // rest of the dashboard (Recent Tests, Target card) down with it.
+  try {
+    overviewChartInstance = buildOverviewChart(canvas, labels, wpmValues, accuracyValues, isSingleResult, tickFont);
+  } catch (err) {
+    console.error("Could not render Overview chart:", err);
+    canvas.style.display = "none";
+    if (emptyEl) { emptyEl.textContent = "Could not load the chart. Please refresh the page."; emptyEl.style.display = "block"; }
+  }
+}
 
-  new Chart(document.getElementById("accuracyChart"), {
+function buildOverviewChart(canvas, labels, wpmValues, accuracyValues, isSingleResult, tickFont) {
+  return new Chart(canvas, {
     type: "line",
     data: {
       labels: labels,
-      datasets: [{
-        label: "Accuracy %",
-        data: accuracyValues,
-        borderColor: "#3E6B4F",
-        backgroundColor: "rgba(62,107,79,0.12)",
-        tension: 0.25,
-        fill: true,
-        pointRadius: isSingleResult ? 5 : 3
-      }]
+      datasets: [
+        {
+          label: "Avg. WPM",
+          data: wpmValues,
+          borderColor: "#2F5FEC",
+          backgroundColor: "rgba(47,95,236,0.10)",
+          tension: 0.3,
+          fill: true,
+          pointRadius: isSingleResult ? 5 : 3,
+          yAxisID: "yWpm"
+        },
+        {
+          label: "Avg. Accuracy",
+          data: accuracyValues,
+          borderColor: "#159A48",
+          backgroundColor: "rgba(21,154,72,0.08)",
+          tension: 0.3,
+          fill: true,
+          pointRadius: isSingleResult ? 5 : 3,
+          yAxisID: "yAccuracy"
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false } }, // legend is drawn in HTML above the chart, matching the reference design
       scales: {
-        y: { beginAtZero: true, max: 100, ticks: { font: tickFont } },
+        yWpm: { type: "linear", position: "left", beginAtZero: true, ticks: { font: tickFont } },
+        yAccuracy: { type: "linear", position: "right", beginAtZero: true, max: 100, grid: { drawOnChartArea: false }, ticks: { font: tickFont } },
         x: { ticks: { font: tickFont } }
       }
     }
   });
+}
+
+/* ---------------- Recent Tests table ----------------
+   Reuses the SAME results array already fetched for the stats/chart
+   above (mock_test_results) — no second query. Shows the 5 most
+   recent (results is already ordered newest-first). Field names
+   (mock_name, category, net_wpm, accuracy, created_at) match the
+   ones mock-history.js already reads from this table. */
+function renderRecentTests(results) {
+  const body = document.getElementById("recentTestsBody");
+  if (!body) return;
+
+  const recent = results.slice(0, 5);
+  if (recent.length === 0) {
+    body.innerHTML = '<div class="app-recent-empty">No mock tests completed yet. Take your first one from Start Test.</div>';
+    return;
+  }
+
+  const rowsHtml = recent.map(r => {
+    const dateStr = new Date(r.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    const categoryRaw = (r.category || "-").toString();
+    const categoryLabel = categoryRaw.toUpperCase() === "SSC" ? "SSC" : (categoryRaw.toUpperCase() === "LEGAL" ? "Legal" : (categoryRaw.toUpperCase() === "COMBO" ? "Combo" : categoryRaw));
+    const pillClass = categoryRaw.toLowerCase();
+    return `
+      <tr>
+        <td class="app-test-name">${escapeHtmlDash(r.mock_name || "-")}</td>
+        <td><span class="app-type-pill ${pillClass}">${escapeHtmlDash(categoryLabel)}</span></td>
+        <td>${r.net_wpm}</td>
+        <td class="app-accuracy-cell">${r.accuracy}%</td>
+        <td>${dateStr}</td>
+        <td class="app-recent-chevron">&#8250;</td>
+      </tr>`;
+  }).join("");
+
+  body.innerHTML = `
+    <div class="app-recent-table-wrap">
+    <table class="app-recent-table">
+      <thead>
+        <tr><th>Test Name</th><th>Type</th><th>WPM</th><th>Accuracy</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    </div>`;
+}
+
+/* ---------------- Active Pass + Remaining Credits card ----------------
+   Reuses fetchActivePasses()/fetchTotalCredits() from js/auth.js —
+   the SAME functions that already power the header dropdown and
+   mobile sidebar, so pass/credit status is computed in exactly one
+   place. The only new query here is the credits expiry lookup below
+   (same wallet_credits table/columns fetchTotalCredits already
+   reads, just also keeping expires_at to show "days left"). */
+async function renderPassCreditsCard(user) {
+  const card = document.getElementById("passCreditsCard");
+  if (!card) return;
+
+  const [activePasses, creditsTotal, creditsExpiry] = await Promise.all([
+    fetchActivePasses(user.id),
+    fetchTotalCredits(user.id),
+    fetchNearestCreditExpiry(user.id)
+  ]);
+
+  const passBlock = document.getElementById("passBlock");
+  if (activePasses.length === 0) {
+    passBlock.innerHTML =
+      '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
+      '<div><div class="app-pc-label">Active Pass</div>' +
+      '<div class="app-pc-title">No active pass</div>' +
+      '<a class="app-pc-cta" href="subscriptions.html">Browse plans &rarr;</a></div>';
+  } else {
+    const p = activePasses[0];
+    const daysLeft = Math.max(0, Math.ceil((new Date(p.expiresAt) - new Date()) / (24 * 60 * 60 * 1000)));
+    const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    const moreNote = activePasses.length > 1 ? ' <a class="app-pc-cta" href="subscriptions.html">+' + (activePasses.length - 1) + ' more</a>' : "";
+    passBlock.innerHTML =
+      '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
+      '<div><div class="app-pc-label">Active Pass</div>' +
+      '<div class="app-pc-title">' + escapeHtmlDash(p.label) + '</div>' +
+      '<div class="app-pc-sub">Valid till ' + expiresText + '</div>' +
+      '<span class="app-pc-pill tint-green">' + daysLeft + ' days left</span>' + moreNote + '</div>';
+  }
+
+  const creditsBlock = document.getElementById("creditsBlock");
+  const creditsValidity = creditsExpiry
+    ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
+    : "—";
+  creditsBlock.innerHTML =
+    '<div class="app-pc-icon tint-purple">' + passCreditsIcon("credits") + '</div>' +
+    '<div><div class="app-pc-label">Remaining Credits</div>' +
+    '<div class="app-pc-title">' + escapeHtmlDash(String(creditsTotal)) + '</div>' +
+    '<div class="app-pc-sub">Credits Left</div>' +
+    '<span class="app-pc-pill tint-purple">Validity: ' + escapeHtmlDash(creditsValidity) + '</span></div>';
+}
+
+// Same table/columns as fetchTotalCredits() in js/auth.js — this
+// just also keeps expires_at so the card can show a "days left"
+// pill for credits, which fetchTotalCredits's plain-number return
+// doesn't carry. Read-only, same RLS, no new table.
+async function fetchNearestCreditExpiry(userId) {
+  const { data, error } = await supabaseClient
+    .from("wallet_credits")
+    .select("credits_remaining, expires_at")
+    .eq("user_id", userId);
+
+  if (error || !data) return null;
+
+  const now = new Date();
+  const live = data.filter(row => row.credits_remaining > 0 && new Date(row.expires_at) > now);
+  if (live.length === 0) return null;
+
+  return live.reduce((earliest, row) =>
+    (!earliest || new Date(row.expires_at) < new Date(earliest)) ? row.expires_at : earliest, null);
+}
+
+function passCreditsIcon(kind) {
+  if (kind === "credits") {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3a9 9 0 1 0 9 9"/><path d="M21 3v6h-6"/></svg>';
+}
+
+function escapeHtmlDash(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
 }
