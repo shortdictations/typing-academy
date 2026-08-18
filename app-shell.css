@@ -267,13 +267,6 @@ body.app-shell .dash-stats-grid{
   body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
   body.app-shell .dash-stats-grid .app-pass-credits-card{ grid-column: 1 / -1; }
 }
-@media (max-width: 560px){
-  body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
-  body.app-shell .dash-stat-card{ padding: 10px; }
-  body.app-shell .dash-stat-icon{ width: 30px; height: 30px; margin-bottom: 2px; }
-  body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
-  body.app-shell .dash-stat-text .lab{ font-size: 0.68rem; }
-}
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
 body.app-shell .dash-stat-text{ min-width: 0; }
 body.app-shell .dash-stat-text .big{ font-weight: 800; font-size: 1.3rem; }
@@ -403,6 +396,11 @@ body.app-shell .app-recent-table td{
 }
 body.app-shell .app-recent-table tr:last-child td{ border-bottom: none; }
 body.app-shell .app-recent-table a.app-recent-row{ display: contents; color: inherit; text-decoration: none; }
+body.app-shell .app-recent-row{ cursor: pointer; transition: background-color 0.12s ease; }
+body.app-shell .app-recent-row:hover,
+body.app-shell .app-recent-row:focus-visible{ background: var(--ts-blue-tint); }
+body.app-shell .app-recent-row:focus-visible{ outline: 2px solid var(--ts-blue); outline-offset: -2px; }
+body.app-shell .app-recent-row .app-recent-chevron{ font-size: 1.1rem; }
 body.app-shell .app-test-name{ font-weight: 700; }
 body.app-shell .app-type-pill{
   display: inline-block;
@@ -479,15 +477,70 @@ body.app-shell .app-help-mail-note{
   body.app-shell .app-bottom-nav{ display: block; }
   body.app-shell .app-content .page{ padding-bottom: 90px; }
   body.app-shell .letterhead-inner{ padding: 10px 16px; }
-  body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; }
-  body.app-shell .app-greeting-row .btn{ justify-content: center; }
-  body.app-shell .app-pc-divider{ display: none; width: 100%; height: 1px; }
-  body.app-shell .app-pass-credits-card{ flex-direction: column; }
-  /* app-pc-block's flex-basis:220px is a WIDTH hint for the desktop
-     side-by-side layout — once the card stacks into a column above,
-     that basis applies to height instead and forces a tall empty
-     block. Reset it here so stacked blocks size to their content. */
-  body.app-shell .app-pc-block{ flex-basis: auto; }
+  body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; gap: 10px; }
+
+  /* Compact CTA: same navy/rounded design, just shorter and smaller
+     text — this is a secondary, oft-repeated action on a small
+     screen, not a one-time hero button. */
+  body.app-shell .app-greeting-row .btn.dash-btn-primary{
+    justify-content: center;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  /* Tests Completed / Avg WPM / Avg Accuracy / Active Pass+Credits —
+     a single horizontally-scrollable strip instead of a wrapping
+     grid, so each card keeps its full layout (no squeezed/overflowing
+     text) regardless of screen width. Snap-scrolling + a hidden
+     scrollbar matches the existing chart-carousel pattern already
+     used elsewhere on this page. */
+  body.app-shell .dash-stats-grid{
+    display: flex;
+    grid-template-columns: unset;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 10px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  body.app-shell .dash-stats-grid::-webkit-scrollbar{ display: none; }
+  body.app-shell .dash-stat-card{
+    flex: 0 0 118px;
+    scroll-snap-align: start;
+    padding: 10px;
+  }
+  body.app-shell .dash-stat-icon{ width: 28px; height: 28px; margin-bottom: 4px; }
+  body.app-shell .dash-stat-icon svg{ width: 14px; height: 14px; }
+  body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
+  body.app-shell .dash-stat-text .lab{ font-size: 0.64rem; line-height: 1.25; }
+
+  /* The pass/credits card becomes its own (wider) scroll-strip item
+     instead of spanning full width below — it keeps its normal
+     side-by-side internal layout since it now gets a fixed, roomy
+     width regardless of the viewport. */
+  body.app-shell .dash-stats-grid .app-pass-credits-card{
+    grid-column: unset;
+    flex: 0 0 258px;
+    scroll-snap-align: start;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  body.app-shell .app-pc-icon{ width: 30px; height: 30px; }
+  body.app-shell .app-pc-icon svg{ width: 14px; height: 14px; }
+  body.app-shell .app-pc-label{ font-size: 0.6rem; }
+  body.app-shell .app-pc-title{ font-size: 0.82rem; }
+  body.app-shell .app-pc-sub{ font-size: 0.66rem; }
+  body.app-shell .app-pc-pill{ font-size: 0.58rem; padding: 1px 7px; margin-top: 3px; }
+  body.app-shell .app-pc-cta{ font-size: 0.7rem; }
+
+  /* Recent Tests: more compact rows */
+  body.app-shell .app-recent-card{ padding: 14px 14px; }
+  body.app-shell .app-recent-table{ font-size: 0.76rem; }
+  body.app-shell .app-recent-table th{ padding: 0 6px 8px; font-size: 0.62rem; }
+  body.app-shell .app-recent-table td{ padding: 8px 6px; }
+  body.app-shell .app-type-pill{ font-size: 0.62rem; padding: 1px 7px; }
 }
 @media (max-width: 480px){
   body.app-shell .app-content .page{ padding-left: 14px; padding-right: 14px; }
