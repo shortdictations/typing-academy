@@ -389,10 +389,153 @@ body.app-shell .error-msg{ background: var(--ts-red-tint); border-color: var(--t
 body.app-shell .success-msg{ background: var(--ts-green-tint); border-color: var(--ts-green); color: var(--ts-green); border-radius: var(--ts-radius-sm); }
 
 /* ---------- Settings page ---------- */
-body.app-shell .app-settings-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-body.app-shell .app-settings-card{ padding: 22px; }
-body.app-shell .app-settings-card h2{ font-size: 1.05rem; margin-bottom: 16px; }
-@media (max-width: 800px){ body.app-shell .app-settings-grid{ grid-template-columns: 1fr; } }
+body.app-shell .settings-section-card{ padding: 0; margin-top: 14px; overflow: hidden; }
+body.app-shell .settings-section-card:first-of-type{ margin-top: 20px; }
+body.app-shell .settings-section-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .settings-section-head h2{ font-size: 1.05rem; margin: 0; }
+body.app-shell .settings-section-icon{
+  width: 34px; height: 34px; flex: none;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .settings-section-icon svg{ width: 17px; height: 17px; }
+
+body.app-shell .settings-row{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .settings-row.settings-row-last{ border-bottom: none; }
+body.app-shell .settings-row-icon{
+  width: 38px; height: 38px; flex: none;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .settings-row-icon svg{ width: 17px; height: 17px; }
+body.app-shell .settings-row-text{ flex: 1 1 auto; min-width: 0; }
+body.app-shell .settings-row-label{ font-weight: 700; font-size: 0.92rem; color: var(--ts-text); }
+body.app-shell .settings-row-value{ font-size: 0.84rem; color: var(--ts-muted); margin-top: 1px; }
+body.app-shell .settings-row-sub{ font-size: 0.82rem; color: var(--ts-muted); margin-top: 1px; }
+
+body.app-shell .settings-row-action{
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1.5px solid var(--ts-blue);
+  color: var(--ts-blue);
+  font-weight: 700;
+  font-size: 0.82rem;
+  font-family: var(--ts-font);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+body.app-shell .settings-row-action:hover{ background: var(--ts-blue); color: #fff; }
+
+body.app-shell .settings-verified-pill{
+  flex: none;
+  display: inline-block;
+  background: var(--ts-green-tint);
+  color: var(--ts-green);
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+body.app-shell .settings-unverified-pill{ background: #FDF0E4; color: var(--ts-orange); }
+
+body.app-shell .settings-edit-row{
+  padding: 4px 22px 18px;
+  border-bottom: 1px solid var(--ts-border);
+  background: #FAFBFD;
+}
+body.app-shell .settings-edit-row:last-child{ border-bottom: none; }
+body.app-shell .settings-inline-form{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+}
+body.app-shell .settings-inline-form input{
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  font-family: var(--ts-font);
+  font-size: 0.88rem;
+  background: #fff;
+  color: var(--ts-text);
+}
+body.app-shell .settings-inline-form input:focus{
+  outline: none;
+  border-color: var(--ts-blue);
+  box-shadow: 0 0 0 3px rgba(47,95,236,0.15);
+}
+body.app-shell .settings-inline-form-stack{ flex-direction: column; align-items: stretch; }
+body.app-shell .settings-inline-form-stack input{ flex: none; }
+body.app-shell .settings-inline-form-actions{ display: flex; gap: 10px; }
+body.app-shell .settings-cancel-btn{
+  background: none;
+  border: none;
+  color: var(--ts-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: var(--ts-font);
+  cursor: pointer;
+  padding: 8px 4px;
+}
+body.app-shell .settings-cancel-btn:hover{ color: var(--ts-text); }
+
+/* ---------- Theme toggle ---------- */
+body.app-shell .theme-toggle-group{
+  flex: none;
+  display: inline-flex;
+  border: 1px solid var(--ts-border);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  background: #fff;
+}
+body.app-shell .theme-toggle-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--ts-font);
+  color: var(--ts-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+body.app-shell .theme-toggle-btn svg{ width: 14px; height: 14px; }
+body.app-shell .theme-toggle-btn:hover{ color: var(--ts-text); }
+body.app-shell .theme-toggle-btn.active{ background: var(--ts-navy); color: #fff; }
+@media (max-width: 560px){
+  body.app-shell .settings-row{ flex-wrap: wrap; }
+  body.app-shell .theme-toggle-group{ order: 1; flex: 1 1 100%; margin-top: 6px; justify-content: space-between; }
+  body.app-shell .theme-toggle-btn{ flex: 1 1 auto; justify-content: center; }
+  body.app-shell .theme-toggle-btn span{ display: none; }
+}
+
 
 /* ---------- Help & Support page ---------- */
 body.app-shell .app-help-wrap{ max-width: 640px; }
@@ -492,3 +635,96 @@ body.app-shell .app-help-mail-note{
   body.app-shell .app-content .page{ padding-left: 14px; padding-right: 14px; }
   body.app-shell .dash-stats-grid{ gap: 8px; }
 }
+
+/* ============================================================
+   Dark theme
+   ------------------------------------------------------------
+   Applied via html[data-theme="dark"], set by js/theme-init.js
+   (before first paint, on every app-shell page) and toggled live
+   by js/theme.js on the Settings page. Purely a display preference
+   — stored in localStorage only, never touches user/account data
+   or any other functionality. Scoped entirely under body.app-shell,
+   same as the rest of this file, so pages not yet migrated to this
+   layout are completely unaffected regardless of the saved choice.
+
+   This covers the major surfaces (page background, cards, sidebar,
+   text, borders, inputs, table rows, buttons, bottom nav, the
+   account dropdown, the theme toggle itself) rather than
+   overriding every single rule in this file — some low-visibility
+   details (e.g. specific hover tints) keep their light-mode color
+   and just read fine on the dark surfaces around them.
+   ============================================================ */
+html[data-theme="dark"] body.app-shell{
+  --ts-background: #0F1521;
+  --ts-text: #E8ECF4;
+  --ts-muted: #93A0B8;
+  --ts-border: #2A3346;
+  background: var(--ts-background);
+}
+html[data-theme="dark"] body.app-shell .app-sidebar{
+  background: #131A28;
+  border-right-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .app-nav-link:hover{ background: #1B2334; color: #FFFFFF; }
+html[data-theme="dark"] body.app-shell .app-nav-link.active{ background: var(--ts-blue); }
+
+html[data-theme="dark"] body.app-shell .card,
+html[data-theme="dark"] body.app-shell .dash-stat-card,
+html[data-theme="dark"] body.app-shell .app-pc-card,
+html[data-theme="dark"] body.app-shell .settings-section-card,
+html[data-theme="dark"] body.app-shell .app-overview-card,
+html[data-theme="dark"] body.app-shell .app-recent-card,
+html[data-theme="dark"] body.app-shell .dash-target-card,
+html[data-theme="dark"] body.app-shell .app-help-card,
+html[data-theme="dark"] body.app-shell .app-bottom-nav{
+  background: #171F2E;
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .app-recent-table th,
+html[data-theme="dark"] body.app-shell .app-recent-table td,
+html[data-theme="dark"] body.app-shell .settings-row,
+html[data-theme="dark"] body.app-shell .settings-section-head,
+html[data-theme="dark"] body.app-shell .settings-edit-row,
+html[data-theme="dark"] body.app-shell .app-sidebar-divider{
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .settings-edit-row{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .app-recent-row:hover,
+html[data-theme="dark"] body.app-shell .app-recent-row:focus-visible{ background: #1B2334; }
+
+html[data-theme="dark"] body.app-shell .field input,
+html[data-theme="dark"] body.app-shell .field select,
+html[data-theme="dark"] body.app-shell .field textarea,
+html[data-theme="dark"] body.app-shell .settings-row-action,
+html[data-theme="dark"] body.app-shell .settings-inline-form input,
+html[data-theme="dark"] body.app-shell .app-period-select,
+html[data-theme="dark"] body.app-shell .theme-toggle-group{
+  background: #131A28;
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .field input:focus,
+html[data-theme="dark"] body.app-shell .field select:focus,
+html[data-theme="dark"] body.app-shell .settings-inline-form input:focus{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .announcement-ticker{ background: #2A230F; color: #E8ECF4; }
+
+html[data-theme="dark"] body.app-shell .btn-ghost{ border-color: var(--ts-border); color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .app-recent-table-wrap{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .app-help-mail-note{ background: #16223A; color: #9DB6F5; }
+html[data-theme="dark"] body.app-shell .user-menu-dropdown{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .user-menu-dropdown .avatar-menu-row:hover{ background: #1B2334; }
+html[data-theme="dark"] body.app-shell .avatar-dropdown-header{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .avatar-dropdown-divider{ background: var(--ts-border); }
+html[data-theme="dark"] body.app-shell footer.site-foot{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .site-foot-line,
+html[data-theme="dark"] body.app-shell .site-foot-credit,
+html[data-theme="dark"] body.app-shell .site-foot-copyright{ color: var(--ts-muted); }
+html[data-theme="dark"] body.app-shell .dash-target-right-numbers strong{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .dash-chart-note,
+html[data-theme="dark"] body.app-shell .dash-target-right-heading,
+html[data-theme="dark"] body.app-shell .dash-target-right-numbers,
+html[data-theme="dark"] body.app-shell .dash-progress-pct,
+html[data-theme="dark"] body.app-shell .empty-state,
+html[data-theme="dark"] body.app-shell .lab{ color: var(--ts-muted); }
+html[data-theme="dark"] body.app-shell .dash-progress-track{ background: #2A3346; }
+html[data-theme="dark"] body.app-shell .dash-change-link{ color: #7C9CFF; }
