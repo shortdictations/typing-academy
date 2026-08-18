@@ -335,7 +335,7 @@ body.app-shell .dash-progress-fill{ background: linear-gradient(90deg, var(--ts-
 /* ---------- Dashboard: Overview + Recent Tests split ---------- */
 body.app-shell .app-dash-split{
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 14px;
 }
