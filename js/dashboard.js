@@ -710,7 +710,16 @@ function renderRecentTests(results) {
    mobile sidebar, so pass/credit status is computed in exactly one
    place. The only new query here is the credits expiry lookup below
    (same wallet_credits table/columns fetchTotalCredits already
-   reads, just also keeping expires_at to show "days left"). */
+   reads, just also keeping expires_at to show "days left").
+
+   Content is deliberately trimmed to the same "icon + big value +
+   one label line" shape as the other three stat tiles (Tests
+   Completed / Avg WPM / Avg Accuracy) — same markup classes
+   (dash-stat-icon / dash-stat-text / big / lab), not a parallel set
+   of classes — so all 5 cards are guaranteed identical sizing, not
+   just visually similar. Full pass/credit detail (exact valid-till
+   date, etc.) is still one click away on Pass & Credits; this card
+   is a glance, like its neighbors. */
 async function renderPassCreditsCard(user) {
   const passBlock = document.getElementById("passBlock");
   const creditsBlock = document.getElementById("creditsBlock");
@@ -720,9 +729,18 @@ async function renderPassCreditsCard(user) {
     await renderPassCreditsCardInner(user, passBlock, creditsBlock);
   } catch (err) {
     console.error("renderPassCreditsCard failed:", err);
-    if (passBlock) passBlock.innerHTML = '<div class="app-pc-sub">Could not load — please refresh.</div>';
-    if (creditsBlock) creditsBlock.innerHTML = "";
+    if (passBlock) passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
+    if (creditsBlock) creditsBlock.innerHTML = statTileHtml("dash-tile-purple", passCreditsIcon("credits"), "—", "Could not load");
   }
+}
+
+// Same icon + big-value + label structure as the plain stat tiles
+// (see the Tests Completed / Avg WPM / Avg Accuracy markup in
+// dashboard.html) — built as a helper here so Active Pass and
+// Remaining Credits can never drift from that shape.
+function statTileHtml(tileClass, iconSvg, bigHtml, labHtml) {
+  return '<div class="dash-stat-icon ' + tileClass + '">' + iconSvg + '</div>' +
+    '<div class="dash-stat-text"><div class="big">' + bigHtml + '</div><div class="lab">' + labHtml + '</div></div>';
 }
 
 async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
@@ -747,36 +765,28 @@ async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
   const creditsTotal = creditsResult.status === "fulfilled" ? creditsResult.value : "—";
   const creditsExpiry = expiryResult.status === "fulfilled" ? expiryResult.value : null;
 
-  if (passResult.status === "rejected") {
-    if (passBlock) passBlock.innerHTML = '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div><div><div class="app-pc-label">Active Pass</div><div class="app-pc-sub">Could not load — please refresh.</div></div>';
-  } else if (activePasses.length === 0) {
-    if (passBlock) passBlock.innerHTML =
-      '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
-      '<div><div class="app-pc-label">Active Pass</div>' +
-      '<div class="app-pc-title">No active pass</div>' +
-      '<a class="app-pc-cta" href="subscriptions.html">Browse plans &rarr;</a></div>';
-  } else {
-    const p = activePasses[0];
-    const daysLeft = Math.max(0, Math.ceil((new Date(p.expiresAt) - new Date()) / (24 * 60 * 60 * 1000)));
-    const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    const moreNote = activePasses.length > 1 ? ' <a class="app-pc-cta" href="subscriptions.html">+' + (activePasses.length - 1) + ' more</a>' : "";
-    if (passBlock) passBlock.innerHTML =
-      '<div class="app-pc-icon tint-green">' + passCreditsIcon("pass") + '</div>' +
-      '<div><div class="app-pc-label">Active Pass</div>' +
-      '<div class="app-pc-title">' + escapeHtmlDash(p.label) + '</div>' +
-      '<div class="app-pc-sub">Valid till ' + expiresText + '</div>' +
-      '<span class="app-pc-pill tint-green">' + daysLeft + ' days left</span>' + moreNote + '</div>';
+  if (passBlock) {
+    if (passResult.status === "rejected") {
+      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
+    } else if (activePasses.length === 0) {
+      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "No Pass", '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>');
+    } else {
+      const p = activePasses[0];
+      const daysLeft = Math.max(0, Math.ceil((new Date(p.expiresAt) - new Date()) / (24 * 60 * 60 * 1000)));
+      const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      const moreNote = activePasses.length > 1 ? " (+" + (activePasses.length - 1) + " more)" : "";
+      passBlock.title = p.label + moreNote + " — valid till " + expiresText;
+      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), escapeHtmlDash(p.label), daysLeft + " days left");
+    }
   }
 
-  const creditsValidity = creditsExpiry
-    ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
-    : "—";
-  if (creditsBlock) creditsBlock.innerHTML =
-    '<div class="app-pc-icon tint-purple">' + passCreditsIcon("credits") + '</div>' +
-    '<div><div class="app-pc-label">Remaining Credits</div>' +
-    '<div class="app-pc-title">' + escapeHtmlDash(String(creditsTotal)) + '</div>' +
-    '<div class="app-pc-sub">Credits Left</div>' +
-    '<span class="app-pc-pill tint-purple">Validity: ' + escapeHtmlDash(creditsValidity) + '</span></div>';
+  if (creditsBlock) {
+    const creditsValidity = creditsExpiry
+      ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
+      : null;
+    if (creditsValidity) creditsBlock.title = "Validity: " + creditsValidity;
+    creditsBlock.innerHTML = statTileHtml("dash-tile-purple", passCreditsIcon("credits"), escapeHtmlDash(String(creditsTotal)), "Credits Left");
+  }
 }
 
 // Same table/columns as fetchTotalCredits() in js/auth.js — this
