@@ -664,8 +664,13 @@ function renderRecentTests(results) {
     const categoryRaw = (r.category || "-").toString();
     const categoryLabel = categoryRaw.toUpperCase() === "SSC" ? "SSC" : (categoryRaw.toUpperCase() === "LEGAL" ? "Legal" : (categoryRaw.toUpperCase() === "COMBO" ? "Combo" : categoryRaw));
     const pillClass = categoryRaw.toLowerCase();
+    // data-href + delegated click below, rather than nesting an <a>
+    // inside the row — a <tr> can't validly contain one spanning
+    // multiple <td>s. There's no per-result detail page in this
+    // project, so this links to the full Mock History list (the
+    // closest real destination) rather than a fabricated one.
     return `
-      <tr>
+      <tr class="app-recent-row" data-href="mock-history.html" tabindex="0" role="link" aria-label="View ${escapeHtmlDash(r.mock_name || 'test')} in Mock History">
         <td class="app-test-name">${escapeHtmlDash(r.mock_name || "-")}</td>
         <td><span class="app-type-pill ${pillClass}">${escapeHtmlDash(categoryLabel)}</span></td>
         <td>${r.net_wpm}</td>
@@ -684,6 +689,19 @@ function renderRecentTests(results) {
       <tbody>${rowsHtml}</tbody>
     </table>
     </div>`;
+
+  // Event delegation, attached once per render — handles both click
+  // and keyboard (Enter/Space) activation for the tabindex/role=link
+  // rows above.
+  body.querySelectorAll(".app-recent-row").forEach(row => {
+    row.addEventListener("click", () => { window.location.href = row.dataset.href; });
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        window.location.href = row.dataset.href;
+      }
+    });
+  });
 }
 
 /* ---------------- Active Pass + Remaining Credits card ----------------
