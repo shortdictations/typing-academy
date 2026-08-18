@@ -712,11 +712,9 @@ function renderRecentTests(results) {
    (same wallet_credits table/columns fetchTotalCredits already
    reads, just also keeping expires_at to show "days left"). */
 async function renderPassCreditsCard(user) {
-  const card = document.getElementById("passCreditsCard");
-  if (!card) return;
-
   const passBlock = document.getElementById("passBlock");
   const creditsBlock = document.getElementById("creditsBlock");
+  if (!passBlock && !creditsBlock) return;
 
   try {
     await renderPassCreditsCardInner(user, passBlock, creditsBlock);
