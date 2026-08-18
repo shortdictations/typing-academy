@@ -255,19 +255,28 @@ body.app-shell .app-greeting-row .btn{
 }
 
 /* ---------- Dashboard: stat tiles ---------- */
-/* Root-cause fix, not just clipping: style.css's base rule forces a
-   hard 4-column grid from 700px up, sized for the FULL page width.
-   With the sidebar now eating ~240px on this shell, that 4-column
-   grid gets too narrow at tablet widths and a stat card's content
-   (e.g. the "16 Aug 2026" date) forces itself wider than its track.
-   auto-fit + minmax lets cards wrap to 2x2 whenever there isn't
-   genuinely enough room for 4, instead of overflowing. */
+/* 3 equal stat cards + a wider 4th column holding the Active
+   Pass/Remaining Credits card (moved into this same row/grid — see
+   markup). Falls back to letting that card take its own full-width
+   row once there isn't genuinely enough room for 4 across, rather
+   than squeezing its two internal blocks into a narrow column. */
 body.app-shell .dash-stats-grid{
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(3, 1fr) 2fr;
+}
+@media (max-width: 1100px){
+  body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
+  body.app-shell .dash-stats-grid .app-pass-credits-card{ grid-column: 1 / -1; }
+}
+@media (max-width: 560px){
+  body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
+  body.app-shell .dash-stat-card{ padding: 10px; }
+  body.app-shell .dash-stat-icon{ width: 30px; height: 30px; margin-bottom: 2px; }
+  body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
+  body.app-shell .dash-stat-text .lab{ font-size: 0.68rem; }
 }
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
 body.app-shell .dash-stat-text{ min-width: 0; }
-body.app-shell .dash-stat-text .big{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; font-size: 1.3rem; }
+body.app-shell .dash-stat-text .big{ font-weight: 800; font-size: 1.3rem; }
 body.app-shell .dash-stat-icon{ border-radius: 10px; width: 38px; height: 38px; }
 body.app-shell .dash-stat-icon svg{ width: 18px; height: 18px; }
 body.app-shell .dash-tile-blue{ background: var(--ts-blue-tint); color: var(--ts-blue); }
@@ -276,19 +285,21 @@ body.app-shell .dash-tile-orange{ background: var(--ts-orange-tint); color: var(
 body.app-shell .dash-tile-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
 
 /* ---------- Dashboard: Active Pass + Remaining Credits card ---------- */
+/* Now the 4th (wider) item inside .dash-stats-grid, not a standalone
+   block below it — no margin-top of its own. */
 body.app-shell .app-pass-credits-card{
   display: flex;
   align-items: stretch;
-  gap: 20px;
+  gap: 14px;
   padding: 18px 22px;
-  margin-top: 14px;
   flex-wrap: wrap;
 }
 body.app-shell .app-pc-block{
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex: 1 1 220px;
+  gap: 10px;
+  flex: 1 1 150px;
+  min-width: 0;
 }
 body.app-shell .app-pc-icon{
   width: 40px; height: 40px; flex: none;
@@ -298,9 +309,10 @@ body.app-shell .app-pc-icon{
 body.app-shell .app-pc-icon svg{ width: 19px; height: 19px; }
 body.app-shell .app-pc-icon.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .app-pc-icon.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .app-pc-block > div{ min-width: 0; }
 body.app-shell .app-pc-label{ font-size: 0.72rem; color: var(--ts-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
-body.app-shell .app-pc-title{ font-weight: 800; font-size: 1rem; margin-top: 1px; }
-body.app-shell .app-pc-sub{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 1px; }
+body.app-shell .app-pc-title{ font-weight: 800; font-size: 1rem; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.app-shell .app-pc-sub{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.app-shell .app-pc-pill{
   display: inline-block;
   margin-top: 5px;
@@ -320,7 +332,17 @@ body.app-shell .dash-target-icon{ background: var(--ts-blue-tint); color: var(--
 body.app-shell .dash-progress-fill{ background: linear-gradient(90deg, var(--ts-blue), #6B8CFF); }
 
 /* ---------- Dashboard: combined Overview chart ---------- */
-body.app-shell .app-overview-card{ margin-top: 14px; padding: 18px 20px; }
+/* ---------- Dashboard: Overview + Recent Tests split ---------- */
+body.app-shell .app-dash-split{
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+@media (max-width: 1000px){
+  body.app-shell .app-dash-split{ grid-template-columns: 1fr; }
+}
+body.app-shell .app-overview-card{ margin-top: 0; padding: 18px 20px; }
 body.app-shell .app-overview-head{
   display: flex;
   align-items: center;
@@ -353,7 +375,8 @@ body.app-shell .app-overview-canvas-wrap{ position: relative; height: 260px; }
 @media (max-width: 480px){ body.app-shell .app-overview-canvas-wrap{ height: 200px; } }
 
 /* ---------- Recent tests table ---------- */
-body.app-shell .app-recent-card{ margin-top: 14px; padding: 18px 20px; }
+body.app-shell .app-recent-card{ margin-top: 0; padding: 18px 20px; }
+body.app-shell .app-recent-card .app-recent-table-wrap{ overflow-x: auto; }
 body.app-shell .app-recent-head{
   display: flex;
   align-items: center;
