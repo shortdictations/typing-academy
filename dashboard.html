@@ -84,14 +84,22 @@
       Log out
     </a>
     <div class="app-sidebar-divider"></div>
-    <a class="app-sidebar-profile" href="settings.html" id="sidebarProfileLink">
-      <span id="sidebarAvatarSlot"></span>
-      <span class="app-sidebar-profile-text">
-        <span class="app-sidebar-profile-name" id="sidebarProfileName">—</span>
-        <span class="app-sidebar-profile-email" id="sidebarProfileEmail">—</span>
-      </span>
-      <span class="app-sidebar-profile-chevron" aria-hidden="true">&#9662;</span>
-    </a>
+    <div class="user-menu app-sidebar-menu">
+      <button class="app-sidebar-profile" id="sidebarUserMenuTrigger" type="button">
+        <span id="sidebarAvatarSlot"></span>
+        <span class="app-sidebar-profile-text">
+          <span class="app-sidebar-profile-name" id="sidebarProfileName">—</span>
+          <span class="app-sidebar-profile-email" id="sidebarProfileEmail">—</span>
+        </span>
+        <span class="app-sidebar-profile-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+      <!-- Populated by initAuthHeader() in js/auth.js — same
+           name/email/credits/active-plans/Logout content as the
+           header avatar dropdown, just anchored here and opening
+           upward. See initAuthHeader's "sidebarUserMenuTrigger"
+           guarded block. -->
+      <div class="user-menu-dropdown" id="sidebarUserMenuDropdown"></div>
+    </div>
   </aside>
 
   <div class="app-content">
