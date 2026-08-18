@@ -254,18 +254,21 @@ body.app-shell .app-greeting-row .btn{
   white-space: nowrap;
 }
 
-/* ---------- Dashboard: stat tiles ---------- */
-/* 3 equal stat cards + a wider 4th column holding the Active
-   Pass/Remaining Credits card (moved into this same row/grid — see
-   markup). Falls back to letting that card take its own full-width
-   row once there isn't genuinely enough room for 4 across, rather
-   than squeezing its two internal blocks into a narrow column. */
+/* ---------- Dashboard: stat + pass/credits tiles ---------- */
+/* 5 equal cards in one row: Tests Completed, Avg WPM, Avg Accuracy,
+   Active Pass, Remaining Credits — Active Pass and Remaining Credits
+   are separate cards (not one combined card), matching the other
+   three tiles. auto-fit + minmax lets them wrap to fewer per row
+   automatically at narrower widths instead of forcing a fixed column
+   count that could overflow. */
 body.app-shell .dash-stats-grid{
-  grid-template-columns: repeat(3, 1fr) 2fr;
+  grid-template-columns: repeat(5, 1fr);
 }
 @media (max-width: 1100px){
+  /* Wraps to 3 + 2 (an even split) rather than letting auto-fit
+     leave a single card alone on its own row, stretched to fill the
+     whole width. */
   body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
-  body.app-shell .dash-stats-grid .app-pass-credits-card{ grid-column: 1 / -1; }
 }
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
 body.app-shell .dash-stat-text{ min-width: 0; }
@@ -277,23 +280,21 @@ body.app-shell .dash-tile-green{ background: var(--ts-green-tint); color: var(--
 body.app-shell .dash-tile-orange{ background: var(--ts-orange-tint); color: var(--ts-orange); }
 body.app-shell .dash-tile-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
 
-/* ---------- Dashboard: Active Pass + Remaining Credits card ---------- */
-/* Now the 4th (wider) item inside .dash-stats-grid, not a standalone
-   block below it — no margin-top of its own. */
-body.app-shell .app-pass-credits-card{
-  display: flex;
-  align-items: stretch;
-  gap: 14px;
-  padding: 18px 22px;
-  flex-wrap: wrap;
-}
-body.app-shell .app-pc-block{
+/* ---------- Dashboard: Active Pass / Remaining Credits cards ---------- */
+/* Two independent cards now (were one combined card with a divider) —
+   each is just another item in .dash-stats-grid, so it gets the same
+   card chrome as the stat tiles plus its own icon+text row layout. */
+body.app-shell .app-pc-card{
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1 1 150px;
+  border-radius: var(--ts-radius-lg);
+  border-color: var(--ts-border);
+  box-shadow: none;
+  padding: 14px;
   min-width: 0;
 }
+body.app-shell .app-pc-card > div{ min-width: 0; }
 body.app-shell .app-pc-icon{
   width: 40px; height: 40px; flex: none;
   border-radius: 10px;
@@ -302,7 +303,6 @@ body.app-shell .app-pc-icon{
 body.app-shell .app-pc-icon svg{ width: 19px; height: 19px; }
 body.app-shell .app-pc-icon.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .app-pc-icon.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
-body.app-shell .app-pc-block > div{ min-width: 0; }
 body.app-shell .app-pc-label{ font-size: 0.72rem; color: var(--ts-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
 body.app-shell .app-pc-title{ font-weight: 800; font-size: 1rem; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.app-shell .app-pc-sub{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -316,7 +316,6 @@ body.app-shell .app-pc-pill{
 }
 body.app-shell .app-pc-pill.tint-green{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .app-pc-pill.tint-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
-body.app-shell .app-pc-divider{ width: 1px; background: var(--ts-border); align-self: stretch; flex: none; }
 body.app-shell .app-pc-cta{ font-size: 0.82rem; color: var(--ts-blue); font-weight: 700; text-decoration: none; }
 
 /* ---------- Dashboard: Target WPM card ---------- */
@@ -516,19 +515,18 @@ body.app-shell .app-help-mail-note{
   body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
   body.app-shell .dash-stat-text .lab{ font-size: 0.64rem; line-height: 1.25; }
 
-  /* The pass/credits card becomes its own (wider) scroll-strip item
-     instead of spanning full width below — it keeps its normal
-     side-by-side internal layout since it now gets a fixed, roomy
-     width regardless of the viewport. */
-  body.app-shell .dash-stats-grid .app-pass-credits-card{
-    grid-column: unset;
-    flex: 0 0 258px;
+  /* Active Pass and Remaining Credits: two of their own scroll-strip
+     items now (were one wider combined item) — sized a bit wider
+     than the plain stat cards since they carry more text ("Valid
+     till 14 Oct 2026", a pill), but each still fully independent. */
+  body.app-shell .app-pc-card{
+    flex: 0 0 168px;
     scroll-snap-align: start;
-    padding: 12px 14px;
-    gap: 10px;
+    padding: 10px;
+    gap: 8px;
   }
-  body.app-shell .app-pc-icon{ width: 30px; height: 30px; }
-  body.app-shell .app-pc-icon svg{ width: 14px; height: 14px; }
+  body.app-shell .app-pc-icon{ width: 28px; height: 28px; }
+  body.app-shell .app-pc-icon svg{ width: 13px; height: 13px; }
   body.app-shell .app-pc-label{ font-size: 0.6rem; }
   body.app-shell .app-pc-title{ font-size: 0.82rem; }
   body.app-shell .app-pc-sub{ font-size: 0.66rem; }

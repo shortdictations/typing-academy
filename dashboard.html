@@ -203,17 +203,13 @@
           </div>
         </div>
 
-        <!-- Active Pass + Remaining Credits — now the 4th (wider)
-             item in this same row, replacing the old separate "Last
-             Test" tile. Populated by renderPassCreditsCard() in
-             dashboard.js, which reuses the SAME
-             fetchActivePasses()/fetchTotalCredits() helpers from
+        <!-- Active Pass and Remaining Credits — two separate cards in
+             the same row as the stat tiles. Populated by
+             renderPassCreditsCard() in dashboard.js, which reuses the
+             SAME fetchActivePasses()/fetchTotalCredits() helpers from
              js/auth.js that already power the header dropdown. -->
-        <div class="card app-pass-credits-card" id="passCreditsCard">
-          <div class="app-pc-block" id="passBlock"></div>
-          <div class="app-pc-divider"></div>
-          <div class="app-pc-block" id="creditsBlock"></div>
-        </div>
+        <div class="card app-pc-card" id="passBlock"></div>
+        <div class="card app-pc-card" id="creditsBlock"></div>
       </div>
 
       <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
