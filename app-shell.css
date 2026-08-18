@@ -162,6 +162,13 @@ body.app-shell .app-sidebar-profile{
   border-radius: var(--ts-radius-md);
   text-decoration: none;
   color: var(--ts-text);
+  /* Now a <button>, not an <a> — reset UA button chrome so it keeps
+     looking exactly the same as before. */
+  background: #fff;
+  font-family: var(--ts-font);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 body.app-shell .app-sidebar-profile:hover{ background: var(--ts-blue-tint); }
 body.app-shell .app-sidebar-profile .avatar-btn{ width: 34px; height: 34px; font-size: 0.8rem; flex: none; }
@@ -169,6 +176,24 @@ body.app-shell .app-sidebar-profile-text{ min-width: 0; flex: 1 1 auto; }
 body.app-shell .app-sidebar-profile-name{ font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.app-shell .app-sidebar-profile-email{ font-size: 0.72rem; color: var(--ts-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body.app-shell .app-sidebar-profile-chevron{ color: var(--ts-muted); flex: none; }
+
+/* Account dropdown anchored to the sidebar profile button — reuses
+   .user-menu-dropdown's box styling/transitions (border, shadow,
+   fade+scale animation) from style.css, but opens UPWARD since this
+   trigger sits at the very bottom of the viewport, and is click-only
+   (this wrapper is deliberately NOT .user-menu, so the header's
+   hover-to-open rule — which needs that exact class — doesn't apply
+   here and no dropdown flashes open on a passing mouse). */
+body.app-shell .app-sidebar-menu{ position: relative; }
+body.app-shell .app-sidebar-menu .user-menu-dropdown{
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 10px;
+  left: 0;
+  right: auto;
+  transform-origin: bottom left;
+}
 
 /* ---------- Mobile bottom nav ---------- */
 body.app-shell .app-bottom-nav{
