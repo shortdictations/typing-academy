@@ -203,13 +203,20 @@
           </div>
         </div>
 
-        <!-- Active Pass and Remaining Credits — two separate cards in
-             the same row as the stat tiles. Populated by
-             renderPassCreditsCard() in dashboard.js, which reuses the
-             SAME fetchActivePasses()/fetchTotalCredits() helpers from
+        <!-- Active Pass and Remaining Credits — two more cards in the
+             SAME row, using the exact same .dash-stat-card markup
+             (not a separate "card" class) so all 5 tiles are
+             guaranteed identical sizing/styling rather than visually
+             approximating each other. (A leftover global ".card +
+             .card" margin rule was previously pushing the second of
+             these two cards down — using dash-stat-card avoids that
+             entirely, since the other 3 tiles never hit that rule
+             either.) Populated by renderPassCreditsCard() in
+             dashboard.js, which reuses the SAME
+             fetchActivePasses()/fetchTotalCredits() helpers from
              js/auth.js that already power the header dropdown. -->
-        <div class="card app-pc-card" id="passBlock"></div>
-        <div class="card app-pc-card" id="creditsBlock"></div>
+        <div class="dash-stat-card" id="passBlock"></div>
+        <div class="dash-stat-card" id="creditsBlock"></div>
       </div>
 
       <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
