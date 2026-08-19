@@ -190,22 +190,68 @@ a{ color: inherit; }
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 2px;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   outline: none;
-  border-radius: 50%; /* keeps any residual focus ring circular, not square */
+  border-radius: 999px; /* now holds avatar + name + chevron, not just a bare circle — a pill shape fits that, and still keeps any focus ring smooth */
+  transition: background-color 0.15s ease;
 }
-.user-menu-trigger:hover{ opacity: 0.85; }
+.user-menu-trigger:hover{ background: rgba(255,255,255,0.08); opacity: 1; }
 .user-menu-trigger:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
+.user-menu-name{
+  font-weight: 600;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-menu-chevron{ width: 14px; height: 14px; flex: none; opacity: 0.8; }
+
+/* Compact mode: avatar + chevron only, matching the header's
+   available width on narrower screens — same breakpoint the rest of
+   this shared header already collapses at. */
+@media (max-width: 700px){
+  .user-menu-name, .user-menu-skeleton-name{ display: none; }
+}
+
+/* Loading skeleton — shown by default in the trigger's markup before
+   JS has resolved who's logged in (a real network round-trip to
+   Supabase, not instant), so there's never a bare/broken-looking
+   dropdown arrow with nothing next to it while that's in flight.
+   initAuthHeader() replaces this with the real avatar/name/chevron
+   once it has them; if a page's script fails before that point, this
+   stays visibly "loading" rather than looking broken. */
+.user-menu-skeleton{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.user-menu-skeleton-avatar{
+  width: 34px; height: 34px; flex: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  animation: user-menu-pulse 1.4s ease-in-out infinite;
+}
+.user-menu-skeleton-name{
+  width: 70px; height: 12px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.18);
+  animation: user-menu-pulse 1.4s ease-in-out infinite;
+}
+@keyframes user-menu-pulse{
+  0%, 100%{ opacity: 1; }
+  50%{ opacity: 0.4; }
+}
+
 /* Beats ".nav-links button" (which was drawing the border/padding
    box around the avatar) via higher specificity — two classes vs
    one class + one element. This is the actual, confirmed fix. */
 .nav-links .user-menu-trigger{
   border: none;
-  padding: 0;
+  padding: 4px 8px 4px 4px;
   background: transparent;
 }
 .user-menu-dropdown{
