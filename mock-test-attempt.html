@@ -85,6 +85,16 @@
   <!-- RESULT -->
   <div class="card" id="resultCard" style="display:none;">
     <div class="result-ticket">
+      <div class="result-confetti" aria-hidden="true">
+        <span class="confetti-piece" style="left:22%; top:14%; background:#93B4F5; transform:rotate(20deg);"></span>
+        <span class="confetti-piece" style="left:29%; top:34%; background:#8DD9B0; transform:rotate(-12deg);"></span>
+        <span class="confetti-piece" style="left:20%; top:44%; background:#F5C99B; transform:rotate(40deg);"></span>
+        <span class="confetti-piece" style="left:26%; top:52%; background:#C7AEF0; transform:rotate(-25deg);"></span>
+        <span class="confetti-piece" style="right:22%; top:12%; background:#93B4F5; transform:rotate(-18deg);"></span>
+        <span class="confetti-piece" style="right:16%; top:30%; background:#F5C99B; transform:rotate(15deg);"></span>
+        <span class="confetti-piece" style="right:24%; top:40%; background:#F0A8BE; transform:rotate(30deg);"></span>
+        <span class="confetti-piece" style="right:18%; top:50%; background:#C7AEF0; transform:rotate(-10deg);"></span>
+      </div>
       <div class="seal-stamp">
         <div class="grade" id="resultGrade">A</div>
         <div class="tag">Result</div>
@@ -93,27 +103,33 @@
       <div class="result-sub" id="resultPassageName">—</div>
 
       <div class="result-grid">
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.4 6.2"/><path d="M21 12a9 9 0 0 0-2.5-6.2"/><path d="M15.5 10.5 18 8"/></svg></span>
           <div class="big" id="resultGrossWpm">0</div>
           <div class="lab">Gross WPM</div>
         </div>
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.4 6.2"/><path d="M21 12a9 9 0 0 0-2.5-6.2"/><path d="M15.5 10.5 18 8"/></svg></span>
           <div class="big" id="resultNetWpm">0</div>
           <div class="lab">Net WPM</div>
         </div>
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
           <div class="big" id="resultAccuracy">0%</div>
           <div class="lab">Accuracy</div>
         </div>
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
           <div class="big" id="resultDuration">0 min</div>
           <div class="lab">Duration</div>
         </div>
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
           <div class="big" id="resultErrors">0</div>
           <div class="lab">Mistakes</div>
         </div>
-        <div>
+        <div class="result-stat">
+          <span class="result-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 9.5 5h1L16 20"/><path d="M6 14h8"/></svg></span>
           <div class="big" id="resultTotalWords">0</div>
           <div class="lab">Total Words Typed</div>
         </div>
@@ -121,8 +137,8 @@
     </div>
 
     <div style="display:flex; gap:12px; margin-top:20px;">
-      <a class="btn" href="mock-test.html">Back to Mock Tests</a>
-      <a class="btn btn-ghost" href="mock-history.html">View Mock History</a>
+      <a class="btn" href="mock-test.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Back to Mock Tests</a>
+      <a class="btn btn-ghost result-history-btn" href="mock-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 6v12"/></svg>View Mock History</a>
     </div>
   </div>
 
