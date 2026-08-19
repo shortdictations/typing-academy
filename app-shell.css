@@ -119,8 +119,21 @@ body.app-shell .app-sidebar{
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-height: calc(100vh - 60px);
   box-sizing: border-box;
+  /* Sticky, positioned right below the sticky header (.letterhead,
+     position:sticky; top:0 — see style.css). 79px is the header's
+     actual measured rendered height (getBoundingClientRect, not the
+     60px assumed by this rule's old min-height value, which was
+     close enough for min-height's purpose but would have caused a
+     visible ~19px overlap with the header here). Desktop/tablet
+     only — this rule is already unreachable below 700px, where
+     .app-sidebar is display:none (see the existing mobile block
+     further down), so mobile is unaffected. mock-test-attempt.html
+     never includes this markup at all, so it's unaffected too. */
+  position: sticky;
+  top: 79px;
+  height: calc(100vh - 79px);
+  z-index: 10;
 }
 body.app-shell .app-content{
   flex: 1 1 auto;
@@ -682,6 +695,39 @@ body.app-shell .help-faq-item summary::before{
 body.app-shell .help-faq-item[open] summary::before{ content: "–"; }
 body.app-shell .help-faq-item p{ margin: 0 0 14px; padding-left: 16px; font-size: 0.85rem; color: var(--ts-muted); line-height: 1.6; }
 
+/* Search-match highlighting on the Quick Help cards — real content
+   matching, not a fabricated results list. See wireHelpSearch() in
+   help-support.js. */
+body.app-shell .help-topic-card{ transition: opacity 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+body.app-shell .help-topic-card-match{ border-color: var(--ts-blue); box-shadow: 0 0 0 2px rgba(47,95,236,0.15); }
+body.app-shell .help-topic-card-dim{ opacity: 0.45; }
+
+/* Article panel — opened by "View Articles", populated entirely
+   from HELP_ARTICLES in help-support.js. */
+body.app-shell .help-article-card{ padding: 26px; margin-top: 14px; }
+body.app-shell .help-article-back{
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ts-blue);
+  font-weight: 700;
+  font-size: 0.84rem;
+  font-family: var(--ts-font);
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+body.app-shell .help-article-back:hover{ text-decoration: underline; }
+body.app-shell .help-article-head{ display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+body.app-shell .help-article-head .help-topic-icon{ margin-bottom: 0; flex: none; }
+body.app-shell .help-article-head h2{ font-size: 1.25rem; margin: 0; color: var(--ts-text); }
+body.app-shell .help-article-intro{ color: var(--ts-muted); font-size: 0.92rem; line-height: 1.6; margin: 0 0 20px; padding-bottom: 20px; border-bottom: 1px solid var(--ts-border); }
+body.app-shell .help-article-section{ margin-bottom: 20px; }
+body.app-shell .help-article-section h3{ font-size: 0.98rem; color: var(--ts-navy); margin: 0 0 8px; }
+body.app-shell .help-article-section p{ font-size: 0.9rem; color: var(--ts-text); line-height: 1.65; margin: 0 0 10px; }
+body.app-shell .help-article-section ul{ margin: 0 0 10px; padding-left: 20px; }
+body.app-shell .help-article-section li{ font-size: 0.9rem; color: var(--ts-text); line-height: 1.65; margin-bottom: 6px; }
+body.app-shell .help-article-close{ margin-top: 6px; }
+
 @media (max-width: 900px){
   body.app-shell .help-topics-grid{ grid-template-columns: repeat(2, 1fr); }
 }
@@ -1065,6 +1111,10 @@ html[data-theme="dark"] body.app-shell .btn-ghost{ border-color: var(--ts-border
 html[data-theme="dark"] body.app-shell .app-recent-table-wrap{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .help-topic-card,
 html[data-theme="dark"] body.app-shell .help-faq-item{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .help-article-card{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .help-article-intro{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .help-article-section h3{ color: #9DB6F5; }
+html[data-theme="dark"] body.app-shell .help-topic-card-match{ box-shadow: 0 0 0 2px rgba(47,95,236,0.3); }
 html[data-theme="dark"] body.app-shell .help-field input,
 html[data-theme="dark"] body.app-shell .help-field textarea{
   background: #131A28;
