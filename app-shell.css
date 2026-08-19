@@ -271,6 +271,7 @@ body.app-shell .dash-tile-blue{ background: var(--ts-blue-tint); color: var(--ts
 body.app-shell .dash-tile-green{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .dash-tile-orange{ background: var(--ts-orange-tint); color: var(--ts-orange); }
 body.app-shell .dash-tile-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .dash-tile-red{ background: var(--ts-red-tint); color: var(--ts-red); }
 body.app-shell .dash-stat-text .dash-change-link{ color: var(--ts-blue); font-size: 0.64rem; margin-top: 0; }
 
 /* ---------- Dashboard: Target WPM card ---------- */
@@ -892,9 +893,37 @@ body.app-shell .result-ticket .seal-stamp{
   transform: none;
   background: var(--ts-green-tint);
 }
-body.app-shell .result-grid{ border-color: var(--ts-border); }
+body.app-shell .result-grid{ border-top: 1px dashed var(--ts-border); gap: 16px; }
 body.app-shell .result-grid .big{ font-family: var(--ts-font); color: var(--ts-text); }
 body.app-shell .result-grid .lab{ color: var(--ts-muted); }
+
+/* Individually-bordered stat cards + confetti, replacing the plain
+   number/label grid — each result stat now matches the same
+   icon-tile pattern used on the dashboard (dash-tile-* tint
+   classes), just with its own card border. */
+body.app-shell .result-stat{
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body.app-shell .result-stat-icon{
+  width: 42px; height: 42px; flex: none;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+body.app-shell .result-stat-icon svg{ width: 19px; height: 19px; }
+body.app-shell .result-stat .big{ font-size: 1.5rem; }
+body.app-shell .result-stat .lab{ margin-top: 4px; }
+
+body.app-shell .result-confetti{ position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
+body.app-shell .confetti-piece{ position: absolute; width: 10px; height: 10px; border-radius: 2px; opacity: 0.8; }
+@media (max-width: 480px){ body.app-shell .confetti-piece{ display: none; } }
+body.app-shell .result-history-btn{ color: var(--ts-blue); border-color: var(--ts-blue); }
+body.app-shell .result-history-btn:hover{ background: var(--ts-blue); color: #fff; }
 
 /* ---------- Test mode: mock-test-attempt.html ----------
    This page never renders the sidebar/bottom-nav markup at all
@@ -1079,6 +1108,7 @@ html[data-theme="dark"] body.app-shell .type-input:disabled{ background: #0F1521
 html[data-theme="dark"] body.app-shell .result-ticket{ background: #171F2E; border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .result-ticket .seal-stamp{ background: rgba(21,154,72,0.15); }
 html[data-theme="dark"] body.app-shell .result-grid{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .result-stat{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .app-recent-table th,
 html[data-theme="dark"] body.app-shell .app-recent-table td,
 html[data-theme="dark"] body.app-shell .settings-row,
@@ -1108,6 +1138,7 @@ html[data-theme="dark"] body.app-shell .settings-inline-form input:focus{ backgr
 html[data-theme="dark"] body.app-shell .announcement-ticker{ background: #2A230F; color: #E8ECF4; }
 
 html[data-theme="dark"] body.app-shell .btn-ghost{ border-color: var(--ts-border); color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .result-history-btn{ color: #7C9CFF; border-color: #7C9CFF; }
 html[data-theme="dark"] body.app-shell .app-recent-table-wrap{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .help-topic-card,
 html[data-theme="dark"] body.app-shell .help-faq-item{ border-color: var(--ts-border); }
