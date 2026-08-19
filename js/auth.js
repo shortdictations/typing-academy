@@ -85,7 +85,21 @@ async function requireLogin() {
     return null;
   }
 
-  await initAuthHeader(user);
+  // Guarded: initAuthHeader() builds the header avatar/dropdown and
+  // populates the credit badge — none of that should be able to
+  // break the actual page. Previously, if initAuthHeader threw for
+  // ANY reason (a malformed field, a Supabase query hiccup), that
+  // exception propagated out of requireLogin() itself — so on every
+  // page calling "const user = await requireLogin(); ..." at the top
+  // of its own script, the WHOLE REST of that page's setup silently
+  // never ran (search wiring, button handlers, form submission —
+  // everything after that line). A failed avatar shouldn't be able
+  // to take an entire page down with it.
+  try {
+    await initAuthHeader(user);
+  } catch (err) {
+    console.error("initAuthHeader failed — header/avatar may be incomplete, but the rest of the page will still work:", err);
+  }
   return user;
 }
 
@@ -226,6 +240,12 @@ function buildAvatarEl(displayName, avatarUrl, sizeClass) {
 }
 
 function initialsFor(name) {
+  // Guarded: name is normally always a string (full_name or email),
+  // but if it's ever missing/null this used to throw on .trim() —
+  // which, before the requireLogin() fix above, could silently take
+  // down the rest of the page with it. Now it just falls back to a
+  // generic placeholder instead.
+  if (!name || typeof name !== "string") return "?";
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
@@ -233,9 +253,10 @@ function initialsFor(name) {
 }
 
 function colorForName(name) {
+  const safeName = (name && typeof name === "string") ? name : "?";
   const palette = ["#A9803F", "#B23A2E", "#3E6B4F", "#1B2A3D", "#8F2D23"];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < safeName.length; i++) hash = safeName.charCodeAt(i) + ((hash << 5) - hash);
   return palette[Math.abs(hash) % palette.length];
 }
 
