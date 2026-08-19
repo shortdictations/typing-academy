@@ -48,6 +48,9 @@ a{ color: inherit; }
   background: var(--ink);
   color: var(--paper);
   border-bottom: 4px double var(--brass);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 .letterhead-inner{
   max-width: 1000px;
