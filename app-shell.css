@@ -690,6 +690,183 @@ body.app-shell .help-faq-item p{ margin: 0 0 14px; padding-left: 16px; font-size
   body.app-shell .help-sender-row{ flex-wrap: wrap; }
 }
 
+/* ---------- Subscriptions / Pass & Credits page ---------- */
+body.app-shell .access-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 14px; }
+body.app-shell .access-card{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px;
+}
+body.app-shell .access-card-icon{
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--ts-blue-tint);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+body.app-shell .access-card-title{ font-weight: 700; font-size: 0.92rem; margin-bottom: 8px; }
+body.app-shell .passes-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 14px; }
+body.app-shell .pass-card{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 22px;
+  position: relative;
+}
+body.app-shell .pass-card .btn{ border-radius: 10px; margin-top: 12px; }
+
+/* SSC = blue, Legal = green, Combo = purple — same theming pattern
+   as the public landing page's plan cards (landing.css), reapplied
+   here since this page uses a different scope (body.app-shell, not
+   body.landing-v2). Card gets a class of plan-ssc/plan-legal/
+   plan-combo purely from the product's existing pass_type field
+   (see subscriptions.js) — no new data, no touched purchase logic. */
+body.app-shell .plan-ssc{ background: var(--ts-blue-tint); border-color: rgba(47,95,236,0.25); }
+body.app-shell .plan-ssc .card-label{ color: var(--ts-blue); }
+body.app-shell .plan-ssc .btn:not(:disabled){ background: var(--ts-blue); border-color: var(--ts-blue); }
+body.app-shell .plan-legal{ background: var(--ts-green-tint); border-color: rgba(21,154,72,0.25); }
+body.app-shell .plan-legal .card-label{ color: var(--ts-green); }
+body.app-shell .plan-legal .btn:not(:disabled){ background: var(--ts-green); border-color: var(--ts-green); }
+body.app-shell .plan-combo{ background: var(--ts-purple-tint); border-color: rgba(124,58,237,0.28); }
+body.app-shell .plan-combo .card-label{ color: var(--ts-purple); }
+body.app-shell .plan-combo .btn:not(:disabled){ background: var(--ts-purple); border-color: var(--ts-purple); }
+body.app-shell .pass-card.featured{ box-shadow: 0 4px 16px rgba(124,58,237,0.14); padding-top: 34px; }
+body.app-shell .best-value-badge{ position: absolute; top: 16px; right: 16px; background: var(--ts-purple); color: #fff; font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+@media (max-width: 900px){
+  body.app-shell .access-grid{ grid-template-columns: repeat(2, 1fr); }
+  body.app-shell .passes-grid{ grid-template-columns: 1fr; }
+}
+
+/* ---------- Remaining old "notebook/ledger" styling leaks ----------
+   Wrapping a page's <main> in the app-shell doesn't retheme classes
+   INSIDE that content that still point at the old palette — these
+   are the ones actually used by the newly migrated pages
+   (mock-test.html, mock-test-list.html, mock-history.html). Scoped
+   under body.app-shell only, so admin/login/register pages (which
+   still use these same class names on purpose) are untouched. */
+body.app-shell .eyebrow{ color: var(--ts-blue); }
+body.app-shell .pill{
+  background: var(--ts-blue-tint);
+  color: var(--ts-blue-dark);
+  font-family: var(--ts-font);
+}
+body.app-shell table.marksheet{ font-family: var(--ts-font); }
+body.app-shell table.marksheet th{
+  border-bottom: 1px solid var(--ts-border);
+  color: var(--ts-muted);
+}
+body.app-shell table.marksheet td{
+  border-bottom: 1px solid var(--ts-border);
+  font-family: var(--ts-font);
+}
+body.app-shell table.marksheet tr:hover td{ background: var(--ts-blue-tint); }
+body.app-shell .feature-grid{ margin-top: 20px; }
+body.app-shell .feature{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: none;
+}
+body.app-shell .feature .num{ color: var(--ts-blue); font-family: var(--ts-font); font-weight: 700; letter-spacing: 0.06em; }
+body.app-shell .feature h3{ font-family: var(--ts-font); }
+body.app-shell .feature .btn{ border-radius: 10px; margin-top: auto; align-self: flex-start; }
+body.app-shell .loading-strip,
+body.app-shell .empty-state{
+  border: 1px dashed var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  color: var(--ts-muted);
+  font-family: var(--ts-font);
+}
+@media (max-width: 700px){ body.app-shell .feature-grid{ grid-template-columns: 1fr; } }
+
+/* ---------- Mock test attempt: setup / live test / result screens ----------
+   Same reasoning as the .feature/.pill/.eyebrow fixes above — the
+   shell wrap alone doesn't retheme classes used INSIDE the page's
+   own content. Monospace stays on the passage/typed-input text
+   (helps students see character alignment while typing — a real,
+   functional reason, not leftover styling), everything else moves
+   off the old serif/vermillion/brass "admit card" motif. */
+body.app-shell .mock-test-title,
+body.app-shell .result-title,
+body.app-shell .seal-stamp .grade{ font-family: var(--ts-font); color: var(--ts-text); }
+body.app-shell .mock-test-meta,
+body.app-shell .mock-test-message,
+body.app-shell .test-rules-note,
+body.app-shell .result-sub{ color: var(--ts-muted); }
+body.app-shell .mock-start-button{
+  font-family: var(--ts-font);
+  background: var(--ts-navy);
+  border-radius: 10px;
+}
+body.app-shell .timer-box{
+  font-family: var(--ts-font);
+  color: var(--ts-blue);
+  border-color: var(--ts-blue);
+}
+body.app-shell .live-stats .val{ font-family: var(--ts-font); color: var(--ts-text); }
+body.app-shell .live-stats .lab{ color: var(--ts-muted); }
+body.app-shell .passage-box{
+  background: #F7F9FC;
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+body.app-shell .passage-box .char{ color: var(--ts-muted); }
+body.app-shell .passage-box .char.correct{ color: var(--ts-text); }
+body.app-shell .passage-box .char.wrong{ color: var(--ts-red); }
+body.app-shell .passage-box .char.current{
+  background: rgba(47,95,236,0.12);
+  border-bottom: 2px solid var(--ts-blue);
+}
+body.app-shell .passage-box .char.word-current{ color: var(--ts-text); }
+body.app-shell .type-input{
+  font-family: var(--ts-font);
+  background: #fff;
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+body.app-shell .type-input:disabled{ background: #F7F9FC; }
+body.app-shell .type-input:focus{ outline: 2px solid var(--ts-blue); }
+body.app-shell .test-warning-banner{
+  background: var(--ts-red-tint);
+  border-color: var(--ts-red);
+  color: var(--ts-red);
+}
+/* Result "ticket": a clean card instead of the dashed-border,
+   rotated-stamp "admit card" look. */
+body.app-shell .result-ticket{
+  border: 1px solid var(--ts-border);
+  background: #fff;
+  border-radius: var(--ts-radius-lg);
+}
+body.app-shell .result-ticket .seal-stamp{
+  border: 3px solid var(--ts-green);
+  color: var(--ts-green);
+  transform: none;
+  background: var(--ts-green-tint);
+}
+body.app-shell .result-grid{ border-color: var(--ts-border); }
+body.app-shell .result-grid .big{ font-family: var(--ts-font); color: var(--ts-text); }
+body.app-shell .result-grid .lab{ color: var(--ts-muted); }
+
+/* ---------- Mock test attempt: hide nav during the live test ----------
+   mock-test-attempt.html uses the real Fullscreen API during the
+   actual timed test, and exiting fullscreen automatically ends the
+   attempt as an anti-cheat measure (see handleFullscreenChange() in
+   mock-test-attempt.js). A clickable sidebar/bottom-nav during that
+   state is a genuine trap, not a convenience — one accidental click
+   on "Dashboard" navigates away, which ends the test the same way
+   leaving fullscreen does. js/mock-test-attempt.js toggles
+   body.test-in-progress exactly for the duration of the live test
+   (on start, off at every exit path — time-up, fullscreen-exit, or
+   normal completion) — this just hides the nav while that class is
+   present. The setup screen (before starting) and result screen
+   (after finishing) keep the normal sidebar/bottom-nav. */
+body.app-shell.test-in-progress .app-sidebar,
+body.app-shell.test-in-progress .app-bottom-nav{ display: none; }
+body.app-shell.test-in-progress .app-content .page{ padding-bottom: 0; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
   body.app-shell .app-sidebar{ flex: 0 0 200px; width: 200px; }
@@ -817,10 +994,35 @@ html[data-theme="dark"] body.app-shell .help-search-card,
 html[data-theme="dark"] body.app-shell .help-topics-card,
 html[data-theme="dark"] body.app-shell .help-contact-card,
 html[data-theme="dark"] body.app-shell .help-faq-card,
+html[data-theme="dark"] body.app-shell .access-card,
+html[data-theme="dark"] body.app-shell .pass-card,
 html[data-theme="dark"] body.app-shell .app-bottom-nav{
   background: #171F2E;
   border-color: var(--ts-border);
 }
+html[data-theme="dark"] body.app-shell .pass-card.plan-ssc{ background: rgba(47,95,236,0.10); }
+html[data-theme="dark"] body.app-shell .pass-card.plan-legal{ background: rgba(21,154,72,0.10); }
+html[data-theme="dark"] body.app-shell .pass-card.plan-combo{ background: rgba(124,58,237,0.12); }
+html[data-theme="dark"] body.app-shell .access-status-badge{ background: #1B2334; color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .pass-price,
+html[data-theme="dark"] body.app-shell .access-card-title,
+html[data-theme="dark"] body.app-shell .pass-duration{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .card-label{ color: var(--ts-muted); border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .access-card-detail{ color: var(--ts-muted); }
+html[data-theme="dark"] body.app-shell .access-card-detail strong{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .feature{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .pill{ background: rgba(47,95,236,0.18); color: #9DB6F5; }
+html[data-theme="dark"] body.app-shell table.marksheet th,
+html[data-theme="dark"] body.app-shell table.marksheet td{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell table.marksheet tr:hover td{ background: #1B2334; }
+html[data-theme="dark"] body.app-shell .loading-strip,
+html[data-theme="dark"] body.app-shell .empty-state{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .passage-box{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .type-input{ background: #131A28; border-color: var(--ts-border); color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .type-input:disabled{ background: #0F1521; }
+html[data-theme="dark"] body.app-shell .result-ticket{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .result-ticket .seal-stamp{ background: rgba(21,154,72,0.15); }
+html[data-theme="dark"] body.app-shell .result-grid{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .app-recent-table th,
 html[data-theme="dark"] body.app-shell .app-recent-table td,
 html[data-theme="dark"] body.app-shell .settings-row,

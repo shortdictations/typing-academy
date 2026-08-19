@@ -34,7 +34,12 @@
       </span>
       <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
-        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="user-menu-skeleton" id="userMenuSkeleton" aria-hidden="true">
+            <span class="user-menu-skeleton-avatar"></span>
+            <span class="user-menu-skeleton-name"></span>
+          </span>
+        </button>
         <div class="user-menu-dropdown" id="userMenuDropdown">
           <button id="logoutBtn" type="button">Logout</button>
         </div>

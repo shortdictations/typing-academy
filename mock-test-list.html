@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mock Tests — TypeShala</title>
+<script src="js/theme-init.js"></script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="app-shell.css">
 </head>
-<body>
+<body class="app-shell mock-test-list-page">
 
 <header class="letterhead">
   <div class="letterhead-inner">
@@ -18,12 +20,17 @@
       </span>
     </a>
     <nav class="nav-links">
-      <a href="mock-test.html">Mock Test</a>
-      <a href="mock-history.html">Mock History</a>
-      <a href="subscriptions.html">Credits</a>
+      <span class="app-bell" aria-hidden="true" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </span>
       <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
-        <button class="user-menu-trigger" id="userMenuTrigger" type="button"><span id="userChip"></span> &#9662;</button>
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="user-menu-skeleton" id="userMenuSkeleton" aria-hidden="true">
+            <span class="user-menu-skeleton-avatar"></span>
+            <span class="user-menu-skeleton-name"></span>
+          </span>
+        </button>
         <div class="user-menu-dropdown" id="userMenuDropdown">
           <button id="logoutBtn" type="button">Logout</button>
         </div>
@@ -31,8 +38,37 @@
     </nav>
   </div>
 </header>
+<div class="app-body">
 
-<main class="page">
+  <aside class="app-sidebar">
+    <a class="app-nav-link" href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+      Dashboard
+    </a>
+    <a class="app-nav-link active" href="mock-test.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
+      Start Test
+    </a>
+    <a class="app-nav-link" href="mock-history.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+      My Tests
+    </a>
+    <a class="app-nav-link" href="subscriptions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+      Pass &amp; Credits
+    </a>
+    <a class="app-nav-link" href="help-support.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg>
+      Help &amp; Support
+    </a>
+    <a class="app-nav-link" href="settings.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      Settings
+    </a>
+  </aside>
+
+  <div class="app-content">
+    <main class="page">
 
   <p class="eyebrow"><a href="mock-test.html" style="color:inherit;">&larr; Mock Test</a></p>
   <h1 id="pageTitle">Mock Tests</h1>
@@ -44,7 +80,30 @@
 
 </main>
 
-<footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+    <footer class="site-foot">TypeShala — built for typing practice, not affiliated with SSC or any government body.</footer>
+  </div>
+</div>
+
+<nav class="app-bottom-nav">
+  <div class="app-bottom-nav-inner">
+    <a class="app-bottom-nav-link" href="dashboard.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      Dashboard
+    </a>
+    <a class="app-bottom-nav-link" href="mock-test.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
+      Start Test
+    </a>
+    <a class="app-bottom-nav-link" href="mock-history.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg></span>
+      My Tests
+    </a>
+    <a class="app-bottom-nav-link" href="subscriptions.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>
+      Pass &amp; Credits
+    </a>
+  </div>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
