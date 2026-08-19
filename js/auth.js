@@ -66,8 +66,25 @@ async function logoutStudent() {
 
 // Get the currently logged-in user (or null if nobody is logged in)
 async function getCurrentUser() {
-  const { data } = await supabaseClient.auth.getUser();
-  return data.user || null;
+  // Guarded: a network hiccup or Supabase error here used to throw
+  // straight out of this function — which meant requireLogin()'s own
+  // "if (!user) redirect to login" logic never even ran (the throw
+  // skipped past it entirely), and the calling page's whole setup
+  // script died with it. Now any failure here just resolves to "not
+  // logged in", which requireLogin() already knows how to handle
+  // correctly (redirect) — the intended behavior per "if the user is
+  // not authenticated, follow the existing authentication flow."
+  try {
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error) {
+      console.error("getCurrentUser: Supabase returned an error:", error);
+      return null;
+    }
+    return data.user || null;
+  } catch (err) {
+    console.error("getCurrentUser failed unexpectedly:", err);
+    return null;
+  }
 }
 
 // Call this at the top of any PROTECTED page (dashboard, mock-test, etc).
@@ -174,9 +191,22 @@ async function initAuthHeader(user) {
     : user.email;
   const avatarUrl = user.user_metadata && (user.user_metadata.avatar_url || user.user_metadata.picture);
 
-  // ---- Avatar button (replaces the old name+chevron text) ----
+  // ---- Trigger content: avatar + name + chevron, replacing the
+  // skeleton placeholder that was there while this was loading.
+  // Name is hidden on narrow viewports via CSS (see .user-menu-name),
+  // leaving just the compact avatar + chevron there. ----
   trigger.innerHTML = "";
   trigger.appendChild(buildAvatarEl(displayName, avatarUrl));
+
+  const nameEl = document.createElement("span");
+  nameEl.className = "user-menu-name";
+  nameEl.textContent = displayName;
+  trigger.appendChild(nameEl);
+
+  trigger.insertAdjacentHTML("beforeend",
+    '<svg class="user-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
+  );
+  trigger.setAttribute("aria-expanded", "false");
 
   // ---- Dropdown content: name/email, Profile, Settings, Logout.
   // existing #logoutBtn preserved so logoutStudent() wiring below
@@ -188,11 +218,22 @@ async function initAuthHeader(user) {
     e.stopPropagation();
     const opening = !dropdown.classList.contains("open");
     dropdown.classList.toggle("open");
+    trigger.setAttribute("aria-expanded", opening ? "true" : "false");
     if (opening) repositionDropdownIfNarrow(trigger, dropdown);
   });
   document.addEventListener("click", (e) => {
     if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
       dropdown.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+  });
+  // Close immediately after selecting any option — Profile/Settings
+  // navigate away and Logout signs out, but closing here too avoids
+  // the dropdown staying visibly open mid-navigation.
+  dropdown.addEventListener("click", (e) => {
+    if (e.target.closest("a, button")) {
+      dropdown.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
     }
   });
   document.getElementById("logoutBtn").addEventListener("click", logoutStudent);
