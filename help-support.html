@@ -95,30 +95,73 @@
       <div class="card help-topics-card">
         <h2>Quick Help Topics</h2>
         <div class="help-topics-grid">
-          <div class="help-topic-card">
+          <div class="help-topic-card" id="helpCard-getting-started">
             <span class="help-topic-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
             <h3>Getting Started</h3>
             <p>Learn the basics and get started with TypeShala.</p>
-            <button type="button" class="help-topic-link" data-scroll-to="faq-getting-started">View Articles <span aria-hidden="true">&rarr;</span></button>
+            <button type="button" class="help-topic-link" data-article="getting-started">View Articles <span aria-hidden="true">&rarr;</span></button>
           </div>
-          <div class="help-topic-card">
+          <div class="help-topic-card" id="helpCard-mock-tests">
             <span class="help-topic-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
             <h3>Mock Tests</h3>
             <p>How to attempt tests, view results and history.</p>
-            <button type="button" class="help-topic-link" data-scroll-to="faq-mock-tests">View Articles <span aria-hidden="true">&rarr;</span></button>
+            <button type="button" class="help-topic-link" data-article="mock-tests">View Articles <span aria-hidden="true">&rarr;</span></button>
           </div>
-          <div class="help-topic-card">
+          <div class="help-topic-card" id="helpCard-pass-credits">
             <span class="help-topic-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>
             <h3>Pass &amp; Credits</h3>
             <p>Understand passes, credits, validity and usage.</p>
-            <button type="button" class="help-topic-link" data-scroll-to="faq-pass-credits">View Articles <span aria-hidden="true">&rarr;</span></button>
+            <button type="button" class="help-topic-link" data-article="pass-credits">View Articles <span aria-hidden="true">&rarr;</span></button>
           </div>
-          <div class="help-topic-card">
+          <div class="help-topic-card" id="helpCard-account-profile">
             <span class="help-topic-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span>
             <h3>Account &amp; Profile</h3>
             <p>Manage your account, profile and personal details.</p>
-            <button type="button" class="help-topic-link" data-scroll-to="faq-account-profile">View Articles <span aria-hidden="true">&rarr;</span></button>
+            <button type="button" class="help-topic-link" data-article="account-profile">View Articles <span aria-hidden="true">&rarr;</span></button>
           </div>
+        </div>
+      </div>
+
+      <!-- Article panel — built and populated entirely by
+           js/help-support.js from the HELP_ARTICLES data (real
+           content grounded in this project's actual features, not
+           placeholder text). Hidden until a "View Articles" link or
+           a search match opens one. -->
+      <div class="card help-article-card" id="helpArticlePanel" style="display:none;"></div>
+
+      <!-- Real FAQ content grounded in this app's actual features —
+           opens via native <details>/<summary> (no JS needed for
+           expand/collapse), filtered live by the search box above. -->
+      <div class="card help-faq-card">
+        <h2>Frequently Asked Questions</h2>
+        <p class="help-faq-empty" id="helpFaqEmpty" style="display:none;">No articles match your search.</p>
+
+        <div class="help-faq-group" id="faq-getting-started">
+          <h3>Getting Started</h3>
+          <details class="help-faq-item"><summary>How do I create an account?</summary><p>Register with your name, email, and password from the Register page. New accounts get 3 free credits automatically, usable on any SSC or Legal mock test.</p></details>
+          <details class="help-faq-item"><summary>What's the difference between SSC, Legal, and Combo?</summary><p>SSC and Legal/Court are separate typing categories, each with their own passages and mock tests. A Combo Pass unlocks both categories with a single pass.</p></details>
+          <details class="help-faq-item"><summary>How is my typing speed measured?</summary><p>Every test reports Gross WPM, Net WPM, and Accuracy for a fixed test duration, shown on your results and tracked on your Dashboard over time.</p></details>
+        </div>
+
+        <div class="help-faq-group" id="faq-mock-tests">
+          <h3>Mock Tests</h3>
+          <details class="help-faq-item"><summary>How do I start a mock test?</summary><p>Go to Start Test, choose a category and passage, then begin — tests run full-screen and timed, with your score shown immediately after.</p></details>
+          <details class="help-faq-item"><summary>Where can I see my past results?</summary><p>My Tests (Mock History) lists every attempt you've made, with WPM, Accuracy, and date. Your Dashboard also shows your 5 most recent tests.</p></details>
+          <details class="help-faq-item"><summary>What unlocks a mock test?</summary><p>An eligible Pass for that category, or Credits. An eligible active Pass is always used first — Credits are only spent when you don't have one, so they're never used unnecessarily.</p></details>
+        </div>
+
+        <div class="help-faq-group" id="faq-pass-credits">
+          <h3>Pass &amp; Credits</h3>
+          <details class="help-faq-item"><summary>What's the difference between a Pass and Credits?</summary><p>A Pass gives unlimited tests in a category for its validity period. Credits are single-use — one credit unlocks one test attempt on any SSC or Legal test.</p></details>
+          <details class="help-faq-item"><summary>How long do Passes and Credits last?</summary><p>Each has its own validity period, shown on your Pass &amp; Credits page and on your Dashboard's Active Pass and Remaining Credits cards.</p></details>
+          <details class="help-faq-item"><summary>How do I buy more?</summary><p>Visit Pass &amp; Credits to purchase an SSC, Legal, or Combo Pass, or top up Credits — payments are processed securely through Razorpay.</p></details>
+        </div>
+
+        <div class="help-faq-group" id="faq-account-profile">
+          <h3>Account &amp; Profile</h3>
+          <details class="help-faq-item"><summary>How do I update my name or mobile number?</summary><p>Go to Settings → Account, and use the Change button next to Full Name or Mobile Number.</p></details>
+          <details class="help-faq-item"><summary>How do I change my password?</summary><p>Go to Settings → Security → Change Password.</p></details>
+          <details class="help-faq-item"><summary>How do I switch between light and dark mode?</summary><p>Go to Settings → Appearance → Theme, and choose Light, System, or Dark. Your choice is remembered across the app.</p></details>
         </div>
       </div>
 
@@ -150,43 +193,6 @@
           </button>
           <p class="help-send-note">Opens your email app with this message pre-filled, addressed to shortdictations@gmail.com.</p>
         </form>
-      </div>
-
-      <!-- Real FAQ content grounded in this app's actual features —
-           opens via native <details>/<summary> (no JS needed for
-           expand/collapse), filtered live by the search box above
-           and jumped-to/opened by the "View Articles" links above. -->
-      <div class="card help-faq-card">
-        <h2>Frequently Asked Questions</h2>
-        <p class="help-faq-empty" id="helpFaqEmpty" style="display:none;">No articles match your search.</p>
-
-        <div class="help-faq-group" id="faq-getting-started">
-          <h3>Getting Started</h3>
-          <details class="help-faq-item"><summary>How do I create an account?</summary><p>Register with your name, email, and password from the Register page. New accounts get 3 free credits automatically, usable on any SSC or Legal mock test.</p></details>
-          <details class="help-faq-item"><summary>What's the difference between SSC, Legal, and Combo?</summary><p>SSC and Legal/Court are separate typing categories, each with their own passages and mock tests. A Combo Pass unlocks both categories with a single pass.</p></details>
-          <details class="help-faq-item"><summary>How is my typing speed measured?</summary><p>Every test reports Gross WPM, Net WPM, and Accuracy for a fixed test duration, shown on your results and tracked on your Dashboard over time.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-mock-tests">
-          <h3>Mock Tests</h3>
-          <details class="help-faq-item"><summary>How do I start a mock test?</summary><p>Go to Start Test, choose a category and passage, then begin — tests run full-screen and timed, with your score shown immediately after.</p></details>
-          <details class="help-faq-item"><summary>Where can I see my past results?</summary><p>My Tests (Mock History) lists every attempt you've made, with WPM, Accuracy, and date. Your Dashboard also shows your 5 most recent tests.</p></details>
-          <details class="help-faq-item"><summary>What unlocks a mock test?</summary><p>An eligible Pass for that category, or Credits. If you have both, Credits are used first before your Pass.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-pass-credits">
-          <h3>Pass &amp; Credits</h3>
-          <details class="help-faq-item"><summary>What's the difference between a Pass and Credits?</summary><p>A Pass gives unlimited tests in a category for its validity period. Credits are single-use — one credit unlocks one test attempt on any SSC or Legal test.</p></details>
-          <details class="help-faq-item"><summary>How long do Passes and Credits last?</summary><p>Each has its own validity period, shown on your Pass &amp; Credits page and on your Dashboard's Active Pass and Remaining Credits cards.</p></details>
-          <details class="help-faq-item"><summary>How do I buy more?</summary><p>Visit Pass &amp; Credits to purchase an SSC, Legal, or Combo Pass, or top up Credits — payments are processed securely through Razorpay.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-account-profile">
-          <h3>Account &amp; Profile</h3>
-          <details class="help-faq-item"><summary>How do I update my name or mobile number?</summary><p>Go to Settings → Account, and use the Change button next to Full Name or Mobile Number.</p></details>
-          <details class="help-faq-item"><summary>How do I change my password?</summary><p>Go to Settings → Security → Change Password.</p></details>
-          <details class="help-faq-item"><summary>How do I switch between light and dark mode?</summary><p>Go to Settings → Appearance → Theme, and choose Light, System, or Dark. Your choice is remembered across the app.</p></details>
-        </div>
       </div>
 
     </main>
