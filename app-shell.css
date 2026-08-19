@@ -538,18 +538,156 @@ body.app-shell .theme-toggle-btn.active{ background: var(--ts-navy); color: #fff
 
 
 /* ---------- Help & Support page ---------- */
-body.app-shell .app-help-wrap{ max-width: 640px; }
-body.app-shell .app-help-card{ padding: 26px; }
-body.app-shell .app-help-mail-note{
+body.app-shell .help-search-card{ padding: 8px; margin-top: 20px; }
+body.app-shell .help-search-box{
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 11px 16px;
+  color: var(--ts-muted);
+}
+body.app-shell .help-search-box svg{ width: 18px; height: 18px; flex: none; }
+body.app-shell .help-search-box input{
+  flex: 1 1 auto;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: var(--ts-font);
+  font-size: 0.92rem;
+  color: var(--ts-text);
+}
+
+body.app-shell .help-topics-card,
+body.app-shell .help-contact-card,
+body.app-shell .help-faq-card{ padding: 24px; margin-top: 14px; }
+body.app-shell .help-topics-card h2,
+body.app-shell .help-contact-card h2,
+body.app-shell .help-faq-card h2{ font-size: 1.05rem; margin: 0 0 16px; }
+
+body.app-shell .help-topics-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+body.app-shell .help-topic-card{
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  padding: 18px;
+}
+body.app-shell .help-topic-icon{
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+body.app-shell .help-topic-icon svg{ width: 19px; height: 19px; }
+body.app-shell .help-topic-card h3{ font-size: 0.95rem; margin: 0 0 6px; }
+body.app-shell .help-topic-card p{ font-size: 0.82rem; color: var(--ts-muted); margin: 0 0 12px; line-height: 1.5; }
+body.app-shell .help-topic-link{
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ts-blue);
+  font-weight: 700;
+  font-size: 0.84rem;
+  font-family: var(--ts-font);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+body.app-shell .help-topic-link:hover{ text-decoration: underline; }
+
+body.app-shell .help-sender-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
   background: var(--ts-blue-tint);
   border-radius: var(--ts-radius-md);
-  padding: 12px 14px;
-  font-size: 0.82rem;
-  color: var(--ts-blue-dark);
-  margin-bottom: 18px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+body.app-shell .help-sender-icon{
+  width: 36px; height: 36px; flex: none;
+  border-radius: 50%;
+  background: rgba(47,95,236,0.14);
+  color: var(--ts-blue);
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .help-sender-icon svg{ width: 17px; height: 17px; }
+body.app-shell .help-sender-label{ font-size: 0.76rem; color: var(--ts-muted); }
+body.app-shell .help-sender-email{ font-size: 0.9rem; font-weight: 700; color: var(--ts-text); display: flex; align-items: center; gap: 8px; margin-top: 1px; }
+
+body.app-shell .help-field{ margin-bottom: 18px; }
+body.app-shell .help-field label{
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ts-muted);
+  margin-bottom: 8px;
+}
+body.app-shell .help-field input,
+body.app-shell .help-field textarea{
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  font-family: var(--ts-font);
+  font-size: 0.9rem;
+  color: var(--ts-text);
+  background: #fff;
+}
+body.app-shell .help-field textarea{ resize: vertical; }
+body.app-shell .help-field input:focus,
+body.app-shell .help-field textarea:focus{
+  outline: none;
+  border-color: var(--ts-blue);
+  box-shadow: 0 0 0 3px rgba(47,95,236,0.15);
+}
+body.app-shell .help-send-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+body.app-shell .help-send-btn svg{ width: 15px; height: 15px; }
+body.app-shell .help-send-note{ font-size: 0.76rem; color: var(--ts-muted); margin: 10px 0 0; }
+
+body.app-shell .help-faq-empty{ text-align: center; color: var(--ts-muted); font-size: 0.88rem; padding: 12px 0; }
+body.app-shell .help-faq-group + .help-faq-group{ margin-top: 22px; }
+body.app-shell .help-faq-group h3{ font-size: 0.88rem; color: var(--ts-muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 8px; }
+body.app-shell .help-faq-item{
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  padding: 2px 14px;
+  margin-bottom: 8px;
+}
+body.app-shell .help-faq-item summary{
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ts-text);
+  cursor: pointer;
+  list-style: none;
+}
+body.app-shell .help-faq-item summary::-webkit-details-marker{ display: none; }
+body.app-shell .help-faq-item summary::before{
+  content: "+";
+  display: inline-block;
+  width: 16px;
+  color: var(--ts-blue);
+  font-weight: 700;
+}
+body.app-shell .help-faq-item[open] summary::before{ content: "–"; }
+body.app-shell .help-faq-item p{ margin: 0 0 14px; padding-left: 16px; font-size: 0.85rem; color: var(--ts-muted); line-height: 1.6; }
+
+@media (max-width: 900px){
+  body.app-shell .help-topics-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px){
+  body.app-shell .help-topics-grid{ grid-template-columns: 1fr; }
+  body.app-shell .help-sender-row{ flex-wrap: wrap; }
 }
 
 /* ---------- Responsive ---------- */
@@ -675,7 +813,10 @@ html[data-theme="dark"] body.app-shell .settings-section-card,
 html[data-theme="dark"] body.app-shell .app-overview-card,
 html[data-theme="dark"] body.app-shell .app-recent-card,
 html[data-theme="dark"] body.app-shell .dash-target-card,
-html[data-theme="dark"] body.app-shell .app-help-card,
+html[data-theme="dark"] body.app-shell .help-search-card,
+html[data-theme="dark"] body.app-shell .help-topics-card,
+html[data-theme="dark"] body.app-shell .help-contact-card,
+html[data-theme="dark"] body.app-shell .help-faq-card,
 html[data-theme="dark"] body.app-shell .app-bottom-nav{
   background: #171F2E;
   border-color: var(--ts-border);
@@ -710,7 +851,16 @@ html[data-theme="dark"] body.app-shell .announcement-ticker{ background: #2A230F
 
 html[data-theme="dark"] body.app-shell .btn-ghost{ border-color: var(--ts-border); color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .app-recent-table-wrap{ color: var(--ts-text); }
-html[data-theme="dark"] body.app-shell .app-help-mail-note{ background: #16223A; color: #9DB6F5; }
+html[data-theme="dark"] body.app-shell .help-topic-card,
+html[data-theme="dark"] body.app-shell .help-faq-item{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .help-field input,
+html[data-theme="dark"] body.app-shell .help-field textarea{
+  background: #131A28;
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .help-sender-row{ background: #16223A; }
+html[data-theme="dark"] body.app-shell .help-sender-label{ color: #9DB6F5; }
 html[data-theme="dark"] body.app-shell .user-menu-dropdown{ background: #171F2E; border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .user-menu-dropdown .avatar-menu-row:hover{ background: #1B2334; }
 html[data-theme="dark"] body.app-shell .avatar-dropdown-header{ background: #171F2E; border-color: var(--ts-border); }
