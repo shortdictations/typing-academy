@@ -850,22 +850,32 @@ body.app-shell .result-grid{ border-color: var(--ts-border); }
 body.app-shell .result-grid .big{ font-family: var(--ts-font); color: var(--ts-text); }
 body.app-shell .result-grid .lab{ color: var(--ts-muted); }
 
-/* ---------- Mock test attempt: hide nav during the live test ----------
-   mock-test-attempt.html uses the real Fullscreen API during the
-   actual timed test, and exiting fullscreen automatically ends the
-   attempt as an anti-cheat measure (see handleFullscreenChange() in
-   mock-test-attempt.js). A clickable sidebar/bottom-nav during that
-   state is a genuine trap, not a convenience — one accidental click
-   on "Dashboard" navigates away, which ends the test the same way
-   leaving fullscreen does. js/mock-test-attempt.js toggles
-   body.test-in-progress exactly for the duration of the live test
-   (on start, off at every exit path — time-up, fullscreen-exit, or
-   normal completion) — this just hides the nav while that class is
-   present. The setup screen (before starting) and result screen
-   (after finishing) keep the normal sidebar/bottom-nav. */
-body.app-shell.test-in-progress .app-sidebar,
-body.app-shell.test-in-progress .app-bottom-nav{ display: none; }
-body.app-shell.test-in-progress .app-content .page{ padding-bottom: 0; }
+/* ---------- Test mode: mock-test-attempt.html ----------
+   This page never renders the sidebar/bottom-nav markup at all
+   (removed from the HTML entirely, not just hidden) — the typing
+   test needs the full viewport, and a clickable "Dashboard" link
+   would be a genuine trap: this page uses the real Fullscreen API
+   during the live test, and exiting fullscreen automatically ends
+   the attempt as an anti-cheat measure (see handleFullscreenChange()
+   in mock-test-attempt.js). Header (logo + minimal account controls)
+   stays, for auth/logout access and visual consistency with the rest
+   of the app — only the navigation chrome is gone. */
+body.test-mode .test-mode-main{
+  max-width: 1200px;
+  width: calc(100% - 48px);
+  margin: 28px auto;
+}
+/* .page's own max-width/margin/padding (meant for the sidebar layout
+   elsewhere) would otherwise double up with the wrapper above —
+   .test-mode-main is the sole width/spacing authority here. */
+body.test-mode .test-mode-main .page{
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+@media (max-width: 480px){
+  body.test-mode .test-mode-main{ width: calc(100% - 24px); margin: 16px auto; }
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
