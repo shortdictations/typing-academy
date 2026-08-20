@@ -783,6 +783,13 @@ body.app-shell .pass-card{
 body.app-shell .pass-card .btn{ border-radius: 10px; margin-top: auto; padding-top: 14px; }
 body.app-shell .pass-card .plan-features{ margin-bottom: 14px; }
 body.app-shell .pass-card-description{ font-size: 0.85rem; color: var(--ts-muted); margin: 8px 0 0; }
+body.app-shell .plan-icon{
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+body.app-shell .plan-icon svg{ width: 20px; height: 20px; }
 
 /* SSC = blue, Legal = green, Combo = purple — same theming pattern
    as the public landing page's plan cards (landing.css), reapplied
@@ -791,25 +798,42 @@ body.app-shell .pass-card-description{ font-size: 0.85rem; color: var(--ts-muted
    plan-combo purely from the product's existing pass_type field
    (see subscriptions.js) — no new data, no touched purchase logic.
    Cards stay white (only the featured/best-value/owned one gets a
-   colored border) — only the label text, validity pill, checkmarks,
-   and button carry the category color. */
+   colored border) — only the icon, label text, validity pill,
+   checkmarks, and button carry the category color. */
+body.app-shell .plan-ssc .plan-icon{ background: var(--ts-blue-tint); color: var(--ts-blue); }
 body.app-shell .plan-ssc .card-label{ color: var(--ts-blue); }
 body.app-shell .plan-ssc .pass-duration-pill{ background: var(--ts-blue-tint); color: var(--ts-blue-dark); }
 body.app-shell .plan-ssc .plan-features li::before{ color: var(--ts-blue); }
 body.app-shell .plan-ssc .btn:not(:disabled){ background: var(--ts-blue); border-color: var(--ts-blue); }
+body.app-shell .plan-legal .plan-icon{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .plan-legal .card-label{ color: var(--ts-green); }
 body.app-shell .plan-legal .pass-duration-pill{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .plan-legal .plan-features li::before{ color: var(--ts-green); }
 body.app-shell .plan-legal .btn:not(:disabled){ background: var(--ts-green); border-color: var(--ts-green); }
+body.app-shell .plan-combo .plan-icon{ background: var(--ts-purple-tint); color: var(--ts-purple); }
 body.app-shell .plan-combo .card-label{ color: var(--ts-purple); }
 body.app-shell .plan-combo .pass-duration-pill{ background: var(--ts-purple-tint); color: var(--ts-purple); }
 body.app-shell .plan-combo .plan-features li::before{ color: var(--ts-purple); }
 body.app-shell .plan-combo .btn:not(:disabled){ background: var(--ts-purple); border-color: var(--ts-purple); }
-body.app-shell .plan-credit .card-label{ color: var(--ts-blue); }
+
+/* Test Credits — golden/cream tone, matching .plan-credit on the
+   public landing page (index.html / landing.css) exactly: warm
+   off-white card background, gold border, gold icon/label/pill/
+   checkmarks, gold outline button. This is the one card family that
+   gets a tinted background even though SSC/Legal/Combo stay white —
+   deliberately, so it reads as visually distinct ("this is what you
+   can spend, not a category pass") the same way it already does on
+   the landing page. */
+body.app-shell .plan-credit{ background: #FFFDF4; border-color: rgba(245,179,1,0.35); }
+body.app-shell .plan-credit .plan-icon{ background: rgba(245,179,1,0.18); color: var(--ts-gold-dark); }
+body.app-shell .plan-credit .card-label{ color: var(--ts-gold-dark); }
 body.app-shell .plan-credit .pass-duration-plain{ color: var(--ts-muted); font-size: 0.85rem; margin-top: 4px; }
-body.app-shell .plan-credit .plan-features li::before{ color: var(--ts-blue); }
-body.app-shell .plan-credit .btn.btn-ghost{ color: var(--ts-blue); border-color: var(--ts-blue); }
-body.app-shell .plan-credit .btn.btn-ghost:hover{ background: var(--ts-blue); color: #fff; }
+body.app-shell .plan-credit .pass-duration-pill{ background: rgba(245,179,1,0.16); color: var(--ts-gold-dark); }
+body.app-shell .plan-credit .plan-features li::before{ color: var(--ts-gold-dark); }
+body.app-shell .plan-credit .btn.btn-ghost{ color: var(--ts-gold-dark); border-color: var(--ts-gold-dark); }
+body.app-shell .plan-credit .btn.btn-ghost:hover{ background: var(--ts-gold-dark); color: #fff; }
+body.app-shell .plan-credit .credits-summary-count{ color: var(--ts-gold-dark); }
+body.app-shell .plan-credit .credits-summary-note{ border-top-color: rgba(245,179,1,0.25); }
 
 body.app-shell .pass-price{ font-size: 1.6rem; font-weight: 800; margin-top: 6px; }
 body.app-shell .pass-duration-pill{
@@ -838,11 +862,11 @@ body.app-shell .pass-card.featured{
   padding-top: 34px;
 }
 body.app-shell .pass-card.featured.plan-credit{
-  border-color: var(--ts-blue);
-  box-shadow: 0 4px 16px rgba(47,95,236,0.14);
+  border-color: var(--ts-gold-dark);
+  box-shadow: 0 4px 16px rgba(245,179,1,0.18);
 }
 body.app-shell .best-value-badge{ position: absolute; top: 16px; right: 16px; background: var(--ts-purple); color: #fff; font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
-body.app-shell .best-offer-badge{ background: var(--ts-blue); }
+body.app-shell .best-offer-badge{ background: var(--ts-gold-dark); }
 
 /* Owned/active pass state — status lives INSIDE the card, not in a
    separate section. Green border matches the "Active" language;
@@ -1250,6 +1274,20 @@ html[data-theme="dark"] body.app-shell .card-label{ color: var(--ts-muted); bord
 html[data-theme="dark"] body.app-shell .plan-ssc .pass-duration-pill{ background: rgba(47,95,236,0.18); color: #9DB6F5; }
 html[data-theme="dark"] body.app-shell .plan-legal .pass-duration-pill{ background: rgba(21,154,72,0.18); color: #7FD9A6; }
 html[data-theme="dark"] body.app-shell .plan-combo .pass-duration-pill{ background: rgba(124,58,237,0.2); color: #C9A9F5; }
+html[data-theme="dark"] body.app-shell .plan-ssc .plan-icon{ background: rgba(47,95,236,0.18); color: #9DB6F5; }
+html[data-theme="dark"] body.app-shell .plan-legal .plan-icon{ background: rgba(21,154,72,0.18); color: #7FD9A6; }
+html[data-theme="dark"] body.app-shell .plan-combo .plan-icon{ background: rgba(124,58,237,0.2); color: #C9A9F5; }
+/* Gold Test Credits card in dark mode — same warm-on-dark treatment
+   as every other card family here (subtle tint of the accent color
+   over the dark card background, brightened text for contrast)
+   rather than the cream/gold-on-white used in light mode. */
+html[data-theme="dark"] body.app-shell .plan-credit{ background: #1F1A0E; border-color: rgba(245,179,1,0.3); }
+html[data-theme="dark"] body.app-shell .plan-credit .plan-icon{ background: rgba(245,179,1,0.2); color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .plan-credit .card-label{ color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .plan-credit .pass-duration-pill{ background: rgba(245,179,1,0.18); color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .plan-credit .credits-summary-count{ color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .plan-credit .credits-summary-note{ border-top-color: rgba(245,179,1,0.22); }
+html[data-theme="dark"] body.app-shell .plan-credit .btn.btn-ghost{ color: #F5C94D; border-color: #F5C94D; }
 html[data-theme="dark"] body.app-shell .plan-features li{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .subscriptions-help-banner{ background: rgba(47,95,236,0.12); }
 html[data-theme="dark"] body.app-shell .subscriptions-help-btn{ background: #131A28; }
