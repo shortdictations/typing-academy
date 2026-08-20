@@ -1839,7 +1839,14 @@ footer.site-foot{
   color: rgba(255,255,255,0.45);
   margin: 0 0 10px;
 }
-.onboarding-card h2{
+/* body.app-shell h1, body.app-shell h2 (app-shell.css, styles every
+   normal page heading dark navy) has higher specificity than
+   .onboarding-card h2 alone — two element selectors vs one — so it
+   was silently winning and darkening "Welcome back,", "Choose
+   your", and "Let's find" to near-illegible against this card's own
+   dark navy background. Matching that selector shape here (adding
+   body.app-shell) is what actually beats it. */
+body.app-shell .onboarding-card h2{
   font-family: var(--font-display);
   font-size: 1.55rem;
   line-height: 1.25;
