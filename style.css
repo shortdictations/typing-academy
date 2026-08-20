@@ -43,6 +43,30 @@ body{
 
 a{ color: inherit; }
 
+/* ---------- Auth pages (login.html, register.html): background only ----------
+   The login/register CARD (.card, .auth-choice-btn, .input-icon-field,
+   etc.) is explicitly locked and untouched — this only replaces the
+   page-level ruled-paper background (the linear-gradient lines from
+   the base body{} rule above) with a clean, dashboard-matching
+   surface, plus two very soft, purely decorative navy/gold glows
+   that never overlap the card's actual content area. Everything
+   about the card itself — its own background, border, shadow,
+   inputs, buttons — comes from the SAME shared .card/.btn/etc. rules
+   every other page uses, deliberately not touched here. */
+body.auth-page{
+  background-color: #F6F8FC; /* matches the dashboard's --ts-background */
+  background-image:
+    radial-gradient(ellipse 520px 360px at 90% -10%, rgba(11,28,63,0.055), transparent 60%),
+    radial-gradient(ellipse 460px 360px at -10% 108%, rgba(245,179,1,0.09), transparent 60%);
+  background-repeat: no-repeat;
+}
+/* Header navy aligned to the exact dashboard shade (--ts-navy in
+   app-shell.css, not loaded on this page) so the branding bar reads
+   as literally the same navy as the dashboard header, not just a
+   similar one. Scoped to these two pages only — every other page
+   still using the plain .letterhead keeps its existing color. */
+body.auth-page .letterhead{ background: #0B1C3F; }
+
 /* ---------- Letterhead (top bar on every page) ---------- */
 .letterhead{
   background: var(--ink);
@@ -1694,15 +1718,18 @@ footer.site-foot{
   backdrop-filter: blur(3px);
 }
 .onboarding-grid-bg{
+  /* Was a brass grid-line pattern (the same "old lined theme" style
+     removed from login/register) — replaced with the same soft
+     navy/gold glow language used there, for one consistent visual
+     system across the whole auth/onboarding flow. Sits behind the
+     dark scrim above, so this stays extremely subtle by design —
+     it's meant to be felt, not seen directly. */
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image:
-    linear-gradient(rgba(169,128,63,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(169,128,63,0.08) 1px, transparent 1px);
-  background-size: 42px 42px;
-  -webkit-mask-image: radial-gradient(circle at center, #000 0%, transparent 75%);
-  mask-image: radial-gradient(circle at center, #000 0%, transparent 75%);
+  background:
+    radial-gradient(ellipse 640px 480px at 15% 10%, rgba(245,179,1,0.10), transparent 60%),
+    radial-gradient(ellipse 560px 480px at 90% 95%, rgba(47,95,236,0.12), transparent 60%);
 }
 .onboarding-modal{
   position: relative;
@@ -1721,13 +1748,13 @@ footer.site-foot{
   font-weight: 700;
   font-size: 1.3rem;
   letter-spacing: 0.02em;
-  color: var(--brass);
-  text-shadow: 0 0 18px rgba(169,128,63,0.35);
+  color: var(--ts-gold, #F5B301);
+  text-shadow: 0 0 18px rgba(245,179,1,0.3);
 }
 .wordmark-cursor{
   display: inline-block;
   margin-left: 2px;
-  color: var(--brass);
+  color: var(--ts-gold, #F5B301);
   animation: wordmarkBlink 1s step-end infinite;
 }
 @keyframes wordmarkBlink{
@@ -1739,11 +1766,11 @@ footer.site-foot{
   /* The ONE persistent card frame — never replaced, never resized
      abruptly, never animated itself. Only .onboarding-slide content
      inside .onboarding-slide-viewport crossfades. */
-  background: linear-gradient(165deg, #1E2E42, var(--ink) 65%);
-  border: 1px solid rgba(169,128,63,0.25);
+  background: linear-gradient(165deg, #16264D, var(--ts-navy, #0B1C3F) 65%);
+  border: 1px solid rgba(245,179,1,0.22);
   border-radius: 18px;
   padding: 32px 28px;
-  box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 60px rgba(169,128,63,0.08);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 60px rgba(245,179,1,0.07);
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -1753,7 +1780,7 @@ footer.site-foot{
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--brass), var(--stamp), var(--brass));
+  background: linear-gradient(90deg, var(--ts-gold, #F5B301), #FFD666, var(--ts-gold, #F5B301));
   background-size: 200% 100%;
   animation: authAccentSlide 3s ease-in-out infinite;
 }
@@ -1821,7 +1848,7 @@ footer.site-foot{
   font-weight: 700;
 }
 .onboarding-highlight{
-  background: linear-gradient(90deg, var(--brass), #D9B876);
+  background: linear-gradient(90deg, var(--ts-gold, #F5B301), #FFD666);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1844,14 +1871,36 @@ footer.site-foot{
 .onboarding-goal-sub{ font-size: 0.78rem; color: rgba(255,255,255,0.5); }
 
 .onboarding-btn{
-  background: linear-gradient(135deg, var(--brass), var(--stamp));
-  color: var(--white);
+  background: linear-gradient(135deg, var(--ts-gold, #F5B301), var(--ts-gold-dark, #D99A00));
+  color: var(--ts-navy, #0B1C3F);
   border: none;
   font-weight: 600;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.onboarding-btn:hover:not(:disabled){ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(178,58,46,0.35); }
+/* The shared .btn:hover rule (background: var(--stamp), red) has
+   higher specificity than .onboarding-btn alone (one class+pseudo
+   vs one class), so without this, hovering — which happens on every
+   real click, not just a deliberate mouse-over — would flash the
+   button red instead of staying gold. Re-asserting the same gradient
+   here, at matching specificity, is the fix. */
+.onboarding-btn:hover:not(:disabled){
+  background: linear-gradient(135deg, var(--ts-gold, #F5B301), var(--ts-gold-dark, #D99A00));
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(217,154,0,0.35);
+}
 .onboarding-btn:active:not(:disabled){ transform: translateY(0); }
+/* Chromium (and possibly other browsers) drops author background-
+   image on some disabled form controls in certain cascades — plain
+   background-color survives, but the gradient silently computes to
+   "none", leaving this looking flat/broken while "Continuing..." is
+   shown. Re-asserting it here (verified directly: without this,
+   getComputedStyle().backgroundImage on the disabled button reports
+   "none") keeps the button visibly gold instead of falling through
+   to browser default styling while saving. */
+.onboarding-btn:disabled{
+  background: linear-gradient(135deg, var(--ts-gold, #F5B301), var(--ts-gold-dark, #D99A00));
+}
 
 .onboarding-back-link{
   display: block;
@@ -1880,7 +1929,7 @@ footer.site-foot{
 .onboarding-autoadvance-fill{
   height: 100%;
   width: 0%;
-  background: var(--brass);
+  background: var(--ts-gold, #F5B301);
   border-radius: 2px;
 }
 
@@ -1914,7 +1963,7 @@ footer.site-foot{
 .onboarding-progress-slider-fill{
   height: 100%;
   width: 35%;
-  background: linear-gradient(90deg, var(--brass), var(--stamp));
+  background: linear-gradient(90deg, var(--ts-gold, #F5B301), var(--ts-gold-dark, #D99A00));
   border-radius: 3px;
   transition: width 0.1s linear;
 }
@@ -1936,7 +1985,7 @@ footer.site-foot{
   height: 18px;
   border-radius: 50%;
   background: var(--paper);
-  border: 3px solid var(--brass);
+  border: 3px solid var(--ts-gold, #F5B301);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
   transition: transform 0.15s ease;
@@ -1947,7 +1996,7 @@ footer.site-foot{
   height: 18px;
   border-radius: 50%;
   background: var(--paper);
-  border: 3px solid var(--brass);
+  border: 3px solid var(--ts-gold, #F5B301);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
@@ -1958,6 +2007,19 @@ footer.site-foot{
   font-size: 0.72rem;
   color: rgba(255,255,255,0.4);
   margin-top: 8px;
+}
+
+/* Respects prefers-reduced-motion for every animation this overlay
+   runs: the slide crossfade/slide-up, the top accent bar's shimmer,
+   and the wordmark's blinking cursor. The slide transition becomes
+   an instant swap (still handled by the same JS — only the CSS
+   transition duration changes) rather than introducing a second,
+   separate code path. */
+@media (prefers-reduced-motion: reduce){
+  .onboarding-slide.slide-animating{ transition: none; }
+  .onboarding-slide{ transform: none; }
+  .onboarding-card::before{ animation: none; }
+  .wordmark-cursor{ animation: none; }
 }
 
 @media (max-width: 480px){
