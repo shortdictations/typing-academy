@@ -264,6 +264,38 @@ body.app-shell .dash-stats-grid{
 }
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
 body.app-shell .dash-stat-text{ min-width: 0; }
+
+/* Active Pass card: plan-name typewriter rotation. Scoped to this
+   one element's id specifically — NOT the shared .dash-stat-text
+   .big class every other stat tile also uses, since applying
+   overflow:hidden/ellipsis there previously clipped short values
+   like "88%" on narrow cards. This keeps that fix intact while
+   still protecting against an unusually long admin-configured plan
+   name (requirement #10 — no horizontal scroll, no card resize). */
+body.app-shell #dashPlanName{
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+body.app-shell .typewriter-cursor{
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  background: currentColor;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: typewriter-blink 1s step-end infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  body.app-shell .typewriter-cursor{ animation: none; }
+}
+@keyframes typewriter-blink{
+  0%, 100%{ opacity: 1; }
+  50%{ opacity: 0; }
+}
 body.app-shell .dash-stat-text .big{ font-weight: 800; font-size: 1.3rem; }
 body.app-shell .dash-stat-icon{ border-radius: 10px; width: 38px; height: 38px; }
 body.app-shell .dash-stat-icon svg{ width: 18px; height: 18px; }
