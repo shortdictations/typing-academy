@@ -1046,6 +1046,43 @@ body.test-mode .test-mode-main .page{
   body.test-mode .test-mode-main{ width: calc(100% - 24px); margin: 16px auto; }
 }
 
+/* ---------- Mock test list: card font + Completed state ----------
+   .mock-card/.mock-card-title live in the shared style.css (also
+   used by the separate, untouched admin-mock-tests.js), so the old
+   serif font is fixed here rather than edited at the source, same
+   pattern as .feature/.pill/.eyebrow elsewhere in this file. */
+body.app-shell .mock-card-title{ font-family: var(--ts-font); }
+body.app-shell .mock-card{ background: #fff; border-color: var(--ts-border); box-shadow: none; }
+body.app-shell .mock-card:hover{ box-shadow: 0 4px 14px rgba(16,24,40,0.08); }
+
+/* Completed: a clearly non-interactive pill in place of the
+   Start/Retake button — same shape/sizing as .btn, but visually
+   inert (no hover, no pointer) and never a link, so a completed
+   mock genuinely cannot be re-opened from here. */
+body.app-shell .btn-completed{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ts-green-tint);
+  color: var(--ts-green);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  font-family: var(--ts-font);
+  cursor: default;
+  user-select: none;
+}
+
+/* "Start a Mock Test" auto-selection: all-completed note ---------- */
+body.app-shell .dash-all-completed-note{
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--ts-muted);
+}
+body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 600; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
   body.app-shell .app-sidebar{ flex: 0 0 200px; width: 200px; }
@@ -1193,6 +1230,9 @@ html[data-theme="dark"] body.app-shell .subscriptions-help-banner{ background: r
 html[data-theme="dark"] body.app-shell .subscriptions-help-btn{ background: #131A28; }
 html[data-theme="dark"] body.app-shell .access-card-detail strong{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .feature{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .mock-card{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .dash-all-completed-note a{ color: #7C9CFF; }
+html[data-theme="dark"] body.app-shell .btn-completed{ background: rgba(21,154,72,0.15); color: #7FD9A6; }
 html[data-theme="dark"] body.app-shell .pill{ background: rgba(47,95,236,0.18); color: #9DB6F5; }
 html[data-theme="dark"] body.app-shell table.marksheet th,
 html[data-theme="dark"] body.app-shell table.marksheet td{ border-color: var(--ts-border); }
