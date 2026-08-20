@@ -70,11 +70,10 @@
   <div class="app-content">
     <main class="page">
 
-  <p class="eyebrow">Your Account</p>
   <div class="subscriptions-hero">
     <div>
-      <h1>Choose Your Access</h1>
-      <p class="lede">Unlock premium Mock Tests with a category pass, or pay only for the individual mocks you want with Test Credits.</p>
+      <h1>Passes &amp; Credits</h1>
+      <p class="lede">Choose the access that suits your practice.</p>
     </div>
     <div class="subscriptions-hero-graphic" aria-hidden="true">
       <svg viewBox="0 0 140 100" width="140" height="100">
@@ -100,49 +99,21 @@
   <div class="error-msg" id="purchaseError" style="display:none; max-width:520px;"></div>
   <div class="success-msg" id="purchaseSuccess" style="display:none; max-width:520px;"></div>
 
-  <!-- MY CURRENT ACCESS -->
-  <p class="card-label" style="margin-top:8px;">My Current Access</p>
-  <div class="access-grid" id="currentAccessStrip">
-    <div class="access-card" id="cardSsc">
-      <div class="access-card-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
-      <div class="access-card-title">SSC Pass</div>
-      <div id="accessSsc"><span class="access-status-badge">Loading&hellip;</span></div>
-    </div>
-    <div class="access-card" id="cardLegal">
-      <div class="access-card-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8h14M5 8l-3 6a4 4 0 0 0 6 0l-3-6ZM19 8l-3 6a4 4 0 0 0 6 0l-3-6Z"/></svg></div>
-      <div class="access-card-title">Legal Pass</div>
-      <div id="accessLegal"><span class="access-status-badge">Loading&hellip;</span></div>
-    </div>
-    <div class="access-card" id="cardCombo">
-      <div class="access-card-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1 0 4h-1M7 5H4a2 2 0 0 0 0 4h1"/></svg></div>
-      <div class="access-card-title">Combo Pass</div>
-      <div id="accessCombo"><span class="access-status-badge">Loading&hellip;</span></div>
-    </div>
-    <div class="access-card" id="cardCredits">
-      <div class="access-card-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.5 1.5-2.2 3-2.2s3 .7 3 2.2-1.5 1.8-3 2.2-3 .7-3 2.2 1.5 2.1 3 2.1 3-.7 3-2.1"/></svg></div>
-      <div class="access-card-title">Test Credits</div>
-      <div id="accessCredits"><span class="access-status-badge">Loading&hellip;</span></div>
-    </div>
-  </div>
-
-  <!-- MOCK TEST PASSES -->
-  <h2 style="margin-top:36px;">Choose Your Plan</h2>
-  <p class="lede" style="margin-bottom:18px;">Choose a pass to unlock premium mock tests.</p>
-
+  <!-- Each pass card carries its own current-user status (Active/
+       Not Active, valid-until date) directly — combining the
+       admin-configured plan (products table) with this user's own
+       user_passes rows. The Test Credits summary card is the last
+       item in this SAME grid, not a separate section — see
+       renderAccessGrid() in subscriptions.js. -->
   <div class="passes-grid" id="passProductsGrid">
-    <div class="loading-strip">Loading plans...</div>
+    <div class="loading-strip">Loading your plans...</div>
   </div>
 
-  <!-- CREDITS -->
-  <p class="card-label" style="margin-top:36px;">Credits (Pay As You Go)</p>
-  <div class="credits-info-banner">
-    <span class="credits-info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M9 10a3 3 0 0 1 6 0c0 1-1 1.6-2 2.2-.6.4-1 .8-1 1.3M12 17h.01"/></svg></span>
-    <div>
-      <div class="credits-info-title">Don't want a full Pass?</div>
-      <div class="credits-info-sub">Buy credits and use them on any SSC or Legal test.</div>
-    </div>
-  </div>
-  <p class="lede" style="margin:14px 0 18px; font-size:0.85rem;"><strong>1 Credit = 1 test attempt, on any SSC or Legal test.</strong> Credits are only used when you don't have an eligible active Pass for that test — an eligible Pass is always used first, so credits never get spent unnecessarily.</p>
+  <!-- Purchasable credit packs — admin-configured (products table,
+       product_type = CREDIT). Separate from the summary card above:
+       this is what you can BUY, that card is what you already HAVE. -->
+  <h2 style="margin-top:36px;">Test Credits</h2>
+  <p class="lede" style="margin-bottom:18px;">1 Credit = 1 test attempt, on any SSC or Legal test. An eligible active Pass is always used first, so credits never get spent unnecessarily.</p>
 
   <div class="passes-grid" id="creditProductsGrid">
     <div class="loading-strip">Loading credit packages...</div>
