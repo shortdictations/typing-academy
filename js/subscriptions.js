@@ -1,31 +1,28 @@
 /* ============================================================
    subscriptions.js
    ------------------------------------------------------------
-   Populates "My Current Access" on the purchase page by reading
-   the student's own rows from user_passes and wallet_credits
-   (both already allow "select own rows" via existing RLS — no
-   new backend logic was added for this). Purchase buttons are
-   inert placeholders; no payment logic here yet.
+   Every card here is built by combining two separate things:
+     1. ADMIN CONFIGURATION — the "products" table (unchanged,
+        pre-existing). Name, price, validity, features, badge,
+        display_order all come from here. Nothing about a plan's
+        content is hardcoded in this file.
+     2. THIS USER'S OWN STATE — their own rows in user_passes and
+        wallet_credits (also pre-existing tables/RLS, no new
+        backend added). Whether a plan is active, its expiry date,
+        and the credit balance are never stored on the product
+        itself — they're read fresh per user, per page load, and
+        merged onto the product data only for rendering.
+   No separate "My Current Access" section — that status now
+   renders directly inside each product's own card (see
+   buildPassCardHtml below). Purchase buttons call the existing
+   startPurchase()/payments.js flow — untouched.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin();
   if (!user) return;
 
-  const [{ data: passes, error: passesError }, { data: credits, error: creditsError }] = await Promise.all([
-    supabaseClient.from("user_passes").select("*").eq("user_id", user.id),
-    supabaseClient.from("wallet_credits").select("*").eq("user_id", user.id)
-  ]);
-
-  if (passesError) console.error(passesError);
-  if (creditsError) console.error(creditsError);
-
-  renderPassStatus("SSC", passes || [], document.getElementById("accessSsc"));
-  renderPassStatus("LEGAL", passes || [], document.getElementById("accessLegal"));
-  renderPassStatus("COMBO", passes || [], document.getElementById("accessCombo"));
-  renderCreditStatus(credits || [], document.getElementById("accessCredits"));
-
-  await loadProductCatalog();
+  await loadProductCatalog(user.id);
 
   // One delegated listener handles every Buy button, present or
   // future — no per-button listener wiring needed.
@@ -41,11 +38,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           ? "Payment successful. Your credits have been added."
           : "Payment successful. Your pass is now active.";
         showPurchaseMessage(message, true);
-        // Refresh everything that could have changed — access status,
-        // catalog, and the header's avatar dropdown (plan/credits) —
-        // rather than trusting only the button's own local state.
-        loadProductCatalog();
-        loadCurrentAccess(user.id);
+        // Refresh everything that could have changed — plan status,
+        // credit balance, catalog, and the header's avatar dropdown
+        // (plan/credits) — rather than trusting only the button's
+        // own local state.
+        loadProductCatalog(user.id);
         if (typeof initAuthHeader === "function") initAuthHeader(user);
       },
       onFailure: (message) => {
@@ -68,73 +65,64 @@ function hidePurchaseMessage() {
   document.getElementById("purchaseError").style.display = "none";
 }
 
-// Re-fetches and re-renders the "My Current Access" strip after a
-// successful purchase, so the new pass/credits show immediately
-// without requiring a manual page refresh.
-async function loadCurrentAccess(userId) {
-  const [{ data: passes }, { data: credits }] = await Promise.all([
-    supabaseClient.from("user_passes").select("*").eq("user_id", userId),
-    supabaseClient.from("wallet_credits").select("*").eq("user_id", userId)
-  ]);
-  renderPassStatus("SSC", passes || [], document.getElementById("accessSsc"));
-  renderPassStatus("LEGAL", passes || [], document.getElementById("accessLegal"));
-  renderPassStatus("COMBO", passes || [], document.getElementById("accessCombo"));
-  renderCreditStatus(credits || [], document.getElementById("accessCredits"));
-}
-
-// Reads the admin-managed products catalog and renders both
-// sections. "Buy" stays an inert placeholder — no payment gateway
-// is connected yet.
-async function loadProductCatalog() {
+// Reads the admin-managed products catalog AND this user's own
+// pass/credit state, then renders both grids. The frontend never
+// assumes a fixed number or names of plans — it renders whatever
+// active PASS/CREDIT products exist, in display_order.
+async function loadProductCatalog(userId) {
   const passGrid = document.getElementById("passProductsGrid");
   const creditGrid = document.getElementById("creditProductsGrid");
 
-  const { data, error } = await supabaseClient
-    .from("products")
-    .select("*")
-    .eq("active", true)
-    .order("display_order", { ascending: true });
+  const [{ data: products, error: productsError }, { data: passRows }, { data: creditRows }] = await Promise.all([
+    supabaseClient.from("products").select("*").eq("active", true).order("display_order", { ascending: true }),
+    supabaseClient.from("user_passes").select("pass_type, status, starts_at, expires_at").eq("user_id", userId),
+    supabaseClient.from("wallet_credits").select("credits_remaining, expires_at").eq("user_id", userId)
+  ]);
 
-  if (error) {
-    console.error(error);
+  if (productsError) {
+    console.error(productsError);
     passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
     creditGrid.innerHTML = '<div class="empty-state">Could not load credit packages.</div>';
     return;
   }
 
-  // Real active-pass check, read fresh from user_passes every time
-  // this runs (page load AND right after a successful purchase) —
-  // never cached, so it can't go stale. Deliberately NOT applied to
-  // credit products — those stay purchasable multiple times.
-  const activePassTypes = await loadActivePassTypes();
+  const activePassByType = buildActivePassMap(passRows || []);
+  const creditBalance = sumUnexpiredCredits(creditRows || []);
 
-  renderPassProducts(data.filter(p => p.product_type === "PASS"), passGrid, activePassTypes);
-  renderCreditProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid);
+  renderAccessGrid(products.filter(p => p.product_type === "PASS"), activePassByType, creditBalance, passGrid);
+  renderCreditProducts(products.filter(p => p.product_type === "CREDIT"), creditGrid);
 }
 
-// Same validity rule as get_mock_access(): status != 'cancelled' AND
-// starts_at <= now() AND expires_at > now(). An expired pass simply
-// won't be in this set, so its Buy button re-enables automatically
-// on the next load — no separate "re-enable" logic needed.
-async function loadActivePassTypes() {
-  const { data: user } = await supabaseClient.auth.getUser();
-  if (!user || !user.user) return new Set();
-
-  const { data, error } = await supabaseClient
-    .from("user_passes")
-    .select("pass_type, status, starts_at, expires_at")
-    .eq("user_id", user.user.id);
-
-  if (error || !data) return new Set();
-
+// A pass is valid only when: starts_at <= now() AND expires_at > now()
+// AND status != 'cancelled' — same rule the database access-control
+// function (get_mock_access) uses, just re-derived here for display.
+// Returns pass_type -> { expiresAt } for whichever is the
+// latest-expiring valid row of each type (mirrors fetchActivePasses
+// in auth.js).
+function buildActivePassMap(passRows) {
   const now = new Date();
-  const active = new Set();
-  data.forEach(p => {
-    if (p.status !== "cancelled" && new Date(p.starts_at) <= now && new Date(p.expires_at) > now) {
-      active.add(p.pass_type);
+  const map = {};
+  passRows.forEach(p => {
+    if (p.status === "cancelled" || new Date(p.starts_at) > now || new Date(p.expires_at) <= now) return;
+    if (!map[p.pass_type] || new Date(p.expires_at) > new Date(map[p.pass_type].expiresAt)) {
+      map[p.pass_type] = { expiresAt: p.expires_at };
     }
   });
-  return active;
+  return map;
+}
+
+// The credit BALANCE the user sees is just the sum of every
+// unexpired lot — when one lot's own expires_at passes, it drops
+// out of this sum on its own; lots are never merged into one shared
+// expiry. FIFO consumption order is unchanged, decided server-side
+// in start_credit_test() (oldest-expiring lot first) — this
+// function only totals what's currently spendable, it doesn't
+// decide which lot gets used.
+function sumUnexpiredCredits(creditRows) {
+  const now = new Date();
+  return creditRows
+    .filter(c => new Date(c.expires_at) > now)
+    .reduce((sum, c) => sum + c.credits_remaining, 0);
 }
 
 function featuresListHtml(features) {
@@ -144,30 +132,77 @@ function featuresListHtml(features) {
     "</ul>";
 }
 
-function renderPassProducts(products, grid, activePassTypes) {
-  if (products.length === 0) {
-    grid.innerHTML = '<div class="empty-state">No plans available right now.</div>';
-    return;
+// mock-test-list.html filters by ?category=ssc|legal; a Combo pass
+// covers both, so it goes to the category picker instead of
+// assuming one.
+function viewTestsHref(passType) {
+  if (passType === "SSC") return "mock-test-list.html?category=ssc";
+  if (passType === "LEGAL") return "mock-test-list.html?category=legal";
+  return "mock-test.html";
+}
+
+// Builds the unified grid: every active PASS product (admin config
+// + this user's own active/expiry state merged in), followed by one
+// simple Test Credits summary card — same grid, same card family,
+// no separate "current access" section anywhere else on the page.
+function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
+  const passCardsHtml = passProducts.length > 0
+    ? passProducts.map(p => buildPassCardHtml(p, activePassByType[p.pass_type])).join("")
+    : '<div class="empty-state">No plans available right now.</div>';
+  grid.innerHTML = passCardsHtml + buildCreditsSummaryCardHtml(creditBalance);
+}
+
+function buildPassCardHtml(p, activeState) {
+  const featured = p.best_value ? " featured" : "";
+  const bestValueBadge = p.best_value ? '<span class="best-value-badge">Best Value</span>' : "";
+  const catClass = "plan-" + (p.pass_type || "").toLowerCase();
+
+  if (activeState) {
+    const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    return `
+      <div class="card pass-card ${catClass} is-owned${featured}">
+        ${bestValueBadge}
+        <div class="pass-status-row">
+          <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
+        </div>
+        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
+        <div class="pass-owned-label">Your Current Plan</div>
+        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        <div class="pass-valid-until">Valid until <strong>${expiryText}</strong></div>
+        ${featuresListHtml(p.features)}
+        <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
+      </div>`;
   }
 
-  grid.innerHTML = products.map(p => {
-    const featured = p.best_value ? " featured" : "";
-    const badge = p.best_value ? '<span class="best-value-badge">Best Value</span>' : "";
-    const isActive = activePassTypes.has(p.pass_type);
-    const buttonHtml = isActive
-      ? '<button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;">&#10003; Active</button>'
-      : '<button class="btn btn-full buy-product-btn" data-product-id="' + p.id + '" data-product-type="PASS" data-pass-type="' + p.pass_type + '">Buy ' + escapeHtmlLocal(p.name) + '</button>';
-    return `
-      <div class="card pass-card plan-${(p.pass_type || '').toLowerCase()}${featured}">
-        ${badge}
-        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
-        <div class="pass-price">&#8377;${p.price}</div>
-        <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
-        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:10px 0 0;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${featuresListHtml(p.features)}
-        ${buttonHtml}
-      </div>`;
-  }).join("");
+  return `
+    <div class="card pass-card ${catClass}${featured}">
+      ${bestValueBadge}
+      <div class="pass-status-row pass-status-row-inactive">
+        <span class="pass-status-text-inactive">Not Active</span>
+      </div>
+      <div class="card-label">${escapeHtmlLocal(p.name)}</div>
+      <div class="pass-price">&#8377;${p.price}</div>
+      <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
+      ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+      ${featuresListHtml(p.features)}
+      <button class="btn btn-full buy-product-btn" data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">Buy Now <span aria-hidden="true">&rarr;</span></button>
+    </div>`;
+}
+
+// Deliberately minimal — no free-vs-purchased breakdown, just the
+// one number a student actually needs: how many credits can I use
+// right now. The source-of-credits split still exists in the
+// wallet_credits table itself for accounting; it's just not
+// surfaced in this card.
+function buildCreditsSummaryCardHtml(creditBalance) {
+  return `
+    <div class="card pass-card plan-credit credits-summary-card">
+      <div class="card-label">Test Credits</div>
+      <div class="credits-summary-count">${creditBalance}</div>
+      <div class="credits-summary-label">Credits Available</div>
+      <div class="credits-summary-note">1 credit = 1 test</div>
+      <a class="btn btn-ghost btn-full" href="#creditProductsGrid">Buy Credits <span aria-hidden="true">&rarr;</span></a>
+    </div>`;
 }
 
 function renderCreditProducts(products, grid) {
@@ -185,7 +220,7 @@ function renderCreditProducts(products, grid) {
         <div class="card-label">${escapeHtmlLocal(p.name)}</div>
         <div class="pass-price">&#8377;${p.price}</div>
         <div class="pass-duration-plain">Valid for ${p.validity_days} Days</div>
-        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:10px 0 0;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
         ${featuresListHtml(p.features)}
         <button class="btn btn-ghost btn-full buy-product-btn"
           data-product-id="${p.id}" data-product-type="CREDIT" data-credits="${p.credits}">
@@ -199,51 +234,4 @@ function escapeHtmlLocal(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
-}
-
-// A pass is valid only when: starts_at <= now() AND expires_at > now()
-// AND status != 'cancelled' — same rule the database access-control
-// function uses, just for display here.
-function renderPassStatus(passType, passes, el) {
-  const now = new Date();
-  const rows = passes.filter(p => p.pass_type === passType);
-  const validRow = rows.find(p =>
-    p.status !== "cancelled" &&
-    new Date(p.starts_at) <= now &&
-    new Date(p.expires_at) > now
-  );
-
-  const card = el.closest(".access-card");
-
-  if (validRow) {
-    const expiryText = new Date(validRow.expires_at).toLocaleDateString("en-IN", {
-      day: "2-digit", month: "short", year: "numeric"
-    });
-    if (card) card.classList.add("is-active");
-    el.innerHTML =
-      '<span class="access-status-badge"><span class="access-status-dot"></span>Active</span>' +
-      '<div class="access-card-detail">Valid until <strong>' + expiryText + '</strong></div>';
-  } else {
-    if (card) card.classList.remove("is-active");
-    el.innerHTML =
-      '<span class="access-status-badge">Not Active</span>' +
-      '<div class="access-card-detail">Purchase below to unlock</div>';
-  }
-}
-
-function renderCreditStatus(credits, el) {
-  const now = new Date();
-  const unexpired = credits.filter(c => new Date(c.expires_at) > now);
-  const free = unexpired.filter(c => c.credit_type === "free").reduce((sum, c) => sum + c.credits_remaining, 0);
-  const purchased = unexpired.filter(c => c.credit_type === "purchased").reduce((sum, c) => sum + c.credits_remaining, 0);
-  const total = free + purchased;
-
-  const card = el.closest(".access-card");
-  if (card) card.classList.toggle("is-active", total > 0);
-
-  el.innerHTML =
-    '<span class="access-status-badge">' +
-      (total > 0 ? '<span class="access-status-dot"></span>' : '') +
-      total + ' Available</span>' +
-    '<div class="access-card-detail">&#127873; Free: <strong>' + free + '</strong> &middot; &#128179; Purchased: <strong>' + purchased + '</strong></div>';
 }
