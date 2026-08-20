@@ -17,17 +17,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   showStudentName(user);
   showOnboardingWelcomeName(user);
 
-  // Every section below is independently guarded: this page has
-  // several unrelated widgets (sidebar profile, target WPM, pass/
-  // credits card, chart, recent tests), and a problem in any one of
-  // them should never silently prevent the others from rendering —
-  // which is exactly what an unguarded exception earlier in this
-  // function used to do, since everything after it is sequential.
-  try {
-    wireAppShell(user); // populates the sidebar's bottom profile block + Log out link (js/app-shell.js)
-  } catch (err) {
-    console.error("wireAppShell failed:", err);
+  const startMockTestBtn = document.getElementById("startMockTestBtn");
+  if (startMockTestBtn) {
+    startMockTestBtn.addEventListener("click", () => handleStartMockTestClick(user, startMockTestBtn));
   }
+
+  // Every section below is independently guarded: this page has
+  // several unrelated widgets (target WPM, pass/credits cards,
+  // chart, recent tests), and a problem in any one of them should
+  // never silently prevent the others from rendering — which is
+  // exactly what an unguarded exception earlier in this function
+  // used to do, since everything after it is sequential.
 
   // Onboarding / "Welcome back" must appear as soon as possible after
   // login — checked and shown BEFORE the (slower) dashboard stats
@@ -769,14 +769,33 @@ async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
     if (passResult.status === "rejected") {
       passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
     } else if (activePasses.length === 0) {
+      stopPlanNameTypewriter(); // in case a previous render had one running (e.g. after a purchase refresh) — req #17, never leave a stray timer
       passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "No Pass", '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>');
     } else {
-      const p = activePasses[0];
-      const daysLeft = Math.max(0, Math.ceil((new Date(p.expiresAt) - new Date()) / (24 * 60 * 60 * 1000)));
-      const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-      const moreNote = activePasses.length > 1 ? " (+" + (activePasses.length - 1) + " more)" : "";
-      passBlock.title = p.label + moreNote + " — valid till " + expiresText;
-      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), escapeHtmlDash(p.label), daysLeft + " days left");
+      // Icon/container built ONCE via statTileHtml — only
+      // #dashPlanName and #dashPlanDaysLeft ever get touched again
+      // after this, whether by the static single-pass path below or
+      // the typewriter rotation. The icon, card, and "days left"
+      // label position never re-render.
+      passBlock.innerHTML = statTileHtml(
+        "dash-tile-green",
+        passCreditsIcon("pass"),
+        '<span id="dashPlanName"></span>',
+        '<span id="dashPlanDaysLeft"></span>'
+      );
+      const nameEl = document.getElementById("dashPlanName");
+      const daysEl = document.getElementById("dashPlanDaysLeft");
+
+      if (activePasses.length === 1) {
+        stopPlanNameTypewriter(); // only one plan — no rotation, per requirement #7
+        const p = activePasses[0];
+        nameEl.textContent = p.label;
+        daysEl.textContent = formatDaysLeft(p.expiresAt);
+        const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+        passBlock.title = p.label + " — valid till " + expiresText;
+      } else {
+        startPlanNameTypewriter(activePasses, nameEl, daysEl, passBlock);
+      }
     }
   }
 
@@ -820,4 +839,281 @@ function escapeHtmlDash(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+/* ============================================================
+   "Start a Mock Test" auto-selection
+   ------------------------------------------------------------
+   Finds ONE eligible mock the student has never attempted and
+   goes straight there, instead of just linking to the category
+   picker. Selection order, matching the stated access priority
+   (eligible Pass, then Credit, then "pick an unattempted one"):
+     1. Free mocks (always eligible) — never make the student
+        spend anything they didn't have to.
+     2. Mocks covered by an active eligible Pass for that
+        category (SSC/LEGAL pass covers its own category, COMBO
+        covers both).
+     3. Mocks already claimed by a credit before but not yet
+        completed — resuming this doesn't spend a NEW credit.
+     4. Mocks a fresh credit could unlock (balance > 0).
+   Every candidate is filtered against mock_test_results first —
+   completed mocks are never in the pool at all, so this can
+   never re-select something the student already attempted. The
+   actual credit spend, same as everywhere else in the app, only
+   happens if/when the student presses Start on the attempt page
+   itself — this only navigates there.
+   ============================================================ */
+async function handleStartMockTestClick(user, btn) {
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = "Finding your next test...";
+
+  try {
+    const { data: mocks, error: mocksError } = await supabaseClient
+      .from("mock_tests")
+      .select("id, category, access_type, display_order")
+      .eq("active", true)
+      .order("display_order", { ascending: true });
+
+    if (mocksError || !mocks || mocks.length === 0) {
+      window.location.href = "mock-test.html";
+      return;
+    }
+    // Group by category (SSC before Legal) on top of the
+    // display_order already applied above — avoids chaining a
+    // second .order() call for a two-column sort.
+    mocks.sort((a, b) => (a.category === b.category ? 0 : a.category === "ssc" ? -1 : 1));
+
+    const { data: results } = await supabaseClient
+      .from("mock_test_results")
+      .select("mock_test_id")
+      .eq("user_id", user.id);
+    const completedIds = new Set((results || []).map(r => r.mock_test_id));
+
+    const available = mocks.filter(m => !completedIds.has(m.id));
+
+    if (available.length === 0) {
+      showAllMocksCompletedMessage(btn, originalHtml);
+      return;
+    }
+
+    // Active pass categories — same "status != cancelled AND
+    // starts_at <= now AND expires_at > now" rule used everywhere
+    // else this is checked (fetchActivePasses in auth.js,
+    // loadActivePassTypes in subscriptions.js).
+    const { data: passRows } = await supabaseClient
+      .from("user_passes")
+      .select("pass_type, status, starts_at, expires_at")
+      .eq("user_id", user.id);
+    const now = new Date();
+    const activePassTypes = new Set(
+      (passRows || [])
+        .filter(p => p.status !== "cancelled" && new Date(p.starts_at) <= now && new Date(p.expires_at) > now)
+        .map(p => p.pass_type)
+    );
+    const passCoversCategory = (category) => {
+      const wanted = category === "ssc" ? "SSC" : "LEGAL";
+      return activePassTypes.has(wanted) || activePassTypes.has("COMBO");
+    };
+
+    const nonFreeCandidates = available.filter(m => m.access_type !== "free" && !passCoversCategory(m.category));
+    let unlockedIds = new Set();
+    if (nonFreeCandidates.length > 0) {
+      const { data: unlocks } = await supabaseClient
+        .from("mock_unlocks")
+        .select("mock_test_id")
+        .eq("user_id", user.id)
+        .in("mock_test_id", nonFreeCandidates.map(m => m.id));
+      unlockedIds = new Set((unlocks || []).map(u => u.mock_test_id));
+    }
+    const creditBalance = await fetchTotalCredits(user.id);
+    const hasSpendableCredit = typeof creditBalance === "number" && creditBalance > 0;
+
+    const free = available.find(m => m.access_type === "free");
+    if (free) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(free.id); return; }
+
+    const passCovered = available.find(m => m.access_type !== "free" && passCoversCategory(m.category));
+    if (passCovered) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(passCovered.id); return; }
+
+    const resumable = available.find(m => m.access_type !== "free" && !passCoversCategory(m.category) && unlockedIds.has(m.id));
+    if (resumable) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(resumable.id); return; }
+
+    if (hasSpendableCredit) {
+      const creditEligible = available.find(m => m.access_type !== "free" && !passCoversCategory(m.category) && !unlockedIds.has(m.id));
+      if (creditEligible) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(creditEligible.id); return; }
+    }
+
+    // Unattempted mocks exist, but none are currently accessible
+    // (no pass, no credits) — send the student to buy access rather
+    // than claiming "all completed", which would be inaccurate.
+    window.location.href = "subscriptions.html";
+  } catch (err) {
+    console.error("handleStartMockTestClick failed:", err);
+    window.location.href = "mock-test.html"; // safe fallback — never leaves the button stuck
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+function showAllMocksCompletedMessage(btn, originalHtml) {
+  btn.disabled = false;
+  btn.innerHTML = originalHtml;
+  const existing = document.getElementById("allMocksCompletedNote");
+  if (existing) existing.remove();
+
+  const note = document.createElement("div");
+  note.id = "allMocksCompletedNote";
+  note.className = "dash-all-completed-note";
+  note.innerHTML =
+    "You&#8217;ve completed all available mock tests. " +
+    '<a href="subscriptions.html">Check Pass &amp; Credits</a> for more, or ' +
+    '<a href="mock-history.html">view your results</a>.';
+  btn.insertAdjacentElement("afterend", note);
+}
+
+// Never "0 Days Left" or a negative number — compares CALENDAR days
+// (midnight to midnight), not raw 24-hour windows, so a pass
+// expiring later today reads as "Expires Today" rather than a
+// misleading "1 Day Left" or the explicitly-forbidden "0 Days Left".
+function formatDaysLeft(expiresAt) {
+  const now = new Date();
+  const expiry = new Date(expiresAt);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfExpiryDay = new Date(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
+  const dayDiff = Math.round((startOfExpiryDay - startOfToday) / (24 * 60 * 60 * 1000));
+
+  if (dayDiff <= 0) return "Expires Today";
+  if (dayDiff === 1) return "1 Day Left";
+  return dayDiff + " Days Left";
+}
+
+/* ============================================================
+   Dashboard Active Pass card — plan name typewriter rotation
+   ------------------------------------------------------------
+   Only ever touches #dashPlanName's text (character by character)
+   and, once per full cycle, #dashPlanDaysLeft's text (instantly,
+   no animation) — the icon, card, and everything else built by
+   statTileHtml() above is never re-rendered by this. Runs only
+   when there are 2+ active passes; a single pass or no pass never
+   reaches this code (see renderPassCreditsCardInner above).
+
+   One module-level controller, stopped and replaced (never
+   stacked) every time this is (re)started — this is the single
+   thing requirement #17 is about: without it, calling
+   renderPassCreditsCard() a second time (e.g. after a purchase
+   refreshes the page's data) would leave the OLD interval still
+   running alongside a new one, corrupting the text with two
+   simultaneous typers.
+   ============================================================ */
+let planNameTypewriterController = null;
+
+function stopPlanNameTypewriter() {
+  if (planNameTypewriterController) {
+    planNameTypewriterController.stopped = true;
+    clearTimeout(planNameTypewriterController.timeoutId);
+    planNameTypewriterController = null;
+  }
+}
+
+function startPlanNameTypewriter(activePasses, nameEl, daysEl, passBlock) {
+  stopPlanNameTypewriter(); // exactly one controller ever runs — see comment above
+
+  const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const controller = { stopped: false, timeoutId: null };
+  planNameTypewriterController = controller;
+
+  const showPlan = (pass) => {
+    nameEl.textContent = pass.label;
+    daysEl.textContent = formatDaysLeft(pass.expiresAt); // updates cleanly, never animated — requirement #5
+    const expiresText = new Date(pass.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    passBlock.title = pass.label + " — valid till " + expiresText;
+  };
+
+  if (prefersReducedMotion) {
+    // Requirement #18: show the first active plan normally, no
+    // repeated changes, no timers started at all.
+    showPlan(activePasses[0]);
+    return;
+  }
+
+  let index = 0;
+
+  // Filters out any pass whose real expiry has passed since the
+  // page loaded (requirement #15) — checked fresh against the
+  // current time at every step, not just once at start, so this
+  // stays correct even if the dashboard is left open for hours.
+  const stillActive = (list) => list.filter(p => new Date(p.expiresAt) > new Date());
+
+  function schedule(fn, delay) {
+    if (controller.stopped) return;
+    controller.timeoutId = setTimeout(() => { if (!controller.stopped) fn(); }, delay);
+  }
+
+  function cycle() {
+    if (controller.stopped) return;
+
+    const live = stillActive(activePasses);
+    if (live.length === 0) {
+      // Every pass expired mid-session — fall back to the existing
+      // no-active-plan state rather than animating something stale.
+      stopPlanNameTypewriter();
+      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "No Pass", '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>');
+      return;
+    }
+    if (live.length === 1) {
+      // Down to one live pass — stop rotating, show it plainly.
+      stopPlanNameTypewriter();
+      showPlan(live[0]);
+      return;
+    }
+
+    index = index % live.length;
+    const current = live[index];
+    const next = live[(index + 1) % live.length];
+
+    nameEl.textContent = current.label;
+    daysEl.textContent = formatDaysLeft(current.expiresAt);
+    hideCursor(nameEl); // full name, sitting still — no cursor during this pause (requirement #11)
+
+    schedule(() => { showCursor(nameEl); backspace(current.label.length, next); }, 3000 + Math.random() * 1000); // pause 3–4s, requirement #3
+  }
+
+  function backspace(remainingChars, next) {
+    if (controller.stopped) return;
+    if (remainingChars <= 0) {
+      schedule(() => typeNext(next, 0), 200 + Math.random() * 200); // brief pause at empty, requirement #13 step 4 — cursor stays visible, this is motion mid-transition, not the paused-between-plans state
+      return;
+    }
+    nameEl.textContent = nameEl.textContent.slice(0, -1);
+    schedule(() => backspace(remainingChars - 1, next), 45 + Math.random() * 30); // 45–75ms/char, requirement #2
+  }
+
+  function typeNext(next, charsTyped) {
+    if (controller.stopped) return;
+    if (charsTyped >= next.label.length) {
+      index = (index + 1) % activePasses.length;
+      schedule(cycle, 0); // full name shown — cycle() re-derives the live list, hides the cursor, and re-pauses before the next backspace
+      return;
+    }
+    nameEl.textContent = next.label.slice(0, charsTyped + 1);
+    schedule(() => typeNext(next, charsTyped + 1), 65 + Math.random() * 45); // 65–110ms/char, requirement #2
+  }
+
+  cycle();
+}
+
+// Subtle blinking cursor, only ever a sibling text node next to the
+// plan name — never affects layout width, and disappears entirely
+// (not just stops blinking) whenever the animation is paused,
+// per requirement #11.
+function showCursor(nameEl) {
+  hideCursor(nameEl);
+  const cursor = document.createElement("span");
+  cursor.className = "typewriter-cursor";
+  nameEl.insertAdjacentElement("afterend", cursor);
+}
+function hideCursor(nameEl) {
+  const existing = nameEl.parentElement && nameEl.parentElement.querySelector(".typewriter-cursor");
+  if (existing) existing.remove();
 }
