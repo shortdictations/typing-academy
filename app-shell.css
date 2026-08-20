@@ -176,11 +176,13 @@ body.app-shell .app-bottom-nav{
 body.app-shell .app-bottom-nav-inner{
   display: flex;
   justify-content: space-around;
+  align-items: stretch;
 }
 body.app-shell .app-bottom-nav-link{
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: 3px;
   padding: 6px 8px;
   border-radius: 10px;
@@ -188,7 +190,20 @@ body.app-shell .app-bottom-nav-link{
   text-decoration: none;
   font-size: 0.62rem;
   font-weight: 600;
+  line-height: 1.25;
   flex: 1 1 0;
+  /* "Pass & Credits" wraps to 2 lines while every other label fits
+     on 1 — without a shared minimum height, that item ends up taller
+     than its siblings and the flex-stretch from .app-bottom-nav-inner
+     above pulls everything else's icon out of line with it (this is
+     the actual misalignment: not the icons moving, but the row
+     growing to fit the tallest label while other items' content
+     doesn't fill that extra space, so it visually reads as
+     "Pass & Credits" alone sitting lower/bigger). Reserving 2 lines
+     of label height for every item — occupied or not — keeps every
+     icon at the exact same y-position regardless of how many words
+     its own label happens to need. */
+  min-height: 56px;
 }
 body.app-shell .app-bottom-nav-link svg{ width: 20px; height: 20px; }
 body.app-shell .app-bottom-nav-link.active{ color: var(--ts-navy); }
@@ -1316,8 +1331,8 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
      requested mobile card shape specifically. Desktop is untouched;
      this only exists inside this max-width:700px block. */
   body.app-shell .dash-stat-card{
-    flex: 0 0 80%;
-    max-width: 300px;
+    flex: 0 0 72%;
+    max-width: 260px;
     scroll-snap-align: start;
     padding: 22px 18px;
     flex-direction: column;
