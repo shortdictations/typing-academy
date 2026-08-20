@@ -225,30 +225,83 @@ function buildCreditsSummaryCardHtml(creditBalance) {
     </div>`;
 }
 
-function renderCreditProducts(products, grid) {
+// Module-level so it survives the re-render triggered by clicking a
+// different pack (see below) and by loadProductCatalog() refreshing
+// after a purchase — the same pack stays selected across both.
+let selectedCreditProductId = null;
+
+// Compact horizontal purchase panel: icon+title+validity+description
+// on the left, selectable pack chips in the middle, one shared "Buy
+// Credits" button on the right — then a separate FIFO info notice
+// below. Selecting a pack just updates which product_id the shared
+// Buy button submits; the actual purchase still goes through the
+// exact same startPurchase()/buy-product-btn delegated handler at
+// the top of this file — nothing about the purchase flow changes,
+// only which single button triggers it.
+function renderCreditProducts(products, container) {
   if (products.length === 0) {
-    grid.innerHTML = '<div class="empty-state">No credit packages available right now.</div>';
+    container.innerHTML = '<div class="empty-state">No credit packages available right now.</div>';
     return;
   }
 
-  grid.innerHTML = products.map(p => {
-    const featured = p.best_value ? " featured" : "";
-    const badge = p.best_value ? '<span class="best-value-badge best-offer-badge">Best Offer</span>' : "";
-    return `
-      <div class="card pass-card plan-credit${featured}">
-        ${badge}
-        <div class="plan-icon">${planIconSvg("credit")}</div>
-        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
-        <div class="pass-price">&#8377;${p.price}</div>
-        <div class="pass-duration-plain">Valid for ${p.validity_days} Days</div>
-        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${featuresListHtml(p.features)}
-        <button class="btn btn-ghost btn-full buy-product-btn"
-          data-product-id="${p.id}" data-product-type="CREDIT" data-credits="${p.credits}">
-          Buy ${escapeHtmlLocal(p.name)}
-        </button>
-      </div>`;
-  }).join("");
+  if (!selectedCreditProductId || !products.some(p => p.id === selectedCreditProductId)) {
+    selectedCreditProductId = products[0].id;
+  }
+  const selected = products.find(p => p.id === selectedCreditProductId) || products[0];
+
+  // One shared "Valid for X days" line only makes sense to state once
+  // if every pack actually shares it; otherwise it reflects whichever
+  // pack is currently selected, and updates when the selection does —
+  // never a single number silently wrong for some packs.
+  const allSameValidity = products.every(p => p.validity_days === products[0].validity_days);
+  const validityDays = allSameValidity ? products[0].validity_days : selected.validity_days;
+  const description = selected.description || "Use credits to take mock tests on any category.";
+
+  container.innerHTML = `
+    <div class="credits-panel">
+      <div class="credits-panel-icon">${planIconSvg("credit")}</div>
+      <div class="credits-panel-info">
+        <div class="credits-panel-title">Test Credits</div>
+        <div class="credits-panel-validity">Valid for ${validityDays} days</div>
+        <div class="credits-panel-desc">${escapeHtmlLocal(description)}</div>
+      </div>
+      <div class="credit-pack-row" role="radiogroup" aria-label="Choose a credit pack">
+        ${products.map(p => creditPackChipHtml(p, p.id === selectedCreditProductId)).join("")}
+      </div>
+      <button class="btn credits-panel-buy-btn buy-product-btn" data-product-id="${selected.id}" data-product-type="CREDIT">
+        Buy Credits <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>
+    <div class="credits-fifo-notice">
+      <span class="credits-fifo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+      <span>1 credit is equal to 1 test attempt. Credits are used on a first-in, first-out basis. Each purchase has its own validity.</span>
+    </div>`;
+
+  // Selecting a pack re-renders the whole panel with the new
+  // selection — simplest way to keep the chip's selected state, the
+  // Buy button's data-product-id, and the validity/description line
+  // all consistent with each other, without hand-syncing three
+  // separate DOM updates.
+  container.querySelectorAll(".credit-pack-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      selectedCreditProductId = chip.dataset.productId;
+      renderCreditProducts(products, container);
+    });
+  });
+}
+
+function creditPackChipHtml(p, isSelected) {
+  const badge = p.badge_text ? '<span class="credit-pack-badge">' + escapeHtmlLocal(p.badge_text) + "</span>" : "";
+  // Selection is never color-only: aria-checked carries it for
+  // assistive tech, and the checkmark carries it visually alongside
+  // the border/weight change.
+  const check = isSelected ? '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>' : "";
+  return `
+    <button type="button" class="credit-pack-chip${isSelected ? " selected" : ""}" data-product-id="${p.id}" role="radio" aria-checked="${isSelected}">
+      ${badge}
+      <div class="credit-pack-name">${check}${escapeHtmlLocal(p.name)}</div>
+      <div class="credit-pack-price">&#8377;${p.price}</div>
+    </button>`;
 }
 
 function escapeHtmlLocal(str) {
