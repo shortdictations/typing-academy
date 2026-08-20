@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     startMockTestBtn.addEventListener("click", () => handleStartMockTestClick(user, startMockTestBtn));
   }
 
+  wireStatsScrollDots();
+
   // Every section below is independently guarded: this page has
   // several unrelated widgets (target WPM, pass/credits cards,
   // chart, recent tests), and a problem in any one of them should
@@ -1116,4 +1118,58 @@ function showCursor(nameEl) {
 function hideCursor(nameEl) {
   const existing = nameEl.parentElement && nameEl.parentElement.querySelector(".typewriter-cursor");
   if (existing) existing.remove();
+}
+
+/* ============================================================
+   Mobile stat-card strip — scroll-position dots
+   ------------------------------------------------------------
+   Purely visual/desktop-hidden via CSS (.dash-stats-dots is
+   display:none outside the mobile breakpoint), but wired
+   unconditionally here — harmless on desktop since the container
+   stays hidden, and avoids re-running this on resize/breakpoint
+   changes. Dot count comes from the actual number of .dash-stat-card
+   elements in the strip at wire-time (5 today: Tests Completed,
+   Avg WPM, Avg Accuracy, Active Pass, Credits — but this reads the
+   real DOM, not a hardcoded 5, so it stays correct if that ever
+   changes). Active dot is derived from the strip's real scrollLeft
+   against each card's actual offsetLeft, not an assumed card width,
+   so it stays correct across screen sizes and the responsive
+   80%-width card sizing in app-shell.css.
+   ============================================================ */
+function wireStatsScrollDots() {
+  const strip = document.querySelector(".dash-stats-grid");
+  const dotsContainer = document.getElementById("dashStatsDots");
+  if (!strip || !dotsContainer) return;
+
+  const cards = Array.from(strip.querySelectorAll(".dash-stat-card"));
+  if (cards.length === 0) return;
+
+  dotsContainer.innerHTML = cards
+    .map((_, i) => '<span class="dash-stats-dot' + (i === 0 ? " active" : "") + '"></span>')
+    .join("");
+  const dots = Array.from(dotsContainer.children);
+
+  let ticking = false;
+  function updateActiveDot() {
+    const scrollLeft = strip.scrollLeft;
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+    cards.forEach((card, i) => {
+      const distance = Math.abs(card.offsetLeft - strip.offsetLeft - scrollLeft);
+      if (distance < closestDistance) { closestDistance = distance; closestIndex = i; }
+    });
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === closestIndex));
+    ticking = false;
+  }
+
+  // rAF-gated so a fast swipe fires this once per frame, not once
+  // per scroll-event tick.
+  strip.addEventListener("scroll", () => {
+    if (!ticking) {
+      requestAnimationFrame(updateActiveDot);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener("resize", updateActiveDot);
 }

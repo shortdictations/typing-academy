@@ -182,6 +182,11 @@ function repositionDropdownIfNarrow(trigger, dropdown) {
 }
 
 async function initAuthHeader(user) {
+  // Independent of the avatar/dropdown below — runs even if this
+  // page somehow has no header user-menu, since the bottom nav is a
+  // separate element.
+  wireBottomNavActiveState();
+
   const trigger = document.getElementById("userMenuTrigger");
   const dropdown = document.getElementById("userMenuDropdown");
   if (!trigger || !dropdown) return; // page has no header user-menu at all
@@ -609,4 +614,36 @@ async function requireAdmin() {
     return null;
   }
   return user;
+}
+
+/* ============================================================
+   Mobile bottom nav — active-state detection
+   ------------------------------------------------------------
+   Previously "active" was a static class hand-written into each
+   page's own copy of the bottom-nav markup — but it was only ever
+   actually set on dashboard.html's own Dashboard link; every other
+   page's bottom nav showed nothing as active (checked directly:
+   subscriptions.html, settings.html, help-support.html all had zero
+   "active" occurrences). This replaces that with real route
+   detection — every page gets this call via initAuthHeader() above,
+   so there's one implementation, not eight hand-maintained copies
+   that can drift out of sync with each other or with which items
+   exist (this is also how Settings, newly added as a 5th item,
+   correctly becomes active on settings.html without any per-page
+   HTML edit).
+   ============================================================ */
+function wireBottomNavActiveState() {
+  const links = document.querySelectorAll(".app-bottom-nav-link");
+  if (links.length === 0) return;
+
+  let currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+  // mock-test-list.html (choosing a category/specific mock) is part
+  // of the same "Start Test" flow as mock-test.html, not its own
+  // bottom-nav destination.
+  if (currentPage === "mock-test-list.html") currentPage = "mock-test.html";
+
+  links.forEach(link => {
+    const linkPage = (link.getAttribute("href") || "").split("?")[0];
+    link.classList.toggle("active", linkPage === currentPage);
+  });
 }
