@@ -158,12 +158,12 @@ function renderPassProducts(products, grid, activePassTypes) {
       ? '<button class="btn btn-full" disabled style="opacity:0.6; cursor:not-allowed;">&#10003; Active</button>'
       : '<button class="btn btn-full buy-product-btn" data-product-id="' + p.id + '" data-product-type="PASS" data-pass-type="' + p.pass_type + '">Buy ' + escapeHtmlLocal(p.name) + '</button>';
     return `
-      <div class="card pass-card${featured}">
+      <div class="card pass-card plan-${(p.pass_type || '').toLowerCase()}${featured}">
         ${badge}
         <div class="card-label">${escapeHtmlLocal(p.name)}</div>
         <div class="pass-price">&#8377;${p.price}</div>
-        <div class="pass-duration">${p.validity_days} Days &middot; Non-recurring</div>
-        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:10px 0 0;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
         ${featuresListHtml(p.features)}
         ${buttonHtml}
       </div>`;
@@ -176,18 +176,23 @@ function renderCreditProducts(products, grid) {
     return;
   }
 
-  grid.innerHTML = products.map(p => `
-      <div class="card pass-card">
+  grid.innerHTML = products.map(p => {
+    const featured = p.best_value ? " featured" : "";
+    const badge = p.best_value ? '<span class="best-value-badge best-offer-badge">Best Offer</span>' : "";
+    return `
+      <div class="card pass-card plan-credit${featured}">
+        ${badge}
         <div class="card-label">${escapeHtmlLocal(p.name)}</div>
         <div class="pass-price">&#8377;${p.price}</div>
-        <div class="pass-duration">${p.credits} Credits &middot; Valid for ${p.validity_days} Days</div>
-        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        <div class="pass-duration-plain">Valid for ${p.validity_days} Days</div>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:10px 0 0;">' + escapeHtmlLocal(p.description) + "</p>" : ""}
         ${featuresListHtml(p.features)}
         <button class="btn btn-ghost btn-full buy-product-btn"
           data-product-id="${p.id}" data-product-type="CREDIT" data-credits="${p.credits}">
           Buy ${escapeHtmlLocal(p.name)}
         </button>
-      </div>`).join("");
+      </div>`;
+  }).join("");
 }
 
 function escapeHtmlLocal(str) {
