@@ -263,6 +263,10 @@ body.app-shell .dash-stats-grid{
   body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
 }
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
+/* Scroll-position dots only ever apply to the mobile horizontal
+   scroll strip — hidden by default, shown inside the
+   max-width:700px block below. */
+body.app-shell .dash-stats-dots{ display: none; }
 body.app-shell .dash-stat-text{ min-width: 0; }
 
 /* Active Pass card: plan-name typewriter rotation. Scoped to this
@@ -1249,7 +1253,7 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
   body.app-shell .app-bottom-nav{ display: block; }
   body.app-shell .app-content .page{ padding-bottom: 90px; }
   body.app-shell .letterhead-inner{ padding: 10px 16px; }
-  body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; gap: 10px; }
+  body.app-shell .app-greeting-row{ flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 22px; }
 
   /* Pre-existing bug, not introduced by this change: a base rule
      from the old hamburger-menu system —
@@ -1258,16 +1262,23 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
      the hamburger button once the viewport drops to this width. That
      silently took the bell, credit badge, AND the avatar menu with
      it. It went unnoticed while the sidebar dropdown still offered a
-     working mobile fallback for Profile/Settings/Logout; now that
-     the header avatar is the ONLY entry point, restoring these is
-     required, not optional. Restores each element's own normal
-     display value (not just "block"), since .credit-badge/.app-bell
-     are inline-flex and .user-menu-trigger is flex — "block" would
-     silently break their own internal alignment. */
+     working mobile fallback for Profile/Settings/Logout; the header
+     avatar was force-shown as the temporary fix while it was the
+     ONLY mobile entry point for those. It no longer is — Settings is
+     now its own bottom-nav item (see .app-bottom-nav below), so the
+     avatar/dropdown is intentionally hidden on mobile below, not
+     forced visible. Restores each element's own normal display value
+     (not just "block"), since .credit-badge/.app-bell are
+     inline-flex — "block" would silently break their own internal
+     alignment. */
   body.app-shell .nav-links > .app-bell{ display: inline-flex !important; }
   body.app-shell .nav-links > .credit-badge{ display: inline-flex !important; }
-  body.app-shell .nav-links > .user-menu{ display: block !important; }
-  body.app-shell .user-menu-trigger{ display: flex !important; }
+  /* Mobile header: bell + credit balance only — no avatar, no name,
+     no dropdown arrow. Desktop is completely unaffected (this rule
+     only exists inside this max-width:700px block); Profile/
+     Settings/Logout all remain reachable via the Settings bottom-nav
+     item added below. */
+  body.app-shell .nav-links > .user-menu{ display: none; }
 
   /* Compact CTA: same navy/rounded design, just shorter and smaller
      text — this is a secondary, oft-repeated action on a small
@@ -1283,7 +1294,10 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
      grid, so each card keeps its full layout (no squeezed/overflowing
      text) regardless of screen width. Snap-scrolling + a hidden
      scrollbar matches the existing chart-carousel pattern already
-     used elsewhere on this page. */
+     used elsewhere on this page. Card width is 80% of the strip
+     (capped so it doesn't balloon on larger phones/small tablets in
+     this same breakpoint) so the next card visibly peeks in as a
+     scroll affordance, per spec. */
   body.app-shell .dash-stats-grid{
     display: flex;
     grid-template-columns: unset;
@@ -1294,17 +1308,51 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
     padding-bottom: 2px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    margin-bottom: 10px;
   }
   body.app-shell .dash-stats-grid::-webkit-scrollbar{ display: none; }
+  /* Icon-on-top layout, replacing the row (icon-beside-text) layout
+     used everywhere else — taller, more breathing room, matches the
+     requested mobile card shape specifically. Desktop is untouched;
+     this only exists inside this max-width:700px block. */
   body.app-shell .dash-stat-card{
-    flex: 0 0 118px;
+    flex: 0 0 80%;
+    max-width: 300px;
     scroll-snap-align: start;
-    padding: 10px;
+    padding: 22px 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    min-height: 118px;
+    box-sizing: border-box;
   }
-  body.app-shell .dash-stat-icon{ width: 28px; height: 28px; margin-bottom: 4px; }
-  body.app-shell .dash-stat-icon svg{ width: 14px; height: 14px; }
-  body.app-shell .dash-stat-text .big{ font-size: 1.05rem; }
-  body.app-shell .dash-stat-text .lab{ font-size: 0.64rem; line-height: 1.25; }
+  body.app-shell .dash-stat-icon{ width: 38px; height: 38px; margin-bottom: 14px; }
+  body.app-shell .dash-stat-icon svg{ width: 18px; height: 18px; }
+  body.app-shell .dash-stat-text .big{ font-size: 1.35rem; line-height: 1.2; }
+  body.app-shell .dash-stat-text .lab{ font-size: 0.8rem; line-height: 1.3; margin-top: 5px; }
+
+  /* Scroll-position dots — purely a visual reflection of
+     scrollLeft/scrollWidth, computed and kept in sync by JS
+     (see dashboard.js) rather than a fixed count baked into the
+     markup, so this still works correctly if the number of cards
+     (or how many fit per "page") ever changes. */
+  body.app-shell .dash-stats-dots{
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 2px 0 18px;
+  }
+  body.app-shell .dash-stats-dot{
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ts-border);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  body.app-shell .dash-stats-dot.active{ background: var(--ts-blue); transform: scale(1.25); }
+  @media (prefers-reduced-motion: reduce){
+    body.app-shell .dash-stats-dot{ transition: none; }
+  }
 
   /* Active Pass and Remaining Credits use this exact same
      .dash-stat-card rule above (same class, not a separate one) —
