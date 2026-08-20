@@ -125,6 +125,18 @@ function sumUnexpiredCredits(creditRows) {
     .reduce((sum, c) => sum + c.credits_remaining, 0);
 }
 
+// Identical icon set to index.html's planIconSvg() — same glyph per
+// category everywhere a plan card appears, landing page included.
+function planIconSvg(theme) {
+  const icons = {
+    ssc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>',
+    legal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg>',
+    combo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a3 3 0 0 0 3 5"/><path d="M17 5h3a3 3 0 0 1-3 5"/></svg>',
+    credit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>'
+  };
+  return icons[theme] || icons.ssc;
+}
+
 function featuresListHtml(features) {
   if (!features || features.length === 0) return "";
   return '<ul class="plan-features">' +
@@ -155,13 +167,16 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
 function buildPassCardHtml(p, activeState) {
   const featured = p.best_value ? " featured" : "";
   const bestValueBadge = p.best_value ? '<span class="best-value-badge">Best Value</span>' : "";
-  const catClass = "plan-" + (p.pass_type || "").toLowerCase();
+  const theme = (p.pass_type || "ssc").toLowerCase();
+  const catClass = "plan-" + theme;
+  const iconHtml = '<div class="plan-icon">' + planIconSvg(theme) + '</div>';
 
   if (activeState) {
     const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     return `
       <div class="card pass-card ${catClass} is-owned${featured}">
         ${bestValueBadge}
+        ${iconHtml}
         <div class="pass-status-row">
           <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
         </div>
@@ -177,6 +192,7 @@ function buildPassCardHtml(p, activeState) {
   return `
     <div class="card pass-card ${catClass}${featured}">
       ${bestValueBadge}
+      ${iconHtml}
       <div class="pass-status-row pass-status-row-inactive">
         <span class="pass-status-text-inactive">Not Active</span>
       </div>
@@ -193,10 +209,14 @@ function buildPassCardHtml(p, activeState) {
 // one number a student actually needs: how many credits can I use
 // right now. The source-of-credits split still exists in the
 // wallet_credits table itself for accounting; it's just not
-// surfaced in this card.
+// surfaced in this card. Golden/cream treatment (icon, background,
+// border) matches .plan-credit on the public landing page (see
+// planIconSvg above and the app-shell.css rules mirroring
+// landing.css's body.landing-v2 .plan-credit block).
 function buildCreditsSummaryCardHtml(creditBalance) {
   return `
     <div class="card pass-card plan-credit credits-summary-card">
+      <div class="plan-icon">${planIconSvg("credit")}</div>
       <div class="card-label">Test Credits</div>
       <div class="credits-summary-count">${creditBalance}</div>
       <div class="credits-summary-label">Credits Available</div>
@@ -217,6 +237,7 @@ function renderCreditProducts(products, grid) {
     return `
       <div class="card pass-card plan-credit${featured}">
         ${badge}
+        <div class="plan-icon">${planIconSvg("credit")}</div>
         <div class="card-label">${escapeHtmlLocal(p.name)}</div>
         <div class="pass-price">&#8377;${p.price}</div>
         <div class="pass-duration-plain">Valid for ${p.validity_days} Days</div>
