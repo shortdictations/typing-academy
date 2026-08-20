@@ -868,6 +868,109 @@ body.app-shell .pass-card.featured.plan-credit{
 body.app-shell .best-value-badge{ position: absolute; top: 16px; right: 16px; background: var(--ts-purple); color: #fff; font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
 body.app-shell .best-offer-badge{ background: var(--ts-gold-dark); }
 
+/* ---------- Test Credits purchase panel ----------
+   Compact horizontal panel replacing the old grid-of-cards layout
+   for the purchasable credit packs specifically (the "what you
+   already have" summary card above is untouched — this is only the
+   "what you can buy" section). Icon+info on the left, selectable
+   pack chips in the middle, one shared Buy button on the right —
+   built entirely in renderCreditProducts()/subscriptions.js. */
+body.app-shell .credits-panel{
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: #FFFDF4;
+  border: 1px solid rgba(245,179,1,0.3);
+  border-radius: var(--ts-radius-lg);
+  padding: 20px 24px;
+  flex-wrap: wrap;
+}
+body.app-shell .credits-panel-icon{
+  width: 52px; height: 52px; flex: none;
+  border-radius: 50%;
+  background: rgba(245,179,1,0.18);
+  color: var(--ts-gold-dark);
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .credits-panel-icon svg{ width: 24px; height: 24px; }
+body.app-shell .credits-panel-info{ flex: 0 1 240px; min-width: 180px; }
+body.app-shell .credits-panel-title{ font-weight: 800; font-size: 1.05rem; color: var(--ts-text); }
+body.app-shell .credits-panel-validity{ font-size: 0.8rem; font-weight: 700; color: var(--ts-gold-dark); margin-top: 2px; }
+body.app-shell .credits-panel-desc{ font-size: 0.82rem; color: var(--ts-muted); margin-top: 4px; line-height: 1.4; }
+
+body.app-shell .credit-pack-row{ display: flex; gap: 12px; flex: 1 1 auto; flex-wrap: wrap; }
+body.app-shell .credit-pack-chip{
+  position: relative;
+  background: #fff;
+  border: 1.5px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  padding: 14px 18px;
+  min-width: 96px;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--ts-font);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.app-shell .credit-pack-chip:hover{ border-color: var(--ts-gold-dark); }
+body.app-shell .credit-pack-chip.selected{
+  border-color: var(--ts-gold-dark);
+  border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(245,179,1,0.15);
+}
+@media (prefers-reduced-motion: reduce){
+  body.app-shell .credit-pack-chip{ transition: none; }
+}
+body.app-shell .credit-pack-badge{
+  position: absolute;
+  top: -11px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--ts-gold-dark);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+body.app-shell .credit-pack-name{ font-size: 0.85rem; font-weight: 600; color: var(--ts-text); display: flex; align-items: center; justify-content: center; gap: 4px; }
+body.app-shell .credit-pack-check{ color: var(--ts-gold-dark); font-weight: 800; }
+body.app-shell .credit-pack-price{ font-size: 1.15rem; font-weight: 800; color: var(--ts-gold-dark); margin-top: 4px; }
+
+body.app-shell .credits-panel-buy-btn{
+  flex: none;
+  background: var(--ts-gold-dark);
+  border-color: var(--ts-gold-dark);
+  border-radius: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+body.app-shell .credits-panel-buy-btn:hover:not(:disabled){ background: #B87F00; border-color: #B87F00; }
+
+body.app-shell .credits-fifo-notice{
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  font-size: 0.8rem;
+  color: var(--ts-muted);
+  line-height: 1.5;
+}
+body.app-shell .credits-fifo-icon{ flex: none; margin-top: 1px; color: var(--ts-muted); }
+body.app-shell .credits-fifo-icon svg{ width: 16px; height: 16px; }
+
+@media (max-width: 900px){
+  body.app-shell .credits-panel{ flex-direction: column; align-items: stretch; text-align: left; }
+  body.app-shell .credits-panel-info{ flex: none; }
+  body.app-shell .credit-pack-row{ justify-content: flex-start; }
+  body.app-shell .credit-pack-chip{ flex: 1 1 calc(50% - 6px); min-width: 0; }
+  body.app-shell .credits-panel-buy-btn{ width: 100%; text-align: center; }
+}
+
 /* Owned/active pass state — status lives INSIDE the card, not in a
    separate section. Green border matches the "Active" language;
    deliberately not the category color, so ownership status always
@@ -1288,6 +1391,17 @@ html[data-theme="dark"] body.app-shell .plan-credit .pass-duration-pill{ backgro
 html[data-theme="dark"] body.app-shell .plan-credit .credits-summary-count{ color: #F5C94D; }
 html[data-theme="dark"] body.app-shell .plan-credit .credits-summary-note{ border-top-color: rgba(245,179,1,0.22); }
 html[data-theme="dark"] body.app-shell .plan-credit .btn.btn-ghost{ color: #F5C94D; border-color: #F5C94D; }
+
+html[data-theme="dark"] body.app-shell .credits-panel{ background: #1F1A0E; border-color: rgba(245,179,1,0.28); }
+html[data-theme="dark"] body.app-shell .credits-panel-icon{ background: rgba(245,179,1,0.2); color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .credits-panel-validity{ color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .credit-pack-chip{ background: #171F2E; border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .credit-pack-chip:hover{ border-color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .credit-pack-chip.selected{ border-color: #F5C94D; box-shadow: 0 0 0 3px rgba(245,179,1,0.18); }
+html[data-theme="dark"] body.app-shell .credit-pack-price,
+html[data-theme="dark"] body.app-shell .credit-pack-check{ color: #F5C94D; }
+html[data-theme="dark"] body.app-shell .credits-panel-buy-btn{ background: #D99A00; border-color: #D99A00; }
+html[data-theme="dark"] body.app-shell .credits-fifo-notice{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .plan-features li{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .subscriptions-help-banner{ background: rgba(47,95,236,0.12); }
 html[data-theme="dark"] body.app-shell .subscriptions-help-btn{ background: #131A28; }

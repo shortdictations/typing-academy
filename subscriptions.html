@@ -111,11 +111,10 @@
 
   <!-- Purchasable credit packs — admin-configured (products table,
        product_type = CREDIT). Separate from the summary card above:
-       this is what you can BUY, that card is what you already HAVE. -->
-  <h2 style="margin-top:36px;">Test Credits</h2>
-  <p class="lede" style="margin-bottom:18px;">1 Credit = 1 test attempt, on any SSC or Legal test. An eligible active Pass is always used first, so credits never get spent unnecessarily.</p>
-
-  <div class="passes-grid" id="creditProductsGrid">
+       this is what you can BUY, that card is what you already HAVE.
+       Built entirely by renderCreditProducts() in subscriptions.js —
+       see there for the panel/pack-selection/notice structure. -->
+  <div id="creditProductsGrid" style="margin-top:36px;">
     <div class="loading-strip">Loading credit packages...</div>
   </div>
 
