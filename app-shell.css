@@ -217,6 +217,113 @@ body.app-shell .app-bottom-nav-icon{
   display: flex; align-items: center; justify-content: center;
 }
 
+/* ---------- Mobile Profile drawer ----------
+   Reachable only via the Profile bottom-nav button, which itself
+   only exists inside the mobile bottom nav — so in practice this
+   whole component is mobile-only despite not being wrapped in its
+   own media query (the trigger simply doesn't exist to open it on
+   desktop). Slides in from the right over a translucent overlay;
+   width is a percentage of the viewport (75–85% per spec) with a
+   sensible cap so it doesn't become absurdly wide on larger
+   phones/small tablets. */
+body.app-shell .mobile-profile-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(11,28,63,0.45);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  /* Must beat .letterhead's own z-index:1000 (it's position:sticky —
+     see style.css) or the header intercepts clicks meant for this
+     overlay/drawer across its own height, confirmed directly: a
+     click at the overlay's top-left corner was silently swallowed
+     by ".letterhead-inner" instead of reaching the overlay. */
+  z-index: 1100;
+}
+body.app-shell .mobile-profile-overlay.open{ opacity: 1; }
+body.app-shell .mobile-profile-drawer{
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 80%;
+  max-width: 320px;
+  background: #FFFFFF;
+  border-radius: 18px 0 0 18px;
+  box-shadow: -8px 0 28px rgba(16,24,40,0.18);
+  z-index: 1101;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+body.app-shell .mobile-profile-drawer.open{ transform: translateX(0); }
+@media (prefers-reduced-motion: reduce){
+  body.app-shell .mobile-profile-overlay{ transition: none; }
+  body.app-shell .mobile-profile-drawer{ transition: none; }
+}
+body.app-shell .mobile-profile-drawer-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--ts-text);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .mobile-profile-drawer-close{
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--ts-muted);
+  cursor: pointer;
+  display: flex;
+}
+body.app-shell .mobile-profile-drawer-close svg{ width: 20px; height: 20px; }
+body.app-shell .mobile-profile-drawer-name{
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ts-text);
+  padding: 14px 4px 10px;
+}
+body.app-shell .mobile-profile-drawer-nav{ display: flex; flex-direction: column; gap: 2px; }
+body.app-shell .mobile-profile-drawer-link{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 10px;
+  border-radius: 10px;
+  color: var(--ts-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--ts-font);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+body.app-shell .mobile-profile-drawer-link:hover{ background: var(--ts-background); }
+body.app-shell .mobile-profile-drawer-icon{ width: 22px; height: 22px; flex: none; display: flex; color: var(--ts-muted); }
+body.app-shell .mobile-profile-drawer-icon svg{ width: 20px; height: 20px; }
+body.app-shell .mobile-profile-drawer-logout{ color: var(--ts-red); margin-top: 8px; border-top: 1px solid var(--ts-border); padding-top: 15px; border-radius: 0; }
+body.app-shell .mobile-profile-drawer-logout .mobile-profile-drawer-icon{ color: var(--ts-red); }
+body.app-shell .mobile-profile-drawer-logout:hover{ background: var(--ts-red-tint); }
+/* Profile trigger's own "active" state while the drawer is open —
+   toggled directly by wireMobileProfileDrawer() in auth.js, not by
+   the URL-based active-state detection every other bottom-nav item
+   uses (this one never navigates, so there's no URL to match). */
+body.app-shell .app-bottom-nav-link#mobileProfileTrigger{ background: none; border: none; font-family: inherit; cursor: pointer; }
+body.app-shell .app-bottom-nav-link#mobileProfileTrigger.active{ color: var(--ts-navy); }
+body.app-shell .app-bottom-nav-link#mobileProfileTrigger.active .app-bottom-nav-icon{
+  background: var(--ts-navy);
+  color: #FFFFFF;
+  border-radius: 10px;
+}
+
 /* ---------- Announcement banner (existing ticker) restyle ---------- */
 body.app-shell .announcement-ticker{ background: #FFF7E6; }
 
@@ -1329,12 +1436,17 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
   /* Icon-on-top layout, replacing the row (icon-beside-text) layout
      used everywhere else — taller, more breathing room, matches the
      requested mobile card shape specifically. Desktop is untouched;
-     this only exists inside this max-width:700px block. */
+     this only exists inside this max-width:700px block. Width is a
+     fixed, content-appropriate size (not a percentage of viewport —
+     that was the previous, too-wide approach) — vertical padding,
+     min-height, icon size, and typography are all left exactly as
+     they were; only horizontal padding and the flex-basis width
+     changed, since those are the only two things actually
+     responsible for the leftover empty space. */
   body.app-shell .dash-stat-card{
-    flex: 0 0 72%;
-    max-width: 260px;
+    flex: 0 0 138px;
     scroll-snap-align: start;
-    padding: 22px 18px;
+    padding: 22px 14px;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
@@ -1435,6 +1547,13 @@ html[data-theme="dark"] body.app-shell .app-bottom-nav{
   background: #171F2E;
   border-color: var(--ts-border);
 }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer{ background: #171F2E; }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-header{ color: var(--ts-text); border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-name{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link:hover{ background: #1B2334; }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-logout{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-logout:hover{ background: rgba(209,67,67,0.15); }
 html[data-theme="dark"] body.app-shell .pass-price{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .card-label{ color: var(--ts-muted); border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .plan-ssc .pass-duration-pill{ background: rgba(47,95,236,0.18); color: #9DB6F5; }
