@@ -186,6 +186,7 @@ async function initAuthHeader(user) {
   // page somehow has no header user-menu, since the bottom nav is a
   // separate element.
   wireBottomNavActiveState();
+  wireMobileProfileDrawer(user);
 
   const trigger = document.getElementById("userMenuTrigger");
   const dropdown = document.getElementById("userMenuDropdown");
@@ -646,4 +647,88 @@ function wireBottomNavActiveState() {
     const linkPage = (link.getAttribute("href") || "").split("?")[0];
     link.classList.toggle("active", linkPage === currentPage);
   });
+}
+
+/* ============================================================
+   Mobile Profile drawer
+   ------------------------------------------------------------
+   Opened by the Profile bottom-nav button (mobile only — desktop
+   never shows that button, since it sits inside the same
+   max-width:700px block as the rest of the bottom nav). Not a
+   second profile/settings system: the two links inside are plain
+   <a href> to the EXISTING settings.html and help-support.html
+   pages, and Log Out calls the EXISTING logoutStudent() defined
+   above — nothing here duplicates auth/session logic.
+   ============================================================ */
+function wireMobileProfileDrawer(user) {
+  const trigger = document.getElementById("mobileProfileTrigger");
+  const overlay = document.getElementById("mobileProfileOverlay");
+  const drawer = document.getElementById("mobileProfileDrawer");
+  const closeBtn = document.getElementById("mobileProfileCloseBtn");
+  const logoutBtn = document.getElementById("mobileProfileLogoutBtn");
+  const nameEl = document.getElementById("mobileProfileDrawerName");
+  if (!trigger || !overlay || !drawer || !closeBtn || !logoutBtn) return;
+
+  const displayName = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : user.email;
+  if (nameEl) nameEl.textContent = displayName;
+
+  let lastFocused = null;
+  let hideTimeoutId = null;
+
+  function isOpen() { return drawer.classList.contains("open"); }
+
+  function openDrawer() {
+    lastFocused = document.activeElement;
+    clearTimeout(hideTimeoutId);
+    overlay.hidden = false;
+    drawer.hidden = false;
+    // Two rAFs, not one — hidden->visible plus the transition-start
+    // class need to land in separate paint frames or the browser
+    // sometimes collapses them and the slide-in never animates.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      overlay.classList.add("open");
+      drawer.classList.add("open");
+    }));
+    trigger.setAttribute("aria-expanded", "true");
+    trigger.classList.add("active");
+    document.addEventListener("keydown", onKeydown);
+    closeBtn.focus();
+  }
+
+  function closeDrawer() {
+    if (!isOpen()) return;
+    overlay.classList.remove("open");
+    drawer.classList.remove("open");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.classList.remove("active");
+    document.removeEventListener("keydown", onKeydown);
+    // Hide after the slide-out finishes so it's unreachable/invisible
+    // to assistive tech and Tab order immediately, not just visually
+    // transparent — matches the timing used for the transition
+    // itself, including the reduced-motion case (near-instant).
+    const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    hideTimeoutId = setTimeout(() => {
+      overlay.hidden = true;
+      drawer.hidden = true;
+    }, prefersReducedMotion ? 0 : 320);
+    if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") { closeDrawer(); return; }
+    if (e.key !== "Tab") return;
+    // Basic focus trap — Tab/Shift+Tab wrap within the drawer's own
+    // focusable elements while it's open.
+    const focusables = drawer.querySelectorAll("a[href], button:not([disabled])");
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  trigger.addEventListener("click", () => { isOpen() ? closeDrawer() : openDrawer(); });
+  closeBtn.addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+  logoutBtn.addEventListener("click", () => { closeDrawer(); logoutStudent(); });
 }
