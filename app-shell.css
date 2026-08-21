@@ -217,6 +217,160 @@ body.app-shell .app-bottom-nav-icon{
   display: flex; align-items: center; justify-content: center;
 }
 
+/* ---------- Purchase History + Purchase Detail pages ----------
+   Entirely new UI on top of the existing purchase_transactions
+   table (read-only) — no changes to purchase/payment/credit logic
+   anywhere in this block. */
+body.app-shell .ph-back-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ts-blue);
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+body.app-shell .ph-back-link:hover{ text-decoration: underline; }
+
+body.app-shell .ph-summary-row{ display: flex; gap: 12px; margin: 14px 0 20px; }
+body.app-shell .ph-summary-card{
+  flex: 1 1 0;
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px 18px;
+}
+body.app-shell .ph-summary-value{ font-size: 1.4rem; font-weight: 800; color: var(--ts-text); }
+body.app-shell .ph-summary-label{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 2px; }
+
+body.app-shell .ph-filter-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+body.app-shell .ph-filter-group{ display: flex; gap: 6px; }
+body.app-shell .ph-filter-btn{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ts-muted);
+  cursor: pointer;
+  font-family: var(--ts-font);
+}
+body.app-shell .ph-filter-btn.active{ background: var(--ts-navy); border-color: var(--ts-navy); color: #fff; }
+body.app-shell .ph-status-select{
+  border: 1px solid var(--ts-border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ts-text);
+  background: #fff;
+  font-family: var(--ts-font);
+}
+
+body.app-shell .ph-txn-card{
+  display: block;
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.app-shell .ph-txn-card:hover{ border-color: var(--ts-blue); box-shadow: 0 4px 14px rgba(16,24,40,0.08); }
+body.app-shell .ph-txn-top{ display: flex; align-items: center; gap: 10px; }
+body.app-shell .ph-txn-icon{
+  width: 34px; height: 34px; flex: none;
+  border-radius: 50%;
+  background: var(--ts-blue-tint);
+  color: var(--ts-blue);
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .ph-txn-icon svg{ width: 16px; height: 16px; }
+body.app-shell .ph-txn-name{ font-weight: 700; font-size: 0.95rem; color: var(--ts-text); flex: 1 1 auto; }
+body.app-shell .ph-txn-amount{ font-weight: 800; font-size: 1rem; color: var(--ts-text); }
+body.app-shell .ph-txn-meta{ font-size: 0.78rem; color: var(--ts-muted); margin: 6px 0 10px 44px; }
+body.app-shell .ph-txn-row2{ display: flex; align-items: center; justify-content: space-between; padding-left: 44px; }
+body.app-shell .ph-txn-date{ font-size: 0.82rem; color: var(--ts-text); }
+body.app-shell .ph-txn-row3{ display: flex; align-items: center; justify-content: space-between; padding-left: 44px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ts-border); }
+body.app-shell .ph-txn-order{ font-size: 0.76rem; color: var(--ts-muted); }
+body.app-shell .ph-txn-view{ font-size: 0.8rem; font-weight: 700; color: var(--ts-blue); }
+
+/* Status dot + text — never color-only: label text is always
+   present alongside the dot. */
+body.app-shell .ph-status-dot{ display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+body.app-shell .ph-txn-status,
+body.app-shell .ph-detail-status{ display: inline-flex; align-items: center; font-size: 0.78rem; font-weight: 700; }
+body.app-shell .ph-status-success .ph-status-dot,
+body.app-shell .ph-status-success{ color: var(--ts-green); }
+body.app-shell .ph-status-success .ph-status-dot{ background: var(--ts-green); }
+body.app-shell .ph-status-processing{ color: var(--ts-orange); }
+body.app-shell .ph-status-processing .ph-status-dot{ background: var(--ts-orange); }
+body.app-shell .ph-status-failed{ color: var(--ts-red); }
+body.app-shell .ph-status-failed .ph-status-dot{ background: var(--ts-red); }
+body.app-shell .ph-status-refunded{ color: var(--ts-muted); }
+body.app-shell .ph-status-refunded .ph-status-dot{ background: var(--ts-muted); }
+
+body.app-shell .ph-empty-state{
+  text-align: center;
+  padding: 48px 20px;
+  border: 1px dashed var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: #fff;
+}
+body.app-shell .ph-empty-title{ font-weight: 800; font-size: 1.1rem; color: var(--ts-text); }
+body.app-shell .ph-empty-sub{ font-size: 0.88rem; color: var(--ts-muted); margin: 8px 0 18px; }
+
+/* Detail page */
+body.app-shell .ph-detail-head{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 22px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+body.app-shell .ph-detail-name{ font-weight: 800; font-size: 1.15rem; color: var(--ts-text); }
+body.app-shell .ph-detail-status{ justify-content: center; margin-top: 8px; font-size: 0.85rem; }
+body.app-shell .ph-detail-amount{ font-size: 1.7rem; font-weight: 800; color: var(--ts-text); margin-top: 10px; }
+body.app-shell .ph-status-note{ font-size: 0.82rem; color: var(--ts-muted); margin-top: 12px; max-width: 340px; margin-left: auto; margin-right: auto; }
+body.app-shell .ph-detail-head .btn{ margin-top: 14px; }
+body.app-shell .ph-detail-section{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+body.app-shell .ph-detail-section-title{ font-weight: 700; font-size: 0.85rem; color: var(--ts-muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 10px; }
+body.app-shell .ph-detail-row{ display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--ts-border); font-size: 0.88rem; }
+body.app-shell .ph-detail-row:last-child{ border-bottom: none; }
+body.app-shell .ph-detail-row span{ color: var(--ts-muted); }
+body.app-shell .ph-detail-row strong{ color: var(--ts-text); font-weight: 700; text-align: right; }
+body.app-shell .ph-lot-note{
+  font-size: 0.8rem;
+  color: var(--ts-muted);
+  background: var(--ts-blue-tint);
+  border-radius: var(--ts-radius-md);
+  padding: 12px 16px;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px){
+  body.app-shell .ph-filter-row{ flex-direction: column; align-items: stretch; }
+  body.app-shell .ph-status-select{ width: 100%; }
+}
+
 /* ---------- Mobile Profile drawer ----------
    Reachable only via the Profile bottom-nav button, which itself
    only exists inside the mobile bottom nav — so in practice this
@@ -1547,6 +1701,22 @@ html[data-theme="dark"] body.app-shell .app-bottom-nav{
   background: #171F2E;
   border-color: var(--ts-border);
 }
+html[data-theme="dark"] body.app-shell .ph-summary-card,
+html[data-theme="dark"] body.app-shell .ph-txn-card,
+html[data-theme="dark"] body.app-shell .ph-empty-state,
+html[data-theme="dark"] body.app-shell .ph-detail-head,
+html[data-theme="dark"] body.app-shell .ph-detail-section,
+html[data-theme="dark"] body.app-shell .ph-filter-btn,
+html[data-theme="dark"] body.app-shell .ph-status-select{
+  background: #171F2E;
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .ph-filter-btn.active{ background: var(--ts-blue); border-color: var(--ts-blue); }
+html[data-theme="dark"] body.app-shell .ph-txn-row3,
+html[data-theme="dark"] body.app-shell .ph-detail-row{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .ph-lot-note{ background: rgba(47,95,236,0.14); }
+
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer{ background: #171F2E; }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-header{ color: var(--ts-text); border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-name{ color: var(--ts-text); }
