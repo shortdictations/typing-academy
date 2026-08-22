@@ -1,0 +1,64 @@
+-- ============================================================
+-- one_attempt_per_mock.sql
+-- ------------------------------------------------------------
+-- STATUS: ALREADY APPLIED to the live database
+-- (project myjljedcniprjgxycdcl) via Supabase MCP access granted
+-- this session. This file documents exactly what was run, for
+-- your records / version control — it is not something you need
+-- to run again.
+--
+-- WHAT WAS FOUND ON INSPECTION (before any change was made):
+--   - mock_test_results had NO unique constraint on
+--     (user_id, mock_test_id) — confirmed via pg_constraint/
+--     pg_indexes.
+--   - get_mock_access() — the shared function behind BOTH
+--     can_access_mock() (used for display) and start_mock_test()
+--     (used to actually grant access) — had NO check against
+--     mock_test_results at all. A free mock, or a mock covered by
+--     an active Pass, was granted regardless of whether the user
+--     had already completed it. This was a real, directly
+--     exploitable server-side gap (bypassable via a direct RPC
+--     call, not just a frontend button) — not merely a UI issue.
+--   - start_credit_test() was ALREADY safe: it inserts into
+--     mock_unlocks (user_id, mock_test_id), which already had its
+--     own pre-existing unique constraint, and the function
+--     explicitly catches that unique_violation and returns
+--     'ALREADY_COMPLETED'. No change was needed there.
+--   - start_mock_test() collapsed every has_access=false case to
+--     the single reason 'LOCKED', discarding whatever specific
+--     reason get_mock_access() actually returned — so even once
+--     get_mock_access() could return ALREADY_COMPLETED, the
+--     client would never see it.
+--   - One real, pre-existing duplicate was found in production:
+--     user c9e66db1-5e72-484d-bc3c-23006885ac58 had completed
+--     "Legal Mock 04" twice, ~15 minutes apart. Resolved by
+--     keeping the earlier (first genuine) attempt and removing
+--     the later one — the only row this session deleted.
+--
+-- WHAT WAS APPLIED (in this order):
+--   1. Deleted the one duplicate row described above.
+--   2. alter table mock_test_results
+--        add constraint mock_test_results_user_mock_unique
+--        unique (user_id, mock_test_id);
+--      (mock_test_id is nullable — legacy rows with no mock_test_id
+--      are unaffected, since Postgres treats each NULL as distinct
+--      for uniqueness purposes.)
+--   3. Replaced get_mock_access() to check mock_test_results FIRST,
+--      before free/subscription/pass/credit-unlock — every other
+--      branch is byte-identical to the previous version.
+--   4. Replaced start_mock_test() to propagate the real
+--      access_reason instead of hardcoding 'LOCKED'.
+--
+-- VERIFIED (not just assumed) after applying:
+--   - Re-read pg_constraint: mock_test_results_user_mock_unique
+--     exists exactly as intended.
+--   - A direct INSERT attempt duplicating the known-completed
+--     (user_id, mock_test_id) pair was rejected with
+--     23505 duplicate key value violates unique constraint.
+--   - A direct INSERT for the SAME user with a genuinely different,
+--     uncompleted mock_test_id succeeded normally (rolled back —
+--     test only), confirming the constraint doesn't over-block.
+--   - Re-counted mock_test_results: distinct (user_id, mock_test_id)
+--     pairs now exactly equals the number of non-null-mock_test_id
+--     rows — zero duplicates remain.
+-- ============================================================
