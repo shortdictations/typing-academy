@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!currentUser) return;
 
   wireFilters();
-  await loadSummary();
   await loadPage(true);
 });
 
@@ -52,33 +51,6 @@ function resetAndReload() {
   currentOffset = 0;
   reachedEnd = false;
   loadPage(true);
-}
-
-// Total Purchases / Total Spent — computed from real paid
-// transactions only; hidden entirely if there are none, rather than
-// showing a "0 purchases, ₹0 spent" summary that adds no value on
-// top of the empty state below.
-async function loadSummary() {
-  const { data, error } = await supabaseClient
-    .from("purchase_transactions")
-    .select("amount")
-    .eq("user_id", currentUser.id)
-    .eq("status", "paid");
-
-  if (error || !data || data.length === 0) return;
-
-  const totalSpent = data.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-  const row = document.getElementById("phSummaryRow");
-  row.innerHTML = `
-    <div class="ph-summary-card">
-      <div class="ph-summary-value">${data.length}</div>
-      <div class="ph-summary-label">Total Purchases</div>
-    </div>
-    <div class="ph-summary-card">
-      <div class="ph-summary-value">&#8377;${totalSpent.toLocaleString("en-IN")}</div>
-      <div class="ph-summary-label">Total Spent</div>
-    </div>`;
-  row.style.display = "";
 }
 
 async function loadPage(replace) {
