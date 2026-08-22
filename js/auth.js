@@ -188,6 +188,7 @@ async function initAuthHeader(user) {
   // separate element.
   wireBottomNavActiveState();
   wireMobileProfileDrawer(user);
+  wireSidebarCollapse();
 
   const trigger = document.getElementById("userMenuTrigger");
   const dropdown = document.getElementById("userMenuDropdown");
@@ -708,6 +709,15 @@ function wireMobileProfileDrawer(user) {
     trigger.classList.add("active");
     document.addEventListener("keydown", onKeydown);
     closeBtn.focus();
+    // overflow:hidden rather than the position:fixed scroll-lock
+    // trick — this doesn't detach the page from its own scroll
+    // position, so there's nothing to manually restore on close; the
+    // browser keeps it exactly where it was. The drawer itself keeps
+    // its own overflow-y:auto (see app-shell.css), so it can still
+    // scroll independently if its content ever exceeds the screen
+    // height, while the page behind it can't move at all.
+    document.body.classList.add("ts-scroll-locked");
+    document.documentElement.classList.add("ts-scroll-locked");
   }
 
   function closeDrawer() {
@@ -717,6 +727,8 @@ function wireMobileProfileDrawer(user) {
     trigger.setAttribute("aria-expanded", "false");
     trigger.classList.remove("active");
     document.removeEventListener("keydown", onKeydown);
+    document.body.classList.remove("ts-scroll-locked");
+    document.documentElement.classList.remove("ts-scroll-locked");
     // Hide after the slide-out finishes so it's unreachable/invisible
     // to assistive tech and Tab order immediately, not just visually
     // transparent — matches the timing used for the transition
@@ -862,5 +874,36 @@ function wireNotificationsPlaceholder() {
     note.textContent = "You're all caught up";
     btn.appendChild(note);
     setTimeout(() => note.remove(), 2200);
+  });
+}
+
+/* ============================================================
+   Desktop sidebar collapse/expand
+   ------------------------------------------------------------
+   Desktop/tablet only — the toggle button itself only exists
+   inside .app-sidebar, which is display:none below 700px (see
+   app-shell.css), so this has no effect on the separate mobile
+   drawer system. Persisted the same way the dark/light theme
+   preference already is (a plain localStorage flag read on load),
+   so the collapsed state stays consistent across page navigations
+   rather than resetting on every page.
+   ============================================================ */
+function wireSidebarCollapse() {
+  const sidebar = document.getElementById("appSidebar");
+  const toggleBtn = document.getElementById("sidebarToggleBtn");
+  if (!sidebar || !toggleBtn) return;
+
+  function applyState(collapsed) {
+    sidebar.classList.toggle("collapsed", collapsed);
+    toggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+  }
+
+  applyState(localStorage.getItem("typeshala-sidebar-collapsed") === "1");
+
+  toggleBtn.addEventListener("click", () => {
+    const collapsed = !sidebar.classList.contains("collapsed");
+    applyState(collapsed);
+    localStorage.setItem("typeshala-sidebar-collapsed", collapsed ? "1" : "0");
   });
 }
