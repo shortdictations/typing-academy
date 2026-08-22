@@ -111,7 +111,16 @@ body.app-shell .avatar-btn{ border-color: var(--ts-gold); }
    replace is left completely alone since .avatar-btn is still used
    by the separate legacy mobile hamburger sidebar
    (buildMobileSidebar in auth.js), out of scope here. */
-body.app-shell #userMenuTrigger{ padding: 2px; gap: 0; }
+body.app-shell #userMenuTrigger{ padding: 2px; gap: 0; border-radius: 50%; border: none; }
+/* .nav-links button:hover (style.css) is a legacy rule for the old
+   notebook-themed nav buttons — an opaque brass background with a
+   near-square 3px border-radius. #userMenuTrigger is a <button>
+   inside .nav-links, so it was unintentionally inheriting that
+   rule, showing a solid brass rectangle behind the circular avatar
+   on hover. An ID selector always outweighs that class+element
+   rule's specificity, so this is enough to override it without
+   !important. */
+body.app-shell #userMenuTrigger:hover{ background: transparent; }
 body.app-shell .user-menu-avatar-small{
   width: 34px; height: 34px;
   border-radius: 50%;
@@ -121,7 +130,25 @@ body.app-shell .user-menu-avatar-small{
   box-sizing: border-box;
 }
 body.app-shell .user-menu-dropdown.avatar-dropdown{ padding-top: 20px; text-align: center; }
-body.app-shell .avatar-dropdown-avatar-wrap{ position: relative; display: inline-block; margin-bottom: 10px; }
+body.app-shell .avatar-dropdown-avatar-wrap{
+  position: relative;
+  align-self: center;
+  margin-bottom: 10px;
+  /* .user-menu-dropdown (style.css) is display:flex; flex-direction:
+     column — every direct child stretches to fill the full width by
+     default (align-items:stretch), which silently overrides this
+     element's own display:inline-block and stretched it to 208px,
+     pulling the avatar left-flush and the pencil (positioned
+     relative to THIS box) far away from the actual 72px-wide avatar
+     inside it. align-self:center opts this one item out of the
+     stretch, sizing it to its own content (the avatar) and centering
+     it — which is what actually fixes both the misalignment and the
+     detached-pencil issue at once, confirmed directly: before this,
+     getBoundingClientRect() showed the avatar flush with the
+     dropdown's own left edge and the pencil sitting ~110px away
+     from the avatar's right edge, near the dropdown's own right
+     edge instead of the avatar's corner. */
+}
 body.app-shell .avatar-dropdown-avatar{
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -148,7 +175,13 @@ body.app-shell .avatar-dropdown-avatar-edit svg{ width: 12px; height: 12px; }
 body.app-shell .avatar-dropdown-header{ background: none; border-bottom: none; padding: 0 16px 14px; }
 body.app-shell .avatar-dropdown-email{ word-break: break-all; }
 body.app-shell .user-menu-dropdown.avatar-dropdown .avatar-dropdown-divider{ margin: 0; }
-body.app-shell .user-menu-dropdown.avatar-dropdown .avatar-menu-logout{ text-align: center; justify-content: center; }
+/* .avatar-menu-icon (style.css) was designed for a text/emoji icon —
+   sized correctly already (20px slot), just needs the SVG itself
+   constrained to fit it. The base .avatar-menu-row is already
+   text-align:left with icon+label side by side, matching the
+   reference exactly — no override needed here, unlike before. */
+body.app-shell .avatar-menu-icon svg{ width: 18px; height: 18px; display: block; }
+body.app-shell .avatar-menu-logout .avatar-menu-icon{ color: var(--ts-red); }
 
 /* ---------- Layout: sidebar + content ---------- */
 body.app-shell .app-body{
