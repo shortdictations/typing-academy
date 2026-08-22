@@ -103,6 +103,53 @@ body.app-shell .credit-badge:hover{ background: var(--ts-gold); color: var(--ts-
 
 body.app-shell .avatar-btn{ border-color: var(--ts-gold); }
 
+/* ---------- Desktop header profile: small trigger avatar + large
+   dropdown avatar with its own pencil ----------
+   New elements (.ts-avatar-render is the shared demo-avatar render
+   target used by mobile too — see auth.js wireAvatar()); the old
+   .avatar-btn/.user-menu-name/.user-menu-chevron system these
+   replace is left completely alone since .avatar-btn is still used
+   by the separate legacy mobile hamburger sidebar
+   (buildMobileSidebar in auth.js), out of scope here. */
+body.app-shell #userMenuTrigger{ padding: 2px; gap: 0; }
+body.app-shell .user-menu-avatar-small{
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  border: 2px solid var(--ts-gold);
+  box-sizing: border-box;
+}
+body.app-shell .user-menu-dropdown.avatar-dropdown{ padding-top: 20px; text-align: center; }
+body.app-shell .avatar-dropdown-avatar-wrap{ position: relative; display: inline-block; margin-bottom: 10px; }
+body.app-shell .avatar-dropdown-avatar{
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  background: var(--ts-background);
+}
+/* Pencil belongs ONLY here — never on the small header avatar — per
+   spec: "the pencil must NOT appear on the small avatar in the
+   header." */
+body.app-shell .avatar-dropdown-avatar-edit{
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--ts-navy);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+body.app-shell .avatar-dropdown-avatar-edit svg{ width: 12px; height: 12px; }
+body.app-shell .avatar-dropdown-header{ background: none; border-bottom: none; padding: 0 16px 14px; }
+body.app-shell .avatar-dropdown-email{ word-break: break-all; }
+body.app-shell .user-menu-dropdown.avatar-dropdown .avatar-dropdown-divider{ margin: 0; }
+body.app-shell .user-menu-dropdown.avatar-dropdown .avatar-menu-logout{ text-align: center; justify-content: center; }
+
 /* ---------- Layout: sidebar + content ---------- */
 body.app-shell .app-body{
   display: flex;
@@ -1969,8 +2016,11 @@ html[data-theme="dark"] body.app-shell .help-sender-row{ background: #16223A; }
 html[data-theme="dark"] body.app-shell .help-sender-label{ color: #9DB6F5; }
 html[data-theme="dark"] body.app-shell .user-menu-dropdown{ background: #171F2E; border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .user-menu-dropdown .avatar-menu-row:hover{ background: #1B2334; }
-html[data-theme="dark"] body.app-shell .avatar-dropdown-header{ background: #171F2E; border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .avatar-dropdown-divider{ background: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .avatar-dropdown-avatar{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .user-menu-avatar-small{ border-color: var(--ts-gold); }
+html[data-theme="dark"] body.app-shell .avatar-dropdown-name{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .avatar-dropdown-email{ color: var(--ts-muted); }
 html[data-theme="dark"] body.app-shell footer.site-foot{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .site-foot-line,
 html[data-theme="dark"] body.app-shell .site-foot-credit,
