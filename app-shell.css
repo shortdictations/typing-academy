@@ -652,6 +652,7 @@ body.app-shell .avatar-picker-option{
   padding: 6px;
   border-radius: 12px;
 }
+body.app-shell .avatar-picker-preview-wrap{ position: relative; display: block; }
 body.app-shell .avatar-picker-preview{
   width: 64px; height: 64px;
   border-radius: 50%;
@@ -659,8 +660,24 @@ body.app-shell .avatar-picker-preview{
   display: block;
   border: 2px solid transparent;
 }
+/* Checkmark badge — matches the reference exactly: only visible on
+   the currently-selected avatar, bottom-right of the circle. */
+body.app-shell .avatar-picker-check{
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--ts-blue);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+body.app-shell .avatar-picker-check svg{ width: 11px; height: 11px; }
 body.app-shell .avatar-picker-option.selected{ color: var(--ts-navy); }
-body.app-shell .avatar-picker-option.selected .avatar-picker-preview{ border-color: var(--ts-gold-dark); }
+body.app-shell .avatar-picker-option.selected .avatar-picker-preview{ border-color: var(--ts-blue); }
+body.app-shell .avatar-picker-option.selected .avatar-picker-check{ display: flex; }
 body.app-shell .avatar-picker-cancel{ width: 100%; }
 
 /* ---------- Announcement banner (existing ticker) restyle ---------- */
