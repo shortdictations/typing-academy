@@ -302,9 +302,28 @@ body.app-shell .ph-txn-amount{ font-weight: 800; font-size: 1rem; color: var(--t
 body.app-shell .ph-txn-meta{ font-size: 0.78rem; color: var(--ts-muted); margin: 6px 0 10px 44px; }
 body.app-shell .ph-txn-row2{ display: flex; align-items: center; justify-content: space-between; padding-left: 44px; }
 body.app-shell .ph-txn-date{ font-size: 0.82rem; color: var(--ts-text); }
-body.app-shell .ph-txn-row3{ display: flex; align-items: center; justify-content: space-between; padding-left: 44px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ts-border); }
-body.app-shell .ph-txn-order{ font-size: 0.76rem; color: var(--ts-muted); }
-body.app-shell .ph-txn-view{ font-size: 0.8rem; font-weight: 700; color: var(--ts-blue); }
+body.app-shell .ph-txn-row3{ display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: 44px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ts-border); }
+/* The actual fix for the Order ID / View Details collision: a flex
+   child with text content won't shrink below its own intrinsic
+   width unless min-width is explicitly reset to 0 — without that,
+   a long order id simply overflows the row and visually overlaps
+   the "View Details" link next to it instead of truncating. */
+body.app-shell .ph-txn-order{
+  font-size: 0.76rem;
+  color: var(--ts-muted);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.app-shell .ph-txn-view{ font-size: 0.8rem; font-weight: 700; color: var(--ts-blue); flex: none; white-space: nowrap; }
+/* Safety net for genuinely narrow phones (320–359px), where even a
+   short order id plus "View Details →" can't comfortably share one
+   row — stack instead of relying on ellipsis truncation alone. */
+@media (max-width: 359px){
+  body.app-shell .ph-txn-row3{ flex-direction: column; align-items: flex-start; gap: 4px; }
+}
 
 /* Status dot + text — never color-only: label text is always
    present alongside the dot. */
