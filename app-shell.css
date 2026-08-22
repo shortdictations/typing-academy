@@ -187,8 +187,22 @@ body.app-shell .avatar-menu-logout .avatar-menu-icon{ color: var(--ts-red); }
 body.app-shell .app-body{
   display: flex;
   align-items: flex-start;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  /* Was max-width:1400px; margin:0 auto — which centers this WHOLE
+     row (sidebar + content) as one block. On any viewport wider
+     than 1400px, that leaves equal empty space on both the left
+     AND right of the row, which is exactly what put visible empty
+     space between the true viewport edge and the sidebar. The
+     sidebar itself doesn't need its own left:0 rule to fix this —
+     removing this outer centering is enough, since the sidebar is
+     already this row's first flex child, so it naturally sits flush
+     against whatever edge the row itself starts at. Content
+     readability isn't affected: .page (style.css) already has its
+     own independent max-width:1160px; margin:0 auto, which keeps
+     the actual readable content properly bounded/centered within
+     whatever width .app-content (now wider on large screens) gives
+     it — this was never relying on .app-body's own centering to
+     begin with. */
 }
 body.app-shell .app-sidebar{
   flex: 0 0 240px;
