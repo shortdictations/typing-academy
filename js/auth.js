@@ -129,26 +129,23 @@ async function requireLogin() {
 // and attached to the existing #userMenuTrigger/#userMenuDropdown
 // elements (or, for the sidebar, appended to <body>) — no HTML
 // file needed any markup changes for this.
-// Builds the account-dropdown content for the header avatar —
-// name/email, then Profile / Settings / Logout. Kept intentionally
-// minimal (no credits/plans here — those already have their own
-// cards on the dashboard and their own page).
+// Builds the profile dropdown content for the header avatar — large
+// avatar (with its own pencil to change it), name, email, then just
+// Logout. Deliberately no Profile/Settings/Purchase History/etc
+// rows here — the desktop sidebar already handles all navigation;
+// this dropdown is account identity + logout only, per spec.
 function accountDropdownHtml(displayName, email, logoutBtnId) {
   return `
+    <div class="avatar-dropdown-avatar-wrap">
+      <div class="avatar-dropdown-avatar ts-avatar-render" aria-hidden="true"></div>
+      <button type="button" class="avatar-dropdown-avatar-edit ts-avatar-edit-trigger" aria-label="Change avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+    </div>
     <div class="avatar-dropdown-header">
       <div class="avatar-dropdown-name">${escapeHtmlAuth(displayName)}</div>
       <div class="avatar-dropdown-email">${escapeHtmlAuth(email)}</div>
     </div>
-    <div class="avatar-dropdown-divider"></div>
-    <a class="avatar-menu-row" href="settings.html">
-      <span class="avatar-menu-label">Profile</span>
-    </a>
-    <a class="avatar-menu-row" href="purchase-history.html">
-      <span class="avatar-menu-label">Purchase History</span>
-    </a>
-    <a class="avatar-menu-row" href="settings.html">
-      <span class="avatar-menu-label">Settings</span>
-    </a>
     <div class="avatar-dropdown-divider"></div>
     <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
       <span class="avatar-menu-label">Logout</span>
@@ -200,28 +197,30 @@ async function initAuthHeader(user) {
     : user.email;
   const avatarUrl = user.user_metadata && (user.user_metadata.avatar_url || user.user_metadata.picture);
 
-  // ---- Trigger content: avatar + name + chevron, replacing the
-  // skeleton placeholder that was there while this was loading.
-  // Name is hidden on narrow viewports via CSS (see .user-menu-name),
-  // leaving just the compact avatar + chevron there. ----
+  // ---- Trigger content: small circular avatar ONLY — no name text,
+  // no chevron. Clicking it opens the dropdown below, which carries
+  // the name/email/large-avatar identity instead. ----
   trigger.innerHTML = "";
-  trigger.appendChild(buildAvatarEl(displayName, avatarUrl));
-
-  const nameEl = document.createElement("span");
-  nameEl.className = "user-menu-name";
-  nameEl.textContent = displayName;
-  trigger.appendChild(nameEl);
-
-  trigger.insertAdjacentHTML("beforeend",
-    '<svg class="user-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
-  );
+  const smallAvatarEl = document.createElement("span");
+  smallAvatarEl.className = "user-menu-avatar-small ts-avatar-render";
+  trigger.appendChild(smallAvatarEl);
   trigger.setAttribute("aria-expanded", "false");
+  trigger.setAttribute("aria-label", "Profile menu");
 
-  // ---- Dropdown content: name/email, Profile, Settings, Logout.
-  // existing #logoutBtn preserved so logoutStudent() wiring below
-  // still finds and works with the same element. ----
+  // ---- Dropdown content: large avatar (+ pencil), name/email, then
+  // just Logout. #logoutBtn preserved so logoutStudent() wiring
+  // below still finds and works with the same element. ----
   dropdown.classList.add("avatar-dropdown");
   dropdown.innerHTML = accountDropdownHtml(displayName, user.email, "logoutBtn");
+
+  // Only safe to run now — this is the first point where BOTH the
+  // mobile drawer's avatar (static markup, present since page load)
+  // AND the desktop dropdown's large avatar (just built above) exist
+  // in the DOM together. Wiring this from inside
+  // wireMobileProfileDrawer() earlier would miss the desktop
+  // elements entirely, since the dropdown didn't exist yet at that
+  // point.
+  wireAvatar(user);
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -231,15 +230,27 @@ async function initAuthHeader(user) {
     if (opening) repositionDropdownIfNarrow(trigger, dropdown);
   });
   document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+    // The avatar picker (#avatarPickerOverlay/#avatarPickerModal) is
+    // a sibling of this dropdown, not nested inside it — without
+    // this check, clicking an avatar option inside the picker reads
+    // as "clicked outside the dropdown" and closes it too, even
+    // though the picker is only ever opened from within this same
+    // dropdown and should return to it afterward.
+    const inPicker = e.target.closest("#avatarPickerOverlay, #avatarPickerModal");
+    if (!dropdown.contains(e.target) && !trigger.contains(e.target) && !inPicker) {
       dropdown.classList.remove("open");
       trigger.setAttribute("aria-expanded", "false");
     }
   });
-  // Close immediately after selecting any option — Profile/Settings
-  // navigate away and Logout signs out, but closing here too avoids
-  // the dropdown staying visibly open mid-navigation.
+  // Close immediately after selecting any option — Logout signs out,
+  // and closing here avoids the dropdown staying visibly open mid-
+  // navigation. The avatar pencil is deliberately excluded: it opens
+  // the avatar picker ON TOP of this dropdown (per spec, "closing
+  // the selector returns to the profile dropdown"), which only works
+  // if this dropdown stays open underneath rather than closing the
+  // instant the pencil itself is clicked.
   dropdown.addEventListener("click", (e) => {
+    if (e.target.closest(".ts-avatar-edit-trigger")) return;
     if (e.target.closest("a, button")) {
       dropdown.classList.remove("open");
       trigger.setAttribute("aria-expanded", "false");
@@ -735,7 +746,6 @@ function wireMobileProfileDrawer(user) {
   overlay.addEventListener("click", closeDrawer);
   logoutBtn.addEventListener("click", () => { closeDrawer(); logoutStudent(); });
 
-  wireAvatar(user);
   wireNotificationsPlaceholder();
 }
 
@@ -766,9 +776,20 @@ function resolveAvatarChoice(user) {
   return "male";
 }
 
+// Called once per page load with whichever avatar-display elements
+// and edit triggers actually exist on THIS page — the mobile drawer
+// always has one of each; the desktop header now has two more (a
+// small avatar in the trigger, a large one with its own pencil in
+// the dropdown). All discovered displays stay in sync with each
+// other and with whichever trigger opens the shared picker, so a
+// change made from the desktop dropdown is reflected immediately in
+// the header avatar too (and vice versa via the mobile drawer),
+// without needing a page reload — same live-sync requirement as
+// "remains consistent across desktop header / dropdown / mobile
+// sidebar / avatar selector".
 function wireAvatar(user) {
-  const avatarEl = document.getElementById("mobileProfileAvatar");
-  const editBtn = document.getElementById("mobileProfileAvatarEditBtn");
+  const displays = Array.from(document.querySelectorAll(".ts-avatar-render"));
+  const editTriggers = Array.from(document.querySelectorAll(".ts-avatar-edit-trigger"));
   const overlay = document.getElementById("avatarPickerOverlay");
   const modal = document.getElementById("avatarPickerModal");
   const cancelBtn = document.getElementById("avatarPickerCancelBtn");
@@ -776,10 +797,11 @@ function wireAvatar(user) {
   const femaleBtn = document.getElementById("avatarPickerFemale");
   const malePreview = document.getElementById("avatarPreviewMale");
   const femalePreview = document.getElementById("avatarPreviewFemale");
-  if (!avatarEl || !editBtn || !overlay || !modal) return;
+  if (displays.length === 0 || !overlay || !modal) return;
 
   let currentChoice = resolveAvatarChoice(user);
-  avatarEl.innerHTML = demoAvatarSvg(currentChoice);
+  function renderAll() { displays.forEach(el => { el.innerHTML = demoAvatarSvg(currentChoice); }); }
+  renderAll();
   if (malePreview) malePreview.innerHTML = demoAvatarSvg("male");
   if (femalePreview) femalePreview.innerHTML = demoAvatarSvg("female");
 
@@ -790,6 +812,10 @@ function wireAvatar(user) {
   syncSelectedState();
 
   function openPicker() {
+    // Deliberately doesn't touch the mobile drawer or desktop
+    // dropdown — both stay open underneath (dimmed by this modal's
+    // own overlay), so closing the picker naturally returns to
+    // whichever one was open, per spec.
     overlay.hidden = false;
     modal.hidden = false;
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -806,7 +832,7 @@ function wireAvatar(user) {
   async function chooseAvatar(kind) {
     if (kind === currentChoice) { closePicker(); return; }
     currentChoice = kind;
-    avatarEl.innerHTML = demoAvatarSvg(kind);
+    renderAll();
     syncSelectedState();
     closePicker();
     // Same persistence pattern settings.html already uses for
@@ -814,8 +840,8 @@ function wireAvatar(user) {
     await supabaseClient.auth.updateUser({ data: { avatar_choice: kind } });
   }
 
-  editBtn.addEventListener("click", openPicker);
-  cancelBtn.addEventListener("click", closePicker);
+  editTriggers.forEach(btn => btn.addEventListener("click", openPicker));
+  if (cancelBtn) cancelBtn.addEventListener("click", closePicker);
   overlay.addEventListener("click", closePicker);
   if (maleBtn) maleBtn.addEventListener("click", () => chooseAvatar("male"));
   if (femaleBtn) femaleBtn.addEventListener("click", () => chooseAvatar("female"));
