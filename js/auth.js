@@ -148,7 +148,8 @@ function accountDropdownHtml(displayName, email, logoutBtnId) {
     </div>
     <div class="avatar-dropdown-divider"></div>
     <button class="avatar-menu-row avatar-menu-logout" id="${logoutBtnId}" type="button">
-      <span class="avatar-menu-label">Logout</span>
+      <span class="avatar-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
+      <span class="avatar-menu-label">Log out</span>
     </button>`;
 }
 
