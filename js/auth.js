@@ -143,6 +143,9 @@ function accountDropdownHtml(displayName, email, logoutBtnId) {
     <a class="avatar-menu-row" href="settings.html">
       <span class="avatar-menu-label">Profile</span>
     </a>
+    <a class="avatar-menu-row" href="purchase-history.html">
+      <span class="avatar-menu-label">Purchase History</span>
+    </a>
     <a class="avatar-menu-row" href="settings.html">
       <span class="avatar-menu-label">Settings</span>
     </a>
@@ -731,4 +734,107 @@ function wireMobileProfileDrawer(user) {
   closeBtn.addEventListener("click", closeDrawer);
   overlay.addEventListener("click", closeDrawer);
   logoutBtn.addEventListener("click", () => { closeDrawer(); logoutStudent(); });
+
+  wireAvatar(user);
+  wireNotificationsPlaceholder();
+}
+
+// Two built-in flat-illustration demo avatars (no photo-upload
+// system exists, and this task doesn't add one) — same size,
+// composition, and stroke quality, differing only in hair
+// silhouette/palette so they read as clearly male/female at a
+// glance without needing facial detail.
+function demoAvatarSvg(kind) {
+  if (kind === "female") {
+    return '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="32" fill="#FBE3ED"/><clipPath id="tsAvatarClipF"><circle cx="32" cy="32" r="32"/></clipPath><g clip-path="url(#tsAvatarClipF)"><path d="M6 66c0-14.5 11-21.5 26-21.5s26 7 26 21.5Z" fill="#D77CA0"/><path d="M13 29c-1-13 7.5-22 19-22s20 9 19 22c0 4-2.5 8-5 10.5l-1.5-8c-1 1.5-3 2.5-5 3 .5-1.5.5-3 0-4-2 2-8.5 3.3-13 0 .3 1.3 0 2.8-.8 4-2-.7-3.7-1.8-4.7-3.2L19.5 39c-3-2.7-5.8-6.5-6.5-10Z" fill="#7A3B54"/><circle cx="32" cy="28" r="11.5" fill="#F0C199"/></g></svg>';
+  }
+  return '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="32" fill="#DCE6FB"/><clipPath id="tsAvatarClipM"><circle cx="32" cy="32" r="32"/></clipPath><g clip-path="url(#tsAvatarClipM)"><path d="M8 66c0-15 10.5-22 24-22s24 7 24 22Z" fill="#5B7FBE"/><circle cx="32" cy="27" r="12.5" fill="#F0C199"/><path d="M19.3 27.5c-.4-8.6 4.6-15 12.7-15s13.1 6.4 12.7 15c-.6-.3-1.3-.5-2-.6-.3-5.7-3.8-9.4-10.7-9.4s-10.4 3.7-10.7 9.4c-.7.1-1.4.3-2 .6Z" fill="#2B3550"/></g></svg>';
+}
+
+// Selection priority: 1) the user's own saved choice
+// (user_metadata.avatar_choice, set via the picker below) always
+// wins once they've picked one — 2) otherwise derive from
+// user_metadata.gender if the account happens to have it (nothing
+// in registration/settings currently collects this, so in practice
+// this rarely applies today) — 3) male as the documented fallback.
+// Technical values ("male"/"female") never surface in the UI itself,
+// only the corresponding illustration.
+function resolveAvatarChoice(user) {
+  const meta = user.user_metadata || {};
+  if (meta.avatar_choice === "male" || meta.avatar_choice === "female") return meta.avatar_choice;
+  if (typeof meta.gender === "string" && meta.gender.toLowerCase() === "female") return "female";
+  return "male";
+}
+
+function wireAvatar(user) {
+  const avatarEl = document.getElementById("mobileProfileAvatar");
+  const editBtn = document.getElementById("mobileProfileAvatarEditBtn");
+  const overlay = document.getElementById("avatarPickerOverlay");
+  const modal = document.getElementById("avatarPickerModal");
+  const cancelBtn = document.getElementById("avatarPickerCancelBtn");
+  const maleBtn = document.getElementById("avatarPickerMale");
+  const femaleBtn = document.getElementById("avatarPickerFemale");
+  const malePreview = document.getElementById("avatarPreviewMale");
+  const femalePreview = document.getElementById("avatarPreviewFemale");
+  if (!avatarEl || !editBtn || !overlay || !modal) return;
+
+  let currentChoice = resolveAvatarChoice(user);
+  avatarEl.innerHTML = demoAvatarSvg(currentChoice);
+  if (malePreview) malePreview.innerHTML = demoAvatarSvg("male");
+  if (femalePreview) femalePreview.innerHTML = demoAvatarSvg("female");
+
+  function syncSelectedState() {
+    if (maleBtn) maleBtn.classList.toggle("selected", currentChoice === "male");
+    if (femaleBtn) femaleBtn.classList.toggle("selected", currentChoice === "female");
+  }
+  syncSelectedState();
+
+  function openPicker() {
+    overlay.hidden = false;
+    modal.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      overlay.classList.add("open");
+      modal.classList.add("open");
+    }));
+  }
+  function closePicker() {
+    overlay.classList.remove("open");
+    modal.classList.remove("open");
+    setTimeout(() => { overlay.hidden = true; modal.hidden = true; }, 220);
+  }
+
+  async function chooseAvatar(kind) {
+    if (kind === currentChoice) { closePicker(); return; }
+    currentChoice = kind;
+    avatarEl.innerHTML = demoAvatarSvg(kind);
+    syncSelectedState();
+    closePicker();
+    // Same persistence pattern settings.html already uses for
+    // full_name/phone — no new storage mechanism introduced.
+    await supabaseClient.auth.updateUser({ data: { avatar_choice: kind } });
+  }
+
+  editBtn.addEventListener("click", openPicker);
+  cancelBtn.addEventListener("click", closePicker);
+  overlay.addEventListener("click", closePicker);
+  if (maleBtn) maleBtn.addEventListener("click", () => chooseAvatar("male"));
+  if (femaleBtn) femaleBtn.addEventListener("click", () => chooseAvatar("female"));
+}
+
+// No notifications system exists yet (the header bell is a
+// decorative, aria-hidden placeholder with no backing feature or
+// data) — this menu item is real and clickable per the requested
+// menu order, but honestly reflects that there's nothing to show
+// yet rather than fabricating a notifications list.
+function wireNotificationsPlaceholder() {
+  const btn = document.getElementById("mobileProfileNotificationsBtn");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (btn.querySelector(".mobile-profile-drawer-note")) return; // already showing
+    const note = document.createElement("span");
+    note.className = "mobile-profile-drawer-note";
+    note.textContent = "You're all caught up";
+    btn.appendChild(note);
+    setTimeout(() => note.remove(), 2200);
+  });
 }
