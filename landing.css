@@ -44,7 +44,19 @@ body.landing-v2{
      intentionally allowed to bleed slightly past its container for
      a soft edge — this guarantees that never turns into a page-level
      horizontal scrollbar, at any breakpoint. Scoped to this page only. */
+  /* Safety net: now that .hero's own overflow:hidden fixes the real
+     cause (see .hero above), this is a second line of defense only.
+     Pairing overflow-x with an explicit overflow-y is required for
+     "hidden" to reliably apply on some engines — setting only one
+     axis can make browsers silently treat the unset axis as auto,
+     which can undermine the explicitly-set one too (the same spec
+     quirk already documented and worked around elsewhere in this
+     project, in style.css). visible is the correct pairing here:
+     this page's height is genuinely determined by its content
+     (nothing should ever need vertical clipping), so overflow-y
+     just needs to be explicitly, not implicitly, "not hidden". */
   overflow-x: hidden;
+  overflow-y: visible;
 }
 body.landing-v2 .landing-page h1,
 body.landing-v2 .landing-page h2{
@@ -133,7 +145,24 @@ body.landing-v2 .landing-page .hero{
   grid-template-columns: 1.05fr 0.95fr;
   gap: 56px;
   padding: 56px 0 48px;
-  overflow: visible;
+  /* Was overflow:visible, intentionally, so the decorative blob
+     below could bleed softly past the hero's own edge. Measured
+     directly (document.documentElement.scrollWidth vs
+     window.innerWidth) that this caused REAL horizontal overflow
+     across nearly the entire practical width range — not just
+     narrow phones: 320–430px (all explicitly required test widths),
+     481–1280px (tablets and most laptop screens) all overflowed by
+     roughly the blob's own bleed amount. It only happened to look
+     fine at very wide desktop (1440px+), where .landing-page's own
+     max-width:1180px leaves enough natural margin to absorb the
+     bleed before it reaches the actual viewport edge — that was
+     never a fix, just enough margin to hide the bug at one specific
+     width. overflow:hidden here clips the blob at the hero's actual
+     boundary at every width, which is a barely-visible softening of
+     the edge-bleed effect (still a soft gradient, just contained)
+     in exchange for removing a real, width-dependent bug — worth it
+     over trying to re-scope this per breakpoint. */
+  overflow: hidden;
 }
 body.landing-v2 .hero::before{
   /* soft decorative blob, purely visual, non-interactive */

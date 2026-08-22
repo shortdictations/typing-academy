@@ -200,6 +200,7 @@ body.app-shell .app-sidebar{
   flex-direction: column;
   gap: 2px;
   box-sizing: border-box;
+  transition: width 0.22s ease, flex-basis 0.22s ease;
   /* Sticky, positioned right below the sticky header (.letterhead,
      position:sticky; top:0 — see style.css). 79px is the header's
      actual measured rendered height (getBoundingClientRect, not the
@@ -213,8 +214,39 @@ body.app-shell .app-sidebar{
   position: sticky;
   top: 79px;
   height: calc(100vh - 79px);
+  overflow-y: auto;
   z-index: 10;
 }
+/* Collapsed: .app-content is already flex:1 1 auto (below), so
+   shrinking the sidebar's own width automatically lets the content
+   column (and the announcement bar inside it) reflow into the
+   freed space — nothing else needed there, confirmed by not having
+   to touch .app-content at all for this. */
+body.app-shell .app-sidebar.collapsed{ flex: 0 0 76px; width: 76px; padding-left: 10px; padding-right: 10px; }
+body.app-shell .app-sidebar-toggle{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border: none;
+  background: var(--ts-background);
+  color: var(--ts-muted);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  flex: none;
+}
+body.app-shell .app-sidebar-toggle:hover{ background: var(--ts-border); color: var(--ts-text); }
+body.app-shell .app-sidebar-toggle svg{ width: 18px; height: 18px; }
+body.app-shell .app-sidebar.collapsed .app-sidebar-toggle{ margin-left: auto; margin-right: auto; }
+/* Text hidden, icon centered — the icon itself is completely
+   untouched (same <svg>, same viewBox, same paths); only its
+   surrounding link layout changes. The native title="" attribute
+   (added to every link, see markup) is what supplies the requested
+   hover tooltip — no custom tooltip CSS/JS needed, and it works
+   identically whether the sidebar is expanded or collapsed. */
+body.app-shell .app-sidebar.collapsed .app-nav-link{ justify-content: center; padding: 12px 0; gap: 0; }
+body.app-shell .app-sidebar.collapsed .app-nav-link-label{ display: none; }
 body.app-shell .app-content{
   flex: 1 1 auto;
   min-width: 0;
@@ -469,6 +501,20 @@ body.app-shell .ph-lot-note{
   body.app-shell .ph-filter-row{ flex-direction: column; align-items: stretch; }
   body.app-shell .ph-status-select{ width: 100%; }
 }
+
+/* Applied to BOTH <html> and <body> only while the mobile Profile
+   drawer is open — see openDrawer()/closeDrawer() in auth.js. Not
+   scoped to mobile width on purpose: the drawer (and its trigger)
+   only ever exist on mobile in the first place, so this class is
+   never added outside that context. Confirmed directly that <body>
+   alone is NOT reliable here — a real, measured bug, not a
+   theoretical one: with only body.overflow:hidden, a plain
+   window.scrollTo() (and, in practice, real touch/wheel scrolling)
+   could still move the page, because <html> is the actual root
+   scrolling context in most browsers, independent of <body>'s own
+   overflow. Locking both is what actually stops it. */
+html.ts-scroll-locked,
+body.ts-scroll-locked{ overflow: hidden; }
 
 /* ---------- Mobile Profile drawer ----------
    Reachable only via the Profile bottom-nav button, which itself
@@ -1778,11 +1824,15 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
      ONLY mobile entry point for those. It no longer is — Settings is
      now its own bottom-nav item (see .app-bottom-nav below), so the
      avatar/dropdown is intentionally hidden on mobile below, not
-     forced visible. Restores each element's own normal display value
-     (not just "block"), since .credit-badge/.app-bell are
-     inline-flex — "block" would silently break their own internal
-     alignment. */
-  body.app-shell .nav-links > .app-bell{ display: inline-flex !important; }
+     forced visible. Restores the credit badge's own normal display
+     value (not just "block", since .credit-badge is inline-flex —
+     "block" would silently break its own internal alignment). The
+     bell is deliberately NOT restored here — notifications now live
+     in the mobile Profile drawer's own "Notifications" row instead,
+     so the header bell (and its unread badge) stays hidden on mobile
+     specifically, while remaining exactly as before on desktop
+     (this whole block only exists inside this max-width:700px
+     query). */
   body.app-shell .nav-links > .credit-badge{ display: inline-flex !important; }
   /* Mobile header: bell + credit balance only — no avatar, no name,
      no dropdown arrow. Desktop is completely unaffected (this rule
@@ -2046,6 +2096,14 @@ html[data-theme="dark"] body.app-shell .field input:focus,
 html[data-theme="dark"] body.app-shell .field select:focus,
 html[data-theme="dark"] body.app-shell .settings-inline-form input:focus{ background: #131A28; }
 html[data-theme="dark"] body.app-shell .announcement-ticker{ background: #2A230F; color: #E8ECF4; }
+/* .announcement-ticker-item (style.css) sets its own explicit
+   color:var(--ink) directly on the text, which overrides the
+   parent's inherited dark-mode color above regardless of theme —
+   a pre-existing bug (this element simply had no prior dark-mode
+   text-color override), surfaced while verifying dark mode here,
+   not something the positioning change above caused. */
+html[data-theme="dark"] body.app-shell .announcement-ticker-item{ color: #E8ECF4; }
+html[data-theme="dark"] body.app-shell a.announcement-ticker-item:hover{ color: var(--ts-gold); }
 
 html[data-theme="dark"] body.app-shell .btn-ghost{ border-color: var(--ts-border); color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .result-history-btn{ color: #7C9CFF; border-color: #7C9CFF; }
