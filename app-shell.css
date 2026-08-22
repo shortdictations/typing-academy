@@ -79,6 +79,7 @@ body.app-shell .mobile-sidebar-overlay{
 }
 body.app-shell .nav-links{ gap: 14px; }
 
+body.app-shell .app-bell-wrap{ position: relative; }
 body.app-shell .app-bell{
   display: inline-flex;
   align-items: center;
@@ -88,8 +89,182 @@ body.app-shell .app-bell{
   color: var(--ts-gold);
   background: rgba(255,255,255,0.06);
   flex: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
 }
+body.app-shell .app-bell:hover{ background: rgba(255,255,255,0.14); }
 body.app-shell .app-bell svg{ width: 18px; height: 18px; }
+body.app-shell .app-bell-badge{
+  position: absolute;
+  top: -2px; right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ts-red);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ts-navy);
+  line-height: 1;
+}
+
+/* ---------- Notification dropdown (desktop bell) ---------- */
+body.app-shell .notif-dropdown{
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 340px;
+  max-width: 90vw;
+  background: #fff;
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 20px 50px rgba(16,24,40,0.25);
+  z-index: 60;
+  overflow: hidden;
+}
+body.app-shell .notif-dropdown-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ts-border);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--ts-text);
+}
+body.app-shell .notif-mark-all-btn{
+  background: none;
+  border: none;
+  color: var(--ts-blue);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--ts-font);
+  padding: 0;
+}
+body.app-shell .notif-dropdown-list{ max-height: 360px; overflow-y: auto; }
+body.app-shell .notif-empty{ padding: 32px 16px; text-align: center; color: var(--ts-muted); font-size: 0.85rem; }
+body.app-shell .notif-row{
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  position: relative;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .notif-row:last-child{ border-bottom: none; }
+body.app-shell .notif-row:hover{ background: var(--ts-background); }
+body.app-shell .notif-row.unread{ background: var(--ts-blue-tint); }
+body.app-shell .notif-row.unread:hover{ background: var(--ts-blue-tint); filter: brightness(0.97); }
+body.app-shell .notif-row-icon{
+  width: 30px; height: 30px; flex: none;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .notif-row-icon svg{ width: 15px; height: 15px; }
+body.app-shell .notif-row-body{ flex: 1 1 auto; min-width: 0; }
+body.app-shell .notif-row-title{ font-weight: 700; font-size: 0.85rem; color: var(--ts-text); }
+body.app-shell .notif-row-msg{ font-size: 0.8rem; color: var(--ts-muted); margin-top: 2px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+body.app-shell .notif-row-time{ font-size: 0.72rem; color: var(--ts-muted); margin-top: 4px; }
+body.app-shell .notif-row-dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--ts-blue); flex: none; margin-top: 6px; }
+body.app-shell .notif-dropdown-viewall{
+  display: block;
+  text-align: center;
+  padding: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ts-blue);
+  text-decoration: none;
+  border-top: 1px solid var(--ts-border);
+}
+body.app-shell .notif-dropdown-viewall:hover{ background: var(--ts-background); }
+
+/* Type icon tints — shared with notifications.html's own row/card
+   rendering (same class names, see js/notifications.js). */
+body.app-shell .ts-notif-blue{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.app-shell .ts-notif-gold{ background: rgba(245,179,1,0.18); color: var(--ts-gold-dark); }
+body.app-shell .ts-notif-orange{ background: rgba(224,124,42,0.15); color: var(--ts-orange); }
+body.app-shell .ts-notif-green{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .ts-notif-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .ts-notif-muted{ background: var(--ts-background); color: var(--ts-muted); }
+
+/* ---------- notifications.html page ----------
+   Reuses .ph-filter-row/.ph-filter-btn/.ph-status-select/
+   .ph-back-link/.ph-empty-state wholesale from Purchase History
+   (same visual language, no need to redefine) — only the card
+   itself (denser, with a clear button and inline action link) is
+   new here since the dropdown's compact .notif-row wouldn't have
+   room for those on a full page. */
+body.app-shell .notif-page-head{ display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+body.app-shell .notif-card{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+body.app-shell .notif-card:hover{ border-color: var(--ts-blue); }
+body.app-shell .notif-card.unread{ background: var(--ts-blue-tint); border-color: transparent; }
+body.app-shell .notif-card .notif-row-body{ flex: 1 1 auto; min-width: 0; }
+body.app-shell .notif-card-top{ display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+body.app-shell .notif-card .notif-row-msg{ -webkit-line-clamp: unset; }
+body.app-shell .notif-card-bottom{ display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+body.app-shell .notif-card-actions{ display: flex; align-items: center; gap: 12px; }
+body.app-shell .notif-card-action-link{ font-size: 0.8rem; font-weight: 700; color: var(--ts-blue); }
+body.app-shell .notif-card-clear{
+  background: none;
+  border: none;
+  color: var(--ts-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+body.app-shell .notif-card-clear:hover{ background: var(--ts-border); color: var(--ts-text); }
+
+/* ---------- Toast (new-notification pop-up, purely visual) ----------
+   Deliberately NOT scoped under body.app-shell like everything else
+   in this file — .ts-notif-toast is a unique, project-specific class
+   name with no collision risk, and scoping it accidentally created
+   a real bug: "body.app-shell .ts-notif-toast" has HIGHER
+   specificity (0,2,1 — the "body" element selector itself counts)
+   than ".ts-notif-toast.open" (0,2,0), so the base opacity:0 rule
+   was always winning over the "open" override regardless of source
+   order — confirmed directly: the .open class was correctly applied
+   to the element, but getComputedStyle still reported opacity:0. */
+.ts-notif-toast{
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1300;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff;
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 16px 40px rgba(16,24,40,0.22);
+  padding: 14px 16px;
+  max-width: 320px;
+  transform: translateY(-12px);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.ts-notif-toast.open{ transform: translateY(0); opacity: 1; }
+@media (prefers-reduced-motion: reduce){ .ts-notif-toast{ transition: none; } }
+.ts-notif-toast-icon{ width: 30px; height: 30px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.ts-notif-toast-icon svg{ width: 15px; height: 15px; }
+.ts-notif-toast-title{ font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ts-muted); }
+.ts-notif-toast-msg{ font-size: 0.85rem; font-weight: 600; color: var(--ts-text); margin-top: 2px; }
 
 body.app-shell .credit-badge{
   background: rgba(245,179,1,0.14);
@@ -2006,7 +2181,9 @@ html[data-theme="dark"] body.app-shell .ph-empty-state,
 html[data-theme="dark"] body.app-shell .ph-detail-head,
 html[data-theme="dark"] body.app-shell .ph-detail-section,
 html[data-theme="dark"] body.app-shell .ph-filter-btn,
-html[data-theme="dark"] body.app-shell .ph-status-select{
+html[data-theme="dark"] body.app-shell .ph-status-select,
+html[data-theme="dark"] body.app-shell .notif-card,
+html[data-theme="dark"] body.app-shell .notif-dropdown{
   background: #171F2E;
   border-color: var(--ts-border);
   color: var(--ts-text);
@@ -2015,6 +2192,15 @@ html[data-theme="dark"] body.app-shell .ph-filter-btn.active{ background: var(--
 html[data-theme="dark"] body.app-shell .ph-txn-row3,
 html[data-theme="dark"] body.app-shell .ph-detail-row{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .ph-lot-note{ background: rgba(47,95,236,0.14); }
+html[data-theme="dark"] body.app-shell .notif-card.unread,
+html[data-theme="dark"] body.app-shell .notif-row.unread{ background: rgba(47,95,236,0.14); }
+html[data-theme="dark"] body.app-shell .notif-dropdown-header,
+html[data-theme="dark"] body.app-shell .notif-row,
+html[data-theme="dark"] body.app-shell .notif-dropdown-viewall{ border-color: var(--ts-border); }
+html[data-theme="dark"] body.app-shell .notif-row:hover{ background: #1B2334; }
+html[data-theme="dark"] body.app-shell .notif-empty{ color: var(--ts-muted); }
+html[data-theme="dark"] .ts-notif-toast{ background: #171F2E; }
+html[data-theme="dark"] .ts-notif-toast-msg{ color: var(--ts-text); }
 
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer{ background: #171F2E; }
 html[data-theme="dark"] body.app-shell .mobile-profile-hello{ color: var(--ts-text); }
