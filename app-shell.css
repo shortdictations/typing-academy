@@ -426,9 +426,13 @@ body.app-shell .mobile-profile-drawer{
   transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
-  padding: 18px 16px;
+  padding: 14px 16px 16px;
   box-sizing: border-box;
-  overflow-y: auto;
+  /* No longer scrolls the whole drawer — only .mobile-profile-
+     drawer-nav does (below), so the header/greeting stay fixed at
+     the top and the Log Out section stays pinned at the bottom
+     regardless of screen height. */
+  overflow: hidden;
 }
 body.app-shell .mobile-profile-drawer.open{ transform: translateX(0); }
 @media (prefers-reduced-motion: reduce){
@@ -438,13 +442,8 @@ body.app-shell .mobile-profile-drawer.open{ transform: translateX(0); }
 body.app-shell .mobile-profile-drawer-header{
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-weight: 800;
-  font-size: 1.05rem;
-  color: var(--ts-text);
-  padding-bottom: 12px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--ts-border);
+  justify-content: flex-end;
+  flex: none;
 }
 body.app-shell .mobile-profile-drawer-close{
   background: none;
@@ -455,13 +454,59 @@ body.app-shell .mobile-profile-drawer-close{
   display: flex;
 }
 body.app-shell .mobile-profile-drawer-close svg{ width: 20px; height: 20px; }
-body.app-shell .mobile-profile-drawer-name{
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--ts-text);
-  padding: 14px 4px 10px;
+
+/* Avatar + "Hello, [name]" greeting — replaces the old plain name
+   row entirely, per the new reference design. */
+body.app-shell .mobile-profile-greeting{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 4px 16px;
+  flex: none;
 }
-body.app-shell .mobile-profile-drawer-nav{ display: flex; flex-direction: column; gap: 2px; }
+body.app-shell .mobile-profile-avatar-wrap{ position: relative; flex: none; }
+body.app-shell .mobile-profile-avatar{
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--ts-background);
+  flex: none;
+}
+body.app-shell .mobile-profile-avatar-edit{
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--ts-navy);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+body.app-shell .mobile-profile-avatar-edit svg{ width: 11px; height: 11px; }
+body.app-shell .mobile-profile-greeting-text{ min-width: 0; }
+body.app-shell .mobile-profile-hello{ font-size: 1.3rem; font-weight: 800; color: var(--ts-text); line-height: 1.2; }
+body.app-shell .mobile-profile-drawer-name{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ts-muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.app-shell .mobile-profile-divider{ border: none; border-top: 1px solid var(--ts-border); margin: 0 0 8px; flex: none; }
+
+body.app-shell .mobile-profile-drawer-nav{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+body.app-shell .mobile-profile-drawer-bottom{ flex: none; }
 body.app-shell .mobile-profile-drawer-link{
   display: flex;
   align-items: center;
@@ -478,13 +523,29 @@ body.app-shell .mobile-profile-drawer-link{
   width: 100%;
   text-align: left;
   cursor: pointer;
+  position: relative;
 }
 body.app-shell .mobile-profile-drawer-link:hover{ background: var(--ts-background); }
 body.app-shell .mobile-profile-drawer-icon{ width: 22px; height: 22px; flex: none; display: flex; color: var(--ts-muted); }
 body.app-shell .mobile-profile-drawer-icon svg{ width: 20px; height: 20px; }
-body.app-shell .mobile-profile-drawer-logout{ color: var(--ts-red); margin-top: 8px; border-top: 1px solid var(--ts-border); padding-top: 15px; border-radius: 0; }
+/* Log Out's own divider now lives in .mobile-profile-drawer-bottom
+   (see markup) — this just drops the old top-border/margin approach
+   since a real <hr> handles that now. */
+body.app-shell .mobile-profile-drawer-logout{ color: var(--ts-red); }
 body.app-shell .mobile-profile-drawer-logout .mobile-profile-drawer-icon{ color: var(--ts-red); }
 body.app-shell .mobile-profile-drawer-logout:hover{ background: var(--ts-red-tint); }
+/* Inert "You're all caught up" note for the Notifications item —
+   no real notifications system exists yet (see auth.js comment) —
+   this is honest placeholder feedback, not a fabricated list. */
+body.app-shell .mobile-profile-drawer-note{
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ts-muted);
+  background: var(--ts-background);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
 /* Profile trigger's own "active" state while the drawer is open —
    toggled directly by wireMobileProfileDrawer() in auth.js, not by
    the URL-based active-state detection every other bottom-nav item
@@ -496,6 +557,64 @@ body.app-shell .app-bottom-nav-link#mobileProfileTrigger.active .app-bottom-nav-
   color: #FFFFFF;
   border-radius: 10px;
 }
+
+/* ---------- Avatar picker (small popup, not a photo upload) ---------- */
+body.app-shell .avatar-picker-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(11,28,63,0.45);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 1200;
+}
+body.app-shell .avatar-picker-overlay.open{ opacity: 1; }
+body.app-shell .avatar-picker-modal{
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0.94);
+  opacity: 0;
+  width: 86%;
+  max-width: 300px;
+  background: #fff;
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 20px 50px rgba(16,24,40,0.25);
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1201;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+body.app-shell .avatar-picker-modal.open{ opacity: 1; transform: translate(-50%, -50%) scale(1); }
+@media (prefers-reduced-motion: reduce){
+  body.app-shell .avatar-picker-overlay,
+  body.app-shell .avatar-picker-modal{ transition: none; }
+}
+body.app-shell .avatar-picker-title{ font-weight: 800; font-size: 1rem; color: var(--ts-text); text-align: center; margin-bottom: 16px; }
+body.app-shell .avatar-picker-options{ display: flex; justify-content: center; gap: 20px; margin-bottom: 16px; }
+body.app-shell .avatar-picker-option{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--ts-font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ts-muted);
+  padding: 6px;
+  border-radius: 12px;
+}
+body.app-shell .avatar-picker-preview{
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  border: 2px solid transparent;
+}
+body.app-shell .avatar-picker-option.selected{ color: var(--ts-navy); }
+body.app-shell .avatar-picker-option.selected .avatar-picker-preview{ border-color: var(--ts-gold-dark); }
+body.app-shell .avatar-picker-cancel{ width: 100%; }
 
 /* ---------- Announcement banner (existing ticker) restyle ---------- */
 body.app-shell .announcement-ticker{ background: #FFF7E6; }
@@ -1737,6 +1856,13 @@ html[data-theme="dark"] body.app-shell .ph-detail-row{ border-color: var(--ts-bo
 html[data-theme="dark"] body.app-shell .ph-lot-note{ background: rgba(47,95,236,0.14); }
 
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer{ background: #171F2E; }
+html[data-theme="dark"] body.app-shell .mobile-profile-hello{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-name{ color: var(--ts-muted); }
+html[data-theme="dark"] body.app-shell .mobile-profile-avatar{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-note{ background: #131A28; }
+html[data-theme="dark"] body.app-shell .avatar-picker-modal{ background: #171F2E; }
+html[data-theme="dark"] body.app-shell .avatar-picker-title{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .avatar-picker-option.selected{ color: #7C9CFF; }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-header{ color: var(--ts-text); border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-name{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link{ color: var(--ts-text); }
