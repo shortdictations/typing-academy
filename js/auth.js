@@ -758,8 +758,6 @@ function wireMobileProfileDrawer(user) {
   closeBtn.addEventListener("click", closeDrawer);
   overlay.addEventListener("click", closeDrawer);
   logoutBtn.addEventListener("click", () => { closeDrawer(); logoutStudent(); });
-
-  wireNotificationsPlaceholder();
 }
 
 // Two built-in flat-illustration demo avatars (no photo-upload
@@ -857,24 +855,6 @@ function wireAvatar(user) {
   overlay.addEventListener("click", closePicker);
   if (maleBtn) maleBtn.addEventListener("click", () => chooseAvatar("male"));
   if (femaleBtn) femaleBtn.addEventListener("click", () => chooseAvatar("female"));
-}
-
-// No notifications system exists yet (the header bell is a
-// decorative, aria-hidden placeholder with no backing feature or
-// data) — this menu item is real and clickable per the requested
-// menu order, but honestly reflects that there's nothing to show
-// yet rather than fabricating a notifications list.
-function wireNotificationsPlaceholder() {
-  const btn = document.getElementById("mobileProfileNotificationsBtn");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    if (btn.querySelector(".mobile-profile-drawer-note")) return; // already showing
-    const note = document.createElement("span");
-    note.className = "mobile-profile-drawer-note";
-    note.textContent = "You're all caught up";
-    btn.appendChild(note);
-    setTimeout(() => note.remove(), 2200);
-  });
 }
 
 /* ============================================================
