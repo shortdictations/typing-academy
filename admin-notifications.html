@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Notifications — TypeShala Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="dashboard.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Admin Panel</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="admin.html">Passages</a>
+      <a href="admin-mock-tests.html">Mock Tests</a>
+      <a href="admin-products.html">Subscription &amp; Credits</a>
+      <a href="admin-announcements.html">Announcements</a>
+      <a href="admin-notifications.html">Notifications</a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="user-menu-skeleton" id="userMenuSkeleton" aria-hidden="true">
+            <span class="user-menu-skeleton-avatar"></span>
+            <span class="user-menu-skeleton-name"></span>
+          </span>
+        </button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p class="eyebrow">Admin Only</p>
+  <h1>Notifications</h1>
+  <p class="lede">Send notifications to students — shown in the header bell dropdown and the full Notifications page. Every notification expires automatically (default 7 days) and can target everyone, a specific pass category, or only active subscribers.</p>
+
+  <!-- ADD / EDIT FORM -->
+  <div class="card">
+    <div class="card-label" id="formLabel">Create Notification</div>
+    <div class="error-msg" id="formError"></div>
+    <div class="success-msg" id="formSuccess"></div>
+
+    <form id="notificationForm">
+      <div class="field">
+        <label for="nTitle">Title</label>
+        <input type="text" id="nTitle" placeholder="e.g. New SSC Mock Tests Added" required>
+      </div>
+
+      <div class="field">
+        <label for="nMessage">Message</label>
+        <textarea id="nMessage" rows="3" placeholder="e.g. 10 new typing passages are now available." style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-body);font-size:0.95rem;" required></textarea>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="nType">Type</label>
+          <select id="nType">
+            <option value="announcement" selected>Announcement</option>
+            <option value="reward">Reward</option>
+            <option value="expiry">Expiry Reminder</option>
+            <option value="purchase">Purchase</option>
+            <option value="achievement">Achievement</option>
+            <option value="account">Account</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nAudience">Target Audience</label>
+          <select id="nAudience">
+            <option value="all" selected>All Users</option>
+            <option value="ssc">SSC Pass Holders</option>
+            <option value="legal">Legal Pass Holders</option>
+            <option value="combo">Combo Pass Holders</option>
+            <option value="active_subscribers">All Active Subscribers</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="nActive">Status</label>
+          <select id="nActive">
+            <option value="true" selected>Active (visible to students)</option>
+            <option value="false">Inactive (hidden)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nSound">Notification Sound</label>
+          <select id="nSound">
+            <option value="true" selected>On — plays a sound when it arrives</option>
+            <option value="false">Off — silent</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="nExpiryPreset">Expires</label>
+        <select id="nExpiryPreset">
+          <option value="7">7 days from now (default)</option>
+          <option value="1">1 day from now</option>
+          <option value="3">3 days from now</option>
+          <option value="14">14 days from now</option>
+          <option value="30">30 days from now</option>
+          <option value="custom">Custom date &amp; time</option>
+        </select>
+      </div>
+      <div class="field" id="nExpiryCustomWrap" style="display:none;">
+        <label for="nExpiryCustom">Custom Expiry Date &amp; Time</label>
+        <input type="datetime-local" id="nExpiryCustom">
+      </div>
+
+      <p class="lede" style="margin:18px 0 8px; font-size:0.85rem;">Optional action button (leave blank to hide it)</p>
+      <div class="setup-grid">
+        <div class="field">
+          <label for="nActionText">Button Label</label>
+          <input type="text" id="nActionText" placeholder="e.g. View Mock Tests">
+        </div>
+        <div class="field">
+          <label for="nActionUrl">Button Link</label>
+          <input type="text" id="nActionUrl" placeholder="e.g. mock-test.html">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn" id="submitBtn">Create Notification</button>
+        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LIST -->
+  <div class="card">
+    <div class="card-label">All Notifications</div>
+    <div id="notificationListBody">
+      <div class="loading-strip">Loading notifications...</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin-notifications.js"></script>
+
+</body>
+</html>
