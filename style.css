@@ -1101,21 +1101,34 @@ p.lede{
   max-height: 260px;
   overflow-y: auto;
   user-select: none;
-}
-/* Clean, minimal typing feedback — the current LETTER is the
-   strongest signal; everything else stays quiet and readable. */
-.passage-box .char{ color: var(--ink-soft); }
-.passage-box .char.correct{ color: var(--ink); }
-.passage-box .char.wrong{ color: var(--stamp); font-weight: 600; }
-.passage-box .char.current{
-  background: rgba(169, 128, 63, 0.16);
-  border-bottom: 2px solid var(--brass);
-  border-radius: 2px;
+  white-space: pre-wrap;
 }
 
-/* Current word: only the not-yet-typed part gets a hair more
-   contrast than future words — no background, no box, no underline. */
-.passage-box .char.word-current{ color: var(--ink); opacity: 0.6; }
+/* TypeShala word-level typing UI.
+   The current WORD is the only live visual focus. Individual
+   characters are deliberately not coloured while typing. */
+.passage-box .typing-word{
+  color: var(--ink-soft);
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+
+.passage-box .typing-word.active{
+  color: #2F5FEC;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  font-weight: 600;
+}
+
+.passage-box .typing-word.correct{
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.passage-box .typing-word.wrong{
+  color: var(--stamp);
+  font-weight: 600;
+}
 
 .test-warning-banner{
   background: #FBEAE7;
