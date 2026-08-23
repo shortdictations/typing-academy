@@ -1101,31 +1101,25 @@ p.lede{
   max-height: 260px;
   overflow-y: auto;
   user-select: none;
-  white-space: pre-wrap;
 }
-
-/* TypeShala word-level typing UI.
-   The current WORD is the only live visual focus. Individual
-   characters are deliberately not coloured while typing. */
-.passage-box .typing-word{
+/* Word-level mock-test feedback. The live test highlights the whole
+   current word instead of individual letters. */
+.passage-box .passage-word{
   color: var(--ink-soft);
-  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+  display: inline;
+  transition: color .12s ease, text-decoration-color .12s ease;
 }
-
-.passage-box .typing-word.active{
-  color: #2F5FEC;
+.passage-box .passage-word.word-active{
+  color: #2f6fed;
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
-  font-weight: 600;
+  font-weight: 700;
 }
-
-.passage-box .typing-word.correct{
-  color: var(--ink-soft);
-  font-weight: 400;
+.passage-box .passage-word.word-correct{
+  color: var(--ink);
 }
-
-.passage-box .typing-word.wrong{
+.passage-box .passage-word.word-wrong{
   color: var(--stamp);
   font-weight: 600;
 }
