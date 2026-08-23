@@ -249,6 +249,17 @@
         </div>
       </div>
 
+      <!-- Weak Keys — only shown once the student has enough lifetime
+           data (>=30 attempts on a key) to call it weak reliably; see
+           loadWeakKeysCard() in dashboard.js. Hidden entirely
+           otherwise, per spec ("do not show if insufficient data"). -->
+      <div class="card weak-keys-card" id="weakKeysCard" style="display:none;">
+        <div class="card-label">Weak Keys</div>
+        <div class="weak-keys-card-letters" id="weakKeysCardLetters"></div>
+        <p class="weak-keys-card-note" id="weakKeysCardNote"></p>
+        <a class="btn btn-ghost" id="weakKeysCardBtn" href="weak-keys.html">Practice Weak Keys</a>
+      </div>
+
       <!-- Overview + Recent Tests — side by side on desktop, stacked
            on narrower screens (see .app-dash-split in app-shell.css). -->
       <div class="app-dash-split">

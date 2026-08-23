@@ -789,6 +789,83 @@ body.app-shell .card-label{
   font-weight: 700;
   letter-spacing: 0.04em;
 }
+
+/* ---------- Weak-Key Analysis (mock-test-attempt.html result screen) ----------
+   Deliberately plain/academic per spec — no charts, no color-coded
+   gauges, no gamification. Same card/spacing language as the rest
+   of the result screen (.card-label, --ts-* tokens), not a new
+   visual system. */
+body.app-shell .weak-key-analysis{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: 20px;
+  margin-top: 20px;
+}
+body.app-shell .weak-key-header h3{ margin: 2px 0 4px; font-size: 1.05rem; color: var(--ts-text); }
+body.app-shell .weak-key-header p{ margin: 0; font-size: 0.85rem; color: var(--ts-muted); }
+body.app-shell .weak-key-list{ display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+body.app-shell .weak-key-item{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+}
+body.app-shell .weak-key-letter{
+  width: 38px; height: 38px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--ts-background);
+  color: var(--ts-text);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+body.app-shell .weak-key-info{ flex: 1 1 auto; min-width: 0; }
+body.app-shell .weak-key-name{ font-weight: 700; font-size: 0.88rem; color: var(--ts-text); }
+body.app-shell .weak-key-meta{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 2px; }
+body.app-shell .weak-key-percent{ font-weight: 800; font-size: 1.05rem; color: var(--ts-text); flex: none; }
+body.app-shell .weak-key-empty{ text-align: center; padding: 18px 10px; color: var(--ts-muted); font-size: 0.88rem; }
+body.app-shell .weak-key-empty strong{ display: block; color: var(--ts-text); font-size: 0.95rem; margin-bottom: 4px; }
+
+body.app-shell .weak-keys-card-letters{ display: flex; gap: 8px; margin: 12px 0 6px; }
+body.app-shell .weak-keys-card-letter{
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--ts-background);
+  color: var(--ts-text);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+}
+body.app-shell .weak-keys-card-note{ font-size: 0.82rem; color: var(--ts-muted); margin: 0 0 12px; }
+
+body.app-shell .practice-passage-box{
+  background: var(--ts-background);
+  border-radius: var(--ts-radius-md);
+  padding: 16px 18px;
+  margin: 14px 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ts-text);
+  letter-spacing: 0.02em;
+}
+body.app-shell .practice-input{
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 14px;
+}
+body.app-shell .practice-input:focus{ outline: none; border-color: var(--ts-blue); }
+body.app-shell .practice-improvement{ font-weight: 700; color: var(--ts-text); margin: 10px 0 4px; }
+
 body.app-shell .btn{
   border-radius: 10px;
   font-weight: 700;
@@ -2101,7 +2178,9 @@ html[data-theme="dark"] body.app-shell .field textarea,
 html[data-theme="dark"] body.app-shell .settings-row-action,
 html[data-theme="dark"] body.app-shell .settings-inline-form input,
 html[data-theme="dark"] body.app-shell .app-period-select,
-html[data-theme="dark"] body.app-shell .theme-toggle-group{
+html[data-theme="dark"] body.app-shell .theme-toggle-group,
+html[data-theme="dark"] body.app-shell .practice-input,
+html[data-theme="dark"] body.app-shell .practice-passage-box{
   background: #131A28;
   border-color: var(--ts-border);
   color: var(--ts-text);

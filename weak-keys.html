@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weak-Key Practice — TypeShala</title>
+<script src="js/theme-init.js"></script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="app-shell.css">
+</head>
+<body class="app-shell weak-keys-page">
+
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <a class="brand" href="dashboard.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
+      <div class="user-menu">
+        <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="user-menu-skeleton" id="userMenuSkeleton" aria-hidden="true">
+            <span class="user-menu-skeleton-avatar"></span>
+            <span class="user-menu-skeleton-name"></span>
+          </span>
+        </button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="app-body">
+
+  <aside class="app-sidebar" id="appSidebar">
+    <button type="button" class="app-sidebar-toggle" id="sidebarToggleBtn" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    
+    <a class="app-nav-link" href="dashboard.html" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+      <span class="app-nav-link-label">Dashboard</span>
+    </a>
+    <a class="app-nav-link" href="mock-test.html" title="Start Test">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
+      <span class="app-nav-link-label">Start Test</span>
+    </a>
+    <a class="app-nav-link" href="mock-history.html" title="My Tests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+      <span class="app-nav-link-label">My Tests</span>
+    </a>
+    <a class="app-nav-link" href="subscriptions.html" title="Pass">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4V9Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
+      <span class="app-nav-link-label">Pass</span>
+    </a>
+    <a class="app-nav-link" href="purchase-history.html" title="Purchase History">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-2-2-3 2V3a1 1 0 0 1 1-1Z"/><path d="M9 8h6M9 12h6"/></svg>
+      <span class="app-nav-link-label">Purchase History</span>
+    </a>
+    <a class="app-nav-link" href="help-support.html" title="Help & Support">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg>
+      <span class="app-nav-link-label">Help &amp; Support</span>
+    </a>
+    <a class="app-nav-link" href="settings.html" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      <span class="app-nav-link-label">Settings</span>
+    </a>
+  </aside>
+
+  <div class="app-content">
+    <main class="page">
+
+  <a class="ph-back-link" href="dashboard.html">&larr; Dashboard</a>
+  <h1>&#127919; Weak-Key Practice</h1>
+  <p class="lede">Focus on the keys you need to improve.</p>
+
+  <div class="card" id="practiceSetupCard">
+    <div class="card-label">Practicing</div>
+    <div class="weak-keys-card-letters" id="practiceKeysDisplay"></div>
+
+    <div class="practice-passage-box" id="practicePassageDisplay"></div>
+
+    <textarea
+      id="practiceInput"
+      class="practice-input"
+      rows="3"
+      placeholder="Start typing the passage above..."
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+    ></textarea>
+
+    <button class="btn" id="finishPracticeBtn">Finish Practice</button>
+  </div>
+
+  <div class="card" id="practiceEmptyCard" style="display:none;">
+    <div class="card-label">Weak-Key Practice</div>
+    <p class="lede">You don't have any weak keys on record yet. Complete a mock test first — this page will pick up your weakest keys automatically next time.</p>
+    <a class="btn" href="mock-test.html">Start a Mock Test</a>
+  </div>
+
+  <div class="card" id="practiceResultCard" style="display:none;">
+    <div class="card-label">Weak-Key Practice Complete</div>
+    <div class="weak-key-list" id="practiceResultList"></div>
+    <p class="practice-improvement" id="practiceImprovement"></p>
+    <div style="display:flex; gap:12px; margin-top:6px;">
+      <button class="btn" id="practiceAgainBtn">Practice Again</button>
+      <a class="btn btn-ghost" href="dashboard.html">Back to Dashboard</a>
+    </div>
+  </div>
+
+</main>
+
+    <footer class="site-foot">
+  <div class="site-foot-line">TypeShala — Built for typing practice.</div>
+  <div class="site-foot-credit">Designed and built by Shorthand Dictation &#10084;&#65039;</div>
+  <div class="site-foot-copyright">&copy; TypeShala 2026</div>
+</footer>
+  </div>
+</div>
+
+<nav class="app-bottom-nav">
+  <div class="app-bottom-nav-inner">
+    <a class="app-bottom-nav-link" href="dashboard.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
+      Dashboard
+    </a>
+    <a class="app-bottom-nav-link" href="mock-test.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
+      Start Test
+    </a>
+    <a class="app-bottom-nav-link" href="mock-history.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg></span>
+      My Tests
+    </a>
+    <a class="app-bottom-nav-link" href="subscriptions.html">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4V9Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg></span>
+      Pass
+    </a>
+    <button type="button" class="app-bottom-nav-link" id="mobileProfileTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="mobileProfileDrawer">
+      <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span>
+      Profile
+    </button>
+  </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/weak-keys.js"></script>
+
+<!-- Mobile Profile drawer — opened by the Profile bottom-nav button
+     (mobile only; the button that triggers this doesn't exist on
+     desktop). Links to the SAME Help & Support / Settings pages and
+     the SAME logoutStudent() used everywhere else — this is
+     navigation into existing routes, not a second profile/settings
+     system. See wireMobileProfileDrawer() in js/auth.js. -->
+<div class="mobile-profile-overlay" id="mobileProfileOverlay" hidden></div>
+<div class="mobile-profile-drawer" id="mobileProfileDrawer" role="dialog" aria-modal="true" aria-label="Profile menu" hidden>
+  <div class="mobile-profile-drawer-header">
+    <button type="button" class="mobile-profile-drawer-close" id="mobileProfileCloseBtn" aria-label="Close profile menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="mobile-profile-greeting">
+    <div class="mobile-profile-avatar-wrap">
+      <div class="mobile-profile-avatar ts-avatar-render" id="mobileProfileAvatar" aria-hidden="true"></div>
+      <button type="button" class="mobile-profile-avatar-edit ts-avatar-edit-trigger" id="mobileProfileAvatarEditBtn" aria-label="Change avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+    </div>
+    <div class="mobile-profile-greeting-text">
+      <div class="mobile-profile-hello">Hello,</div>
+      <div class="mobile-profile-drawer-name" id="mobileProfileDrawerName">&nbsp;</div>
+    </div>
+  </div>
+  <hr class="mobile-profile-divider">
+  <nav class="mobile-profile-drawer-nav">
+    <a class="mobile-profile-drawer-link" href="purchase-history.html">
+      <span class="mobile-profile-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-2-2-3 2V3a1 1 0 0 1 1-1Z"/><path d="M9 8h6M9 12h6"/></svg></span>
+      Purchase History
+    </a>
+    <a class="mobile-profile-drawer-link" href="help-support.html">
+      <span class="mobile-profile-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg></span>
+      Help &amp; Support
+    </a>
+    <a class="mobile-profile-drawer-link" href="settings.html">
+      <span class="mobile-profile-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>
+      Settings
+    </a>
+  </nav>
+  <div class="mobile-profile-drawer-bottom">
+    <hr class="mobile-profile-divider">
+    <button type="button" class="mobile-profile-drawer-link mobile-profile-drawer-logout" id="mobileProfileLogoutBtn">
+      <span class="mobile-profile-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
+      Log Out
+    </button>
+  </div>
+</div>
+
+<!-- Avatar picker — small popup opened via the pencil button on the
+     drawer avatar. Not a photo-upload system: selects between the
+     two built-in demo avatars and saves the choice to
+     user_metadata.avatar_choice, the same supabaseClient.auth.
+     updateUser({data:{...}}) pattern settings.html already uses for
+     phone/full_name. -->
+<div class="avatar-picker-overlay" id="avatarPickerOverlay" hidden></div>
+<div class="avatar-picker-modal" id="avatarPickerModal" role="dialog" aria-modal="true" aria-label="Choose avatar" hidden>
+  <div class="avatar-picker-title">Choose Avatar</div>
+  <div class="avatar-picker-options">
+    <button type="button" class="avatar-picker-option" id="avatarPickerMale" data-avatar="male">
+      <span class="avatar-picker-preview-wrap">
+        <span class="avatar-picker-preview" id="avatarPreviewMale"></span>
+        <span class="avatar-picker-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      </span>
+      <span>Male</span>
+    </button>
+    <button type="button" class="avatar-picker-option" id="avatarPickerFemale" data-avatar="female">
+      <span class="avatar-picker-preview-wrap">
+        <span class="avatar-picker-preview" id="avatarPreviewFemale"></span>
+        <span class="avatar-picker-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      </span>
+      <span>Female</span>
+    </button>
+  </div>
+  <button type="button" class="btn btn-ghost avatar-picker-cancel" id="avatarPickerCancelBtn">Cancel</button>
+</div>
+
+</body>
+</html>
