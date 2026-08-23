@@ -18,6 +18,11 @@ let testActive = false;
 let testScreenOpen = false;
 let passageChars = [];
 let wordRanges = [];
+// Guards against endMockTest() finalizing (and saving) a test twice
+// if more than one end-trigger fires close together — e.g. the user
+// finishes typing the exact instant the timer also expires. Reset at
+// the start of every new attempt, set the moment finalization begins.
+let testResultSaved = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -203,6 +208,7 @@ async function handleStartClick() {
 }
 
 function startMockTest() {
+  testResultSaved = false;
   passageChars = selectedPassage.content.split("");
   wordRanges = computeWordRanges(selectedPassage.content);
 
@@ -470,6 +476,9 @@ function beforeUnloadHandler(e) {
 /* ---------------- Ending the test ---------------- */
 
 async function endMockTest(reason) {
+  if (testResultSaved) return;
+  testResultSaved = true;
+
   if (testTimer) clearInterval(testTimer);
   testActive = false;
   testScreenOpen = false;
@@ -479,6 +488,7 @@ async function endMockTest(reason) {
   input.disabled = true; // Disable typing after time ends / completion
 
   const typed = input.value;
+  const keyAnalysis = calculateKeyAnalysis(typed);
   let correct = 0;
   for (let i = 0; i < typed.length; i++) {
     if (typed[i] === passageChars[i]) correct++;
@@ -503,8 +513,9 @@ async function endMockTest(reason) {
   exitFullscreen();
   document.getElementById("fsRetryBtn").style.display = "none";
 
-  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords });
+  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords, keyAnalysis });
   await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords });
+  await saveKeyAnalysis(keyAnalysis);
 }
 
 function gradeFor(netWpm, accuracy) {
@@ -527,6 +538,8 @@ function showResultTicket(r) {
   document.getElementById("resultTotalWords").textContent = r.totalWords;
   document.getElementById("resultGrade").textContent = gradeFor(r.netWpm, r.accuracy);
   document.getElementById("resultPassageName").textContent = mockTest.title;
+
+  showWeakKeyAnalysis(r.keyAnalysis);
 }
 
 // Saves with the fields specified for this restructure:
@@ -562,4 +575,195 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+/* ============================================================
+   Weak-Key Analysis (V1 — additive only)
+   ------------------------------------------------------------
+   Does not touch the existing character-based accuracy or
+   word-based mistake count above — this reads passageChars/typed
+   independently, purely for its own key-level breakdown, and never
+   feeds back into grossWpm/netWpm/accuracy/errors.
+   ============================================================ */
+
+// Compares expected vs typed character-by-character and records the
+// EXPECTED character as the key needing practice (not what the user
+// mistakenly typed) — that's the key the student actually needs to
+// improve. Only A-Z; space/punctuation/numbers are skipped for V1.
+function calculateKeyAnalysis(typed) {
+  const stats = {};
+
+  for (let i = 0; i < typed.length && i < passageChars.length; i++) {
+    const expected = passageChars[i];
+    const typedChar = typed[i];
+
+    if (!/^[a-zA-Z]$/.test(expected)) continue;
+
+    const key = expected.toUpperCase();
+
+    if (!stats[key]) {
+      stats[key] = {
+        attempts: 0,
+        correct: 0,
+        errors: 0
+      };
+    }
+
+    stats[key].attempts++;
+
+    if (typedChar === expected) {
+      stats[key].correct++;
+    } else {
+      stats[key].errors++;
+    }
+  }
+
+  return stats;
+}
+
+// Accumulates this test's key stats into the user's lifetime totals
+// in typing_key_stats — one row per (user, key), read-modify-write
+// since Postgres upsert-with-increment needs the current value first
+// (matches the read-then-update pattern already used elsewhere in
+// this codebase rather than introducing a raw SQL increment).
+async function saveKeyAnalysis(keyStats) {
+  if (!currentUser || !keyStats) return;
+
+  const rows = Object.entries(keyStats).map(([key, stat]) => ({
+    user_id: currentUser.id,
+    key,
+    attempts: stat.attempts,
+    correct_count: stat.correct,
+    error_count: stat.errors,
+    last_attempted_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }));
+
+  if (!rows.length) return;
+
+  for (const row of rows) {
+    const { data: existing, error: fetchError } = await supabaseClient
+      .from("typing_key_stats")
+      .select("attempts, correct_count, error_count")
+      .eq("user_id", currentUser.id)
+      .eq("key", row.key)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("Could not read key statistics:", fetchError);
+      continue;
+    }
+
+    if (existing) {
+      const { error } = await supabaseClient
+        .from("typing_key_stats")
+        .update({
+          attempts: existing.attempts + row.attempts,
+          correct_count: existing.correct_count + row.correct_count,
+          error_count: existing.error_count + row.error_count,
+          last_attempted_at: row.last_attempted_at,
+          updated_at: row.updated_at
+        })
+        .eq("user_id", currentUser.id)
+        .eq("key", row.key);
+
+      if (error) {
+        console.error("Could not update key statistics:", error);
+      }
+    } else {
+      const { error } = await supabaseClient
+        .from("typing_key_stats")
+        .insert(row);
+
+      if (error) {
+        console.error("Could not insert key statistics:", error);
+      }
+    }
+  }
+}
+
+// THIS test's weak keys only (not lifetime) — a higher error/lower
+// attempt bar than the dashboard's lifetime view, since a single
+// test may never reach 30 occurrences of any one key. Requiring
+// attempts>=5 AND errors>=2 keeps one stray typo from flagging a key
+// that's otherwise fine.
+function getCurrentTestWeakKeys(keyStats) {
+  return Object.entries(keyStats)
+    .map(([key, stat]) => {
+      const accuracy = stat.attempts > 0
+        ? (stat.correct / stat.attempts) * 100
+        : 100;
+
+      return {
+        key,
+        attempts: stat.attempts,
+        errors: stat.errors,
+        accuracy
+      };
+    })
+    .filter(item =>
+      item.attempts >= 5 &&
+      item.errors >= 2 &&
+      item.accuracy < 90
+    )
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 5);
+}
+
+function showWeakKeyAnalysis(keyStats) {
+  const container = document.getElementById("weakKeyAnalysis");
+  const list = document.getElementById("weakKeyList");
+  const button = document.getElementById("practiceWeakKeysBtn");
+
+  if (!container || !list) return;
+
+  const weakKeys = getCurrentTestWeakKeys(keyStats || {});
+
+  if (!weakKeys.length) {
+    container.style.display = "block";
+
+    list.innerHTML = `
+      <div class="weak-key-empty">
+        <strong>Great job!</strong>
+        <p>No significant weak keys were detected in this test.</p>
+      </div>
+    `;
+
+    if (button) button.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+
+  list.innerHTML = weakKeys.map(item => {
+    const status =
+      item.accuracy < 85 ? "Weak" : "Needs Practice";
+
+    return `
+      <div class="weak-key-item">
+        <div class="weak-key-letter">${item.key}</div>
+
+        <div class="weak-key-info">
+          <div class="weak-key-name">${status}</div>
+          <div class="weak-key-meta">
+            ${item.errors} mistakes &middot; ${Math.round(item.accuracy)}% accuracy
+          </div>
+        </div>
+
+        <div class="weak-key-percent">
+          ${Math.round(item.accuracy)}%
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if (button) {
+    button.style.display = "inline-flex";
+
+    button.onclick = () => {
+      const keys = weakKeys.map(item => item.key).join(",");
+      window.location.href =
+        `weak-keys.html?keys=${encodeURIComponent(keys)}`;
+    };
+  }
 }
