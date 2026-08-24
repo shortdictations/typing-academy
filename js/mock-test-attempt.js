@@ -116,13 +116,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   input.addEventListener("paste", e => e.preventDefault());
   input.addEventListener("drop", e => e.preventDefault());
 
-  // Requirement 2: completely disable Backspace during an active mock
-  // test. testScreenOpen is true from the moment the test screen shows
-  // until the test ends, so this only ever blocks Backspace while a
-  // mock test is actually in progress.
+  // Backspace is now allowed WITHIN the current (uncommitted) word
+  // only — never back into an already-committed word, since the
+  // word-level cursor has already moved forward past those. Checked
+  // directly against selectionStart/selectionEnd rather than trusted
+  // implicitly, so this stays correct even if the browser's own
+  // selection ends up somewhere unexpected (e.g. the user clicks
+  // into earlier text). Enter is intercepted so it never inserts a
+  // literal newline into the buffer — it commits the current word
+  // (same evaluation path Space uses) and advances, without needing
+  // a natural space character for the existing 'input'-event scanner
+  // in onTypingInput() to detect.
   input.addEventListener("keydown", e => {
-    if (testScreenOpen && e.key === "Backspace") {
-      e.preventDefault();
+    if (!testScreenOpen) return;
+
+    if (e.key === "Backspace") {
+      if (input.selectionStart <= wordStartPos || input.selectionEnd <= wordStartPos) {
+        e.preventDefault(); // would delete into already-committed text — blocked
+      }
+      // else: within the current word's own buffer — allow the
+      // browser's default deletion; the resulting 'input' event just
+      // sees a shorter typed value, which onTypingInput() already
+      // handles correctly (evaluation still only happens at commit).
+    } else if (e.key === "Enter") {
+      e.preventDefault(); // never let a literal newline enter the buffer
+      commitCurrentWord(input.value);
     }
   });
 
@@ -305,14 +323,30 @@ function handleFullscreenChange() {
   }
 }
 
+// Splits the passage into paragraphs — confirmed directly against
+// real passage data that a single newline marks a paragraph break in
+// this project's content (not a blank line) — then flattens every
+// paragraph's words into one indexed list, each entry tagged with
+// which paragraph it belongs to and whether it's that paragraph's
+// last word. activeWordIndex stays a single flat index into this
+// list (simplest to keep every existing word-lookup working
+// unchanged); the paragraph tags exist purely for rendering the
+// paragraph break and are not needed for word evaluation itself —
+// Enter commits/advances exactly like Space does, at any position.
 function computeWordRanges(text) {
-  const ranges = [];
-  const regex = /\S+/g;
-  let match;
-  while ((match = regex.exec(text)) !== null) {
-    ranges.push({ start: match.index, end: match.index + match[0].length, text: match[0] });
-  }
-  return ranges;
+  const paragraphTexts = text.split("\n").filter(p => p.trim().length > 0);
+  const words = [];
+  paragraphTexts.forEach((paraText, pIdx) => {
+    const paraWords = paraText.match(/\S+/g) || [];
+    paraWords.forEach((word, wIdx) => {
+      words.push({
+        text: word,
+        paragraphIndex: pIdx,
+        isLastInParagraph: wIdx === paraWords.length - 1
+      });
+    });
+  });
+  return words;
 }
 
 // Renders one <span class="typing-word"> per expected word (not one
@@ -320,7 +354,10 @@ function computeWordRanges(text) {
 // caused the old cascading-highlight problem, since it visually
 // implied a strict 1:1 position lock between typed and expected text
 // that the input never actually enforced). Plain space text nodes
-// between spans give natural line-wrapping, same as before.
+// between spans give natural line-wrapping, same as before; a real
+// paragraph-break element (not just whitespace) is inserted after
+// each paragraph's last word so the break stays visible even though
+// browsers collapse plain whitespace.
 function renderPassage() {
   const box = document.getElementById("passageBox");
   box.innerHTML = "";
@@ -330,7 +367,15 @@ function renderPassage() {
     span.textContent = w.text;
     span.id = "word-" + i;
     box.appendChild(span);
-    if (i < wordRanges.length - 1) box.appendChild(document.createTextNode(" "));
+
+    if (i < wordRanges.length - 1) {
+      if (w.isLastInParagraph) {
+        box.appendChild(document.createElement("br"));
+        box.appendChild(document.createElement("br"));
+      } else {
+        box.appendChild(document.createTextNode(" "));
+      }
+    }
   });
   if (wordRanges.length > 0) {
     document.getElementById("word-0").classList.add("active");
@@ -444,6 +489,53 @@ function updateActiveWordHighlight() {
 
 /* ---------------- Live typing ---------------- */
 
+// Commits whatever is in the current word's buffer (typed.substring
+// (wordStartPos)) as this word's final answer, evaluates it, and
+// advances to the next word. Shared by BOTH commit paths — the
+// natural Space character (detected in onTypingInput's scan below)
+// and the Enter keydown handler above — so a word is scored
+// identically regardless of which key ended it. An empty buffer
+// (Enter/extra-space pressed with nothing typed since the last
+// commit) is skipped silently rather than recorded as a blank-word
+// failure, matching the same "consecutive spaces" leniency already
+// used for the Space path.
+function commitCurrentWord(typed) {
+  const word = typed.substring(wordStartPos);
+  if (word.length > 0) {
+    evaluateWord(word);
+  }
+  wordStartPos = typed.length;
+  updateActiveWordHighlight();
+  scrollActiveWordIntoView();
+
+  const stats = computeLiveStats(typed);
+  updateLiveStats(stats.wpm, stats.accuracy, stats.mistakes);
+  checkForCompletion(typed);
+}
+
+// Two ways a test can end "naturally" (as opposed to timer/fullscreen-
+// exit): every word has been committed (the student pressed Space or
+// Enter after the very last word), or the student is still on the
+// last word but has now typed at least as many characters as it
+// requires (no trailing Space/Enter needed). The second check is
+// word-aware rather than based on overall typed length reaching the
+// original passage length — that raw-length approach has a drift bug
+// confirmed directly: once any earlier word is over-typed (extra
+// characters), total length reaches the passage's original length
+// BEFORE the real last word is finished, truncating it mid-word.
+function checkForCompletion(typed) {
+  if (activeWordIndex >= wordRanges.length) {
+    endMockTest("completed");
+    return;
+  }
+  const onLastWord = activeWordIndex === wordRanges.length - 1;
+  const lastWordLength = wordRanges.length > 0 ? wordRanges[wordRanges.length - 1].text.length : 0;
+  const currentWordTypedLength = typed.length - wordStartPos;
+  if (onLastWord && currentWordTypedLength >= lastWordLength) {
+    endMockTest("completed");
+  }
+}
+
 function onTypingInput(e) {
   if (!testActive) {
     testActive = true;
@@ -459,14 +551,14 @@ function onTypingInput(e) {
   // PREVIOUS space actually landed in `typed`, never from a fixed
   // passage offset — that dynamic anchoring is what keeps word
   // boundaries synchronized even after a missed/extra character.
+  // Enter is handled separately (see the keydown listener above) since
+  // it never produces a space character for this scan to find.
   let spaceIdx;
   while ((spaceIdx = typed.indexOf(" ", wordStartPos)) !== -1) {
     const word = typed.substring(wordStartPos, spaceIdx);
     if (word.length > 0) {
       evaluateWord(word);
     }
-    // else: consecutive spaces with nothing typed between them —
-    // skipped silently rather than recorded as a blank-word failure.
     wordStartPos = spaceIdx + 1;
   }
 
@@ -475,24 +567,7 @@ function onTypingInput(e) {
 
   const stats = computeLiveStats(typed);
   updateLiveStats(stats.wpm, stats.accuracy, stats.mistakes);
-
-  // Completion: waits for the user to finish typing the LAST expected
-  // word specifically, not "overall typed length reaches passage
-  // length" — that raw-length check (preserved unchanged from the old
-  // engine at first) turned out to have its own latent drift bug: once
-  // any earlier word is over-typed (extra characters), the total
-  // typed length can reach the passage's original length BEFORE the
-  // user actually finishes the real last word, ending the test early
-  // and cutting it off mid-word. Confirmed this by testing the
-  // brief's own "extra character" case (quiick) — fox was truncated
-  // to "fo" before this fix. Word-aware completion has no such drift
-  // since it only cares about the current (last) word's own progress.
-  const onLastWord = activeWordIndex === wordRanges.length - 1;
-  const lastWordLength = wordRanges.length > 0 ? wordRanges[wordRanges.length - 1].text.length : 0;
-  const currentWordTypedLength = typed.length - wordStartPos;
-  if (onLastWord && currentWordTypedLength >= lastWordLength) {
-    endMockTest("completed");
-  }
+  checkForCompletion(typed);
 }
 
 // Live WPM/accuracy/mistakes from wordResults (already-submitted
