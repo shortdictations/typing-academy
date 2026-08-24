@@ -25,13 +25,23 @@
 
   let lastFocusedTrigger = null;
   let hideTimeoutId = null;
+  // Explicit state, checked instead of the DOM's own [hidden]/class
+  // state for the open/close guards below — more robust than
+  // inferring "is it open" from DOM properties that a delayed
+  // animation can leave in a transitional state for a short window.
+  let modalOpen = false;
 
   function openModal(key, triggerEl) {
     const source = MODAL_SOURCES[key];
     const template = source && document.getElementById(source.templateId);
     if (!source || !template) return;
 
+    // Clear any pending close-hide from a previous close — required
+    // both for the normal "close then reopen quickly" case and so a
+    // stray leftover timeout can never fire and touch an overlay/
+    // modal that a new open() call is currently in control of.
     clearTimeout(hideTimeoutId);
+    modalOpen = true;
     lastFocusedTrigger = triggerEl || null;
 
     titleEl.textContent = source.title;
@@ -82,9 +92,25 @@
   }
 
   function closeModal() {
-    if (modal.hidden) return;
+    if (!modalOpen) return;
+    modalOpen = false;
+    // Clear any timeout from a previous close that might still be
+    // pending (e.g. ESC and an overlay click both firing in quick
+    // succession) — without this, a second scheduled hide could
+    // outlive this one and fire later with nothing left to clean up,
+    // which is harmless here but is exactly the kind of leftover
+    // timer requirement 7 asks to guard against on every open AND
+    // close, not just open.
+    clearTimeout(hideTimeoutId);
+
     overlay.classList.remove("open");
     modal.classList.remove("open");
+    // pointer-events:none / visibility:hidden apply the instant the
+    // "open" class above is removed (see landing.css) — synchronous,
+    // not tied to the delayed [hidden]=true below. That's what
+    // actually fixes the unresponsive-page bug: the overlay can no
+    // longer capture any click from this point on, even during the
+    // few hundred ms the fade-out is still visually playing.
     document.documentElement.classList.remove("info-modal-open");
     document.body.classList.remove("info-modal-open");
     document.removeEventListener("keydown", onKeydown);
