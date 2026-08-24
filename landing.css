@@ -591,8 +591,20 @@ body.landing-v2 .info-modal-overlay{
   z-index: 2000;
   opacity: 0;
   transition: opacity 0.2s ease;
+  /* Explicit interactive state, decoupled from the [hidden]
+     attribute and from the opacity fade — this is the actual fix
+     for the "page becomes unresponsive after closing" bug. Without
+     this, a delayed [hidden]=true (kept for the fade-out to play)
+     left a full-viewport, fully clickable overlay sitting over the
+     entire page for ~220ms after every close, silently swallowing
+     any click that landed anywhere on the page during that window.
+     .open is removed synchronously the instant closeModal() runs,
+     so pointer-events:none takes effect immediately regardless of
+     how long the visual fade takes. */
+  pointer-events: none;
+  visibility: hidden;
 }
-body.landing-v2 .info-modal-overlay.open{ opacity: 1; }
+body.landing-v2 .info-modal-overlay.open{ opacity: 1; pointer-events: auto; visibility: visible; }
 
 body.landing-v2 .info-modal{
   position: fixed;
@@ -609,8 +621,13 @@ body.landing-v2 .info-modal{
   flex-direction: column;
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  /* Same explicit non-interactive closed state as the overlay above
+     — the modal box itself is a separate fixed-positioned element
+     and needs the same fix independently. */
+  pointer-events: none;
+  visibility: hidden;
 }
-body.landing-v2 .info-modal.open{ opacity: 1; transform: translate(-50%, -50%); }
+body.landing-v2 .info-modal.open{ opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; visibility: visible; }
 @media (prefers-reduced-motion: reduce){
   body.landing-v2 .info-modal-overlay,
   body.landing-v2 .info-modal{ transition: none; }
