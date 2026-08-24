@@ -18,6 +18,13 @@ let testActive = false;
 let testScreenOpen = false;
 let passageChars = [];
 let wordRanges = [];
+// Word-level typing state (replaces the old character-index model).
+// activeWordIndex/wordStartPos/wordResults are the three variables
+// the rest of this engine is built around now — see onTypingInput(),
+// evaluateWord(), and the brief's own recommended architecture.
+let activeWordIndex = 0;
+let wordStartPos = 0; // offset into `typed` where the active word begins
+let wordResults = [];
 // Guards against endMockTest() finalizing (and saving) a test twice
 // if more than one end-trigger fires close together — e.g. the user
 // finishes typing the exact instant the timer also expires. Reset at
@@ -211,6 +218,9 @@ function startMockTest() {
   testResultSaved = false;
   passageChars = selectedPassage.content.split("");
   wordRanges = computeWordRanges(selectedPassage.content);
+  activeWordIndex = 0;
+  wordStartPos = 0;
+  wordResults = [];
 
   document.getElementById("setupCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
@@ -305,24 +315,131 @@ function computeWordRanges(text) {
   return ranges;
 }
 
+// Renders one <span class="typing-word"> per expected word (not one
+// span per character — that per-character rendering is exactly what
+// caused the old cascading-highlight problem, since it visually
+// implied a strict 1:1 position lock between typed and expected text
+// that the input never actually enforced). Plain space text nodes
+// between spans give natural line-wrapping, same as before.
 function renderPassage() {
   const box = document.getElementById("passageBox");
   box.innerHTML = "";
-  passageChars.forEach((ch, i) => {
+  wordRanges.forEach((w, i) => {
     const span = document.createElement("span");
-    span.className = "char";
-    span.textContent = ch;
-    span.id = "amch-" + i;
+    span.className = "typing-word";
+    span.textContent = w.text;
+    span.id = "word-" + i;
     box.appendChild(span);
+    if (i < wordRanges.length - 1) box.appendChild(document.createTextNode(" "));
   });
-  if (passageChars.length > 0) {
-    document.getElementById("amch-0").classList.add("current");
+  if (wordRanges.length > 0) {
+    document.getElementById("word-0").classList.add("active");
   }
 }
 
 function refocusTypingInput() {
   const input = document.getElementById("typeInput");
   if (input && !input.disabled && testScreenOpen) input.focus();
+}
+
+/* ---------------- Character-level diff (per word) ----------------
+   Standard Levenshtein alignment with backtrace, scoped to a single
+   word (always short — a handful to ~15 characters — so the O(n*m)
+   cost here is trivial). This is what actually prevents cascading
+   errors: instead of assuming typed[i] lines up with the passage's
+   character i (the assumption that broke on any missed/extra
+   character), each word's typed text is aligned against ONLY that
+   word's own expected text, independently of every other word.
+   Produces one operation per aligned position:
+     match        — expected[i] === typed[j]
+     substitution — expected[i] !== typed[j] (wrong key)
+     missing      — expected[i] has no typed counterpart (skipped key)
+     extra        — typed[j] has no expected counterpart (extra key)
+   "missing" and "substitution" both carry the EXPECTED character —
+   exactly the key a student needs to practice — matching the
+   {expected, typed, position} shape used elsewhere in this project's
+   weak-key data. */
+function diffWordChars(expected, typed) {
+  const m = expected.length, n = typed.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (expected[i - 1] === typed[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+
+  const ops = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && expected[i - 1] === typed[j - 1]) {
+      ops.push({ type: "match", expected: expected[i - 1] });
+      i--; j--;
+    } else if (i > 0 && j > 0 && dp[i][j] === dp[i - 1][j - 1] + 1) {
+      ops.push({ type: "substitution", expected: expected[i - 1], typed: typed[j - 1] });
+      i--; j--;
+    } else if (i > 0 && dp[i][j] === dp[i - 1][j] + 1) {
+      ops.push({ type: "missing", expected: expected[i - 1] });
+      i--;
+    } else {
+      ops.push({ type: "extra", typed: typed[j - 1] });
+      j--;
+    }
+  }
+  ops.reverse();
+
+  return {
+    ops,
+    errors: ops.filter(op => op.type !== "match"),
+    correctCount: ops.filter(op => op.type === "match").length
+  };
+}
+
+// Evaluates the word the student just finished typing (Space was
+// pressed, or the test ended mid-word) against wordRanges[activeWordIndex]
+// — the CURRENT active word, never a fixed offset into the original
+// passage — then advances to the next word. This is the core of the
+// cascading-error fix: each word's evaluation is independent of every
+// other word's length, so one missed character in word 2 has zero
+// effect on how word 3, 4, 5... are compared.
+function evaluateWord(typedWord) {
+  const expectedWord = activeWordIndex < wordRanges.length ? wordRanges[activeWordIndex].text : "";
+  const diff = diffWordChars(expectedWord, typedWord);
+
+  wordResults.push({
+    expectedWord,
+    typedWord,
+    correct: typedWord === expectedWord,
+    ops: diff.ops,                 // full alignment — used internally by calculateKeyAnalysis()
+    characterErrors: diff.errors,  // just the errors — {type, expected, typed} shape for weak-key data
+    correctCharCount: diff.correctCount
+  });
+  activeWordIndex++;
+}
+
+function updateActiveWordHighlight() {
+  wordRanges.forEach((w, i) => {
+    const span = document.getElementById("word-" + i);
+    if (span) span.classList.remove("active");
+  });
+  if (activeWordIndex < wordRanges.length) {
+    const activeSpan = document.getElementById("word-" + activeWordIndex);
+    if (activeSpan) activeSpan.classList.add("active");
+  }
+  // Subtle WORD-level (not character-level) feedback on completed
+  // words only — satisfies "no letter-by-letter highlighting" while
+  // still giving some visual progress feedback.
+  wordResults.forEach((r, i) => {
+    const span = document.getElementById("word-" + i);
+    if (!span) return;
+    span.classList.remove("word-correct", "word-wrong");
+    span.classList.add(r.correct ? "word-correct" : "word-wrong");
+  });
 }
 
 /* ---------------- Live typing ---------------- */
@@ -335,80 +452,78 @@ function onTypingInput(e) {
   }
 
   const typed = e.target.value;
-  let correct = 0;
 
-  for (let i = 0; i < passageChars.length; i++) {
-    const span = document.getElementById("amch-" + i);
-    span.classList.remove("correct", "wrong", "current");
-
-    if (i < typed.length) {
-      if (typed[i] === passageChars[i]) {
-        span.classList.add("correct");
-        correct++;
-      } else {
-        span.classList.add("wrong");
-      }
-    } else if (i === typed.length) {
-      span.classList.add("current");
+  // Evaluate every word boundary (space) that has appeared since the
+  // last event — normally just one, but a loop handles any input
+  // coalescing safely. wordStartPos always advances from wherever the
+  // PREVIOUS space actually landed in `typed`, never from a fixed
+  // passage offset — that dynamic anchoring is what keeps word
+  // boundaries synchronized even after a missed/extra character.
+  let spaceIdx;
+  while ((spaceIdx = typed.indexOf(" ", wordStartPos)) !== -1) {
+    const word = typed.substring(wordStartPos, spaceIdx);
+    if (word.length > 0) {
+      evaluateWord(word);
     }
+    // else: consecutive spaces with nothing typed between them —
+    // skipped silently rather than recorded as a blank-word failure.
+    wordStartPos = spaceIdx + 1;
   }
 
-  applyWordHighlighting(typed);
-  scrollCurrentLineIntoView(typed);
+  updateActiveWordHighlight();
+  scrollActiveWordIntoView();
 
-  const accuracy = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
-  const minutesElapsed = testStartTime ? (Date.now() - testStartTime) / 60000 : 0;
-  const wpm = minutesElapsed > 0 ? Math.round((correct / 5) / minutesElapsed) : 0;
-  const liveMistakes = computeWordMistakeCount(typed);
-  updateLiveStats(wpm, accuracy, liveMistakes);
+  const stats = computeLiveStats(typed);
+  updateLiveStats(stats.wpm, stats.accuracy, stats.mistakes);
 
-  if (typed.length >= passageChars.length) {
+  // Completion: waits for the user to finish typing the LAST expected
+  // word specifically, not "overall typed length reaches passage
+  // length" — that raw-length check (preserved unchanged from the old
+  // engine at first) turned out to have its own latent drift bug: once
+  // any earlier word is over-typed (extra characters), the total
+  // typed length can reach the passage's original length BEFORE the
+  // user actually finishes the real last word, ending the test early
+  // and cutting it off mid-word. Confirmed this by testing the
+  // brief's own "extra character" case (quiick) — fox was truncated
+  // to "fo" before this fix. Word-aware completion has no such drift
+  // since it only cares about the current (last) word's own progress.
+  const onLastWord = activeWordIndex === wordRanges.length - 1;
+  const lastWordLength = wordRanges.length > 0 ? wordRanges[wordRanges.length - 1].text.length : 0;
+  const currentWordTypedLength = typed.length - wordStartPos;
+  if (onLastWord && currentWordTypedLength >= lastWordLength) {
     endMockTest("completed");
   }
 }
 
-function applyWordHighlighting(typed) {
-  // Visual word-level decoration removed per redesign — correctness is
-  // conveyed purely by each character's own color (.correct/.wrong).
-  // word-current only gives the not-yet-typed part of the active word
-  // a hair more contrast than future text; no background/box/underline.
-  const cursorPos = typed.length;
-  wordRanges.forEach(w => {
-    for (let i = w.start; i < w.end; i++) {
-      const span = document.getElementById("amch-" + i);
-      if (!span) continue;
-      span.classList.remove("word-current");
-      if (cursorPos >= w.start && cursorPos <= w.end) {
-        span.classList.add("word-current");
-      }
-    }
-  });
+// Live WPM/accuracy/mistakes from wordResults (already-submitted
+// words) plus a simple prefix comparison of the CURRENT in-progress
+// word only — that partial word is properly re-scored via the full
+// character diff the moment it's actually submitted, so this partial
+// estimate never leaks into permanent/saved data.
+function computeLiveStats(typed) {
+  let correctChars = 0;
+  wordResults.forEach(r => { correctChars += r.correctCharCount; });
+
+  const expectedWord = activeWordIndex < wordRanges.length ? wordRanges[activeWordIndex].text : "";
+  const partialTyped = typed.substring(wordStartPos);
+  for (let i = 0; i < partialTyped.length && i < expectedWord.length; i++) {
+    if (partialTyped[i] === expectedWord[i]) correctChars++;
+  }
+
+  const totalTyped = typed.length;
+  const accuracy = totalTyped > 0 ? Math.round((correctChars / totalTyped) * 100) : 100;
+  const minutesElapsed = testStartTime ? (Date.now() - testStartTime) / 60000 : 0;
+  const wpm = minutesElapsed > 0 ? Math.round((correctChars / 5) / minutesElapsed) : 0;
+  const mistakes = wordResults.filter(r => !r.correct).length;
+
+  return { correctChars, accuracy, wpm, mistakes };
 }
 
-// Word-wise mistake count (Requirement: 1+ wrong chars in a word = 1
-// mistake, never more). Compares only the portion of each word actually
-// typed so far, so it's accurate live (a word can start counting as a
-// mistake mid-word, before it's finished) and identical at test end.
-function computeWordMistakeCount(typed) {
-  let mistakes = 0;
-  wordRanges.forEach(w => {
-    const typedEnd = Math.min(typed.length, w.end);
-    if (typedEnd <= w.start) return; // nothing typed in this word yet
-    const typedPortion = typed.substring(w.start, typedEnd);
-    const expectedPortion = w.text.substring(0, typedEnd - w.start);
-    if (typedPortion !== expectedPortion) mistakes++;
-  });
-  return mistakes;
-}
-
-// Auto-scroll: only moves the passage box's own scroll position when
-// the current character is about to leave a comfortable "safe zone"
-// (top 20%–75% of the box) — never on every keystroke, never touches
-// page scroll, never touches focus. Repositions the line into the
-// lower-middle of the box, not jammed against an edge.
-function scrollCurrentLineIntoView(typed) {
-  const idx = Math.min(typed.length, passageChars.length - 1);
-  const span = document.getElementById("amch-" + idx);
+// Same safe-zone auto-scroll behavior as before, now keyed off the
+// active WORD span instead of a character span.
+function scrollActiveWordIntoView() {
+  const idx = Math.min(activeWordIndex, wordRanges.length - 1);
+  const span = document.getElementById("word-" + idx);
   const box = document.getElementById("passageBox");
   if (!span || !box) return;
 
@@ -421,18 +536,6 @@ function scrollCurrentLineIntoView(typed) {
     const delta = (spanRect.top - boxRect.top) - (boxRect.height * 0.35);
     box.scrollTo({ top: box.scrollTop + delta, behavior: "smooth" });
   }
-}
-
-function computeWordStats(typed) {
-  let correctWords = 0, wrongWords = 0, totalWords = 0;
-  wordRanges.forEach(w => {
-    if (w.end <= typed.length) {
-      totalWords++;
-      const typedWord = typed.substring(w.start, w.end);
-      if (typedWord === w.text) correctWords++; else wrongWords++;
-    }
-  });
-  return { correctWords, wrongWords, totalWords };
 }
 
 function tickTimer() {
@@ -488,20 +591,31 @@ async function endMockTest(reason) {
   input.disabled = true; // Disable typing after time ends / completion
 
   const typed = input.value;
-  const keyAnalysis = calculateKeyAnalysis(typed);
-  let correct = 0;
-  for (let i = 0; i < typed.length; i++) {
-    if (typed[i] === passageChars[i]) correct++;
+
+  // Finalize whatever word was still in progress — the student can
+  // finish the very last word without ever pressing Space, or the
+  // timer/fullscreen-exit can end the test mid-word. Same evaluateWord()
+  // path every other word goes through, so the last word is scored
+  // identically, not as a special case.
+  const trailingWord = typed.substring(wordStartPos);
+  if (trailingWord.length > 0 && activeWordIndex < wordRanges.length) {
+    evaluateWord(trailingWord);
+    wordStartPos = typed.length;
   }
+  updateActiveWordHighlight();
+
+  const keyAnalysis = calculateKeyAnalysis();
+
+  let correct = 0;
+  wordResults.forEach(r => { correct += r.correctCharCount; });
 
   const totalTypedChars = typed.length;
   const accuracy = totalTypedChars > 0 ? Math.round((correct / totalTypedChars) * 100) : 0;
-  const wordStats = computeWordStats(typed);
-  // "errors"/"Mistakes" now means incorrectly-typed WORDS, not characters.
-  // Accuracy above is untouched — it was already character-based and
-  // does not depend on this value, per the explicit instruction not to
-  // change it unless it directly relied on the old character-error count.
-  const errors = computeWordMistakeCount(typed);
+  // "errors"/"Mistakes" = incorrectly-typed WORDS, derived from the
+  // same wordResults every word's own diff was recorded into — never
+  // recomputed from raw typed/passage offsets, so it can't cascade.
+  const errors = wordResults.filter(r => !r.correct).length;
+  const totalWords = wordResults.length;
 
   const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : mockTest.duration;
   const minutesForWpm = reason === "time_up" ? mockTest.duration : Math.max(elapsedMinutes, 0.05);
@@ -513,8 +627,8 @@ async function endMockTest(reason) {
   exitFullscreen();
   document.getElementById("fsRetryBtn").style.display = "none";
 
-  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords, keyAnalysis });
-  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords: wordStats.totalWords });
+  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis });
+  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords });
   await saveKeyAnalysis(keyAnalysis);
 }
 
@@ -580,43 +694,44 @@ function escapeHtml(str) {
 /* ============================================================
    Weak-Key Analysis (V1 — additive only)
    ------------------------------------------------------------
-   Does not touch the existing character-based accuracy or
-   word-based mistake count above — this reads passageChars/typed
-   independently, purely for its own key-level breakdown, and never
-   feeds back into grossWpm/netWpm/accuracy/errors.
+   Now derived entirely from wordResults[].ops (the per-word
+   character diffs computed in evaluateWord()/diffWordChars()) rather
+   than a raw passageChars[i]-vs-typed[i] scan — that raw scan was
+   itself vulnerable to the exact same cascading-position problem the
+   typing engine just had, since a single missed character earlier in
+   the passage would misalign every subsequent index and misattribute
+   errors to the wrong keys. wordResults is immune to that by
+   construction (each word's diff only ever compares against its own
+   expected text), so key attribution stays correct.
    ============================================================ */
 
-// Compares expected vs typed character-by-character and records the
-// EXPECTED character as the key needing practice (not what the user
-// mistakenly typed) — that's the key the student actually needs to
-// improve. Only A-Z; space/punctuation/numbers are skipped for V1.
-function calculateKeyAnalysis(typed) {
+// Walks every recorded word's character-diff operations and
+// attributes each one to the EXPECTED character — the key a student
+// actually needs to practice, not whatever they mistakenly typed.
+// "extra" operations have no expected character to blame and are
+// skipped for key-level stats (an extra keystroke isn't really "the
+// wrong key" for any specific expected letter). Only A-Z; space/
+// punctuation/numbers stay excluded for V1, same as before.
+function calculateKeyAnalysis() {
   const stats = {};
 
-  for (let i = 0; i < typed.length && i < passageChars.length; i++) {
-    const expected = passageChars[i];
-    const typedChar = typed[i];
+  wordResults.forEach(result => {
+    result.ops.forEach(op => {
+      if (!op.expected || !/^[a-zA-Z]$/.test(op.expected)) return;
 
-    if (!/^[a-zA-Z]$/.test(expected)) continue;
+      const key = op.expected.toUpperCase();
+      if (!stats[key]) {
+        stats[key] = { attempts: 0, correct: 0, errors: 0 };
+      }
 
-    const key = expected.toUpperCase();
-
-    if (!stats[key]) {
-      stats[key] = {
-        attempts: 0,
-        correct: 0,
-        errors: 0
-      };
-    }
-
-    stats[key].attempts++;
-
-    if (typedChar === expected) {
-      stats[key].correct++;
-    } else {
-      stats[key].errors++;
-    }
-  }
+      stats[key].attempts++;
+      if (op.type === "match") {
+        stats[key].correct++;
+      } else {
+        stats[key].errors++;
+      }
+    });
+  });
 
   return stats;
 }
