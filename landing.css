@@ -57,7 +57,20 @@ body.landing-v2{
      just needs to be explicitly, not implicitly, "not hidden". */
   overflow-x: hidden;
   overflow-y: visible;
+  /* Sticky footer: a real flex-column layout, not position:fixed
+     (which would overlap content on short pages instead of sitting
+     below it). header/main.landing-page/footer are direct siblings
+     of body in the existing markup, in that order, so this needs no
+     extra wrapper — main.landing-page below gets flex:1 0 auto to
+     absorb any leftover height, which is what pushes the footer down
+     to the bottom edge on short pages and lets it sit naturally below
+     the content (never overlapping) once the page is tall enough to
+     scroll on its own. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+body.landing-v2 main.landing-page{ flex: 1 0 auto; }
 body.landing-v2 .landing-page h1,
 body.landing-v2 .landing-page h2{
   font-family: var(--ts-font);
@@ -471,10 +484,58 @@ body.landing-v2 .credit-info-item strong{
 /* ---------- Footer ---------- */
 body.landing-v2 footer.site-foot{
   border-top: 1px solid var(--ts-border);
+  padding: 40px 24px 28px;
+  flex: none; /* stays its own natural height — main.landing-page (flex:1 0 auto) is what absorbs the extra space on short pages */
 }
-body.landing-v2 .site-foot-credit{
+body.landing-v2 .site-foot-inner{
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+body.landing-v2 .site-foot-brand-name{
   font-family: var(--ts-font);
+  font-weight: 800;
+  font-size: 1.15rem;
   color: var(--ts-text);
+}
+body.landing-v2 .site-foot-tagline{
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--ts-muted);
+  max-width: 320px;
+  line-height: 1.5;
+}
+body.landing-v2 .site-foot-links{
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+body.landing-v2 .site-foot-links a{
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ts-muted);
+  text-decoration: none;
+}
+body.landing-v2 .site-foot-links a:hover{ color: var(--ts-blue); text-decoration: underline; }
+body.landing-v2 .site-foot-copyright{
+  max-width: 1180px;
+  margin: 28px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--ts-border);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--ts-muted);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px){
+  body.landing-v2 .site-foot-inner{ flex-direction: column; gap: 20px; }
+  body.landing-v2 .site-foot-tagline{ max-width: none; }
+  body.landing-v2 .site-foot-links{ gap: 16px 20px; }
 }
 
 /* ---------- Responsive ---------- */
