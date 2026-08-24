@@ -1762,14 +1762,15 @@ body.app-shell .passage-box{
   border-color: var(--ts-border);
   color: var(--ts-text);
 }
-body.app-shell .passage-box .char{ color: var(--ts-muted); }
-body.app-shell .passage-box .char.correct{ color: var(--ts-text); }
-body.app-shell .passage-box .char.wrong{ color: var(--ts-red); }
-body.app-shell .passage-box .char.current{
-  background: rgba(47,95,236,0.12);
-  border-bottom: 2px solid var(--ts-blue);
+body.app-shell .passage-box .typing-word{ color: var(--ts-muted); }
+body.app-shell .passage-box .typing-word.active{
+  color: var(--ts-blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-body.app-shell .passage-box .char.word-current{ color: var(--ts-text); }
+body.app-shell .passage-box .typing-word.word-correct{ color: var(--ts-text); }
+body.app-shell .passage-box .typing-word.word-wrong{ color: var(--ts-red); }
 body.app-shell .type-input{
   font-family: var(--ts-font);
   background: #fff;
