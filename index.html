@@ -1,898 +1,541 @@
-TYPE SHALA — FINAL FOOTER + INFORMATION MODALS
-
-Implement the following changes in my existing TypeShala project.
-
-IMPORTANT:
-Do not create separate HTML pages for Privacy Policy, Terms & Conditions, or About Us.
-
-All three must open as clean, scrollable MODALS/POPUPS on the current page when their footer links are clicked.
-
-Do not break any existing TypeShala functionality, theme, authentication, Supabase, Razorpay, dashboard or typing-test functionality.
-
-==================================================
-1. FINAL FOOTER
-==================================================
-
-Create/update the footer according to the approved TypeShala design.
-
-The footer must have a clean, modern, minimal white background.
-
-No dark footer.
-No large footer.
-No TypeShala logo inside the footer.
-No TypeShala description.
-No footer columns.
-
-----------------------------------------
-DESKTOP FOOTER
-----------------------------------------
-
-At the upper part of the footer, show four small black social-media icons in one horizontal row:
-
-Blogger | Facebook | YouTube | Telegram
-
-The icons must be:
-
-- Small
-- Black
-- Clean
-- Minimal
-- Modern
-- Visually consistent
-- Not oversized
-- Not enclosed in large coloured circles
-- Properly aligned horizontally
-
-Use clickable links.
-
-SOCIAL MEDIA LINKS:
-
-BLOGGER:
-https://indianshorthand.blogspot.com
-
-FACEBOOK:
-https://www.facebook.com/Shorthand-Dictations-101543991717541
-
-TELEGRAM:
-https://t.me/shorthandjournals
-
-YOUTUBE:
-https://www.youtube.com/@shortdictations
-
-IMPORTANT:
-Use these exact destination URLs.
-
-Do NOT use the YouTube redirect URLs supplied in the original links.
-
-Open social-media links in a new browser tab using:
-
-target="_blank"
-rel="noopener noreferrer"
-
-----------------------------------------
-
-Below the social icons, add a very thin, subtle horizontal divider.
-
-Below the divider use a two-sided desktop layout:
-
-LEFT:
-
-© TypeShala 2026. All rights reserved.
-
-RIGHT:
-
-Privacy Policy | Terms and Conditions | About Us
-
-The three links must be clickable.
-
-Do NOT include Contact in the footer.
-
-Do NOT include an Email Us button.
-
-----------------------------------------
-DESKTOP VISUAL STYLE
-----------------------------------------
-
-The footer should resemble the approved reference:
-
-White background
-Very subtle shadow
-Thin light divider
-Small black social icons
-Clean typography
-Lots of white space
-No unnecessary content
-
-Keep the footer relatively slim.
-
-==================================================
-2. MOBILE FOOTER
-==================================================
-
-The mobile footer must follow the approved mobile design.
-
-Everything should be horizontally centered.
-
-At the top:
-
-[Blogger icon] [Facebook icon] [YouTube icon] [Telegram icon]
-
-All four icons must remain on ONE horizontal line.
-
-Use small black icons.
-
-The icons should be approximately 20–24px and visually clean.
-
-Do not use oversized icons.
-
-Then add a small amount of vertical spacing.
-
-Then:
-
-Privacy Policy | Terms and Conditions | About Us
-
-IMPORTANT:
-
-This entire link row must remain on ONE LINE.
-
-Do NOT allow:
-
-Privacy Policy
-Terms and Conditions
-About Us
-
-to break onto separate lines.
-
-Use responsive font sizing and spacing so it fits normal mobile screens.
-
-Then:
-
-© TypeShala 2026. All rights reserved.
-
-This must also remain on ONE LINE.
-
-Center it horizontally.
-
-Do not create horizontal scrolling.
-
-The mobile footer should be compact and elegant.
-
-==================================================
-3. SOCIAL MEDIA ICON IMPLEMENTATION
-==================================================
-
-Use recognizable icons for:
-
-Blogger
-Facebook
-YouTube
-Telegram
-
-Prefer the existing icon library in the project if one is already installed.
-
-If Font Awesome, Lucide, Bootstrap Icons or another icon library is already available, reuse it.
-
-Do not add a large new dependency unnecessarily.
-
-If no icon library exists, use clean inline SVG icons.
-
-All icons must be BLACK.
-
-Use approximately:
-
-width: 20px–24px
-height: 20px–24px
-
-Desktop and mobile must use the same visual icon style.
-
-The icons must be clickable.
-
-Links:
-
-Blogger:
-https://indianshorthand.blogspot.com
-
-Facebook:
-https://www.facebook.com/Shorthand-Dictations-101543991717541
-
-YouTube:
-https://www.youtube.com/@shortdictations
-
-Telegram:
-https://t.me/shorthandjournals
-
-==================================================
-4. FOOTER INFORMATION LINKS
-==================================================
-
-Footer:
-
-Privacy Policy | Terms and Conditions | About Us
-
-When the user clicks:
-
-Privacy Policy
-→ Open Privacy Policy modal.
-
-Terms and Conditions
-→ Open Terms & Conditions modal.
-
-About Us
-→ Open About Us modal.
-
-Do NOT navigate to another HTML page.
-
-Do NOT create:
-
-privacy-policy.html
-terms.html
-about.html
-contact.html
-
-==================================================
-5. MODAL DESIGN
-==================================================
-
-Create a reusable modal component for all three sections.
-
-When opened:
-
-- Show a subtle dark/translucent background overlay.
-- Center the modal.
-- Use a clean white background.
-- Rounded corners.
-- Subtle shadow.
-- Modern TypeShala styling.
-- Responsive width.
-- Smooth, subtle opening animation.
-
-Desktop:
-
-max-width: 750–800px
-max-height: approximately 80vh
-
-Mobile:
-
-width: approximately 92–95vw
-max-height: approximately 85–90vh
-
-The modal content itself must scroll vertically.
-
-The main page must NOT scroll while the modal is open.
-
-Only the modal content should scroll.
-
-==================================================
-6. MODAL HEADER
-==================================================
-
-The modal header should remain visible while the content scrolls.
-
-Example:
-
-Privacy Policy                                      ×
----------------------------------------------------
-
-The title should be clear and bold.
-
-Close button:
-
-× 
-
-Use a clean modern close icon.
-
-The close button must have:
-
-aria-label="Close"
-
-==================================================
-7. MODAL CLOSE BEHAVIOUR
-==================================================
-
-Close the modal when:
-
-1. User clicks X.
-2. User clicks outside the modal.
-3. User presses ESC.
-
-When modal opens:
-
-- Prevent background scrolling.
-- Allow vertical scrolling inside modal.
-
-When modal closes:
-
-- Restore background scrolling.
-- Restore focus to the footer link that opened the modal.
-
-==================================================
-8. ACCESSIBILITY
-==================================================
-
-Use proper accessibility:
-
-aria-modal="true"
-
-role="dialog"
-
-aria-labelledby pointing to the modal title.
-
-The close button must be keyboard accessible.
-
-ESC must close the modal.
-
-Keyboard focus should move into the modal when opened.
-
-==================================================
-9. PRIVACY POLICY CONTENT
-==================================================
-
-Use this content:
-
-PRIVACY POLICY
-
-Last Updated: 24 August 2026
-
-1. Introduction
-
-Welcome to TypeShala.
-
-TypeShala is an online typing practice and mock-test platform. We respect the privacy of our users and are committed to handling personal information responsibly.
-
-This Privacy Policy explains what information may be collected when you use TypeShala, how that information may be used, and the choices available to you.
-
-By using TypeShala, you acknowledge this Privacy Policy.
-
-2. Information We Collect
-
-Depending on how you use the platform, TypeShala may collect or process information such as:
-
-Account Information:
-- Name
-- Email address
-- Login and authentication information
-- Account-related information
-
-Typing and Performance Information:
-- Typing speed
-- Accuracy
-- Gross WPM
-- Net WPM
-- Test results
-- Test history
-- Typing errors
-- Weak-key information
-- Practice and performance statistics
-
-Purchase and Access Information:
-- Purchased product
-- Transaction status
-- Amount paid
-- Purchase date
-- Pass or credit status
-- Expiry information
-
-Payments are processed through Razorpay.
-
-TypeShala does not intend to store complete card, UPI, banking or other sensitive payment credentials on its own servers.
-
-3. How We Use Information
-
-Information may be used to:
-
-- Create and manage accounts
-- Authenticate users
-- Provide typing tests and practice
-- Store and display test history
-- Calculate performance statistics
-- Provide weak-key and performance analysis
-- Manage credits and passes
-- Process and verify purchases
-- Provide customer support
-- Detect misuse or fraudulent activity
-- Maintain and improve TypeShala
-- Communicate important service information
-
-4. Typing and Performance Data
-
-TypeShala may retain typing-test and practice information associated with a user's account.
-
-This may include speed, accuracy, errors, test attempts and other performance statistics.
-
-This information is used for test results, performance history, progress tracking, weak-key analysis and targeted practice.
-
-5. Payment Processing
-
-Payments may be processed through Razorpay.
-
-When making a payment, users may interact with Razorpay's payment infrastructure.
-
-Razorpay may collect and process payment information according to its own privacy policy and terms.
-
-TypeShala generally receives transaction-related information necessary to confirm payment and provide the purchased service.
-
-6. Third-Party Services
-
-TypeShala uses third-party technology and service providers, including:
-
-Supabase:
-Used for authentication, database and backend functionality.
-
-Razorpay:
-Used for payment processing.
-
-Vercel:
-Used for website hosting and deployment.
-
-GitHub:
-Used for software development, source-code management and deployment-related workflows.
-
-These providers may process information as necessary to provide their respective services and are subject to their own policies and terms.
-
-7. Cookies and Local Storage
-
-TypeShala may use cookies, local storage or similar technologies for:
-
-- Authentication
-- Maintaining sessions
-- Saving preferences
-- Application functionality
-- Improving user experience
-
-8. Data Security
-
-Reasonable measures are taken to protect information handled through TypeShala against unauthorized access, misuse, alteration or disclosure.
-
-However, no internet-based service can guarantee absolute security.
-
-9. Data Retention
-
-Information may be retained as reasonably necessary to provide services, maintain records, comply with applicable legal requirements, resolve disputes, prevent fraud or enforce our terms.
-
-10. Your Rights
-
-Depending on applicable law, users may have rights relating to their personal information, including:
-
-- Requesting access
-- Requesting correction
-- Requesting deletion where applicable
-- Raising privacy concerns
-- Withdrawing consent where applicable
-
-Privacy requests can be sent to:
-
-shortdictations@gmail.com
-
-11. Children's Privacy
-
-TypeShala is intended for students, learners and competitive-examination aspirants.
-
-Users should provide accurate information when creating an account.
-
-Where applicable law requires parental or guardian involvement, applicable requirements will be followed.
-
-12. Changes to This Privacy Policy
-
-This Privacy Policy may be updated from time to time.
-
-The updated version will contain a revised "Last Updated" date.
-
-13. Contact
-
-For privacy-related questions:
-
-shortdictations@gmail.com
-
-==================================================
-10. TERMS & CONDITIONS CONTENT
-==================================================
-
-TERMS & CONDITIONS
-
-Last Updated: 24 August 2026
-
-1. Acceptance of Terms
-
-By accessing or using TypeShala, you agree to these Terms & Conditions.
-
-If you do not agree, please do not use the service.
-
-2. About TypeShala
-
-TypeShala is an online typing practice and mock-test platform designed to help users improve typing speed, accuracy and examination readiness.
-
-3. User Accounts
-
-Users are responsible for:
-
-- Providing accurate information
-- Maintaining account security
-- Keeping login credentials confidential
-- Using the account legitimately
-- Complying with these Terms
-
-4. Typing Tests and Practice
-
-TypeShala provides typing tests and practice tools for educational and examination-preparation purposes.
-
-Results may include:
-
-- Gross WPM
-- Net WPM
-- Accuracy
-- Time taken
-- Errors
-- Weak keys
-- Other performance statistics
-
-TypeShala does not guarantee examination selection, qualification, employment or success.
-
-5. Credits
-
-Unless otherwise specified:
-
-1 Credit = 1 Test Attempt.
-
-Credits may be used for eligible typing mock tests according to the rules displayed on the platform.
-
-New users may receive free credits according to the offer displayed at registration.
-
-6. Passes and Paid Access
-
-TypeShala may offer paid access plans such as:
-
-- SSC Pass
-- Legal Pass
-- Combo Pass
-- Other plans introduced in the future
-
-Duration, price, features and eligible tests will be displayed before purchase.
-
-Unless explicitly stated otherwise, paid passes are time-bound and do not automatically renew.
-
-7. Payments
-
-Payments may be processed through Razorpay.
-
-The applicable price will be displayed before purchase.
-
-A purchase is considered successful after appropriate payment confirmation is received.
-
-For payment issues:
-
-shortdictations@gmail.com
-
-8. REFUND AND CANCELLATION POLICY
-
-Because TypeShala provides digital services such as test credits and time-bound digital access, users should carefully review the product, price, validity and features before purchase.
-
-Refunds are not automatically available simply because a user changes their mind after purchasing or activating a digital product.
-
-Refunds may be considered for:
-
-- Duplicate payments
-- Payment deducted but service not delivered
-- Technical errors resulting in incorrect charges
-- Other genuine payment-related issues determined by TypeShala
-
-If a credit or pass has already been substantially used, a refund may not be available except where required by applicable law.
-
-Failed Transactions:
-
-If money is deducted but the transaction is unsuccessful and the service has not been activated, contact:
-
-shortdictations@gmail.com
-
-Include where available:
-
-- Registered email address
-- Transaction ID/order ID
-- Date of payment
-- Amount paid
-- Description of the issue
-
-Approved refunds will generally be processed through the original payment method, subject to payment-provider procedures.
-
-9. Intellectual Property
-
-TypeShala's original:
-
-- Website design
-- Software
-- Branding
-- Logos
-- Typing passages
-- Mock-test content
-- Practice materials
-- Graphics
-- Text
-- Analysis systems
-
-are protected by applicable intellectual-property laws.
-
-Users must not copy, redistribute, resell, publish, scrape or commercially exploit protected TypeShala content without permission.
-
-10. Prohibited Activities
-
-Users must not:
-
-- Bypass credits or paid access
-- Circumvent authentication
-- Manipulate test results
-- Use fraudulent payment methods
-- Share accounts in violation of access rules
-- Copy or redistribute protected content
-- Attempt unauthorized access
-- Scrape content without permission
-- Interfere with the platform
-- Use the service unlawfully
-
-11. Account Suspension or Termination
-
-TypeShala may suspend or terminate accounts involved in fraud, abuse, unauthorized access, payment misuse, circumvention of access controls or serious violations of these Terms.
-
-12. Service Availability
-
-TypeShala aims to provide continuous service, but interruptions may occur because of:
-
-- Maintenance
-- Technical problems
-- Hosting issues
-- Network failures
-- Third-party service outages
-- Security incidents
-- Circumstances beyond reasonable control
-
-13. Third-Party Services
-
-TypeShala uses:
-
-- Razorpay for payments
-- Supabase for authentication, database and backend services
-- Vercel for hosting/deployment
-- GitHub for software development and source-code management
-
-Third-party services are governed by their respective terms and policies.
-
-14. Changes to TypeShala
-
-TypeShala may modify, add, suspend or discontinue features, tests, plans, credits or other services.
-
-Prices and offerings may also change.
-
-15. Disclaimer
-
-TypeShala is an educational and examination-preparation platform.
-
-We do not guarantee:
-
-- Examination success
-- A particular typing speed
-- Employment
-- Selection
-- Endorsement by any examination authority
-
-Users should always verify official examination requirements and notifications.
-
-16. Limitation of Liability
-
-To the extent permitted by applicable law, TypeShala will not be responsible for losses resulting from circumstances beyond its reasonable control, including third-party service interruptions, internet failures or temporary technical issues.
-
-Nothing in these Terms excludes liability that cannot legally be excluded.
-
-17. Changes to These Terms
-
-These Terms may be updated from time to time.
-
-The latest version will display the updated date.
-
-18. Governing Law
-
-These Terms shall be governed by the applicable laws of India, subject to applicable legal requirements.
-
-19. Contact
-
-For questions regarding these Terms, payments, refunds or TypeShala services:
-
-shortdictations@gmail.com
-
-==================================================
-11. ABOUT US CONTENT
-==================================================
-
-ABOUT TYPESHALA
-
-TypeShala is an online typing practice and mock-test platform designed to help students and competitive-examination aspirants improve their typing speed, accuracy and overall performance.
-
-The platform is particularly useful for candidates preparing for typing and stenography-related examinations, including SSC, Stenographer, Legal/Court Typing and similar competitive examinations.
-
-WHAT TYPESHALA OFFERS
-
-Depending on the services available on the platform, users may have access to:
-
-- Typing practice
-- Mock typing tests
-- SSC typing tests
-- Legal/Court typing tests
-- Typing speed and accuracy analysis
-- Test history
-- Performance tracking
-- Weak-key analysis
-- Targeted typing practice
-- Credits and test passes
-- Other typing-related learning features
-
-OUR PURPOSE
-
-Our aim is to make typing practice simple, accessible and useful for competitive-examination preparation.
-
-TypeShala is designed to help users understand where they are making typing mistakes and gradually improve their speed and accuracy through structured practice and performance analysis.
-
-CONTINUOUS IMPROVEMENT
-
-TypeShala is continuously being developed and improved.
-
-New features, practice materials and improvements may be introduced from time to time.
-
-CONTACT
-
-For questions, suggestions or support:
-
-shortdictations@gmail.com
-
-==================================================
-12. RESPONSIVE REQUIREMENTS
-==================================================
-
-Desktop:
-
-- Footer should remain slim.
-- Social icons small and aligned.
-- Copyright on left.
-- Links on right.
-- No unnecessary vertical space.
-
-Mobile:
-
-- Social icons centered in one row.
-- Privacy Policy | Terms and Conditions | About Us must stay on ONE line.
-- Copyright must stay on ONE line.
-- Everything horizontally centered.
-- No horizontal scrolling.
-
-Use responsive CSS.
-
-If necessary, slightly reduce font size and spacing at narrow mobile widths rather than allowing the footer links to wrap.
-
-==================================================
-13. DO NOT MODIFY UNRELATED FEATURES
-==================================================
-
-Before making changes:
-
-1. Inspect the existing project.
-2. Identify the existing footer.
-3. Identify the current CSS variables/theme.
-4. Reuse the existing TypeShala design system.
-5. Reuse existing fonts.
-6. Reuse existing icon libraries if available.
-7. Do not duplicate CSS unnecessarily.
-8. Do not alter authentication.
-9. Do not alter Supabase functionality.
-10. Do not alter Razorpay functionality.
-11. Do not alter typing-test functionality.
-12. Do not alter dashboard functionality.
-
-Only modify what is necessary for the footer and informational modals.
-
-==================================================
-14. FINAL STRUCTURE
-==================================================
-
-The final user experience should be:
-
-LANDING PAGE
-
-        ↓
-
-FOOTER
-
-Social icons:
-Blogger | Facebook | YouTube | Telegram
-
---------------------------------
-
-© TypeShala 2026. All rights reserved.
-Privacy Policy | Terms and Conditions | About Us
-
-        ↓
-
-Click Privacy Policy
-
-        ↓
-
-Scrollable Privacy Policy Modal
-
-        ↓
-
-Close
-
-OR
-
-Click Terms and Conditions
-
-        ↓
-
-Scrollable Terms & Conditions Modal
-
-        ↓
-
-Close
-
-OR
-
-Click About Us
-
-        ↓
-
-Scrollable About Us Modal
-
-        ↓
-
-Close
-
-No separate HTML pages.
-
-==================================================
-15. SOCIAL MEDIA LINKS — FINAL
-==================================================
-
-Use these exact URLs:
-
-Blogger:
-https://indianshorthand.blogspot.com
-
-Facebook:
-https://www.facebook.com/Shorthand-Dictations-101543991717541
-
-YouTube:
-https://www.youtube.com/@shortdictations
-
-Telegram:
-https://t.me/shorthandjournals
-
-Make each icon clickable.
-
-Open each external social-media link in a new tab.
-
-Do not use redirect URLs.
-
-==================================================
-16. FINAL CHECK
-==================================================
-
-After implementation, verify:
-
-✓ Footer appears correctly on desktop.
-✓ Footer appears correctly on mobile.
-✓ Social icons are black.
-✓ Social icons are small.
-✓ Blogger icon works.
-✓ Facebook icon works.
-✓ YouTube icon works.
-✓ Telegram icon works.
-✓ Privacy Policy opens modal.
-✓ Terms & Conditions opens modal.
-✓ About Us opens modal.
-✓ Modal scrolls vertically.
-✓ Background does not scroll while modal is open.
-✓ X closes modal.
-✓ Outside click closes modal.
-✓ ESC closes modal.
-✓ Footer links do not navigate away.
-✓ No Contact link in footer.
-✓ No separate legal HTML pages created.
-✓ No horizontal scrolling on mobile.
-✓ Existing TypeShala functionality remains unchanged.
-
-Implement this directly in the existing project using its current theme and structure.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeShala — SSC & Legal Typing Mock Tests</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body class="landing-v2">
+
+<header class="letterhead">
+  <div class="letterhead-inner public-header">
+    <a class="brand" href="index.html">
+      <span class="seal">TS</span>
+      <span class="brand-text">
+        <span class="title">TypeShala</span>
+        <span class="subtitle">Typing Practice Centre</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a class="btn" href="login.html" style="padding:8px 18px;">Get Started</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Admin-managed announcement ticker — hidden entirely (not just
+     empty) when there are no active, currently-scheduled
+     announcements selected to show on the Home Page. Populated by
+     initAnnouncementTicker() in js/announcement-ticker.js. Sits
+     outside main.page so it isn't affected by .page's own top
+     padding — its height comes only from its own text line.
+     UNTOUCHED by the redesign: still hidden by default, still a
+     separate element from the static banner below. -->
+<div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+
+<!-- Static "free credits" banner — purely visual, new in this
+     redesign. Independent of the admin ticker above. -->
+<div class="landing-banner">
+  <span aria-hidden="true">🎁</span>
+  <span>New users get <strong class="hl-blue">3 free credits</strong> to attempt test</span>
+</div>
+
+<main class="page landing-page">
+
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">For SSC &amp; Legal/Court Typing Aspirants</p>
+      <h1>Exam-ready typing tests, structured the way <span class="hl-blue">the real exam</span> is.</h1>
+      <p class="lede">
+        SSC Mock Tests and Legal/Court Mock Tests — unlocked by an eligible Pass or by Credits —
+        full-screen, timed, and scored with Gross WPM, Net WPM, and Accuracy on every attempt.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="login.html">Get Started <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="card-label">LIVE PREVIEW <span class="live-dot" aria-hidden="true"></span></div>
+      <div class="typewriter-line">The civil services form the steel<span class="cursor"></span></div>
+      <div class="stat-row">
+        <div class="stat-item stat-blue">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 12 9 9"/><path d="M12 6v2"/></svg>
+          </div>
+          <div class="stat-num">42</div>
+          <div class="stat-label">Net WPM</div>
+        </div>
+        <div class="stat-item stat-green">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+          </div>
+          <div class="stat-num">97%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-item stat-orange">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div class="stat-num">10:00</div>
+          <div class="stat-label">Test Duration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHOOSE YOUR PLAN — loaded live from the products table, the
+       same catalog the Admin Panel and subscriptions.html both use.
+       No plan/price is hardcoded here anymore. -->
+  <h2 class="section-heading">Choose Your Plan</h2>
+  <p class="lede section-sub">Each pass unlocks premium mocks for its validity period.</p>
+
+  <div class="passes-grid" id="homePassGrid">
+    <div class="loading-strip">Loading plans...</div>
+  </div>
+
+  <!-- CREDITS -->
+  <h2 class="section-heading" style="margin-top:36px;">Credits</h2>
+  <p class="lede section-sub">Don't want a full Pass? Buy credits and use them on any SSC or Legal test — 1 Credit = 1 test attempt. New users get 3 Free Credits automatically.</p>
+
+  <div class="passes-grid" id="homeCreditGrid">
+    <div class="loading-strip">Loading credit packages...</div>
+  </div>
+
+  <div class="credit-info-strip">
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🎯</span>
+      <div><strong>1 Credit = 1 test attempt</strong>on any SSC or Legal test</div>
+    </div>
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🛡️</span>
+      <div><strong>Credits are used first</strong>before any Pass</div>
+    </div>
+    <div class="credit-info-item">
+      <span class="credit-info-icon" aria-hidden="true">🎁</span>
+      <div><strong>New users get 3 free credits</strong>automatically on signup</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <div class="site-foot-social" aria-label="Follow TypeShala">
+      <a class="site-foot-social-link" href="https://indianshorthand.blogspot.com" target="_blank" rel="noopener noreferrer" aria-label="Blogger">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M13.5 21v-7h2.3l.35-2.7h-2.65v-1.73c0-.78.22-1.32 1.34-1.32h1.43V5.85c-.25-.03-1.1-.1-2.1-.1-2.08 0-3.5 1.27-3.5 3.6v2h-2.35v2.7h2.35v7h2.83Z" fill="#fff"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://www.youtube.com/@shortdictations" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#000"/><path d="M10 9.3v5.4l5-2.7-5-2.7Z" fill="#fff"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://t.me/shorthandjournals" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M6 12.2l11.2-4.4c.5-.2 1 .2.8.8l-1.9 9c-.1.6-.7.8-1.2.5l-3-2.2-1.5 1.4c-.2.2-.4.2-.6.1l.3-2.6 5.6-5-6.6 4.1-2.6-.8c-.6-.2-.6-.6.1-.9Z" fill="#fff"/></svg>
+      </a>
+    </div>
+
+    <div class="site-foot-divider"></div>
+
+    <div class="site-foot-bottom">
+      <div class="site-foot-copyright">&copy; TypeShala 2026. All rights reserved.</div>
+      <nav class="site-foot-links" aria-label="Footer">
+        <button type="button" class="site-foot-link-btn" data-modal-open="privacyModal">Privacy Policy</button>
+        <span class="site-foot-sep" aria-hidden="true">|</span>
+        <button type="button" class="site-foot-link-btn" data-modal-open="termsModal">Terms and Conditions</button>
+        <span class="site-foot-sep" aria-hidden="true">|</span>
+        <button type="button" class="site-foot-link-btn" data-modal-open="aboutModal">About Us</button>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<div class="info-modal-overlay" id="infoModalOverlay" hidden></div>
+<div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" hidden>
+  <div class="info-modal-header">
+    <h2 class="info-modal-title" id="infoModalTitle"></h2>
+    <button type="button" class="info-modal-close" id="infoModalCloseBtn" aria-label="Close">&times;</button>
+  </div>
+  <div class="info-modal-body" id="infoModalBody"></div>
+</div>
+
+<template id="privacyModalContent">
+  <p><em>Last Updated: 24 August 2026</em></p>
+
+  <h3>1. Introduction</h3>
+  <p>Welcome to TypeShala.</p>
+  <p>TypeShala is an online typing practice and mock-test platform. We respect the privacy of our users and are committed to handling personal information responsibly.</p>
+  <p>This Privacy Policy explains what information may be collected when you use TypeShala, how that information may be used, and the choices available to you.</p>
+  <p>By using TypeShala, you acknowledge this Privacy Policy.</p>
+
+  <h3>2. Information We Collect</h3>
+  <p>Depending on how you use the platform, TypeShala may collect or process information such as:</p>
+  <p><strong>Account Information:</strong></p>
+  <ul>
+    <li>Name</li>
+    <li>Email address</li>
+    <li>Login and authentication information</li>
+    <li>Account-related information</li>
+  </ul>
+  <p><strong>Typing and Performance Information:</strong></p>
+  <ul>
+    <li>Typing speed</li>
+    <li>Accuracy</li>
+    <li>Gross WPM</li>
+    <li>Net WPM</li>
+    <li>Test results</li>
+    <li>Test history</li>
+    <li>Typing errors</li>
+    <li>Weak-key information</li>
+    <li>Practice and performance statistics</li>
+  </ul>
+  <p><strong>Purchase and Access Information:</strong></p>
+  <ul>
+    <li>Purchased product</li>
+    <li>Transaction status</li>
+    <li>Amount paid</li>
+    <li>Purchase date</li>
+    <li>Pass or credit status</li>
+    <li>Expiry information</li>
+  </ul>
+  <p>Payments are processed through Razorpay. TypeShala does not intend to store complete card, UPI, banking or other sensitive payment credentials on its own servers.</p>
+
+  <h3>3. How We Use Information</h3>
+  <p>Information may be used to:</p>
+  <ul>
+    <li>Create and manage accounts</li>
+    <li>Authenticate users</li>
+    <li>Provide typing tests and practice</li>
+    <li>Store and display test history</li>
+    <li>Calculate performance statistics</li>
+    <li>Provide weak-key and performance analysis</li>
+    <li>Manage credits and passes</li>
+    <li>Process and verify purchases</li>
+    <li>Provide customer support</li>
+    <li>Detect misuse or fraudulent activity</li>
+    <li>Maintain and improve TypeShala</li>
+    <li>Communicate important service information</li>
+  </ul>
+
+  <h3>4. Typing and Performance Data</h3>
+  <p>TypeShala may retain typing-test and practice information associated with a user's account.</p>
+  <p>This may include speed, accuracy, errors, test attempts and other performance statistics.</p>
+  <p>This information is used for test results, performance history, progress tracking, weak-key analysis and targeted practice.</p>
+
+  <h3>5. Payment Processing</h3>
+  <p>Payments may be processed through Razorpay.</p>
+  <p>When making a payment, users may interact with Razorpay's payment infrastructure. Razorpay may collect and process payment information according to its own privacy policy and terms.</p>
+  <p>TypeShala generally receives transaction-related information necessary to confirm payment and provide the purchased service.</p>
+
+  <h3>6. Third-Party Services</h3>
+  <p>TypeShala uses third-party technology and service providers, including:</p>
+  <p><strong>Supabase:</strong> Used for authentication, database and backend functionality.</p>
+  <p><strong>Razorpay:</strong> Used for payment processing.</p>
+  <p><strong>Vercel:</strong> Used for website hosting and deployment.</p>
+  <p><strong>GitHub:</strong> Used for software development, source-code management and deployment-related workflows.</p>
+  <p>These providers may process information as necessary to provide their respective services and are subject to their own policies and terms.</p>
+
+  <h3>7. Cookies and Local Storage</h3>
+  <p>TypeShala may use cookies, local storage or similar technologies for:</p>
+  <ul>
+    <li>Authentication</li>
+    <li>Maintaining sessions</li>
+    <li>Saving preferences</li>
+    <li>Application functionality</li>
+    <li>Improving user experience</li>
+  </ul>
+
+  <h3>8. Data Security</h3>
+  <p>Reasonable measures are taken to protect information handled through TypeShala against unauthorized access, misuse, alteration or disclosure.</p>
+  <p>However, no internet-based service can guarantee absolute security.</p>
+
+  <h3>9. Data Retention</h3>
+  <p>Information may be retained as reasonably necessary to provide services, maintain records, comply with applicable legal requirements, resolve disputes, prevent fraud or enforce our terms.</p>
+
+  <h3>10. Your Rights</h3>
+  <p>Depending on applicable law, users may have rights relating to their personal information, including:</p>
+  <ul>
+    <li>Requesting access</li>
+    <li>Requesting correction</li>
+    <li>Requesting deletion where applicable</li>
+    <li>Raising privacy concerns</li>
+    <li>Withdrawing consent where applicable</li>
+  </ul>
+  <p>Privacy requests can be sent to: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+
+  <h3>11. Children's Privacy</h3>
+  <p>TypeShala is intended for students, learners and competitive-examination aspirants.</p>
+  <p>Users should provide accurate information when creating an account.</p>
+  <p>Where applicable law requires parental or guardian involvement, applicable requirements will be followed.</p>
+
+  <h3>12. Changes to This Privacy Policy</h3>
+  <p>This Privacy Policy may be updated from time to time. The updated version will contain a revised "Last Updated" date.</p>
+
+  <h3>13. Contact</h3>
+  <p>For privacy-related questions: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
+<template id="termsModalContent">
+  <p><em>Last Updated: 24 August 2026</em></p>
+
+  <h3>1. Acceptance of Terms</h3>
+  <p>By accessing or using TypeShala, you agree to these Terms &amp; Conditions.</p>
+  <p>If you do not agree, please do not use the service.</p>
+
+  <h3>2. About TypeShala</h3>
+  <p>TypeShala is an online typing practice and mock-test platform designed to help users improve typing speed, accuracy and examination readiness.</p>
+
+  <h3>3. User Accounts</h3>
+  <p>Users are responsible for:</p>
+  <ul>
+    <li>Providing accurate information</li>
+    <li>Maintaining account security</li>
+    <li>Keeping login credentials confidential</li>
+    <li>Using the account legitimately</li>
+    <li>Complying with these Terms</li>
+  </ul>
+
+  <h3>4. Typing Tests and Practice</h3>
+  <p>TypeShala provides typing tests and practice tools for educational and examination-preparation purposes.</p>
+  <p>Results may include:</p>
+  <ul>
+    <li>Gross WPM</li>
+    <li>Net WPM</li>
+    <li>Accuracy</li>
+    <li>Time taken</li>
+    <li>Errors</li>
+    <li>Weak keys</li>
+    <li>Other performance statistics</li>
+  </ul>
+  <p>TypeShala does not guarantee examination selection, qualification, employment or success.</p>
+
+  <h3>5. Credits</h3>
+  <p>Unless otherwise specified: 1 Credit = 1 Test Attempt.</p>
+  <p>Credits may be used for eligible typing mock tests according to the rules displayed on the platform.</p>
+  <p>New users may receive free credits according to the offer displayed at registration.</p>
+
+  <h3>6. Passes and Paid Access</h3>
+  <p>TypeShala may offer paid access plans such as:</p>
+  <ul>
+    <li>SSC Pass</li>
+    <li>Legal Pass</li>
+    <li>Combo Pass</li>
+    <li>Other plans introduced in the future</li>
+  </ul>
+  <p>Duration, price, features and eligible tests will be displayed before purchase.</p>
+  <p>Unless explicitly stated otherwise, paid passes are time-bound and do not automatically renew.</p>
+
+  <h3>7. Payments</h3>
+  <p>Payments may be processed through Razorpay.</p>
+  <p>The applicable price will be displayed before purchase.</p>
+  <p>A purchase is considered successful after appropriate payment confirmation is received.</p>
+  <p>For payment issues: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+
+  <h3>8. Refund and Cancellation Policy</h3>
+  <p>Because TypeShala provides digital services such as test credits and time-bound digital access, users should carefully review the product, price, validity and features before purchase.</p>
+  <p>Refunds are not automatically available simply because a user changes their mind after purchasing or activating a digital product.</p>
+  <p>Refunds may be considered for:</p>
+  <ul>
+    <li>Duplicate payments</li>
+    <li>Payment deducted but service not delivered</li>
+    <li>Technical errors resulting in incorrect charges</li>
+    <li>Other genuine payment-related issues determined by TypeShala</li>
+  </ul>
+  <p>If a credit or pass has already been substantially used, a refund may not be available except where required by applicable law.</p>
+  <p><strong>Failed Transactions:</strong> If money is deducted but the transaction is unsuccessful and the service has not been activated, contact <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a>.</p>
+  <p>Include where available:</p>
+  <ul>
+    <li>Registered email address</li>
+    <li>Transaction ID/order ID</li>
+    <li>Date of payment</li>
+    <li>Amount paid</li>
+    <li>Description of the issue</li>
+  </ul>
+  <p>Approved refunds will generally be processed through the original payment method, subject to payment-provider procedures.</p>
+
+  <h3>9. Intellectual Property</h3>
+  <p>TypeShala's original website design, software, branding, logos, typing passages, mock-test content, practice materials, graphics, text and analysis systems are protected by applicable intellectual-property laws.</p>
+  <p>Users must not copy, redistribute, resell, publish, scrape or commercially exploit protected TypeShala content without permission.</p>
+
+  <h3>10. Prohibited Activities</h3>
+  <p>Users must not:</p>
+  <ul>
+    <li>Bypass credits or paid access</li>
+    <li>Circumvent authentication</li>
+    <li>Manipulate test results</li>
+    <li>Use fraudulent payment methods</li>
+    <li>Share accounts in violation of access rules</li>
+    <li>Copy or redistribute protected content</li>
+    <li>Attempt unauthorized access</li>
+    <li>Scrape content without permission</li>
+    <li>Interfere with the platform</li>
+    <li>Use the service unlawfully</li>
+  </ul>
+
+  <h3>11. Account Suspension or Termination</h3>
+  <p>TypeShala may suspend or terminate accounts involved in fraud, abuse, unauthorized access, payment misuse, circumvention of access controls or serious violations of these Terms.</p>
+
+  <h3>12. Service Availability</h3>
+  <p>TypeShala aims to provide continuous service, but interruptions may occur because of maintenance, technical problems, hosting issues, network failures, third-party service outages, security incidents or circumstances beyond reasonable control.</p>
+
+  <h3>13. Third-Party Services</h3>
+  <p>TypeShala uses Razorpay for payments, Supabase for authentication, database and backend services, Vercel for hosting/deployment, and GitHub for software development and source-code management.</p>
+  <p>Third-party services are governed by their respective terms and policies.</p>
+
+  <h3>14. Changes to TypeShala</h3>
+  <p>TypeShala may modify, add, suspend or discontinue features, tests, plans, credits or other services. Prices and offerings may also change.</p>
+
+  <h3>15. Disclaimer</h3>
+  <p>TypeShala is an educational and examination-preparation platform. We do not guarantee examination success, a particular typing speed, employment, selection, or endorsement by any examination authority.</p>
+  <p>Users should always verify official examination requirements and notifications.</p>
+
+  <h3>16. Limitation of Liability</h3>
+  <p>To the extent permitted by applicable law, TypeShala will not be responsible for losses resulting from circumstances beyond its reasonable control, including third-party service interruptions, internet failures or temporary technical issues.</p>
+  <p>Nothing in these Terms excludes liability that cannot legally be excluded.</p>
+
+  <h3>17. Changes to These Terms</h3>
+  <p>These Terms may be updated from time to time. The latest version will display the updated date.</p>
+
+  <h3>18. Governing Law</h3>
+  <p>These Terms shall be governed by the applicable laws of India, subject to applicable legal requirements.</p>
+
+  <h3>19. Contact</h3>
+  <p>For questions regarding these Terms, payments, refunds or TypeShala services: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
+<template id="aboutModalContent">
+  <p>TypeShala is an online typing practice and mock-test platform designed to help students and competitive-examination aspirants improve their typing speed, accuracy and overall performance.</p>
+  <p>The platform is particularly useful for candidates preparing for typing and stenography-related examinations, including SSC, Stenographer, Legal/Court Typing and similar competitive examinations.</p>
+
+  <h3>What TypeShala Offers</h3>
+  <p>Depending on the services available on the platform, users may have access to:</p>
+  <ul>
+    <li>Typing practice</li>
+    <li>Mock typing tests</li>
+    <li>SSC typing tests</li>
+    <li>Legal/Court typing tests</li>
+    <li>Typing speed and accuracy analysis</li>
+    <li>Test history</li>
+    <li>Performance tracking</li>
+    <li>Weak-key analysis</li>
+    <li>Targeted typing practice</li>
+    <li>Credits and test passes</li>
+    <li>Other typing-related learning features</li>
+  </ul>
+
+  <h3>Our Purpose</h3>
+  <p>Our aim is to make typing practice simple, accessible and useful for competitive-examination preparation.</p>
+  <p>TypeShala is designed to help users understand where they are making typing mistakes and gradually improve their speed and accuracy through structured practice and performance analysis.</p>
+
+  <h3>Continuous Improvement</h3>
+  <p>TypeShala is continuously being developed and improved. New features, practice materials and improvements may be introduced from time to time.</p>
+
+  <h3>Contact</h3>
+  <p>For questions, suggestions or support: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
+<script src="js/landing-footer.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/announcement-ticker.js"></script>
+<script>
+// Uses the SAME Supabase Auth session / getCurrentUser() helper every
+// other page relies on — no separate auth system. A logged-in user
+// should never see the public homepage as their landing page, so this
+// redirects immediately rather than just toggling nav sections.
+(async () => {
+  const user = await getCurrentUser();
+  if (user) {
+    window.location.href = "dashboard.html";
+  }
+})();
+
+initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — independent of everything else on the page
+
+// Loads the SAME products table used by Admin Panel and
+// subscriptions.html — no plan/price is duplicated or hardcoded
+// here. RLS's "active = true" clause requires no login, so this
+// works correctly for logged-out visitors too.
+(async () => {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true });
+
+  const passGrid = document.getElementById("homePassGrid");
+  const creditGrid = document.getElementById("homeCreditGrid");
+
+  if (error) {
+    console.error(error);
+    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
+    creditGrid.innerHTML = '<div class="empty-state">Could not load credit packages.</div>';
+    return;
+  }
+
+  renderHomeProducts(data.filter(p => p.product_type === "PASS"), passGrid, false);
+  renderHomeProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid, true);
+})();
+
+// planThemeFor / planIconSvg are purely presentational additions for
+// the new design system — they only decide which CSS theme class and
+// icon glyph a card gets. They read pass_type but never write to it,
+// and don't touch any query, ID, or purchase logic below.
+function planThemeFor(p, isCredit) {
+  if (isCredit) return "credit";
+  if (p.pass_type === "LEGAL") return "legal";
+  if (p.pass_type === "COMBO") return "combo";
+  return "ssc";
+}
+
+function planIconSvg(theme) {
+  const icons = {
+    ssc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>',
+    legal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg>',
+    combo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a3 3 0 0 0 3 5"/><path d="M17 5h3a3 3 0 0 1-3 5"/></svg>',
+    credit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>'
+  };
+  return icons[theme] || icons.ssc;
+}
+
+function renderHomeProducts(products, grid, isCredit) {
+  if (products.length === 0) {
+    grid.innerHTML = '<div class="empty-state">Nothing available right now.</div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const theme = planThemeFor(p, isCredit);
+    const featured = p.pass_type === "COMBO" ? " featured" : "";
+    const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
+    const duration = isCredit
+      ? p.credits + " Credits &middot; Valid for " + p.validity_days + " Days"
+      : p.validity_days + " Days &middot; Non-recurring";
+
+    return `
+      <div class="card pass-card plan-${theme}${featured}">
+        ${badge}
+        <div class="plan-icon">${planIconSvg(theme)}</div>
+        <div class="card-label">${escapeHtmlHome(p.name)}</div>
+        <div class="pass-price">&#8377;${p.price}</div>
+        <div class="pass-duration">${duration}</div>
+        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlHome(p.description) + "</p>" : ""}
+        ${p.features && p.features.length ? '<ul class="plan-features">' + p.features.map(f => "<li>" + escapeHtmlHome(f) + "</li>").join("") + "</ul>" : ""}
+        <a class="btn btn-full" href="login.html">Get Started</a>
+      </div>`;
+  }).join("");
+}
+
+function escapeHtmlHome(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
