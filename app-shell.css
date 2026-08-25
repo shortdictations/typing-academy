@@ -2034,15 +2034,22 @@ body.app-shell .result-history-btn{ color: var(--ts-blue); border-color: var(--t
 body.app-shell .result-history-btn:hover{ background: var(--ts-blue); color: #fff; }
 
 /* ---------- Test mode: mock-test-attempt.html ----------
-   This page never renders the sidebar/bottom-nav markup at all
-   (removed from the HTML entirely, not just hidden) — the typing
-   test needs the full viewport, and a clickable "Dashboard" link
-   would be a genuine trap: this page uses the real Fullscreen API
-   during the live test, and exiting fullscreen automatically ends
-   the attempt as an anti-cheat measure (see handleFullscreenChange()
-   in mock-test-attempt.js). Header (logo + minimal account controls)
-   stays, for auth/logout access and visual consistency with the rest
-   of the app — only the navigation chrome is gone. */
+   This page NOW does render the standard app-shell sidebar (added
+   per explicit follow-up request) — but ONLY for setup and the
+   result screen. It's explicitly hidden below via
+   body.mock-test-active, toggled in startMockTest()/endMockTest(),
+   for exactly the reason the ORIGINAL version of this comment
+   described: this page uses the real Fullscreen API during the live
+   test, and exiting fullscreen automatically ends the attempt as an
+   anti-cheat measure (see handleFullscreenChange() in
+   mock-test-attempt.js) — requestFullscreen() targets
+   document.documentElement (the whole page, confirmed directly in
+   the JS), not a scoped container, so a clickable sidebar would
+   remain visible and clickable even "in fullscreen", making it a
+   genuine trap: any nav click would exit fullscreen and
+   prematurely submit the test. Header (logo + minimal account
+   controls) stays visible throughout either way, as before. */
+body.mock-test-active #appSidebar{ display: none; }
 body.test-mode .test-mode-main{
   max-width: 1200px;
   width: calc(100% - 48px);
@@ -2058,6 +2065,15 @@ body.test-mode .test-mode-main .page{
 }
 @media (max-width: 480px){
   body.test-mode .test-mode-main{ width: calc(100% - 24px); margin: 16px auto; }
+}
+@media (max-width: 700px){
+  /* Below the existing sidebar breakpoint, .app-sidebar is already
+     display:none via the shared app-shell rule (same as every other
+     app-shell page) — mobile never shows this desktop sidebar at
+     all, consistent with "follow the project's existing mobile
+     navigation behaviour" (this page has no bottom-nav of its own,
+     same as before this change). */
+  body.mock-test-active .app-content{ width: 100%; }
 }
 
 /* ---------- Mock test list: card font + Completed state ----------
