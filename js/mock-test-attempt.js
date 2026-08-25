@@ -140,7 +140,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       // handles correctly (evaluation still only happens at commit).
     } else if (e.key === "Enter") {
       e.preventDefault(); // never let a literal newline enter the buffer
-      commitCurrentWord(input.value);
+      // Enter is only a valid commit here if the ORIGINAL passage
+      // actually has a paragraph break at the current word — i.e.
+      // this word is genuinely the last word of its paragraph
+      // (isLastInParagraph, set in computeWordRanges() from the
+      // real \n positions in the passage content). An Enter pressed
+      // anywhere else is ignored completely: no commit, no word
+      // advance, no character inserted, nothing counted as an error
+      // — exactly as if the keystroke never happened.
+      const currentWord = wordRanges[activeWordIndex];
+      if (currentWord && currentWord.isLastInParagraph) {
+        commitCurrentWord(input.value);
+      }
     }
   });
 
@@ -746,6 +757,17 @@ async function endMockTest(reason) {
   // accurate or fast the PARTIAL typing was.
   const isPassageCompleted = activeWordIndex >= wordRanges.length;
 
+  // Word-count/completion-% figures — from the SAME activeWordIndex/
+  // wordRanges the completion boolean above already uses (not
+  // recomputed a different way), so these two can never disagree.
+  // totalPassageWords comes from the ORIGINAL passage's own word
+  // list, never from anything the student typed.
+  const totalPassageWords = wordRanges.length;
+  const wordsTyped = Math.min(activeWordIndex, totalPassageWords);
+  const completionPercentage = totalPassageWords > 0
+    ? Math.round((wordsTyped / totalPassageWords) * 100)
+    : 0;
+
   const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : mockTest.duration;
   const minutesForWpm = reason === "time_up" ? mockTest.duration : Math.max(elapsedMinutes, 0.05);
 
@@ -759,12 +781,17 @@ async function endMockTest(reason) {
   // re-derived separately in either place.
   const passed = isTestPassed(isPassageCompleted, accuracy, netWpm);
 
+  // weakKeys computed once here (not re-derived separately by the
+  // result screen and the print view) so every consumer of the
+  // result object sees the identical list.
+  const weakKeys = getCurrentTestWeakKeys(keyAnalysis);
+
   // Requirement 1: exit full-screen once the mock test ends
   exitFullscreen();
   document.getElementById("fsRetryBtn").style.display = "none";
 
-  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis, isPassageCompleted, passed });
-  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords, isPassageCompleted, passed });
+  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis, weakKeys, isPassageCompleted, passed, totalPassageWords, wordsTyped, completionPercentage });
+  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords, isPassageCompleted, passed, totalPassageWords, wordsTyped, completionPercentage });
   await saveKeyAnalysis(keyAnalysis);
 }
 
@@ -809,8 +836,10 @@ function showResultTicket(r) {
   document.getElementById("resultNetWpm").textContent = r.netWpm;
   document.getElementById("resultAccuracy").textContent = r.accuracy + "%";
   document.getElementById("resultDuration").textContent = formatDurationForResult(r);
+  document.getElementById("resultCompletion").textContent =
+    r.wordsTyped + " / " + r.totalPassageWords + " words (" + r.completionPercentage + "%)";
 
-  renderStatusCard(passed, r.isPassageCompleted);
+  renderStatusCard(passed, r.isPassageCompleted, r.wordsTyped, r.totalPassageWords, r.completionPercentage);
   renderFeedbackTips(r, passed, grade);
   renderStatusBadge(passed);
   renderEncouragement(passed);
@@ -831,7 +860,7 @@ function formatDurationForResult(r) {
   return mins + ":" + String(secs).padStart(2, "0") + " min";
 }
 
-function renderStatusCard(passed, isPassageCompleted) {
+function renderStatusCard(passed, isPassageCompleted, wordsTyped, totalPassageWords, completionPercentage) {
   const card = document.getElementById("mtrStatusCard");
   const icon = document.getElementById("mtrStatusIcon");
   const title = document.getElementById("mtrStatusTitle");
@@ -852,8 +881,11 @@ function renderStatusCard(passed, isPassageCompleted) {
     // same either way (this page's status card is a single title,
     // not separate reason badges), but the message underneath makes
     // clear WHY, since "keep practicing" would be misleading advice
-    // for someone who was simply cut off before finishing.
-    msg.textContent = "The full passage wasn't completed, so this attempt can't be marked as passed.";
+    // for someone who was simply cut off before finishing. Includes
+    // the exact "X / Y words, Z% completed" detail requested,
+    // straight from the same numbers driving the Test Summary row.
+    msg.textContent = "You did not complete the full passage. " +
+      wordsTyped + " / " + totalPassageWords + " words completed (" + completionPercentage + "%).";
   } else {
     msg.textContent = "Keep practicing! You'll get better with consistency.";
   }
@@ -925,7 +957,10 @@ function wirePrintResults(r, passed, grade) {
   if (!btn) return;
 
   btn.onclick = () => {
-    const weakKeys = getCurrentTestWeakKeys(r.keyAnalysis || {});
+    // Reuses r.weakKeys (computed once in endMockTest()) rather than
+    // recomputing separately — same list the screen itself shows,
+    // never a second independent calculation that could drift.
+    const weakKeys = r.weakKeys || [];
     const view = document.getElementById("printResultView");
     view.innerHTML = `
       <div class="print-sheet">
@@ -936,6 +971,8 @@ function wirePrintResults(r, passed, grade) {
         <table class="print-table">
           <tr><th>Status</th><td>${passed ? "Passed" : "Not Passed"}</td></tr>
           <tr><th>Passage Completed</th><td>${r.isPassageCompleted ? "Yes" : "No"}</td></tr>
+          <tr><th>Words Typed</th><td>${r.wordsTyped} / ${r.totalPassageWords}</td></tr>
+          <tr><th>Completion</th><td>${r.completionPercentage}%</td></tr>
           <tr><th>Time Taken</th><td>${formatDurationForResult(r)}</td></tr>
           <tr><th>Gross Speed</th><td>${r.grossWpm} WPM</td></tr>
           <tr><th>Net Speed</th><td>${r.netWpm} WPM</td></tr>
@@ -959,10 +996,12 @@ function wirePrintResults(r, passed, grade) {
 // Saves with the fields specified for this restructure:
 // user_id, mock_test_id, mock name, category, passage, duration,
 // gross WPM, net WPM, accuracy, errors, created_at (auto), plus
-// is_completed/is_passed — added via migration
-// add_pass_completion_status_to_mock_test_results specifically so
-// the SAVED record reflects the same corrected, completion-aware
-// verdict shown on screen, not just the on-screen text.
+// is_completed/is_passed and total_passage_words/words_typed/
+// completion_percentage — added via migrations
+// add_pass_completion_status_to_mock_test_results and
+// add_completion_tracking_to_mock_test_results specifically so the
+// SAVED record reflects the same completion/percentage figures
+// shown on screen, not just the on-screen text.
 async function saveMockResult(r) {
   if (!currentUser) {
     console.warn("No logged-in user — mock test result was not saved.");
@@ -983,7 +1022,10 @@ async function saveMockResult(r) {
     errors: r.errors,
     total_words: r.totalWords,
     is_completed: r.isPassageCompleted,
-    is_passed: r.passed
+    is_passed: r.passed,
+    total_passage_words: r.totalPassageWords,
+    words_typed: r.wordsTyped,
+    completion_percentage: r.completionPercentage
   });
 
   if (error) {
