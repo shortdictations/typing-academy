@@ -1349,6 +1349,29 @@ table.marksheet tr:hover td{ background: var(--paper-dark); }
   color: var(--ink-soft);
   font-size: 0.95rem;
 }
+.mock-duration-picker{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.mock-duration-btn{
+  padding: 9px 20px;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.mock-duration-btn.active{
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+.mock-duration-btn:hover:not(.active){ border-color: var(--brass); }
 .mock-test-message{
   font-size: 15px;
   color: var(--ink-soft);
