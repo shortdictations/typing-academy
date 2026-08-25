@@ -719,16 +719,146 @@ function showResultTicket(r) {
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "block";
 
+  // Pass/fail reuses gradeFor() exactly as it already existed —
+  // RETRY (accuracy < 80%) is the only threshold this codebase
+  // already defines as "not passed"; nothing new invented here.
+  const grade = gradeFor(r.netWpm, r.accuracy);
+  const passed = grade !== "RETRY";
+
   document.getElementById("resultGrossWpm").textContent = r.grossWpm;
   document.getElementById("resultNetWpm").textContent = r.netWpm;
   document.getElementById("resultAccuracy").textContent = r.accuracy + "%";
-  document.getElementById("resultDuration").textContent = mockTest.duration + " min";
-  document.getElementById("resultErrors").textContent = r.errors;
-  document.getElementById("resultTotalWords").textContent = r.totalWords;
-  document.getElementById("resultGrade").textContent = gradeFor(r.netWpm, r.accuracy);
-  document.getElementById("resultPassageName").textContent = mockTest.title;
+  document.getElementById("resultDuration").textContent = formatDurationForResult(r);
+
+  renderStatusCard(passed);
+  renderFeedbackTips(r, passed, grade);
+  renderStatusBadge(passed);
+  renderEncouragement(passed);
+  wirePrintResults(r, passed, grade);
 
   showWeakKeyAnalysis(r.keyAnalysis);
+}
+
+// "Time Taken" — mm:ss of actual elapsed time when the test ended
+// early/on completion, or the full scheduled duration for a time_up
+// finish. testStartTime/mockTest are the same variables the rest of
+// this file already uses for timing; nothing new tracked here.
+function formatDurationForResult(r) {
+  const elapsedMs = testStartTime ? Date.now() - testStartTime : mockTest.duration * 60000;
+  const totalSeconds = Math.max(Math.round(elapsedMs / 1000), 0);
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return mins + ":" + String(secs).padStart(2, "0") + " min";
+}
+
+function renderStatusCard(passed) {
+  const card = document.getElementById("mtrStatusCard");
+  const icon = document.getElementById("mtrStatusIcon");
+  const title = document.getElementById("mtrStatusTitle");
+  const msg = document.getElementById("mtrStatusMsg");
+  if (!card) return;
+
+  card.classList.remove("mtr-status-pass", "mtr-status-fail");
+  card.classList.add(passed ? "mtr-status-pass" : "mtr-status-fail");
+  icon.innerHTML = passed
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
+  title.textContent = passed ? "Test Passed" : "Test Not Passed";
+  msg.textContent = passed
+    ? "Well done! Keep up the consistent practice."
+    : "Keep practicing! You'll get better with consistency.";
+}
+
+// Dynamic feedback derived from the SAME accuracy/WPM thresholds
+// gradeFor() already uses — deliberately not the reference image's
+// illustrative 95%/35 WPM numbers, since this project has no
+// configurable per-test pass-criteria columns yet (checked the live
+// mock_tests schema directly before writing this: no such column
+// exists). Showing a fake fixed requirement would misrepresent how
+// grading actually works here; this reflects the real logic instead.
+function renderFeedbackTips(r, passed, grade) {
+  const list = document.getElementById("mtrFeedbackList");
+  if (!list) return;
+
+  const tips = [];
+  if (!passed) {
+    tips.push("To pass this exam your accuracy should have been at least 80%.");
+  }
+  const nextTier = grade === "RETRY" ? null : grade === "C" ? { wpm: 25, label: "B" } : grade === "B" ? { wpm: 35, label: "A" } : grade === "A" ? { wpm: 45, label: "A+" } : null;
+  if (nextTier) {
+    tips.push(`Reach ${nextTier.wpm} WPM (Net Speed) at 80%+ accuracy for a ${nextTier.label} grade next time.`);
+  } else if (!passed) {
+    tips.push("Once your accuracy crosses 80%, your current typing speed already supports a passing grade.");
+  } else if (grade === "A+") {
+    tips.push("You're at the top grade tier — keep this pace and accuracy consistent across tests.");
+  }
+  if (r.accuracy < 95 && passed) {
+    tips.push("Pushing accuracy toward 95%+ will make your typing even more exam-ready.");
+  }
+
+  list.innerHTML = tips.map(t => `<div class="mtr-feedback-item"><span class="mtr-feedback-quote">&ldquo;</span>${t}</div>`).join("");
+}
+
+function renderStatusBadge(passed) {
+  const badge = document.getElementById("mtrStatusBadge");
+  if (!badge) return;
+  badge.textContent = passed ? "Passed" : "Not Passed";
+  badge.classList.remove("mtr-badge-pass", "mtr-badge-fail");
+  badge.classList.add(passed ? "mtr-badge-pass" : "mtr-badge-fail");
+}
+
+function renderEncouragement(passed) {
+  const title = document.getElementById("mtrEncourageTitle");
+  const msg = document.getElementById("mtrEncourageMsg");
+  if (!title || !msg) return;
+  if (passed) {
+    title.textContent = "Great work!";
+    msg.textContent = "Keep this consistency going in your next attempt.";
+  } else {
+    title.textContent = "Don't give up!";
+    msg.textContent = "Practice a little every day and you'll see great improvement.";
+  }
+}
+
+// Reuses the SAME weak-key data + status already computed for the
+// screen result — no separate calculation, no duplicate result
+// system. Renders into the existing hidden #printResultView element
+// and calls window.print() — the browser's own Save-as-PDF is
+// exactly window.print()'s destination picker, so no extra library
+// is needed for that requirement either.
+function wirePrintResults(r, passed, grade) {
+  const btn = document.getElementById("printResultsBtn");
+  if (!btn) return;
+
+  btn.onclick = () => {
+    const weakKeys = getCurrentTestWeakKeys(r.keyAnalysis || {});
+    const view = document.getElementById("printResultView");
+    view.innerHTML = `
+      <div class="print-sheet">
+        <div class="print-brand">TypeShala</div>
+        <h1>Typing Test Result</h1>
+        <div class="print-meta">${escapeHtml(mockTest.title)} &middot; ${escapeHtml(selectedPassage.title)} &middot; ${new Date().toLocaleDateString()}</div>
+
+        <table class="print-table">
+          <tr><th>Status</th><td>${passed ? "Passed" : "Not Passed"}</td></tr>
+          <tr><th>Time Taken</th><td>${formatDurationForResult(r)}</td></tr>
+          <tr><th>Gross Speed</th><td>${r.grossWpm} WPM</td></tr>
+          <tr><th>Net Speed</th><td>${r.netWpm} WPM</td></tr>
+          <tr><th>Accuracy</th><td>${r.accuracy}%</td></tr>
+          <tr><th>Total Words Typed</th><td>${r.totalWords}</td></tr>
+          <tr><th>Mistakes</th><td>${r.errors}</td></tr>
+        </table>
+
+        ${weakKeys.length ? `
+          <h2>Weak Keys</h2>
+          <table class="print-table">
+            ${weakKeys.map(k => `<tr><th>${k.key}</th><td>${Math.round(k.accuracy)}% accuracy &middot; ${k.errors} mistakes</td></tr>`).join("")}
+          </table>
+        ` : ""}
+      </div>
+    `;
+    window.print();
+  };
 }
 
 // Saves with the fields specified for this restructure:
@@ -911,6 +1041,8 @@ function showWeakKeyAnalysis(keyStats) {
 
   if (!weakKeys.length) {
     container.style.display = "block";
+    const chart = document.getElementById("weakKeyChart");
+    if (chart) chart.style.display = "none";
 
     list.innerHTML = `
       <div class="weak-key-empty">
@@ -924,25 +1056,32 @@ function showWeakKeyAnalysis(keyStats) {
   }
 
   container.style.display = "block";
+  const chart = document.getElementById("weakKeyChart");
+  if (chart) chart.style.display = "flex";
 
-  list.innerHTML = weakKeys.map(item => {
-    const status =
-      item.accuracy < 85 ? "Weak" : "Needs Practice";
+  // Bar height is relative to the WORST key in this list (tallest bar
+  // = 100%), so the chart always reads clearly regardless of how bad
+  // or mild the actual accuracy numbers are. Severity color is by
+  // rank within the list (already sorted worst-first by
+  // getCurrentTestWeakKeys, untouched) rather than an absolute
+  // accuracy cutoff — getCurrentTestWeakKeys already only returns
+  // keys under 90% accuracy, so a fixed "accuracy < 80 = red" band
+  // would rarely produce the green "OK" tier the reference shows;
+  // ranking within the returned set reliably spreads across all
+  // three severities the way the reference depicts.
+  const worstProblem = Math.max(100 - weakKeys[weakKeys.length - 1].accuracy, 1);
+  const total = weakKeys.length;
+
+  list.innerHTML = weakKeys.map((item, i) => {
+    const problem = 100 - item.accuracy;
+    const heightPct = Math.max((problem / worstProblem) * 100, 8);
+    const rankFraction = total > 1 ? i / (total - 1) : 0;
+    const severity = rankFraction < 0.34 ? "high" : rankFraction < 0.67 ? "medium" : "low";
 
     return `
-      <div class="weak-key-item">
-        <div class="weak-key-letter">${item.key}</div>
-
-        <div class="weak-key-info">
-          <div class="weak-key-name">${status}</div>
-          <div class="weak-key-meta">
-            ${item.errors} mistakes &middot; ${Math.round(item.accuracy)}% accuracy
-          </div>
-        </div>
-
-        <div class="weak-key-percent">
-          ${Math.round(item.accuracy)}%
-        </div>
+      <div class="mtr-bar-col">
+        <div class="mtr-bar mtr-bar-${severity}" style="height:${heightPct}%;" title="${Math.round(item.accuracy)}% accuracy, ${item.errors} mistakes"></div>
+        <div class="mtr-bar-label">${item.key}</div>
       </div>
     `;
   }).join("");
