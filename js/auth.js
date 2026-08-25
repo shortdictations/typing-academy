@@ -6,6 +6,136 @@
    Requires supabase-config.js to be loaded first.
    ============================================================ */
 
+/* ---------- Single active session (one device at a time) ----------
+   localStorage (NOT sessionStorage) is deliberate: it's shared
+   across every tab of the same browser/device, which is exactly
+   what "multiple tabs on the same device should keep working" needs
+   — sessionStorage is per-tab and would wrongly invalidate a second
+   tab on the SAME device. The server (public.user_sessions, via the
+   register/validate/clear RPCs applied in this project's Supabase
+   instance) is the only authoritative source; the localStorage value
+   is just this browser's claim, always checked against the server
+   before being trusted for anything that matters. */
+const TS_SESSION_STORAGE_KEY = "ts_session_id";
+const TS_SESSION_MESSAGE_KEY = "ts_session_invalidated_message";
+const TS_SESSION_CHECK_INTERVAL_MS = 45000; // 45s — within the requested 30-60s range
+
+let tsSessionPeriodicCheckStarted = false;
+let tsSessionRealtimeChannel = null;
+
+// Called once right after a successful login (email/password AND,
+// via requireLogin()'s own first-run registration below, the Google
+// OAuth path too, since OAuth never calls loginStudent() directly).
+// Always generates and stores a FRESH session — this is the "newest
+// login replaces the previous one" step.
+async function registerActiveSession() {
+  const { data, error } = await supabaseClient.rpc("register_active_session");
+  if (error || !data) {
+    console.error("registerActiveSession failed:", error);
+    return null;
+  }
+  localStorage.setItem(TS_SESSION_STORAGE_KEY, data);
+  return data;
+}
+
+// The central single-session check. Called from requireLogin() (so
+// every protected page gets it automatically, per "do not duplicate
+// this logic independently on every page") and re-run periodically/
+// on a Realtime event while the page stays open.
+//
+// If this browser has no local session id yet, it registers one
+// rather than "failing" a validation that was never set up — this
+// is what makes the Google OAuth landing page (which never calls
+// loginStudent()) register correctly too, using the exact same code
+// path as everything else instead of a separate OAuth-specific hook.
+async function checkSingleActiveSession() {
+  const localSessionId = localStorage.getItem(TS_SESSION_STORAGE_KEY);
+
+  if (!localSessionId) {
+    await registerActiveSession();
+    return true;
+  }
+
+  try {
+    const { data: isValid, error } = await supabaseClient.rpc("validate_active_session", { p_session_id: localSessionId });
+    if (error) {
+      // Fail OPEN on a transient network/RPC error — a connectivity
+      // hiccup should not lock a legitimate single-device user out.
+      console.error("checkSingleActiveSession: validation RPC failed:", error);
+      return true;
+    }
+    if (!isValid) {
+      await forceSessionLogout("Your session has expired because this account was logged in from another device.");
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("checkSingleActiveSession threw:", err);
+    return true;
+  }
+}
+
+// Signs the user out because THIS browser's session was replaced —
+// distinct from a normal, intentional logoutStudent() call: this one
+// does not try to clear the server-side session record (it's not
+// "current" anymore by definition — clearing it here could even
+// delete whatever device DID just take over), it just gets this
+// browser out and shows why.
+async function forceSessionLogout(message) {
+  localStorage.removeItem(TS_SESSION_STORAGE_KEY);
+  stopSingleSessionMonitoring();
+  try {
+    await supabaseClient.auth.signOut();
+  } catch (err) {
+    console.error("forceSessionLogout: signOut failed:", err);
+  }
+  sessionStorage.setItem(TS_SESSION_MESSAGE_KEY, message);
+  window.location.href = "login.html";
+}
+
+function stopSingleSessionMonitoring() {
+  if (tsSessionRealtimeChannel) {
+    supabaseClient.removeChannel(tsSessionRealtimeChannel);
+    tsSessionRealtimeChannel = null;
+  }
+}
+
+// Starts the two "don't rely on Realtime alone" backstops: a periodic
+// poll (30-60s range) and a Realtime subscription for immediate
+// detection when available. Guarded to only ever run once per page
+// load even if requireLogin() is somehow called more than once.
+function startSingleSessionMonitoring(userId) {
+  if (tsSessionPeriodicCheckStarted) return;
+  tsSessionPeriodicCheckStarted = true;
+
+  setInterval(() => {
+    checkSingleActiveSession();
+  }, TS_SESSION_CHECK_INTERVAL_MS);
+
+  // Realtime is a nice-to-have fast path, not the authoritative
+  // check — if the subscription itself fails for any reason, the
+  // periodic poll above still catches a replaced session within
+  // TS_SESSION_CHECK_INTERVAL_MS regardless.
+  try {
+    tsSessionRealtimeChannel = supabaseClient
+      .channel("user_sessions_" + userId)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "user_sessions", filter: "user_id=eq." + userId },
+        (payload) => {
+          const localSessionId = localStorage.getItem(TS_SESSION_STORAGE_KEY);
+          const serverSessionId = payload.new && payload.new.session_id;
+          if (serverSessionId && localSessionId && serverSessionId !== localSessionId) {
+            forceSessionLogout("Your session has expired because this account was logged in from another device.");
+          }
+        }
+      )
+      .subscribe();
+  } catch (err) {
+    console.error("startSingleSessionMonitoring: Realtime subscription failed (periodic check still active):", err);
+  }
+}
+
 // Register a brand-new student account
 async function registerStudent(fullName, email, password) {
   const { data, error } = await supabaseClient.auth.signUp({
@@ -51,6 +181,17 @@ async function loginStudent(email, password) {
     password: password
   });
   if (error) throw error;
+
+  // Registers this device as the new active session immediately on
+  // login — the "newest login replaces the previous one" step. Await
+  // this before returning so login.html's redirect to dashboard.html
+  // never races ahead of the session actually being registered
+  // (which would make the very first requireLogin() check on the
+  // dashboard see no local session id — harmless, since
+  // checkSingleActiveSession() would just register one then, but
+  // there's no reason to leave that gap open).
+  await registerActiveSession();
+
   return data;
 }
 
@@ -60,6 +201,23 @@ async function logoutStudent() {
   // always shows it again — this is intentionally NOT a database
   // field (see dashboard.js), so it must be cleared here explicitly.
   sessionStorage.removeItem("ts_welcome_back_shown");
+
+  // Only clears the server-side session record if it STILL matches
+  // this browser's own session id — this is what stops an old,
+  // already-replaced device's logout from deleting a NEWER device's
+  // active session (Device A logs out after Device B already
+  // replaced it -> A's logout must not touch B's session).
+  const localSessionId = localStorage.getItem(TS_SESSION_STORAGE_KEY);
+  if (localSessionId) {
+    try {
+      await supabaseClient.rpc("clear_active_session_if_current", { p_session_id: localSessionId });
+    } catch (err) {
+      console.error("logoutStudent: clear_active_session_if_current failed:", err);
+    }
+  }
+  localStorage.removeItem(TS_SESSION_STORAGE_KEY);
+  stopSingleSessionMonitoring();
+
   await supabaseClient.auth.signOut();
   window.location.href = "index.html";
 }
@@ -101,6 +259,20 @@ async function requireLogin() {
     window.location.href = "login.html";
     return null;
   }
+
+  // Single-active-session check — the central choke-point every
+  // protected page already passes through via requireLogin(), so
+  // this covers all of them (dashboard, mock test, typing test,
+  // result page, profile, pass/subscription, credits, etc.) without
+  // needing to be duplicated on each page individually. If this
+  // browser's session was replaced by a newer login elsewhere,
+  // checkSingleActiveSession() itself performs the sign-out/redirect
+  // and returns false — nothing below this point should run.
+  const sessionOk = await checkSingleActiveSession();
+  if (!sessionOk) {
+    return null;
+  }
+  startSingleSessionMonitoring(user.id);
 
   // Guarded: initAuthHeader() builds the header avatar/dropdown and
   // populates the credit badge — none of that should be able to
