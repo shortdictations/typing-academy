@@ -217,6 +217,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function handleStartClick() {
   const startBtn = document.getElementById("startBtn");
 
+  // Before starting the test (and before any pass/credit consumption
+  // below), re-verify this browser's session is still the active one
+  // — a just-in-time check, not just relying on the page-load check
+  // from requireLogin(), since a student could sit on this setup
+  // screen for a while before clicking Start. checkSingleActiveSession()
+  // itself handles the sign-out/redirect if this session was replaced.
+  const sessionOk = await checkSingleActiveSession();
+  if (!sessionOk) return;
+
   if (mockTest.access_type !== "free") {
     // ---------------- STEP 1: eligible Pass ----------------
     // Tried FIRST for every non-free test regardless of whether the
@@ -727,6 +736,17 @@ function beforeUnloadHandler(e) {
 
 async function endMockTest(reason) {
   if (testResultSaved) return;
+
+  // Just-in-time re-check before recording/saving anything — a test
+  // can run for the full 5-10 minute duration, during which another
+  // device could log in and replace this session. checkSingleActiveSession()
+  // itself performs the sign-out/redirect/message if invalid; this
+  // function must stop completely before touching credits, results,
+  // or pass status if that happens — no partial save, no consumed
+  // credit, nothing.
+  const sessionOk = await checkSingleActiveSession();
+  if (!sessionOk) return;
+
   testResultSaved = true;
 
   if (testTimer) clearInterval(testTimer);
