@@ -11,6 +11,14 @@ let currentUser = null;
 let mockTest = null;      // the mock_tests row
 let selectedPassage = null; // the joined passages row
 
+// User-selectable fixed test duration (5 or 10 minutes) — defaults
+// to the mock test's own configured duration, but the setup screen's
+// duration picker (wired in initSetupScreen) can override it before
+// the test starts. Everything time-based (timer, WPM math, the
+// "required duration completed" pass condition) reads THIS variable,
+// never mockTest.duration directly, once the test is running.
+let selectedDurationMinutes = 10;
+
 let testTimer = null;
 let secondsLeft = 0;
 let testStartTime = null;
@@ -101,11 +109,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Defaults to whichever of 5/10 the mock test's own configured
+  // duration is closest to, but the picker below lets the student
+  // change it before starting — selectedDurationMinutes (not
+  // mockTest.duration) drives the timer/pass-check once the test is
+  // running.
+  selectedDurationMinutes = mockTest.duration <= 7 ? 5 : 10;
+
   document.getElementById("setupInfo").innerHTML =
     '<div class="mock-test-title">' + escapeHtml(mockTest.title) + '</div>' +
-    '<div class="mock-test-meta">' + mockTest.duration + ' minutes &middot; ' +
+    '<div class="mock-test-meta">' +
     (mockTest.access_type === "free" ? "Free" : (hasEligiblePass ? "PASS INCLUDED" : "1 CREDIT")) + '</div>' +
+    '<div class="mock-duration-picker" id="durationPicker" role="radiogroup" aria-label="Test duration">' +
+      '<button type="button" class="mock-duration-btn" data-duration="5">5 Minutes</button>' +
+      '<button type="button" class="mock-duration-btn" data-duration="10">10 Minutes</button>' +
+    '</div>' +
     '<div class="mock-test-message">Your passage has already been assigned — it will appear the moment you click start.</div>';
+
+  const durationButtons = document.querySelectorAll("#durationPicker .mock-duration-btn");
+  function refreshDurationButtons() {
+    durationButtons.forEach(btn => {
+      const isActive = Number(btn.dataset.duration) === selectedDurationMinutes;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
+  durationButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedDurationMinutes = Number(btn.dataset.duration);
+      refreshDurationButtons();
+    });
+  });
+  refreshDurationButtons();
 
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "inline-flex";
@@ -257,7 +292,7 @@ function startMockTest() {
   hideWarningBanner();
 
   document.getElementById("testPassageTitle").textContent =
-    mockTest.title + " · " + mockTest.duration + " min · " + selectedPassage.title;
+    mockTest.title + " · " + selectedDurationMinutes + " min · " + selectedPassage.title;
 
   renderPassage();
 
@@ -266,7 +301,7 @@ function startMockTest() {
   input.disabled = false;
   input.focus();
 
-  secondsLeft = mockTest.duration * 60;
+  secondsLeft = selectedDurationMinutes * 60;
   updateTimerDisplay();
   updateLiveStats(0, 100, 0);
 
@@ -552,6 +587,14 @@ function updateActiveWordHighlight() {
 // used for the Space path.
 function commitCurrentWord(typed) {
   const word = typed.substring(wordStartPos);
+  // Nothing left in the assigned passage to compare against — this
+  // is a fixed-DURATION test now (passage length is only the typing
+  // material, never a completion/pass criterion), so reaching the
+  // end of the passage does not end the test; it just means there is
+  // nothing further to score until the timer itself ends the
+  // attempt. Silently stop advancing rather than evaluating against
+  // an empty expected string.
+  if (activeWordIndex >= wordRanges.length) return;
   if (word.length > 0) {
     evaluateWord(word);
   }
@@ -561,30 +604,6 @@ function commitCurrentWord(typed) {
 
   const stats = computeLiveStats(typed);
   updateLiveStats(stats.wpm, stats.accuracy, stats.mistakes);
-  checkForCompletion(typed);
-}
-
-// Two ways a test can end "naturally" (as opposed to timer/fullscreen-
-// exit): every word has been committed (the student pressed Space or
-// Enter after the very last word), or the student is still on the
-// last word but has now typed at least as many characters as it
-// requires (no trailing Space/Enter needed). The second check is
-// word-aware rather than based on overall typed length reaching the
-// original passage length — that raw-length approach has a drift bug
-// confirmed directly: once any earlier word is over-typed (extra
-// characters), total length reaches the passage's original length
-// BEFORE the real last word is finished, truncating it mid-word.
-function checkForCompletion(typed) {
-  if (activeWordIndex >= wordRanges.length) {
-    endMockTest("completed");
-    return;
-  }
-  const onLastWord = activeWordIndex === wordRanges.length - 1;
-  const lastWordLength = wordRanges.length > 0 ? wordRanges[wordRanges.length - 1].text.length : 0;
-  const currentWordTypedLength = typed.length - wordStartPos;
-  if (onLastWord && currentWordTypedLength >= lastWordLength) {
-    endMockTest("completed");
-  }
 }
 
 function onTypingInput(e) {
@@ -603,9 +622,13 @@ function onTypingInput(e) {
   // passage offset — that dynamic anchoring is what keeps word
   // boundaries synchronized even after a missed/extra character.
   // Enter is handled separately (see the keydown listener above) since
-  // it never produces a space character for this scan to find.
+  // it never produces a space character for this scan to find. Stops
+  // once activeWordIndex reaches the end of the assigned passage —
+  // same reasoning as commitCurrentWord() above: this is a fixed-
+  // duration test, so running out of passage text just means waiting
+  // for the timer, not ending the attempt.
   let spaceIdx;
-  while ((spaceIdx = typed.indexOf(" ", wordStartPos)) !== -1) {
+  while (activeWordIndex < wordRanges.length && (spaceIdx = typed.indexOf(" ", wordStartPos)) !== -1) {
     const word = typed.substring(wordStartPos, spaceIdx);
     if (word.length > 0) {
       evaluateWord(word, true); // true: this word was followed by a real typed space
@@ -618,7 +641,6 @@ function onTypingInput(e) {
 
   const stats = computeLiveStats(typed);
   updateLiveStats(stats.wpm, stats.accuracy, stats.mistakes);
-  checkForCompletion(typed);
 }
 
 // Live WPM/accuracy/mistakes from wordResults (already-submitted
@@ -748,38 +770,35 @@ async function endMockTest(reason) {
   const errors = wordResults.filter(r => !r.correct).length;
   const totalWords = wordResults.length;
 
-  // Completion: the passage is only "complete" if every expected word
-  // was actually evaluated. This is the fix for the "20% typed, 100%
-  // accuracy, still marked Passed" bug — activeWordIndex only reaches
-  // wordRanges.length via a real evaluateWord() call for every word,
-  // so an attempt cut short by time/fullscreen-exit/leaving the test
-  // partway through is correctly NOT complete, regardless of how
-  // accurate or fast the PARTIAL typing was.
-  const isPassageCompleted = activeWordIndex >= wordRanges.length;
+  // "Words Typed" is now just this raw count — passage length is
+  // deliberately NEVER compared against it (no completion %, no
+  // "X / Y words"). wordRanges.length (the passage's own word count)
+  // is not read anywhere in this function anymore.
+  const wordsTyped = totalWords;
 
-  // Word-count/completion-% figures — from the SAME activeWordIndex/
-  // wordRanges the completion boolean above already uses (not
-  // recomputed a different way), so these two can never disagree.
-  // totalPassageWords comes from the ORIGINAL passage's own word
-  // list, never from anything the student typed.
-  const totalPassageWords = wordRanges.length;
-  const wordsTyped = Math.min(activeWordIndex, totalPassageWords);
-  const completionPercentage = totalPassageWords > 0
-    ? Math.round((wordsTyped / totalPassageWords) * 100)
-    : 0;
-
-  const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : mockTest.duration;
-  const minutesForWpm = reason === "time_up" ? mockTest.duration : Math.max(elapsedMinutes, 0.05);
+  const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : selectedDurationMinutes;
+  const minutesForWpm = reason === "time_up" ? selectedDurationMinutes : Math.max(elapsedMinutes, 0.05);
+  const elapsedSeconds = Math.max(Math.round((testStartTime ? Date.now() - testStartTime : selectedDurationMinutes * 60000) / 1000), 0);
 
   const grossWpm = Math.round((totalTypedChars / 5) / minutesForWpm);
   const netWpm = Math.round((correct / 5) / minutesForWpm);
 
+  // This is now a FIXED-DURATION test, not a passage-completion test.
+  // The only way "the required duration was completed" is true is if
+  // the timer itself reached zero (reason === "time_up") — any other
+  // end reason (fullscreen exit, leaving mid-test) means the student
+  // left before the selected 5/10-minute duration elapsed, full stop,
+  // regardless of how much of the passage they'd typed or how good
+  // their WPM/accuracy were at that moment. Passage length/completion
+  // plays no role in this decision at all.
+  const requiredDurationCompleted = reason === "time_up";
+
   // Single authoritative pass/fail decision — see isTestPassed() for
-  // the full formula and why REQUIRED_ACCURACY/REQUIRED_NET_WPM are
-  // the specific numbers used. Computed once here and threaded
-  // through to the result screen and the saved record, rather than
-  // re-derived separately in either place.
-  const passed = isTestPassed(isPassageCompleted, accuracy, netWpm);
+  // the full formula. Computed once here and threaded through to the
+  // result screen and the saved record, rather than re-derived
+  // separately in either place.
+  const passed = isTestPassed(requiredDurationCompleted, accuracy, netWpm);
+  const failReasons = passed ? [] : buildFailReasons(requiredDurationCompleted, accuracy, netWpm);
 
   // weakKeys computed once here (not re-derived separately by the
   // result screen and the print view) so every consumer of the
@@ -790,35 +809,61 @@ async function endMockTest(reason) {
   exitFullscreen();
   document.getElementById("fsRetryBtn").style.display = "none";
 
-  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis, weakKeys, isPassageCompleted, passed, totalPassageWords, wordsTyped, completionPercentage });
-  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords, isPassageCompleted, passed, totalPassageWords, wordsTyped, completionPercentage });
+  const result = {
+    testDurationMinutes: selectedDurationMinutes,
+    wordsTyped,
+    elapsedTime: elapsedSeconds,
+    grossWpm,
+    accuracy,
+    netWpm,
+    weakKeys,
+    keyAnalysis,
+    errors,
+    passed,
+    failReasons,
+    requiredDurationCompleted
+  };
+
+  showResultTicket(result);
+  await saveMockResult(result);
   await saveKeyAnalysis(keyAnalysis);
 }
 
-// Single source of truth for the required thresholds — reused by
-// both isTestPassed() and gradeFor() below so there is exactly one
-// place either number is ever defined. No per-test configurable
-// pass-criteria column exists in mock_tests (checked the live schema
-// directly), so these reuse the SAME 80% / 25 WPM values gradeFor()
-// already used as its "RETRY" and lowest-passing-tier thresholds,
-// rather than inventing new unconfigured numbers.
-const REQUIRED_ACCURACY = 80;
-const REQUIRED_NET_WPM = 25;
-
-// isPassed = passage completed AND accuracy >= required AND
-// netWpm >= required — completion is checked first and is an
-// unconditional gate: no amount of speed or accuracy can pass an
-// incomplete attempt (Rule 2 / Part 3 of the brief).
-function isTestPassed(isPassageCompleted, accuracy, netWpm) {
-  return isPassageCompleted && accuracy >= REQUIRED_ACCURACY && netWpm >= REQUIRED_NET_WPM;
+// Builds the specific reason string(s) requested — one per failed
+// condition, so e.g. "both fail" produces two entries, matching the
+// brief's own worked examples exactly. Only called when passed is
+// already false, so this never needs to explain a pass.
+function buildFailReasons(requiredDurationCompleted, accuracy, netWpm) {
+  const reasons = [];
+  if (!requiredDurationCompleted) {
+    reasons.push(`Test ended before the required ${selectedDurationMinutes}-minute duration.`);
+  }
+  if (accuracy < REQUIRED_ACCURACY) {
+    reasons.push(`Accuracy was below the required ${REQUIRED_ACCURACY}%.`);
+  }
+  if (netWpm < REQUIRED_NET_WPM) {
+    reasons.push(`Net typing speed was below the required ${REQUIRED_NET_WPM} WPM.`);
+  }
+  return reasons;
 }
 
-function gradeFor(netWpm, accuracy) {
-  if (accuracy < REQUIRED_ACCURACY) return "RETRY";
-  if (netWpm >= 45) return "A+";
-  if (netWpm >= 35) return "A";
-  if (netWpm >= 25) return "B";
-  return "C";
+// Single source of truth for the required thresholds — this is now
+// an EXPLICIT, fixed standard (95% accuracy, 35 WPM net), not reused
+// from any prior grade-tier system. Every place that needs these
+// numbers (isTestPassed, buildFailReasons, renderFeedbackTips) reads
+// these two constants, never a hard-coded literal.
+const REQUIRED_ACCURACY = 95;
+const REQUIRED_NET_WPM = 35;
+
+// This is a FIXED-DURATION test: passed = the selected 5/10-minute
+// duration was actually completed (requiredDurationCompleted, true
+// only when the test ended via the timer reaching zero — see
+// endMockTest) AND accuracy >= 95% AND net WPM >= 35. Passage length
+///completion plays no role here at all — a student who exits early
+// can never pass regardless of how much of the passage they typed or
+// how good their stats were at that moment.
+function isTestPassed(requiredDurationCompleted, accuracy, netWpm) {
+  return requiredDurationCompleted && accuracy >= REQUIRED_ACCURACY && netWpm >= REQUIRED_NET_WPM;
 }
 
 function showResultTicket(r) {
@@ -830,37 +875,35 @@ function showResultTicket(r) {
   // accuracy/speed. Not recomputed here, so the result screen can
   // never show a different verdict than what gets saved.
   const passed = r.passed;
-  const grade = gradeFor(r.netWpm, r.accuracy);
 
   document.getElementById("resultGrossWpm").textContent = r.grossWpm;
   document.getElementById("resultNetWpm").textContent = r.netWpm;
   document.getElementById("resultAccuracy").textContent = r.accuracy + "%";
   document.getElementById("resultDuration").textContent = formatDurationForResult(r);
-  document.getElementById("resultCompletion").textContent =
-    r.wordsTyped + " / " + r.totalPassageWords + " words (" + r.completionPercentage + "%)";
+  document.getElementById("resultWordsTyped").textContent = r.wordsTyped;
 
-  renderStatusCard(passed, r.isPassageCompleted, r.wordsTyped, r.totalPassageWords, r.completionPercentage);
-  renderFeedbackTips(r, passed, grade);
+  renderStatusCard(passed, r.requiredDurationCompleted, r.failReasons);
+  renderFeedbackTips(r, passed);
   renderStatusBadge(passed);
   renderEncouragement(passed);
-  wirePrintResults(r, passed, grade);
+  wirePrintResults(r, passed);
 
   showWeakKeyAnalysis(r.keyAnalysis);
 }
 
 // "Time Taken" — mm:ss of actual elapsed time when the test ended
-// early/on completion, or the full scheduled duration for a time_up
-// finish. testStartTime/mockTest are the same variables the rest of
-// this file already uses for timing; nothing new tracked here.
+// early, or the full scheduled duration for a time_up finish. Reads
+// selectedDurationMinutes (the user's actual 5/10-minute choice for
+// THIS attempt), never a hard-coded value.
 function formatDurationForResult(r) {
-  const elapsedMs = testStartTime ? Date.now() - testStartTime : mockTest.duration * 60000;
+  const elapsedMs = testStartTime ? Date.now() - testStartTime : selectedDurationMinutes * 60000;
   const totalSeconds = Math.max(Math.round(elapsedMs / 1000), 0);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
   return mins + ":" + String(secs).padStart(2, "0") + " min";
 }
 
-function renderStatusCard(passed, isPassageCompleted, wordsTyped, totalPassageWords, completionPercentage) {
+function renderStatusCard(passed, requiredDurationCompleted, failReasons) {
   const card = document.getElementById("mtrStatusCard");
   const icon = document.getElementById("mtrStatusIcon");
   const title = document.getElementById("mtrStatusTitle");
@@ -875,52 +918,34 @@ function renderStatusCard(passed, isPassageCompleted, wordsTyped, totalPassageWo
   title.textContent = passed ? "Test Passed" : "Test Not Passed";
   if (passed) {
     msg.textContent = "Well done! Keep up the consistent practice.";
-  } else if (!isPassageCompleted) {
-    // Distinct message for the "Not Passed — Incomplete" case per
-    // spec — the main Passed/Not Passed status stays exactly the
-    // same either way (this page's status card is a single title,
-    // not separate reason badges), but the message underneath makes
-    // clear WHY, since "keep practicing" would be misleading advice
-    // for someone who was simply cut off before finishing. Includes
-    // the exact "X / Y words, Z% completed" detail requested,
-    // straight from the same numbers driving the Test Summary row.
-    msg.textContent = "You did not complete the full passage. " +
-      wordsTyped + " / " + totalPassageWords + " words completed (" + completionPercentage + "%).";
+  } else if (!requiredDurationCompleted) {
+    // This is a FIXED-DURATION test — the primary "why not passed"
+    // reason when the student left early is the duration itself, not
+    // anything about the passage (there is no passage-completion
+    // concept in this model at all).
+    msg.textContent = `Test ended before the required ${selectedDurationMinutes}-minute duration.`;
   } else {
-    msg.textContent = "Keep practicing! You'll get better with consistency.";
+    // Duration was completed but accuracy/speed fell short — join
+    // whichever of those failReasons actually apply (could be one or
+    // both, per the brief's own "both fail" example).
+    msg.textContent = (failReasons && failReasons.length ? failReasons.join(" ") : "Keep practicing! You'll get better with consistency.");
   }
 }
 
-// Dynamic feedback derived from the SAME accuracy/WPM thresholds
-// gradeFor() already uses — deliberately not the reference image's
-// illustrative 95%/35 WPM numbers, since this project has no
-// configurable per-test pass-criteria columns yet (checked the live
-// mock_tests schema directly before writing this: no such column
-// exists). Showing a fake fixed requirement would misrepresent how
-// grading actually works here; this reflects the real logic instead.
-function renderFeedbackTips(r, passed, grade) {
+// Exact wording requested: a fixed explanatory sentence, then the
+// three concrete requirements for THIS attempt's selected duration —
+// no passage-completion mention anywhere, no grade tiers.
+function renderFeedbackTips(r, passed) {
   const list = document.getElementById("mtrFeedbackList");
   if (!list) return;
 
-  const tips = [];
-  if (!r.isPassageCompleted) {
-    tips.push("You need to complete the entire passage for a test to count as passed — accuracy and speed alone aren't enough.");
-  }
-  if (!passed && r.accuracy < REQUIRED_ACCURACY) {
-    tips.push(`To pass this exam your accuracy should have been at least ${REQUIRED_ACCURACY}%.`);
-  }
-  if (!passed && r.isPassageCompleted && r.netWpm < REQUIRED_NET_WPM) {
-    tips.push(`To pass this exam your typing speed should have been at least ${REQUIRED_NET_WPM} WPM (Net Speed).`);
-  }
-  const nextTier = grade === "RETRY" ? null : grade === "C" ? { wpm: 25, label: "B" } : grade === "B" ? { wpm: 35, label: "A" } : grade === "A" ? { wpm: 45, label: "A+" } : null;
-  if (nextTier && r.isPassageCompleted) {
-    tips.push(`Reach ${nextTier.wpm} WPM (Net Speed) at ${REQUIRED_ACCURACY}%+ accuracy for a ${nextTier.label} grade next time.`);
-  } else if (grade === "A+" && passed) {
-    tips.push("You're at the top grade tier — keep this pace and accuracy consistent across tests.");
-  }
-  if (r.accuracy < 95 && passed) {
-    tips.push("Pushing accuracy toward 95%+ will make your typing even more exam-ready.");
-  }
+  const tips = [
+    "To pass the test, you must complete the selected test duration. Your accuracy must be at least " +
+      REQUIRED_ACCURACY + "% and your net typing speed must be at least " + REQUIRED_NET_WPM + " WPM.",
+    `Test Duration: ${r.testDurationMinutes} minutes`,
+    `Minimum Accuracy: ${REQUIRED_ACCURACY}%`,
+    `Minimum Net Speed: ${REQUIRED_NET_WPM} WPM`
+  ];
 
   list.innerHTML = tips.map(t => `<div class="mtr-feedback-item"><span class="mtr-feedback-quote">&ldquo;</span>${t}</div>`).join("");
 }
@@ -952,7 +977,7 @@ function renderEncouragement(passed) {
 // and calls window.print() — the browser's own Save-as-PDF is
 // exactly window.print()'s destination picker, so no extra library
 // is needed for that requirement either.
-function wirePrintResults(r, passed, grade) {
+function wirePrintResults(r, passed) {
   const btn = document.getElementById("printResultsBtn");
   if (!btn) return;
 
@@ -970,15 +995,14 @@ function wirePrintResults(r, passed, grade) {
 
         <table class="print-table">
           <tr><th>Status</th><td>${passed ? "Passed" : "Not Passed"}</td></tr>
-          <tr><th>Passage Completed</th><td>${r.isPassageCompleted ? "Yes" : "No"}</td></tr>
-          <tr><th>Words Typed</th><td>${r.wordsTyped} / ${r.totalPassageWords}</td></tr>
-          <tr><th>Completion</th><td>${r.completionPercentage}%</td></tr>
+          <tr><th>Test Duration</th><td>${r.testDurationMinutes} minutes</td></tr>
+          <tr><th>Words Typed</th><td>${r.wordsTyped}</td></tr>
           <tr><th>Time Taken</th><td>${formatDurationForResult(r)}</td></tr>
           <tr><th>Gross Speed</th><td>${r.grossWpm} WPM</td></tr>
           <tr><th>Net Speed</th><td>${r.netWpm} WPM</td></tr>
           <tr><th>Accuracy</th><td>${r.accuracy}%</td></tr>
-          <tr><th>Total Words Typed</th><td>${r.totalWords}</td></tr>
           <tr><th>Mistakes</th><td>${r.errors}</td></tr>
+          ${!passed && r.failReasons && r.failReasons.length ? `<tr><th>Reason</th><td>${r.failReasons.map(escapeHtml).join(" ")}</td></tr>` : ""}
         </table>
 
         ${weakKeys.length ? `
@@ -995,13 +1019,22 @@ function wirePrintResults(r, passed, grade) {
 
 // Saves with the fields specified for this restructure:
 // user_id, mock_test_id, mock name, category, passage, duration,
-// gross WPM, net WPM, accuracy, errors, created_at (auto), plus
-// is_completed/is_passed and total_passage_words/words_typed/
-// completion_percentage — added via migrations
-// add_pass_completion_status_to_mock_test_results and
-// add_completion_tracking_to_mock_test_results specifically so the
-// SAVED record reflects the same completion/percentage figures
-// shown on screen, not just the on-screen text.
+// gross WPM, net WPM, accuracy, errors, created_at (auto).
+//
+// This is now a FIXED-DURATION test model — duration is the user's
+// actual 5/10-minute selection for this attempt (r.testDurationMinutes),
+// not the mock test's own configured default. is_completed now means
+// "the selected duration was completed" (requiredDurationCompleted),
+// not passage completion — same column, re-purposed meaning, since a
+// boolean "was this attempt fully completed as required" is still
+// exactly what it represents under the new model.
+//
+// total_passage_words / completion_percentage are intentionally NOT
+// populated anymore (left null going forward) — passage length/
+// completion is no longer part of this model at all, per explicit
+// instruction to stop using those fields. The columns themselves are
+// left in place rather than dropped (unnecessary, riskier schema
+// change for fields that simply go unused now).
 async function saveMockResult(r) {
   if (!currentUser) {
     console.warn("No logged-in user — mock test result was not saved.");
@@ -1015,17 +1048,15 @@ async function saveMockResult(r) {
     category: mockTest.category,
     passage_id: selectedPassage.id,
     passage_title: selectedPassage.title,
-    duration: mockTest.duration,
+    duration: r.testDurationMinutes,
     gross_wpm: r.grossWpm,
     net_wpm: r.netWpm,
     accuracy: r.accuracy,
     errors: r.errors,
-    total_words: r.totalWords,
-    is_completed: r.isPassageCompleted,
+    total_words: r.wordsTyped,
+    is_completed: r.requiredDurationCompleted,
     is_passed: r.passed,
-    total_passage_words: r.totalPassageWords,
-    words_typed: r.wordsTyped,
-    completion_percentage: r.completionPercentage
+    words_typed: r.wordsTyped
   });
 
   if (error) {
