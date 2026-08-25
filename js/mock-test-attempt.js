@@ -1134,11 +1134,26 @@ function getCurrentTestWeakKeys(keyStats) {
 function showWeakKeyAnalysis(keyStats) {
   const container = document.getElementById("weakKeyAnalysis");
   const list = document.getElementById("weakKeyList");
+  const chartEl = document.getElementById("weakKeyChart");
   const button = document.getElementById("practiceWeakKeysBtn");
 
+  // Diagnostic only — never shown to the student, just visible in
+  // devtools. If the graph is ever blank again, this is the first
+  // thing to check: a missing container/chart element here almost
+  // always means a stale cached HTML/JS mismatch (the two files
+  // shipped from different deploys), not a data problem — the
+  // elements this function targets by id must exist in the current
+  // mock-test-attempt.html for any of this to have anywhere to render.
+  if (!container || !list || !chartEl) {
+    console.warn("showWeakKeyAnalysis: expected result-page element(s) not found in the DOM.", {
+      hasContainer: !!container, hasList: !!list, hasChart: !!chartEl,
+      hint: "If these are missing/false, the loaded HTML and JS are very likely out of sync (a stale cached file) — hard-refresh or check the deployed file versions."
+    });
+  }
   if (!container || !list) return;
 
   const weakKeys = getCurrentTestWeakKeys(keyStats || {});
+  console.debug("showWeakKeyAnalysis: keyStats keys =", keyStats ? Object.keys(keyStats) : keyStats, "-> weakKeys =", weakKeys);
 
   if (!weakKeys.length) {
     container.style.display = "block";
