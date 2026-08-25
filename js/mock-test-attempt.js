@@ -263,6 +263,13 @@ function startMockTest() {
   testScreenOpen = true;
   testStartTime = null;
 
+  // Hides the desktop sidebar for exactly as long as the fullscreen
+  // exam is in progress — see the CSS comment on body.mock-test-active
+  // in app-shell.css for the full anti-cheat reasoning. Reversed in
+  // endMockTest(), the single authoritative point testScreenOpen also
+  // returns to false.
+  document.body.classList.add("mock-test-active");
+
   if (testTimer) clearInterval(testTimer);
 
   window.addEventListener("beforeunload", beforeUnloadHandler);
@@ -452,7 +459,26 @@ function diffWordChars(expected, typed) {
 // cascading-error fix: each word's evaluation is independent of every
 // other word's length, so one missed character in word 2 has zero
 // effect on how word 3, 4, 5... are compared.
-function evaluateWord(typedWord) {
+//
+// hadTrailingSpace: true only when this word was committed by an
+// actual typed Space character (the normal path in onTypingInput's
+// scan below) — never for Enter or for the final word at test end,
+// neither of which corresponds to a real typed character at that
+// position. This is the fix for the "perfect typing showed 81%"
+// accuracy bug: the space itself is a real character the student
+// typed and got right, but it was never being credited as a correct
+// character anywhere — correctCharCount only ever covered
+// WITHIN-word characters, while the total typed length used as the
+// accuracy denominator included every space. Crediting exactly one
+// correct character per genuinely-typed, correctly-placed space
+// closes that gap without touching how word/character diffing itself
+// works, and without crediting extra/missing spaces, which still
+// correctly reduce accuracy (an extra space is never credited here;
+// a missing space means no space character was typed at all, so
+// there's nothing to credit or penalize at this specific position —
+// it instead surfaces as a word-content mismatch on the merged word,
+// which the diff/weak-key logic already reflects).
+function evaluateWord(typedWord, hadTrailingSpace) {
   const expectedWord = activeWordIndex < wordRanges.length ? wordRanges[activeWordIndex].text : "";
   const diff = diffWordChars(expectedWord, typedWord);
 
@@ -462,9 +488,23 @@ function evaluateWord(typedWord) {
     correct: typedWord === expectedWord,
     ops: diff.ops,                 // full alignment — used internally by calculateKeyAnalysis()
     characterErrors: diff.errors,  // just the errors — {type, expected, typed} shape for weak-key data
-    correctCharCount: diff.correctCount
+    correctCharCount: diff.correctCount,
+    hadTrailingSpace: !!hadTrailingSpace
   });
   activeWordIndex++;
+}
+
+// Total "correct" characters across every committed word, INCLUDING
+// the correctly-typed spaces between them — the actual fix for the
+// accuracy bug. Centralized here so live stats, final stats, and the
+// print view can never drift into separate/conflicting formulas.
+function totalCorrectChars() {
+  let total = 0;
+  wordResults.forEach(r => {
+    total += r.correctCharCount;
+    if (r.hadTrailingSpace) total += 1;
+  });
+  return total;
 }
 
 function updateActiveWordHighlight() {
@@ -557,7 +597,7 @@ function onTypingInput(e) {
   while ((spaceIdx = typed.indexOf(" ", wordStartPos)) !== -1) {
     const word = typed.substring(wordStartPos, spaceIdx);
     if (word.length > 0) {
-      evaluateWord(word);
+      evaluateWord(word, true); // true: this word was followed by a real typed space
     }
     wordStartPos = spaceIdx + 1;
   }
@@ -576,8 +616,7 @@ function onTypingInput(e) {
 // character diff the moment it's actually submitted, so this partial
 // estimate never leaks into permanent/saved data.
 function computeLiveStats(typed) {
-  let correctChars = 0;
-  wordResults.forEach(r => { correctChars += r.correctCharCount; });
+  let correctChars = totalCorrectChars();
 
   const expectedWord = activeWordIndex < wordRanges.length ? wordRanges[activeWordIndex].text : "";
   const partialTyped = typed.substring(wordStartPos);
@@ -660,6 +699,7 @@ async function endMockTest(reason) {
   if (testTimer) clearInterval(testTimer);
   testActive = false;
   testScreenOpen = false;
+  document.body.classList.remove("mock-test-active"); // sidebar becomes visible again for the result screen
   window.removeEventListener("beforeunload", beforeUnloadHandler);
 
   const input = document.getElementById("typeInput");
@@ -681,8 +721,13 @@ async function endMockTest(reason) {
 
   const keyAnalysis = calculateKeyAnalysis();
 
-  let correct = 0;
-  wordResults.forEach(r => { correct += r.correctCharCount; });
+  // Fixed accuracy calculation: totalCorrectChars() now credits every
+  // correctly-typed space between words, not just within-word
+  // characters — see the comment on evaluateWord()/totalCorrectChars()
+  // for the full root-cause explanation. Used consistently here for
+  // both accuracy and Net WPM, and nowhere else in the file computes
+  // a competing "correct" count.
+  const correct = totalCorrectChars();
 
   const totalTypedChars = typed.length;
   const accuracy = totalTypedChars > 0 ? Math.round((correct / totalTypedChars) * 100) : 0;
@@ -692,23 +737,57 @@ async function endMockTest(reason) {
   const errors = wordResults.filter(r => !r.correct).length;
   const totalWords = wordResults.length;
 
+  // Completion: the passage is only "complete" if every expected word
+  // was actually evaluated. This is the fix for the "20% typed, 100%
+  // accuracy, still marked Passed" bug — activeWordIndex only reaches
+  // wordRanges.length via a real evaluateWord() call for every word,
+  // so an attempt cut short by time/fullscreen-exit/leaving the test
+  // partway through is correctly NOT complete, regardless of how
+  // accurate or fast the PARTIAL typing was.
+  const isPassageCompleted = activeWordIndex >= wordRanges.length;
+
   const elapsedMinutes = testStartTime ? (Date.now() - testStartTime) / 60000 : mockTest.duration;
   const minutesForWpm = reason === "time_up" ? mockTest.duration : Math.max(elapsedMinutes, 0.05);
 
   const grossWpm = Math.round((totalTypedChars / 5) / minutesForWpm);
   const netWpm = Math.round((correct / 5) / minutesForWpm);
 
+  // Single authoritative pass/fail decision — see isTestPassed() for
+  // the full formula and why REQUIRED_ACCURACY/REQUIRED_NET_WPM are
+  // the specific numbers used. Computed once here and threaded
+  // through to the result screen and the saved record, rather than
+  // re-derived separately in either place.
+  const passed = isTestPassed(isPassageCompleted, accuracy, netWpm);
+
   // Requirement 1: exit full-screen once the mock test ends
   exitFullscreen();
   document.getElementById("fsRetryBtn").style.display = "none";
 
-  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis });
-  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords });
+  showResultTicket({ grossWpm, netWpm, accuracy, errors, totalWords, keyAnalysis, isPassageCompleted, passed });
+  await saveMockResult({ grossWpm, netWpm, accuracy, errors, totalWords, isPassageCompleted, passed });
   await saveKeyAnalysis(keyAnalysis);
 }
 
+// Single source of truth for the required thresholds — reused by
+// both isTestPassed() and gradeFor() below so there is exactly one
+// place either number is ever defined. No per-test configurable
+// pass-criteria column exists in mock_tests (checked the live schema
+// directly), so these reuse the SAME 80% / 25 WPM values gradeFor()
+// already used as its "RETRY" and lowest-passing-tier thresholds,
+// rather than inventing new unconfigured numbers.
+const REQUIRED_ACCURACY = 80;
+const REQUIRED_NET_WPM = 25;
+
+// isPassed = passage completed AND accuracy >= required AND
+// netWpm >= required — completion is checked first and is an
+// unconditional gate: no amount of speed or accuracy can pass an
+// incomplete attempt (Rule 2 / Part 3 of the brief).
+function isTestPassed(isPassageCompleted, accuracy, netWpm) {
+  return isPassageCompleted && accuracy >= REQUIRED_ACCURACY && netWpm >= REQUIRED_NET_WPM;
+}
+
 function gradeFor(netWpm, accuracy) {
-  if (accuracy < 80) return "RETRY";
+  if (accuracy < REQUIRED_ACCURACY) return "RETRY";
   if (netWpm >= 45) return "A+";
   if (netWpm >= 35) return "A";
   if (netWpm >= 25) return "B";
@@ -719,18 +798,19 @@ function showResultTicket(r) {
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "block";
 
-  // Pass/fail reuses gradeFor() exactly as it already existed —
-  // RETRY (accuracy < 80%) is the only threshold this codebase
-  // already defines as "not passed"; nothing new invented here.
+  // Pass/fail is now the SINGLE authoritative value computed once in
+  // endMockTest() (isTestPassed()) — completion-aware, not just
+  // accuracy/speed. Not recomputed here, so the result screen can
+  // never show a different verdict than what gets saved.
+  const passed = r.passed;
   const grade = gradeFor(r.netWpm, r.accuracy);
-  const passed = grade !== "RETRY";
 
   document.getElementById("resultGrossWpm").textContent = r.grossWpm;
   document.getElementById("resultNetWpm").textContent = r.netWpm;
   document.getElementById("resultAccuracy").textContent = r.accuracy + "%";
   document.getElementById("resultDuration").textContent = formatDurationForResult(r);
 
-  renderStatusCard(passed);
+  renderStatusCard(passed, r.isPassageCompleted);
   renderFeedbackTips(r, passed, grade);
   renderStatusBadge(passed);
   renderEncouragement(passed);
@@ -751,7 +831,7 @@ function formatDurationForResult(r) {
   return mins + ":" + String(secs).padStart(2, "0") + " min";
 }
 
-function renderStatusCard(passed) {
+function renderStatusCard(passed, isPassageCompleted) {
   const card = document.getElementById("mtrStatusCard");
   const icon = document.getElementById("mtrStatusIcon");
   const title = document.getElementById("mtrStatusTitle");
@@ -764,9 +844,19 @@ function renderStatusCard(passed) {
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
   title.textContent = passed ? "Test Passed" : "Test Not Passed";
-  msg.textContent = passed
-    ? "Well done! Keep up the consistent practice."
-    : "Keep practicing! You'll get better with consistency.";
+  if (passed) {
+    msg.textContent = "Well done! Keep up the consistent practice.";
+  } else if (!isPassageCompleted) {
+    // Distinct message for the "Not Passed — Incomplete" case per
+    // spec — the main Passed/Not Passed status stays exactly the
+    // same either way (this page's status card is a single title,
+    // not separate reason badges), but the message underneath makes
+    // clear WHY, since "keep practicing" would be misleading advice
+    // for someone who was simply cut off before finishing.
+    msg.textContent = "The full passage wasn't completed, so this attempt can't be marked as passed.";
+  } else {
+    msg.textContent = "Keep practicing! You'll get better with consistency.";
+  }
 }
 
 // Dynamic feedback derived from the SAME accuracy/WPM thresholds
@@ -781,15 +871,19 @@ function renderFeedbackTips(r, passed, grade) {
   if (!list) return;
 
   const tips = [];
-  if (!passed) {
-    tips.push("To pass this exam your accuracy should have been at least 80%.");
+  if (!r.isPassageCompleted) {
+    tips.push("You need to complete the entire passage for a test to count as passed — accuracy and speed alone aren't enough.");
+  }
+  if (!passed && r.accuracy < REQUIRED_ACCURACY) {
+    tips.push(`To pass this exam your accuracy should have been at least ${REQUIRED_ACCURACY}%.`);
+  }
+  if (!passed && r.isPassageCompleted && r.netWpm < REQUIRED_NET_WPM) {
+    tips.push(`To pass this exam your typing speed should have been at least ${REQUIRED_NET_WPM} WPM (Net Speed).`);
   }
   const nextTier = grade === "RETRY" ? null : grade === "C" ? { wpm: 25, label: "B" } : grade === "B" ? { wpm: 35, label: "A" } : grade === "A" ? { wpm: 45, label: "A+" } : null;
-  if (nextTier) {
-    tips.push(`Reach ${nextTier.wpm} WPM (Net Speed) at 80%+ accuracy for a ${nextTier.label} grade next time.`);
-  } else if (!passed) {
-    tips.push("Once your accuracy crosses 80%, your current typing speed already supports a passing grade.");
-  } else if (grade === "A+") {
+  if (nextTier && r.isPassageCompleted) {
+    tips.push(`Reach ${nextTier.wpm} WPM (Net Speed) at ${REQUIRED_ACCURACY}%+ accuracy for a ${nextTier.label} grade next time.`);
+  } else if (grade === "A+" && passed) {
     tips.push("You're at the top grade tier — keep this pace and accuracy consistent across tests.");
   }
   if (r.accuracy < 95 && passed) {
@@ -841,6 +935,7 @@ function wirePrintResults(r, passed, grade) {
 
         <table class="print-table">
           <tr><th>Status</th><td>${passed ? "Passed" : "Not Passed"}</td></tr>
+          <tr><th>Passage Completed</th><td>${r.isPassageCompleted ? "Yes" : "No"}</td></tr>
           <tr><th>Time Taken</th><td>${formatDurationForResult(r)}</td></tr>
           <tr><th>Gross Speed</th><td>${r.grossWpm} WPM</td></tr>
           <tr><th>Net Speed</th><td>${r.netWpm} WPM</td></tr>
@@ -863,7 +958,11 @@ function wirePrintResults(r, passed, grade) {
 
 // Saves with the fields specified for this restructure:
 // user_id, mock_test_id, mock name, category, passage, duration,
-// gross WPM, net WPM, accuracy, errors, created_at (auto).
+// gross WPM, net WPM, accuracy, errors, created_at (auto), plus
+// is_completed/is_passed — added via migration
+// add_pass_completion_status_to_mock_test_results specifically so
+// the SAVED record reflects the same corrected, completion-aware
+// verdict shown on screen, not just the on-screen text.
 async function saveMockResult(r) {
   if (!currentUser) {
     console.warn("No logged-in user — mock test result was not saved.");
@@ -882,7 +981,9 @@ async function saveMockResult(r) {
     net_wpm: r.netWpm,
     accuracy: r.accuracy,
     errors: r.errors,
-    total_words: r.totalWords
+    total_words: r.totalWords,
+    is_completed: r.isPassageCompleted,
+    is_passed: r.passed
   });
 
   if (error) {
