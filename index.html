@@ -1,123 +1,595 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TypeShala — SSC & Legal Typing Mock Tests</title>
+<title>TypeShala — Exam-Ready Typing Platform</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- TypeShala's own stylesheets loaded AFTER Tailwind so the
+     existing footer's specific rules (body.landing-v2 footer.site-foot
+     etc.) win the cascade over Tailwind's Preflight reset — the
+     footer below must render identically to before. -->
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="landing.css">
 </head>
-<body class="landing-v2">
+<body class="landing-v2 bg-slate-50 font-sans text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
 
-<header class="letterhead">
-  <div class="letterhead-inner public-header">
-    <a class="brand" href="index.html">
-      <span class="seal">TS</span>
-      <span class="brand-text">
-        <span class="title">TypeShala</span>
-        <span class="subtitle">Typing Practice Centre</span>
-      </span>
-    </a>
-    <nav class="nav-links">
-      <a class="btn" href="login.html" style="padding:8px 18px;">Get Started</a>
-    </nav>
-  </div>
-</header>
+<main class="ts-landing-main">
+<!-- NAVIGATION BAR -->
+  <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
+          T
+        </div>
+        <span class="text-xl font-extrabold text-slate-900 tracking-tight">
+          Type<span class="text-blue-600">Shala</span>
+        </span>
+      </div>
 
-<!-- Admin-managed announcement ticker — hidden entirely (not just
-     empty) when there are no active, currently-scheduled
-     announcements selected to show on the Home Page. Populated by
-     initAnnouncementTicker() in js/announcement-ticker.js. Sits
-     outside main.page so it isn't affected by .page's own top
-     padding — its height comes only from its own text line.
-     UNTOUCHED by the redesign: still hidden by default, still a
-     separate element from the static banner below. -->
-<div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+      <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+        <a href="#features" class="hover:text-blue-600 transition-colors">Why TypeShala</a>
+        <a href="#exam-interface" class="hover:text-blue-600 transition-colors">Exam Engine</a>
+        <a href="#analytics" class="hover:text-blue-600 transition-colors">Analytics</a>
+        <a href="#pricing" class="hover:text-blue-600 transition-colors">Passes & Credits</a>
+      </div>
 
-<!-- Static "free credits" banner — purely visual, new in this
-     redesign. Independent of the admin ticker above. -->
-<div class="landing-banner">
-  <span aria-hidden="true">🎁</span>
-  <span>New users get <strong class="hl-blue">3 free credits</strong> to attempt test</span>
-</div>
-
-<main class="page landing-page">
-
-  <section class="hero">
-    <div class="hero-copy">
-      <p class="eyebrow">For SSC &amp; Legal/Court Typing Aspirants</p>
-      <h1>Exam-ready typing tests, structured the way <span class="hl-blue">the real exam</span> is.</h1>
-      <p class="lede">
-        SSC Mock Tests and Legal/Court Mock Tests — unlocked by an eligible Pass or by Credits —
-        full-screen, timed, and scored with Gross WPM, Net WPM, and Accuracy on every attempt.
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href="login.html">Get Started <span aria-hidden="true">&rarr;</span></a>
+      <div class="flex items-center space-x-3">
+        <a href="login.html" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors">Log In</a>
+        <a href="register.html" class="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:-translate-y-0.5 inline-block">
+          Start Free (3 Credits)
+        </a>
       </div>
     </div>
+  </nav>
 
-    <div class="hero-panel">
-      <div class="card-label">LIVE PREVIEW <span class="live-dot" aria-hidden="true"></span></div>
-      <div class="typewriter-line">The civil services form the steel<span class="cursor"></span></div>
-      <div class="stat-row">
-        <div class="stat-item stat-blue">
-          <div class="stat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 12 9 9"/><path d="M12 6v2"/></svg>
+  <!-- 1. HERO SECTION -->
+  <section class="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden bg-gradient-to-b from-blue-50/50 via-white to-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <div class="lg:col-span-6 text-center lg:text-left">
+          <span class="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-blue-100/80 border border-blue-200 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full mb-6">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Exam-Ready Typing Platform</span>
+          </span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+            Master Typing for <span class="text-blue-600 underline decoration-blue-200 underline-offset-4">Real Exams.</span>
+          </h1>
+          <p class="mt-5 text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Exam-ready typing practice, structured specifically for the real exam environment. Practice with backspace restrictions, actual evaluation rules, and custom layouts.
+          </p>
+
+          <div class="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <a href="register.html" class="w-full sm:w-auto px-6 py-3.5 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+              <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+              <span>Start Free with 3 Credits</span>
+            </a>
+            <a href="#pricing" class="w-full sm:w-auto px-6 py-3.5 text-base font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-2">
+              <span>Explore Tests</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
           </div>
-          <div class="stat-num">42</div>
-          <div class="stat-label">Net WPM</div>
+
+          <div class="mt-8 flex items-center justify-center lg:justify-start space-x-6 text-xs text-slate-500 font-medium">
+            <span class="flex items-center space-x-1.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-500"></i>
+              <span>No Credit Card Required</span>
+            </span>
+            <span class="flex items-center space-x-1.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-500"></i>
+              <span>Exact Exam Interface</span>
+            </span>
+          </div>
         </div>
-        <div class="stat-item stat-green">
-          <div class="stat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+
+        <div class="lg:col-span-6">
+          <div class="relative mx-auto max-w-lg lg:max-w-none bg-slate-900 rounded-2xl p-3 shadow-2xl ring-1 ring-slate-900/10">
+            <div class="bg-slate-800 rounded-xl p-3 flex items-center justify-between border-b border-slate-700/60 mb-3 text-xs text-slate-300">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="font-mono text-slate-400 ml-2">SSC CGL DEST Test Mock</span>
+              </div>
+              <span class="bg-blue-500/20 text-blue-400 px-2.5 py-0.5 rounded-full font-semibold border border-blue-500/30">Live Simulation</span>
+            </div>
+
+            <div class="bg-white rounded-lg p-5 shadow-inner">
+              <div class="flex justify-between items-center mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono text-xs">
+                <div><span class="text-slate-500">Timer:</span> <span class="font-bold text-slate-800">08:42</span></div>
+                <div><span class="text-slate-500">Speed:</span> <span class="font-bold text-blue-600">45 WPM</span></div>
+                <div><span class="text-slate-500">Accuracy:</span> <span class="font-bold text-emerald-600">98%</span></div>
+              </div>
+
+              <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm font-mono leading-relaxed mb-4 text-slate-700 h-28 overflow-hidden select-none">
+                <span class="bg-emerald-100 text-emerald-800 px-1 rounded">The quick brown fox</span>
+                <span class="bg-emerald-100 text-emerald-800 px-1 rounded">jumps over the lazy</span>
+                <span class="bg-blue-600 text-white px-1 rounded">dog.</span>
+                <span class="text-slate-400">Government exam standards require steady speed and high accuracy under time pressure...</span>
+              </div>
+
+              <div class="relative">
+                <input type="text" readonly value="The quick brown fox jumps over the lazy dog." class="w-full bg-white border-2 border-blue-500 rounded-lg p-3 text-sm font-mono text-slate-800 focus:outline-none shadow-sm" />
+                <span class="absolute right-3 top-3 w-2 h-5 bg-blue-600 animate-pulse"></span>
+              </div>
+            </div>
           </div>
-          <div class="stat-num">97%</div>
-          <div class="stat-label">Accuracy</div>
         </div>
-        <div class="stat-item stat-orange">
-          <div class="stat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. WHO IS TYPESHALA FOR? -->
+  <section class="py-20 bg-white border-y border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">Targeted Candidates</span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Who Is TypeShala For?</h2>
+        <p class="mt-3 text-slate-600">Dedicated interfaces designed for the exact evaluation standards of your target exam.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="file-text" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">CGL / CHSL</span>
           </div>
-          <div class="stat-num">10:00</div>
-          <div class="stat-label">Test Duration</div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">SSC Aspirants</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">CGL (DEST), CHSL, and Steno Tier II with exact backspace restrictions & evaluation rules.</p>
+        </div>
+
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="mic" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">Audio Dictation</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">Stenographer Aspirants</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Dictation audio engine with variable speed controls and auto transcription checking.</p>
+        </div>
+
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="scale" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">Legal Format</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">High Court / Courts</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Strictly formatted legal passages with legal terminology and customized line-by-line rules.</p>
+        </div>
+
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="landmark" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">Multi-Language</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">Government Exams</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Multi-language exam preparation including Hindi layouts (Kruti Dev & Mangal font engine).</p>
+        </div>
+
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">High Accuracy</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">PSU & Banking</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">High-speed accuracy drills built for corporate and public sector administrative speed tests.</p>
+        </div>
+
+        <div class="group bg-slate-50 hover:bg-white p-8 rounded-2xl border border-slate-200/80 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="w-12 h-12 bg-blue-100 group-hover:bg-blue-600 text-blue-600 group-hover:text-white rounded-xl flex items-center justify-center transition-colors">
+              <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-600 bg-white group-hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200/60 transition-colors">Custom Modes</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">Other Typing Exams</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Customizable mode to upload your own text, adjust timers, and set specific error penalties.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CHOOSE YOUR PLAN — loaded live from the products table, the
-       same catalog the Admin Panel and subscriptions.html both use.
-       No plan/price is hardcoded here anymore. -->
-  <h2 class="section-heading">Choose Your Plan</h2>
-  <p class="lede section-sub">Each pass unlocks premium mocks for its validity period.</p>
+  <!-- 3. WHY TYPESHALA? -->
+  <section id="features" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">Core Advantages</span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Why Choose TypeShala?</h2>
+        <p class="mt-3 text-slate-600">Ordinary typing websites prepare you to type faster. TypeShala prepares you to clear the exam.</p>
+      </div>
 
-  <div class="passes-grid" id="homePassGrid">
-    <div class="loading-strip">Loading plans...</div>
-  </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Real Exam-Style Tests</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Identical UI, exact timing, backspace toggles, and penalty metrics mirroring real exam centers.</p>
+        </div>
 
-  <!-- CREDITS -->
-  <h2 class="section-heading" style="margin-top:36px;">Credits</h2>
-  <p class="lede section-sub">Don't want a full Pass? Buy credits and use them on any SSC or Legal test — 1 Credit = 1 test attempt. New users get 3 Free Credits automatically.</p>
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Fresh Passages</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Smart algorithm guarantees unattempted, exam-grade passages every time you practice.</p>
+        </div>
 
-  <div class="passes-grid" id="homeCreditGrid">
-    <div class="loading-strip">Loading credit packages...</div>
-  </div>
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="line-chart" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Detailed Analysis</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Calculates Gross WPM, Net WPM, accuracy %, half errors, and full errors using official formulas.</p>
+        </div>
 
-  <div class="credit-info-strip">
-    <div class="credit-info-item">
-      <span class="credit-info-icon" aria-hidden="true">🎯</span>
-      <div><strong>1 Credit = 1 test attempt</strong>on any SSC or Legal test</div>
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="trending-up" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Track Your Progress</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Visual analytics dashboard mapping your speed growth over time and readiness score.</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Smart Practice</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">Target key weaknesses directly with adaptive drills focused on key-error patterns.</p>
+        </div>
+      </div>
     </div>
-    <div class="credit-info-item">
-      <span class="credit-info-icon" aria-hidden="true">🛡️</span>
-      <div><strong>Credits are used first</strong>before any Pass</div>
-    </div>
-    <div class="credit-info-item">
-      <span class="credit-info-icon" aria-hidden="true">🎁</span>
-      <div><strong>New users get 3 free credits</strong>automatically on signup</div>
-    </div>
-  </div>
+  </section>
 
+  <!-- 4. REAL EXAM-STYLE TESTS -->
+  <section id="exam-interface" class="py-20 bg-white border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-5">
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">Core Product</span>
+          <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Identical Exam Simulation Engine</h2>
+          <p class="mt-4 text-slate-600 leading-relaxed">Don't let exam-day surprises slow you down. Practice inside an interface built to match official exam environments key-for-key.</p>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex items-start space-x-3">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">5-Minute & 10-Minute Timed Tests</h4>
+                <p class="text-xs text-slate-500">Exact time limits set as per official exam guidelines.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Official Exam-Style Passages</h4>
+                <p class="text-xs text-slate-500">Curated passages with real-world complexity, punctuation, and legal terms.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Exact WPM & Error Metric Engine</h4>
+                <p class="text-xs text-slate-500">Real-time calculation of Gross WPM, Net WPM, and strict penalty points.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="bg-slate-900 rounded-2xl p-4 shadow-2xl border border-slate-800">
+            <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700 mb-4 text-white text-xs font-mono">
+              <span>EXAM: SSC CGL TIER-II</span>
+              <span class="text-amber-400 font-bold">Time Left: 09:58</span>
+              <span class="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded">Backspace: Disabled</span>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 text-slate-800 space-y-4">
+              <div class="text-xs font-bold uppercase text-slate-400 tracking-wider">Passage Box</div>
+              <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 text-sm font-mono leading-relaxed h-32 overflow-y-auto">
+                The Constitution of India is the supreme law of India. The document lays down the framework that demarcates fundamental political code, structure, procedures, powers, and duties of government institutions...
+              </div>
+
+              <div class="text-xs font-bold uppercase text-slate-400 tracking-wider">Your Input Area</div>
+              <div class="p-4 bg-blue-50/50 rounded-lg border-2 border-blue-500 text-sm font-mono text-slate-800 h-24">
+                The Constitution of India is the supreme law of India. The document lays down the framework|
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. PERFORMANCE ANALYSIS -->
+  <section id="analytics" class="py-20 bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 font-semibold text-xs tracking-wider uppercase rounded-full border border-blue-500/30">Post-Test Analytics</span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">Don't Just Practice. Understand Your Performance.</h2>
+        <p class="mt-3 text-slate-400">Deep post-test diagnostic reports to isolate your weaknesses and eliminate mistakes.</p>
+      </div>
+
+      <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 max-w-4xl mx-auto mb-12 shadow-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700">
+            <div class="text-xs text-slate-400 uppercase font-medium">Net Speed</div>
+            <div class="text-4xl font-black text-blue-400 mt-1">38 <span class="text-base font-normal text-slate-400">WPM</span></div>
+          </div>
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700">
+            <div class="text-xs text-slate-400 uppercase font-medium">Accuracy</div>
+            <div class="text-4xl font-black text-emerald-400 mt-1">96%</div>
+          </div>
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700">
+            <div class="text-xs text-slate-400 uppercase font-medium">Total Errors</div>
+            <div class="text-4xl font-black text-rose-400 mt-1">12 <span class="text-base font-normal text-slate-400">keys</span></div>
+          </div>
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700">
+            <div class="text-xs text-slate-400 uppercase font-medium">Exam Status</div>
+            <div class="text-2xl font-bold text-emerald-400 mt-2 flex items-center justify-center space-x-1">
+              <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+              <span>QUALIFIED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700/60">
+          <h4 class="font-bold text-white text-base mb-2">Correct vs. Incorrect Words</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Detailed breakdown of exact words missed or mistyped during the test session.</p>
+        </div>
+        <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700/60">
+          <h4 class="font-bold text-white text-base mb-2">Weak Keys Heatmap</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Identifies keys with high error rates (e.g., key "p", ";", or shift combinations).</p>
+        </div>
+        <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700/60">
+          <h4 class="font-bold text-white text-base mb-2">Speed Stability Graph</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Track speed variations second-by-second to catch fatigue or panic slowdowns.</p>
+        </div>
+        <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700/60">
+          <h4 class="font-bold text-white text-base mb-2">Performance History</h4>
+          <p class="text-slate-400 text-xs leading-relaxed">Archive of past test attempts with comparison against category top scores.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. TRACK YOUR PROGRESS -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-6">
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">Progress Tracking</span>
+          <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Watch Your Speed Climb Step-by-Step</h2>
+          <p class="mt-4 text-slate-600 leading-relaxed">TypeShala is not just a test generator; it is a full-fledged exam preparation engine. Track long-term progression metrics and ensure you reach your target WPM well before exam day.</p>
+
+          <div class="mt-8 grid grid-cols-2 gap-4">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-xs font-semibold text-slate-500">Speed Progression</div>
+              <div class="mt-2 text-xl font-bold text-slate-800">32 → 35 → 38 → <span class="text-blue-600">42 WPM</span></div>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-xs font-semibold text-slate-500">Accuracy Climb</div>
+              <div class="mt-2 text-xl font-bold text-slate-800">91% → 94% → <span class="text-emerald-600">98%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex justify-between items-center mb-6">
+            <h4 class="font-bold text-slate-900 text-sm">30-Day WPM Growth Trend</h4>
+            <span class="text-xs text-blue-600 font-semibold bg-blue-50 px-2.5 py-1 rounded-md">Target: 40 WPM</span>
+          </div>
+
+          <div class="h-48 flex items-end justify-between gap-3 pt-8 px-2 border-b border-slate-200">
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">30 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-1/3"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 1</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">32 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-2/5"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 5</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">34 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-1/2"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 10</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">36 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-3/5"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 15</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">39 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-4/5"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 20</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+              <span class="text-[10px] font-mono text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">43 WPM</span>
+              <div class="w-full bg-blue-500 group-hover:bg-blue-600 rounded-t-md transition-all h-full"></div>
+              <span class="text-[10px] text-slate-400 font-medium">Day 25</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. SMART PRACTICE / FRESH PASSAGES -->
+  <section class="py-20 bg-blue-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <span class="px-3 py-1 bg-white/20 text-white font-semibold text-xs tracking-wider uppercase rounded-full">Smart Content Engine</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">A Brand New Passage. Every Single Time.</h2>
+        <p class="mt-4 text-blue-100 text-lg leading-relaxed">
+          Practicing the same paragraph repeatedly gives you a false sense of speed. TypeShala prioritizes passages you haven't attempted in your active target category, ensuring true exam readiness.
+        </p>
+
+        <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+          <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+            <i data-lucide="rotate-ccw" class="w-8 h-8 text-blue-200 mb-3"></i>
+            <h4 class="font-bold text-white text-base">Unattempted Prioritization</h4>
+            <p class="mt-1 text-xs text-blue-100">Our engine automatically filters out previously taken passages until you complete the pool.</p>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+            <i data-lucide="sparkles" class="w-8 h-8 text-blue-200 mb-3"></i>
+            <h4 class="font-bold text-white text-base">Exam-Standard Tone</h4>
+            <p class="mt-1 text-xs text-blue-100">No random internet stories. Only passages curated from real exam difficulty patterns.</p>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+            <i data-lucide="flame" class="w-8 h-8 text-blue-200 mb-3"></i>
+            <h4 class="font-bold text-white text-base">Zero Memorization Bias</h4>
+            <p class="mt-1 text-xs text-blue-100">Test real blind-typing speed rather than muscle memory from repeated drills.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. YOUR PERSONAL DASHBOARD -->
+  <section class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">All-In-One Hub</span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Everything You Need to Improve, In One Place.</h2>
+        <p class="mt-3 text-slate-600">Your central command dashboard tracking test history, active passes, and weak key diagnostics.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xl max-w-5xl mx-auto">
+        <div class="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-slate-200 gap-4">
+          <div>
+            <h3 class="text-xl font-bold text-slate-900">Student Dashboard</h3>
+            <p class="text-xs text-slate-500">Welcome back, Aspirant • Active Plan: <span class="text-blue-600 font-semibold">SSC Exam Pass</span></p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-lg text-xs font-bold">3 Credits Remaining</span>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-700">Take New Test</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+            <span class="text-xs font-medium text-slate-500">Tests Taken</span>
+            <div class="text-2xl font-black text-slate-900 mt-1">42</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+            <span class="text-xs font-medium text-slate-500">Best Speed</span>
+            <div class="text-2xl font-black text-blue-600 mt-1">48 WPM</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+            <span class="text-xs font-medium text-slate-500">Best Accuracy</span>
+            <div class="text-2xl font-black text-emerald-600 mt-1">99%</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+            <span class="text-xs font-medium text-slate-500">Weakest Key</span>
+            <div class="text-2xl font-black text-rose-500 mt-1">Shift + P</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. PASSES & CREDITS -->
+  <section id="pricing" class="py-20 bg-white border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs tracking-wider uppercase rounded-full">Flexible Plans</span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Passes & Credit Packs</h2>
+        <p class="mt-3 text-slate-600">Choose an unlimited category pass or pay-as-you-go credit packs.</p>
+      </div>
+
+      <div class="mb-16">
+        <h3 class="text-xl font-bold text-slate-900 text-center mb-8">Exam Passes (Unlimited Practice)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-xl font-bold text-slate-900">SSC Pass</h4>
+              <p class="text-xs text-slate-500 mt-1">Complete coverage for SSC CGL, CHSL, and Steno exams.</p>
+              <div class="mt-6">
+                <span class="text-4xl font-black text-slate-900">₹299</span>
+                <span class="text-slate-500 text-xs">/month</span>
+              </div>
+            </div>
+            <a href="register.html" class="mt-8 w-full py-3 rounded-xl font-bold text-xs bg-slate-100 text-slate-800 hover:bg-slate-200 transition-all inline-block text-center">Get Started</a>
+          </div>
+
+          <div class="relative bg-white rounded-2xl p-8 border border-blue-600 shadow-xl ring-2 ring-blue-600/20 flex flex-col justify-between">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-extrabold tracking-widest uppercase px-3 py-1 rounded-full">Most Popular</span>
+            <div>
+              <h4 class="text-xl font-bold text-slate-900">Legal / Court Pass</h4>
+              <p class="text-xs text-slate-500 mt-1">High Court & District Court legal passage sets and evaluation.</p>
+              <div class="mt-6">
+                <span class="text-4xl font-black text-slate-900">₹399</span>
+                <span class="text-slate-500 text-xs">/month</span>
+              </div>
+            </div>
+            <a href="register.html" class="mt-8 w-full py-3 rounded-xl font-bold text-xs bg-blue-600 text-white hover:bg-blue-700 transition-all inline-block text-center">Get Started</a>
+          </div>
+
+          <div class="relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-xl font-bold text-slate-900">All-Exam Combo Pass</h4>
+              <p class="text-xs text-slate-500 mt-1">Unlimited access to all categories, Hindi layouts, and audio dictations.</p>
+              <div class="mt-6">
+                <span class="text-4xl font-black text-slate-900">₹599</span>
+                <span class="text-slate-500 text-xs">/month</span>
+              </div>
+            </div>
+            <a href="register.html" class="mt-8 w-full py-3 rounded-xl font-bold text-xs bg-slate-100 text-slate-800 hover:bg-slate-200 transition-all inline-block text-center">Get Started</a>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-slate-900 text-center mb-8">Credit Packs (Pay-As-You-Go)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl text-center hover:border-blue-300 transition-all">
+            <h5 class="font-bold text-slate-900 text-lg">10 Credits</h5>
+            <div class="text-2xl font-black text-blue-600 mt-2">₹49</div>
+            <div class="text-xs text-slate-400 mt-1">₹4.9 / test</div>
+            <a href="register.html" class="mt-4 w-full py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 inline-block text-center">Buy Pack</a>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl text-center hover:border-blue-300 transition-all">
+            <h5 class="font-bold text-slate-900 text-lg">20 Credits</h5>
+            <div class="text-2xl font-black text-blue-600 mt-2">₹89</div>
+            <div class="text-xs text-slate-400 mt-1">₹4.4 / test</div>
+            <a href="register.html" class="mt-4 w-full py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 inline-block text-center">Buy Pack</a>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl text-center hover:border-blue-300 transition-all">
+            <h5 class="font-bold text-slate-900 text-lg">30 Credits</h5>
+            <div class="text-2xl font-black text-blue-600 mt-2">₹119</div>
+            <div class="text-xs text-slate-400 mt-1">₹3.9 / test</div>
+            <a href="register.html" class="mt-4 w-full py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 inline-block text-center">Buy Pack</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
 </main>
 
 <footer class="site-foot">
@@ -263,6 +735,7 @@
     <li>Raising privacy concerns</li>
     <li>Withdrawing consent where applicable</li>
   </ul>
+  <p>Privacy requests can be sent to: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
 
   <h3>11. Children's Privacy</h3>
   <p>TypeShala is intended for students, learners and competitive-examination aspirants.</p>
@@ -272,6 +745,8 @@
   <h3>12. Changes to This Privacy Policy</h3>
   <p>This Privacy Policy may be updated from time to time. The updated version will contain a revised "Last Updated" date.</p>
 
+  <h3>13. Contact</h3>
+  <p>For privacy-related questions: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
 </template>
 
 <template id="termsModalContent">
@@ -328,6 +803,7 @@
   <p>Payments may be processed through Razorpay.</p>
   <p>The applicable price will be displayed before purchase.</p>
   <p>A purchase is considered successful after appropriate payment confirmation is received.</p>
+  <p>For payment issues: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
 
   <h3>8. Refund and Cancellation Policy</h3>
   <p>Because TypeShala provides digital services such as test credits and time-bound digital access, users should carefully review the product, price, validity and features before purchase.</p>
@@ -397,6 +873,8 @@
   <h3>18. Governing Law</h3>
   <p>These Terms shall be governed by the applicable laws of India, subject to applicable legal requirements.</p>
 
+  <h3>19. Contact</h3>
+  <p>For questions regarding these Terms, payments, refunds or TypeShala services: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
 </template>
 
 <template id="aboutModalContent">
@@ -432,103 +910,13 @@
 
 <script src="js/landing-footer.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/announcement-ticker.js"></script>
+
 <script>
-// Uses the SAME Supabase Auth session / getCurrentUser() helper every
-// other page relies on — no separate auth system. A logged-in user
-// should never see the public homepage as their landing page, so this
-// redirects immediately rather than just toggling nav sections.
-(async () => {
-  const user = await getCurrentUser();
-  if (user) {
-    window.location.href = "dashboard.html";
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.lucide) {
+    lucide.createIcons();
   }
-})();
-
-initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — independent of everything else on the page
-
-// Loads the SAME products table used by Admin Panel and
-// subscriptions.html — no plan/price is duplicated or hardcoded
-// here. RLS's "active = true" clause requires no login, so this
-// works correctly for logged-out visitors too.
-(async () => {
-  const { data, error } = await supabaseClient
-    .from("products")
-    .select("*")
-    .eq("active", true)
-    .order("display_order", { ascending: true });
-
-  const passGrid = document.getElementById("homePassGrid");
-  const creditGrid = document.getElementById("homeCreditGrid");
-
-  if (error) {
-    console.error(error);
-    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
-    creditGrid.innerHTML = '<div class="empty-state">Could not load credit packages.</div>';
-    return;
-  }
-
-  renderHomeProducts(data.filter(p => p.product_type === "PASS"), passGrid, false);
-  renderHomeProducts(data.filter(p => p.product_type === "CREDIT"), creditGrid, true);
-})();
-
-// planThemeFor / planIconSvg are purely presentational additions for
-// the new design system — they only decide which CSS theme class and
-// icon glyph a card gets. They read pass_type but never write to it,
-// and don't touch any query, ID, or purchase logic below.
-function planThemeFor(p, isCredit) {
-  if (isCredit) return "credit";
-  if (p.pass_type === "LEGAL") return "legal";
-  if (p.pass_type === "COMBO") return "combo";
-  return "ssc";
-}
-
-function planIconSvg(theme) {
-  const icons = {
-    ssc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>',
-    legal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg>',
-    combo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a3 3 0 0 0 3 5"/><path d="M17 5h3a3 3 0 0 1-3 5"/></svg>',
-    credit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>'
-  };
-  return icons[theme] || icons.ssc;
-}
-
-function renderHomeProducts(products, grid, isCredit) {
-  if (products.length === 0) {
-    grid.innerHTML = '<div class="empty-state">Nothing available right now.</div>';
-    return;
-  }
-
-  grid.innerHTML = products.map(p => {
-    const theme = planThemeFor(p, isCredit);
-    const featured = p.pass_type === "COMBO" ? " featured" : "";
-    const badge = p.pass_type === "COMBO" ? '<span class="best-value-badge">Best Value</span>' : "";
-    const duration = isCredit
-      ? p.credits + " Credits &middot; Valid for " + p.validity_days + " Days"
-      : p.validity_days + " Days &middot; Non-recurring";
-
-    return `
-      <div class="card pass-card plan-${theme}${featured}">
-        ${badge}
-        <div class="plan-icon">${planIconSvg(theme)}</div>
-        <div class="card-label">${escapeHtmlHome(p.name)}</div>
-        <div class="pass-price">&#8377;${p.price}</div>
-        <div class="pass-duration">${duration}</div>
-        ${p.description ? '<p style="font-size:0.85rem;color:var(--ink-soft);margin:0 0 10px;">' + escapeHtmlHome(p.description) + "</p>" : ""}
-        ${p.features && p.features.length ? '<ul class="plan-features">' + p.features.map(f => "<li>" + escapeHtmlHome(f) + "</li>").join("") + "</ul>" : ""}
-        <a class="btn btn-full" href="login.html">Get Started</a>
-      </div>`;
-  }).join("");
-}
-
-function escapeHtmlHome(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
+});
 </script>
 
 </body>
