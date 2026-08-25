@@ -1189,6 +1189,36 @@ function getCurrentTestWeakKeys(keyStats) {
     .slice(0, 5);
 }
 
+// Continuous RED -> ORANGE -> YELLOW -> GREEN severity gradient,
+// reusing this project's own theme colors as the four stops rather
+// than inventing new ones (--ts-red / --ts-orange / --ts-gold /
+// --ts-green from app-shell.css). t=0 is least severe (green), t=1
+// is most severe (red) — smooth linear RGB interpolation between
+// whichever two stops t falls between, not a jump between fixed
+// bands, so two keys with close-but-different mistake counts get
+// visibly close-but-different colors instead of landing in the same
+// bucket.
+const SEVERITY_GRADIENT_STOPS = [
+  { t: 0,    rgb: [21, 154, 72] },   // --ts-green
+  { t: 0.34, rgb: [245, 179, 1] },   // --ts-gold (used as the "yellow" stop)
+  { t: 0.67, rgb: [224, 124, 42] },  // --ts-orange
+  { t: 1,    rgb: [209, 67, 67] }    // --ts-red
+];
+
+function severityColorForT(t) {
+  const clamped = Math.max(0, Math.min(1, t));
+  for (let i = 0; i < SEVERITY_GRADIENT_STOPS.length - 1; i++) {
+    const a = SEVERITY_GRADIENT_STOPS[i];
+    const b = SEVERITY_GRADIENT_STOPS[i + 1];
+    if (clamped >= a.t && clamped <= b.t) {
+      const localT = (b.t === a.t) ? 0 : (clamped - a.t) / (b.t - a.t);
+      const rgb = [0, 1, 2].map(ch => Math.round(a.rgb[ch] + (b.rgb[ch] - a.rgb[ch]) * localT));
+      return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+    }
+  }
+  return `rgb(${SEVERITY_GRADIENT_STOPS[SEVERITY_GRADIENT_STOPS.length - 1].rgb.join(", ")})`;
+}
+
 function showWeakKeyAnalysis(keyStats) {
   const container = document.getElementById("weakKeyAnalysis");
   const list = document.getElementById("weakKeyList");
@@ -1233,28 +1263,39 @@ function showWeakKeyAnalysis(keyStats) {
   const chart = document.getElementById("weakKeyChart");
   if (chart) chart.style.display = "flex";
 
-  // Bar height is relative to the WORST key in this list (tallest bar
-  // = 100%), so the chart always reads clearly regardless of how bad
-  // or mild the actual accuracy numbers are. Severity color is by
-  // rank within the list (already sorted worst-first by
-  // getCurrentTestWeakKeys, untouched) rather than an absolute
-  // accuracy cutoff — getCurrentTestWeakKeys already only returns
-  // keys under 90% accuracy, so a fixed "accuracy < 80 = red" band
-  // would rarely produce the green "OK" tier the reference shows;
-  // ranking within the returned set reliably spreads across all
-  // three severities the way the reference depicts.
-  const worstProblem = Math.max(100 - weakKeys[weakKeys.length - 1].accuracy, 1);
-  const total = weakKeys.length;
+  // Bar HEIGHT is now the actual mistake count, relative to the
+  // worst key in this list (tallest bar = the highest error count
+  // among THIS test's weak keys, not an accuracy-derived score).
+  // Bar COLOR is a continuous severity gradient (see
+  // severityColorForT above) based on the same error counts,
+  // normalized between the min and max errors actually present here
+  // — never fixed thresholds, so the same key can land anywhere on
+  // the gradient depending on what the rest of that test's weak keys
+  // looked like. If every weak key has the identical error count,
+  // min===max and every bar gets the same neutral mid-gradient
+  // color rather than one arbitrarily reading as "worse".
+  const maxErrors = Math.max(...weakKeys.map(k => k.errors));
+  const minErrors = Math.min(...weakKeys.map(k => k.errors));
+  const errorRange = maxErrors - minErrors;
 
-  list.innerHTML = weakKeys.map((item, i) => {
-    const problem = 100 - item.accuracy;
-    const heightPct = Math.max((problem / worstProblem) * 100, 8);
-    const rankFraction = total > 1 ? i / (total - 1) : 0;
-    const severity = rankFraction < 0.34 ? "high" : rankFraction < 0.67 ? "medium" : "low";
+  // Display order only — sorted by actual mistake count descending so
+  // the tallest/reddest bar is always leftmost, matching "bar height
+  // must always represent the actual mistake count". This doesn't
+  // touch getCurrentTestWeakKeys()'s own selection/ranking (which
+  // sorts by accuracy for choosing WHICH keys qualify) — errors and
+  // accuracy don't always agree on ORDER (a key with fewer attempts
+  // can have worse accuracy despite fewer raw mistakes), so this
+  // re-sorts only for display, on a copy, not the original array.
+  const sortedForDisplay = weakKeys.slice().sort((a, b) => b.errors - a.errors);
+
+  list.innerHTML = sortedForDisplay.map((item) => {
+    const heightPct = Math.max((item.errors / maxErrors) * 100, 8);
+    const severityT = errorRange > 0 ? (item.errors - minErrors) / errorRange : 0.5;
+    const barColor = severityColorForT(severityT);
 
     return `
       <div class="mtr-bar-col">
-        <div class="mtr-bar mtr-bar-${severity}" style="height:${heightPct}%;" title="${Math.round(item.accuracy)}% accuracy, ${item.errors} mistakes"></div>
+        <div class="mtr-bar" style="height:${heightPct}%; background-color:${barColor};" title="${item.errors} mistakes, ${Math.round(item.accuracy)}% accuracy"></div>
         <div class="mtr-bar-label">${item.key}</div>
       </div>
     `;
