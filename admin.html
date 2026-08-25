@@ -38,6 +38,42 @@
 
 <main class="page">
 
+  <section class="admin-analytics" id="adminAnalytics">
+    <div class="admin-analytics-head">
+      <div>
+        <p class="eyebrow">Admin Only</p>
+        <h1>Admin Overview</h1>
+      </div>
+      <div class="admin-analytics-controls">
+        <select id="analyticsPeriodSelect" class="admin-period-select" aria-label="Analytics time period">
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="last_7">Last 7 Days</option>
+          <option value="last_30">Last 30 Days</option>
+          <option value="this_month">This Month</option>
+          <option value="this_year">This Year</option>
+        </select>
+        <button type="button" class="btn btn-ghost admin-refresh-btn" id="analyticsRefreshBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-analytics-error" id="analyticsError" role="alert" style="display:none;"></div>
+
+    <div class="admin-stat-grid" id="analyticsStatGrid"></div>
+
+    <div class="card admin-top-passages-card">
+      <div class="card-label">Most Attempted Passages</div>
+      <div id="analyticsTopPassages">
+        <div class="loading-strip">Loading top passages...</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="admin-section-divider">
+
   <p class="eyebrow">Admin Only</p>
   <h1>Manage Passages</h1>
   <p class="lede">Add, edit, or remove typing passages. Changes appear on the student typing page immediately.</p>
@@ -117,6 +153,7 @@
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/admin-analytics.js"></script>
 
 </body>
 </html>
