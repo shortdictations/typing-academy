@@ -76,9 +76,20 @@ async function loadAnalytics() {
     const { data, error } = await supabaseClient.rpc("admin_get_analytics_overview", { p_period: period });
 
     if (error) {
-      // Log the real error for development; never surface raw
-      // database error text to the admin UI (requirement 15).
-      console.error("admin_get_analytics_overview failed:", error);
+      // Structured logging so the actual failing query and Supabase's
+      // real reason are always visible in the console during
+      // development — this is exactly how the "profiles does not
+      // exist" root cause was found and confirmed, not guessed. Never
+      // surfaced to the admin UI itself (requirement 15) — only the
+      // generic message below is shown there.
+      console.error("Admin analytics error:", {
+        rpc: "admin_get_analytics_overview",
+        period,
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      });
       errorBox.textContent = "Unable to load analytics. Please try again.";
       errorBox.style.display = "block";
       renderStatCardsEmpty();
@@ -89,7 +100,14 @@ async function loadAnalytics() {
     renderStatCards(data);
     renderTopPassages(data.top_passages || []);
   } catch (err) {
-    console.error("admin_get_analytics_overview threw:", err);
+    console.error("Admin analytics error (thrown, not returned):", {
+      rpc: "admin_get_analytics_overview",
+      period,
+      message: err?.message,
+      code: err?.code,
+      details: err?.details,
+      hint: err?.hint
+    });
     errorBox.textContent = "Unable to load analytics. Please try again.";
     errorBox.style.display = "block";
     renderStatCardsEmpty();
