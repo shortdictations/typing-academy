@@ -80,82 +80,129 @@
   </div>
 
   <!-- RESULT -->
-  <div class="card" id="resultCard" style="display:none;">
-    <div class="result-ticket">
-      <div class="result-confetti" aria-hidden="true">
-        <span class="confetti-piece" style="left:22%; top:14%; background:#93B4F5; transform:rotate(20deg);"></span>
-        <span class="confetti-piece" style="left:29%; top:34%; background:#8DD9B0; transform:rotate(-12deg);"></span>
-        <span class="confetti-piece" style="left:20%; top:44%; background:#F5C99B; transform:rotate(40deg);"></span>
-        <span class="confetti-piece" style="left:26%; top:52%; background:#C7AEF0; transform:rotate(-25deg);"></span>
-        <span class="confetti-piece" style="right:22%; top:12%; background:#93B4F5; transform:rotate(-18deg);"></span>
-        <span class="confetti-piece" style="right:16%; top:30%; background:#F5C99B; transform:rotate(15deg);"></span>
-        <span class="confetti-piece" style="right:24%; top:40%; background:#F0A8BE; transform:rotate(30deg);"></span>
-        <span class="confetti-piece" style="right:18%; top:50%; background:#C7AEF0; transform:rotate(-10deg);"></span>
-      </div>
-      <div class="seal-stamp">
-        <div class="grade" id="resultGrade">A</div>
-        <div class="tag">Result</div>
-      </div>
-      <div class="result-title">Mock Test Completed</div>
-      <div class="result-sub" id="resultPassageName">—</div>
+  <div class="card mtr-card-wrap" id="resultCard" style="display:none;">
 
-      <div class="result-grid">
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.4 6.2"/><path d="M21 12a9 9 0 0 0-2.5-6.2"/><path d="M15.5 10.5 18 8"/></svg></span>
-          <div class="big" id="resultGrossWpm">0</div>
-          <div class="lab">Gross WPM</div>
+    <div class="mtr-header">
+      <span class="mtr-header-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg></span>
+      <h1>Typing Test Results</h1>
+    </div>
+
+    <div class="mtr-grid">
+      <div class="mtr-main">
+
+        <!-- Status card — pass/fail comes from the existing gradeFor()
+             threshold (accuracy >= 80), never hard-coded here. -->
+        <div class="mtr-status-card" id="mtrStatusCard">
+          <span class="mtr-status-icon" id="mtrStatusIcon" aria-hidden="true"></span>
+          <div class="mtr-status-body">
+            <div class="mtr-status-title" id="mtrStatusTitle">&nbsp;</div>
+            <div class="mtr-status-msg" id="mtrStatusMsg">&nbsp;</div>
+          </div>
+          <svg class="mtr-status-illustration" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.12"/><path d="M22 20h20v6a10 10 0 0 1-20 0v-6Z" stroke="currentColor" stroke-width="2"/><path d="M22 22h-4a4 4 0 0 0 4 8M42 22h4a4 4 0 0 1-4 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M32 36v6M26 46h12l-2-4H28l-2 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         </div>
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.4 6.2"/><path d="M21 12a9 9 0 0 0-2.5-6.2"/><path d="M15.5 10.5 18 8"/></svg></span>
-          <div class="big" id="resultNetWpm">0</div>
-          <div class="lab">Net WPM</div>
+
+        <!-- Weak keys card -->
+        <div class="mtr-card" id="weakKeyAnalysis" style="display:none;">
+          <div class="mtr-card-head">
+            <span class="mtr-card-icon mtr-icon-purple" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/></svg></span>
+            <h3>Your Weak Keys</h3>
+          </div>
+
+          <div class="mtr-chart" id="weakKeyChart">
+            <div class="mtr-chart-axis mtr-chart-axis-left">
+              <span>High</span><span>Medium</span><span>Low</span>
+            </div>
+            <div class="mtr-chart-bars" id="weakKeyList"></div>
+            <div class="mtr-chart-axis mtr-chart-axis-right">
+              <span>Problematic</span><span>Difficult</span><span>OK</span>
+            </div>
+          </div>
+
+          <div class="mtr-tip-box">
+            <span class="mtr-tip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg></span>
+            <div>
+              <strong>These keys are slowing you down.</strong>
+              <p>Practice them regularly to improve your speed and accuracy.</p>
+            </div>
+          </div>
+
+          <div class="mtr-actions">
+            <button type="button" class="btn btn-ghost" id="printResultsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>View &amp; Print Results</button>
+            <button type="button" class="btn" id="practiceWeakKeysBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Practice Weak Keys</button>
+          </div>
         </div>
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
-          <div class="big" id="resultAccuracy">0%</div>
-          <div class="lab">Accuracy</div>
+
+      </div>
+
+      <div class="mtr-sidebar">
+
+        <div class="mtr-card">
+          <div class="mtr-card-head">
+            <span class="mtr-card-icon mtr-icon-blue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg></span>
+            <h3>Feedback &amp; Tips</h3>
+          </div>
+          <div class="mtr-feedback-list" id="mtrFeedbackList"></div>
         </div>
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
-          <div class="big" id="resultDuration">0 min</div>
-          <div class="lab">Duration</div>
+
+        <div class="mtr-card">
+          <div class="mtr-card-head">
+            <span class="mtr-card-icon mtr-icon-blue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg></span>
+            <h3>Test Summary</h3>
+          </div>
+          <div class="mtr-summary-row">
+            <span class="mtr-summary-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Time Taken</span>
+            <span class="mtr-summary-value" id="resultDuration">&mdash;</span>
+          </div>
+          <div class="mtr-summary-row">
+            <span class="mtr-summary-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3a9 9 0 0 0-9 9c0 2.4.9 4.6 2.4 6.2"/><path d="M21 12a9 9 0 0 0-2.5-6.2"/></svg>Your Gross Speed</span>
+            <span class="mtr-summary-value" id="resultGrossWpm">&mdash;</span>
+          </div>
+          <div class="mtr-summary-row">
+            <span class="mtr-summary-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Your Accuracy</span>
+            <span class="mtr-summary-value mtr-value-accent" id="resultAccuracy">&mdash;</span>
+          </div>
+          <div class="mtr-summary-row">
+            <span class="mtr-summary-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 16.5-1 5 5-1L20 9a2.83 2.83 0 1 0-4-4L4.5 16.5Z"/></svg>Your Net Speed</span>
+            <span class="mtr-summary-value" id="resultNetWpm">&mdash;</span>
+          </div>
+          <div class="mtr-summary-row">
+            <span class="mtr-summary-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6"/></svg>Status</span>
+            <span class="mtr-status-badge" id="mtrStatusBadge">&mdash;</span>
+          </div>
         </div>
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
-          <div class="big" id="resultErrors">0</div>
-          <div class="lab">Mistakes</div>
+
+        <div class="mtr-encourage-card" id="mtrEncourageCard">
+          <span class="mtr-encourage-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3 6.5 7 1-5 5 1.2 7L12 18l-6.2 3.5L7 14.5l-5-5 7-1L12 2Z"/></svg></span>
+          <div>
+            <strong id="mtrEncourageTitle">&nbsp;</strong>
+            <p id="mtrEncourageMsg">&nbsp;</p>
+          </div>
         </div>
-        <div class="result-stat">
-          <span class="result-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 9.5 5h1L16 20"/><path d="M6 14h8"/></svg></span>
-          <div class="big" id="resultTotalWords">0</div>
-          <div class="lab">Total Words Typed</div>
-        </div>
+
       </div>
     </div>
 
-    <div class="weak-key-analysis" id="weakKeyAnalysis" style="display:none;">
-      <div class="weak-key-header">
-        <div>
-          <div class="card-label">Typing Analysis</div>
-          <h3>Your Weak Keys</h3>
-          <p>Keys that need more practice based on this test.</p>
-        </div>
+    <div class="mtr-banner">
+      <span class="mtr-banner-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4a3 3 0 0 0 3 5M17 6h3a3 3 0 0 1-3 5"/></svg></span>
+      <div>
+        <strong>Keep Practicing, Keep Improving!</strong>
+        <p>Every keystroke brings you closer to success.</p>
       </div>
-
-      <div id="weakKeyList" class="weak-key-list"></div>
-
-      <button class="btn" id="practiceWeakKeysBtn" style="display:none;">
-        Practice Weak Keys
-      </button>
     </div>
 
-    <div style="display:flex; gap:12px; margin-top:20px;">
+    <div class="mtr-nav-actions">
       <a class="btn" href="mock-test.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Back to Mock Tests</a>
       <a class="btn btn-ghost result-history-btn" href="mock-history.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 6v12"/></svg>View Mock History</a>
     </div>
   </div>
 
+  <!-- Print-only view — populated by printResultsBtn's click handler,
+       invisible on screen (see @media print in style.css), so the
+       normal result page above is never altered by printing. -->
+  <div id="printResultView" class="print-only" aria-hidden="true"></div>
+
 </main>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
