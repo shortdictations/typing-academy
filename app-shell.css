@@ -880,20 +880,62 @@ body.app-shell .mtr-chart-bars{
   flex: 1 1 auto;
   display: flex;
   align-items: flex-end;
-  gap: 14px;
-  padding: 4px 4px 22px;
+  /* Compact, left-aligned group — NOT space-between/flex:1-on-columns,
+     which previously stretched columns to fill the entire plotting
+     width regardless of how many keys there actually were (3 keys
+     spread edge-to-edge instead of grouped together). justify-content
+     here only matters if the column group is narrower than the
+     available width, which it now always is (fixed-width columns
+     below), so this is what actually keeps the group pinned to the
+     left rather than centered/spread by the flex container. */
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 4px 4px 30px;
   border-left: 1px solid var(--ts-border);
   border-bottom: 1px solid var(--ts-border);
   background-image: repeating-linear-gradient(to bottom, var(--ts-border) 0, var(--ts-border) 1px, transparent 1px, transparent 33.3%);
   background-position: top;
   position: relative;
+  /* Defensive: getCurrentTestWeakKeys() already caps results at 5,
+     so fixed-width columns can never actually overflow the plotting
+     area today — but if that cap ever changes, this lets extra
+     columns scroll horizontally within the chart itself rather than
+     either stretching (the bug being fixed) or overflowing the page. */
+  overflow-x: auto;
 }
-body.app-shell .mtr-bar-col{ flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; position: relative; }
+/* flex:0 0 <width> (not 1 1 auto) is the actual fix — a fixed,
+   non-growing column width means N columns take up exactly N times
+   that width plus gaps, however few or many there are, instead of
+   always stretching to consume 100% of the plotting area. Bar width
+   is a % of this column (unchanged), so bars stay visually
+   consistent at any key count. */
+body.app-shell .mtr-bar-col{ flex: 0 0 44px; width: 44px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
 body.app-shell .mtr-bar{ width: 60%; max-width: 34px; border-radius: 4px 4px 0 0; min-height: 6px; }
 body.app-shell .mtr-bar-high{ background: var(--ts-red); }
 body.app-shell .mtr-bar-medium{ background: var(--ts-orange); }
 body.app-shell .mtr-bar-low{ background: var(--ts-green); }
-body.app-shell .mtr-bar-label{ position: absolute; bottom: -20px; font-weight: 700; font-size: 0.82rem; color: var(--ts-text); text-transform: uppercase; }
+body.app-shell .mtr-bar-label{
+  position: absolute;
+  bottom: -24px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ts-text);
+  text-transform: uppercase;
+  /* A fixed-size "chip" rather than bare text — letters read fine as
+     plain text, but punctuation glyphs (, . ' " etc.) are inherently
+     tiny at any font-size and were nearly invisible as bare
+     characters. A consistent min-width/height + background gives
+     every label the same visual footprint regardless of which
+     character it actually is. */
+  min-width: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-background);
+  border-radius: 4px;
+  padding: 0 4px;
+}
 
 body.app-shell .mtr-tip-box{
   display: flex;
