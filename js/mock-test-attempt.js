@@ -1011,19 +1011,35 @@ function escapeHtml(str) {
    expected text), so key attribution stays correct.
    ============================================================ */
 
+// A single character is trackable for weak-key purposes if it's a
+// letter OR a punctuation mark — extended per explicit request to
+// also flag mistyped punctuation (, . : ' " ? ( and any other ASCII
+// punctuation) as weak-key errors, not just letters. Space is
+// excluded here deliberately: correctly/incorrectly typed spaces are
+// already tracked separately via hadTrailingSpace for accuracy
+// purposes, and treating space as a "key" here would double-count
+// it. Digits are intentionally NOT included — the request was
+// specifically about punctuation marks, not numbers.
+function isTrackableKeyChar(ch) {
+  if (/^[a-zA-Z]$/.test(ch)) return true;
+  if (ch === " ") return false;
+  return /^[!-\/:-@[\]^_`{-~]$/.test(ch);
+}
+
 // Walks every recorded word's character-diff operations and
 // attributes each one to the EXPECTED character — the key a student
 // actually needs to practice, not whatever they mistakenly typed.
 // "extra" operations have no expected character to blame and are
 // skipped for key-level stats (an extra keystroke isn't really "the
-// wrong key" for any specific expected letter). Only A-Z; space/
-// punctuation/numbers stay excluded for V1, same as before.
+// wrong key" for any specific expected letter). Letters and
+// punctuation marks are tracked (see isTrackableKeyChar); space and
+// digits are not.
 function calculateKeyAnalysis() {
   const stats = {};
 
   wordResults.forEach(result => {
     result.ops.forEach(op => {
-      if (!op.expected || !/^[a-zA-Z]$/.test(op.expected)) return;
+      if (!op.expected || !isTrackableKeyChar(op.expected)) return;
 
       const key = op.expected.toUpperCase();
       if (!stats[key]) {
