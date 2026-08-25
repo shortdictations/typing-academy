@@ -790,45 +790,249 @@ body.app-shell .card-label{
   letter-spacing: 0.04em;
 }
 
-/* ---------- Weak-Key Analysis (mock-test-attempt.html result screen) ----------
-   Deliberately plain/academic per spec — no charts, no color-coded
-   gauges, no gamification. Same card/spacing language as the rest
-   of the result screen (.card-label, --ts-* tokens), not a new
-   visual system. */
-body.app-shell .weak-key-analysis{
+/* ---------- Mock Test Result — redesign (mock-test-attempt.html) ----------
+   "mtr" = Mock Test Result. Matches the approved reference image:
+   two-column desktop layout (status + weak-keys chart on the left,
+   feedback/summary/encouragement on the right), full-width banner
+   below. .weak-key-analysis/-header/-list/-empty are the SAME
+   elements as before, just restyled — getCurrentTestWeakKeys() and
+   the weak-key calculation itself were not touched. */
+body.app-shell .mtr-card-wrap{ padding: 24px; }
+body.app-shell .mtr-header{ display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+body.app-shell .mtr-header-icon{
+  width: 42px; height: 42px; flex: none;
+  border-radius: var(--ts-radius-md);
+  background: var(--ts-purple-tint);
+  color: var(--ts-purple);
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .mtr-header-icon svg{ width: 20px; height: 20px; }
+body.app-shell .mtr-header h1{ margin: 0; font-size: 1.4rem; color: var(--ts-text); }
+
+body.app-shell .mtr-grid{ display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+body.app-shell .mtr-main{ display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+body.app-shell .mtr-sidebar{ display: flex; flex-direction: column; gap: 20px; }
+
+/* Status card — orange/fail matches the reference exactly; a
+   parallel green/pass variant follows the same structure since
+   pass/fail is real, not hard-coded (see gradeFor() in the JS). */
+body.app-shell .mtr-status-card{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: var(--ts-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+body.app-shell .mtr-status-card.mtr-status-fail{ background: var(--ts-orange-tint); color: var(--ts-orange); }
+body.app-shell .mtr-status-card.mtr-status-pass{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .mtr-status-icon{
+  width: 34px; height: 34px; flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .mtr-status-icon svg{ width: 18px; height: 18px; color: #fff; }
+body.app-shell .mtr-status-body{ flex: 1 1 auto; min-width: 0; }
+body.app-shell .mtr-status-title{ font-weight: 800; font-size: 1.05rem; color: currentColor; }
+body.app-shell .mtr-status-msg{ font-size: 0.85rem; color: var(--ts-text); margin-top: 2px; }
+body.app-shell .mtr-status-illustration{ width: 56px; height: 56px; flex: none; color: currentColor; opacity: 0.9; }
+
+body.app-shell .mtr-card{
   background: #fff;
   border: 1px solid var(--ts-border);
   border-radius: var(--ts-radius-lg);
   padding: 20px;
-  margin-top: 20px;
 }
-body.app-shell .weak-key-header h3{ margin: 2px 0 4px; font-size: 1.05rem; color: var(--ts-text); }
-body.app-shell .weak-key-header p{ margin: 0; font-size: 0.85rem; color: var(--ts-muted); }
-body.app-shell .weak-key-list{ display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
-body.app-shell .weak-key-item{
+body.app-shell .mtr-card-head{ display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+body.app-shell .mtr-card-icon{
+  width: 30px; height: 30px; flex: none;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .mtr-card-icon svg{ width: 15px; height: 15px; }
+body.app-shell .mtr-icon-purple{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell .mtr-icon-blue{ background: var(--ts-blue-tint); color: var(--ts-blue); }
+body.app-shell .mtr-card-head h3{ margin: 0; font-size: 1rem; color: var(--ts-text); }
+
+/* Weak-key bar chart — plain HTML/CSS, no chart library, per spec
+   ("implement with HTML/CSS rather than a large unnecessary
+   dependency"). High/Medium/Low on the left, Problematic/Difficult/
+   OK on the right, horizontal guide lines, vertical bars, key labels
+   underneath — same visual concept as the reference. */
+body.app-shell .mtr-chart{ display: flex; align-items: stretch; gap: 10px; height: 200px; margin: 4px 0 6px; }
+body.app-shell .mtr-chart-axis{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex: none;
+  padding: 4px 0 22px;
+}
+body.app-shell .mtr-chart-axis-left{ color: var(--ts-muted); text-align: left; }
+body.app-shell .mtr-chart-axis-right{ color: var(--ts-muted); text-align: right; }
+body.app-shell .mtr-chart-axis-right span:first-child{ color: var(--ts-red); }
+body.app-shell .mtr-chart-axis-right span:nth-child(2){ color: var(--ts-orange); }
+body.app-shell .mtr-chart-axis-right span:last-child{ color: var(--ts-green); }
+body.app-shell .mtr-chart-bars{
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 4px 4px 22px;
+  border-left: 1px solid var(--ts-border);
+  border-bottom: 1px solid var(--ts-border);
+  background-image: repeating-linear-gradient(to bottom, var(--ts-border) 0, var(--ts-border) 1px, transparent 1px, transparent 33.3%);
+  background-position: top;
+  position: relative;
+}
+body.app-shell .mtr-bar-col{ flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; position: relative; }
+body.app-shell .mtr-bar{ width: 60%; max-width: 34px; border-radius: 4px 4px 0 0; min-height: 6px; }
+body.app-shell .mtr-bar-high{ background: var(--ts-red); }
+body.app-shell .mtr-bar-medium{ background: var(--ts-orange); }
+body.app-shell .mtr-bar-low{ background: var(--ts-green); }
+body.app-shell .mtr-bar-label{ position: absolute; bottom: -20px; font-weight: 700; font-size: 0.82rem; color: var(--ts-text); text-transform: uppercase; }
+
+body.app-shell .mtr-tip-box{
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--ts-background);
+  border-radius: var(--ts-radius-md);
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+body.app-shell .mtr-tip-icon{
+  width: 28px; height: 28px; flex: none;
+  border-radius: 50%;
+  background: var(--ts-blue);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .mtr-tip-icon svg{ width: 14px; height: 14px; }
+body.app-shell .mtr-tip-box strong{ display: block; font-size: 0.88rem; color: var(--ts-text); }
+body.app-shell .mtr-tip-box p{ margin: 2px 0 0; font-size: 0.82rem; color: var(--ts-muted); }
+
+body.app-shell .mtr-actions{ display: flex; gap: 12px; margin-top: 18px; }
+body.app-shell .mtr-actions .btn{ flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+body.app-shell .mtr-actions .btn svg{ width: 16px; height: 16px; flex: none; }
+
+body.app-shell .mtr-feedback-list{ display: flex; flex-direction: column; gap: 12px; }
+body.app-shell .mtr-feedback-item{
+  position: relative;
+  padding: 10px 12px 10px 16px;
+  border-left: 3px solid var(--ts-blue-tint);
+  font-size: 0.85rem;
+  color: var(--ts-text);
+  line-height: 1.5;
+}
+body.app-shell .mtr-feedback-quote{ color: var(--ts-blue-tint); font-size: 1.3rem; font-weight: 800; margin-right: 2px; line-height: 0; vertical-align: -2px; }
+
+body.app-shell .mtr-summary-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell .mtr-summary-row:last-child{ border-bottom: none; }
+body.app-shell .mtr-summary-label{ display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--ts-muted); }
+body.app-shell .mtr-summary-label svg{ width: 15px; height: 15px; flex: none; color: var(--ts-muted); }
+body.app-shell .mtr-summary-value{ font-weight: 700; font-size: 0.9rem; color: var(--ts-text); }
+body.app-shell .mtr-value-accent{ color: var(--ts-blue); }
+body.app-shell .mtr-status-badge{
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+body.app-shell .mtr-badge-pass{ background: var(--ts-green-tint); color: var(--ts-green); border-color: var(--ts-green); }
+body.app-shell .mtr-badge-fail{ background: var(--ts-red-tint); color: var(--ts-red); border-color: var(--ts-red); }
+
+body.app-shell .mtr-encourage-card{
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--ts-orange-tint);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px;
+}
+body.app-shell .mtr-encourage-icon{
+  width: 30px; height: 30px; flex: none;
+  border-radius: 50%;
+  background: var(--ts-gold);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .mtr-encourage-icon svg{ width: 15px; height: 15px; }
+body.app-shell .mtr-encourage-card strong{ display: block; font-size: 0.88rem; color: var(--ts-text); }
+body.app-shell .mtr-encourage-card p{ margin: 2px 0 0; font-size: 0.82rem; color: var(--ts-muted); }
+
+body.app-shell .mtr-banner{
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--ts-border);
-  border-radius: var(--ts-radius-md);
+  background: var(--ts-blue-tint);
+  border-radius: var(--ts-radius-lg);
+  padding: 18px 22px;
+  margin-top: 20px;
 }
-body.app-shell .weak-key-letter{
-  width: 38px; height: 38px;
-  flex: none;
-  border-radius: 10px;
-  background: var(--ts-background);
-  color: var(--ts-text);
+body.app-shell .mtr-banner-icon{
+  width: 40px; height: 40px; flex: none;
+  border-radius: 50%;
+  background: var(--ts-blue);
+  color: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800;
-  font-size: 1.05rem;
 }
-body.app-shell .weak-key-info{ flex: 1 1 auto; min-width: 0; }
-body.app-shell .weak-key-name{ font-weight: 700; font-size: 0.88rem; color: var(--ts-text); }
-body.app-shell .weak-key-meta{ font-size: 0.78rem; color: var(--ts-muted); margin-top: 2px; }
-body.app-shell .weak-key-percent{ font-weight: 800; font-size: 1.05rem; color: var(--ts-text); flex: none; }
-body.app-shell .weak-key-empty{ text-align: center; padding: 18px 10px; color: var(--ts-muted); font-size: 0.88rem; }
+body.app-shell .mtr-banner-icon svg{ width: 20px; height: 20px; }
+body.app-shell .mtr-banner strong{ display: block; color: var(--ts-blue); font-size: 1rem; }
+body.app-shell .mtr-banner p{ margin: 2px 0 0; font-size: 0.85rem; color: var(--ts-text); }
+
+body.app-shell .mtr-nav-actions{ display: flex; gap: 12px; margin-top: 20px; }
+
+/* Old .weak-key-* element names, restyled to the new system rather
+   than renamed, since js/mock-test-attempt.js still targets these
+   ids/classes directly. */
+body.app-shell .weak-key-header{ display: none; } /* old header replaced by .mtr-card-head above it */
+body.app-shell .weak-key-empty{ text-align: center; padding: 30px 10px; color: var(--ts-muted); font-size: 0.88rem; }
 body.app-shell .weak-key-empty strong{ display: block; color: var(--ts-text); font-size: 0.95rem; margin-bottom: 4px; }
+
+@media (max-width: 900px){
+  body.app-shell .mtr-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 640px){
+  body.app-shell .mtr-card-wrap{ padding: 16px; }
+  body.app-shell .mtr-status-card{ flex-wrap: wrap; }
+  body.app-shell .mtr-status-illustration{ display: none; }
+  body.app-shell .mtr-actions{ flex-direction: column; }
+  body.app-shell .mtr-nav-actions{ flex-direction: column; }
+  body.app-shell .mtr-chart{ height: 160px; }
+  body.app-shell .mtr-bar-col{ min-width: 0; }
+}
+
+/* ---------- Print view ----------
+   #printResultView is completely invisible on screen; @media print
+   below hides everything else on the page and shows only this,
+   so printing/Save-as-PDF never touches the live result page. */
+.print-only{ display: none; }
+@media print{
+  body *{ visibility: hidden; }
+  #printResultView, #printResultView *{ visibility: visible; }
+  #printResultView{ display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
+  .print-sheet{ padding: 24px; font-family: var(--ts-font, sans-serif); color: #111; }
+  .print-brand{ font-weight: 800; font-size: 1.1rem; color: var(--ts-navy, #0B1C3F); }
+  .print-sheet h1{ font-size: 1.3rem; margin: 4px 0 2px; }
+  .print-meta{ font-size: 0.85rem; color: #555; margin-bottom: 18px; }
+  .print-sheet h2{ font-size: 1rem; margin: 20px 0 8px; }
+  .print-table{ width: 100%; border-collapse: collapse; }
+  .print-table th, .print-table td{ text-align: left; padding: 7px 4px; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+  .print-table th{ font-weight: 600; width: 40%; color: #444; }
+}
+
 
 body.app-shell .weak-keys-card-letters{ display: flex; gap: 8px; margin: 12px 0 6px; }
 body.app-shell .weak-keys-card-letter{
