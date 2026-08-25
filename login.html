@@ -141,8 +141,27 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-// If already logged in, skip straight to dashboard
+// If this browser was just signed out because another device logged
+// into the same account, forceSessionLogout() (auth.js) left a
+// message here for exactly this page to show once. Read-and-clear so
+// it never reappears on a later, unrelated visit to this page.
+let tsHadSessionInvalidatedMessage = false;
+(() => {
+  const sessionMsg = sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
+  if (sessionMsg) {
+    sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);
+    showError(sessionMsg);
+    tsHadSessionInvalidatedMessage = true;
+  }
+})();
+
+// If already logged in, skip straight to dashboard — but not right
+// after showing the message above, since forceSessionLogout() always
+// signs out before redirecting here anyway (so this wouldn't
+// normally fire either way); this just avoids the message flashing
+// and instantly disappearing in any edge case where it somehow did.
 (async () => {
+  if (tsHadSessionInvalidatedMessage) return;
   const user = await getCurrentUser();
   if (user) window.location.href = 'dashboard.html';
 })();
