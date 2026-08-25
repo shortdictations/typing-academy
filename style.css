@@ -2526,3 +2526,190 @@ body.dashboard-page{
 .dashboard-page .page{ padding-top: 24px; padding-bottom: 40px; }
 .dashboard-page .dash-actions{ margin-top: 16px; margin-bottom: 4px; }
 .dashboard-page footer.site-foot{ margin-top: 20px; }
+
+/* ---------- Admin Overview / Analytics (admin.html) ----------
+   Uses the same base-theme tokens as the rest of style.css
+   (--ink/--paper/--brass/--stamp/--white/--radius) rather than the
+   newer --ts-* app-shell variables, since admin.html only loads
+   style.css. Deliberately plain/compact per spec — no gradients,
+   no heavy animation. */
+.admin-analytics-head{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.admin-analytics-controls{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-period-select{
+  padding: 9px 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+.admin-refresh-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+}
+.admin-refresh-btn svg{ width: 15px; height: 15px; transition: transform 0.5s ease; }
+.admin-refresh-btn.is-refreshing svg{ animation: adminRefreshSpin 0.7s linear infinite; }
+@keyframes adminRefreshSpin{ to{ transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){
+  .admin-refresh-btn.is-refreshing svg{ animation: none; }
+}
+
+.admin-analytics-error{
+  background: #FBEAE7;
+  border: 1px solid var(--stamp);
+  color: var(--stamp-dark);
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+/* 6 cards: one row on wide desktop, 3+3 on medium, 2 cols on
+   tablet, 1 col on narrow mobile — exactly the breakpoints
+   requested. auto-fit/minmax gives the 6-across / 3+3 / 2-col
+   steps naturally from a single rule; the 480px query forces the
+   final 1-column step, since minmax alone would still fit 2 much
+   narrower than that. */
+.admin-stat-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 480px){
+  .admin-stat-grid{ grid-template-columns: 1fr; }
+}
+.admin-stat-card{
+  background: var(--white);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 1px 0 var(--paper-line);
+}
+.admin-stat-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--paper-dark);
+  color: var(--brass);
+  margin-bottom: 10px;
+}
+.admin-stat-icon svg{ width: 17px; height: 17px; }
+.admin-stat-label{
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.admin-stat-value{
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+.admin-stat-note{
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* Skeleton loading state — shape-matched to the real card so
+   nothing jumps once real data replaces it, and no "0" is ever
+   flashed while loading. */
+.admin-stat-skeleton{ position: relative; overflow: hidden; }
+.admin-stat-skel-icon,
+.admin-stat-skel-line{
+  background: var(--paper-dark);
+  border-radius: var(--radius);
+}
+.admin-stat-skel-icon{ width: 34px; height: 34px; border-radius: 50%; margin-bottom: 10px; }
+.admin-stat-skel-line{ height: 12px; margin-top: 8px; }
+.admin-stat-skeleton::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: adminSkelShimmer 1.3s ease-in-out infinite;
+}
+@keyframes adminSkelShimmer{
+  0%{ transform: translateX(-100%); }
+  100%{ transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce){
+  .admin-stat-skeleton::after{ animation: none; display: none; }
+}
+
+.admin-top-passages-card{ overflow-x: auto; }
+.admin-passage-table{ display: flex; flex-direction: column; }
+.admin-passage-row{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--paper-line);
+}
+.admin-passage-row:last-child{ border-bottom: none; }
+.admin-passage-rank{
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--brass);
+  width: 30px;
+  flex: none;
+}
+.admin-passage-info{ flex: 1 1 auto; min-width: 0; }
+.admin-passage-title{
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-passage-category{
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--paper-dark);
+  border-radius: var(--radius);
+  padding: 2px 7px;
+}
+.admin-passage-attempts{
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.admin-section-divider{
+  border: none;
+  border-top: 1px solid var(--paper-line);
+  margin: 32px 0;
+}
+
+@media (max-width: 640px){
+  .admin-analytics-head{ flex-direction: column; align-items: stretch; }
+  .admin-analytics-controls{ justify-content: space-between; }
+  .admin-passage-row{ flex-wrap: wrap; }
+  .admin-passage-attempts{ margin-left: 44px; }
+}
