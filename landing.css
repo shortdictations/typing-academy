@@ -711,3 +711,43 @@ body.landing-v2 .info-modal-body strong{ color: var(--ts-text); }
   body.landing-v2 .section-heading{ font-size: 1.35rem; gap: 10px; }
   body.landing-v2 .hero-panel{ padding: 18px; }
 }
+
+/* ---------- New landing page redesign extensions ----------
+   User-provided CSS, added verbatim: custom scrollbars for the
+   Tailwind-based hero/dashboard preview panels, and the blink
+   keyframe backing Tailwind's animate-pulse utility on the hero's
+   typing cursor. Global (not scoped to body.landing-v2) since the
+   scrollbar styling is meant to apply generally, matching how it
+   was provided; harmless elsewhere since it only affects scrollbar
+   rendering and an animation name Tailwind's own utility already
+   references. */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-pulse {
+  animation: blink 1s infinite;
+}
+
+/* ---------- Sticky footer for the new landing page structure ----------
+   The new content uses <main class="ts-landing-main"> instead of the
+   old .landing-page wrapper (deliberately — .landing-page carries
+   h1/h2 color/font overrides from the OLD design that would have
+   fought the new Tailwind-styled headings). Same flex:1 0 auto
+   mechanism as before, just targeting the new class name. */
+body.landing-v2 main.ts-landing-main{ flex: 1 0 auto; }
