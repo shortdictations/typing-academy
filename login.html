@@ -3,33 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In — TypeShala</title>
+<title>Log In — TypeShala</title>
+<script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="landing-v3.css?v=2">
+<link rel="stylesheet" href="landing.css?v=2">
+<link rel="stylesheet" href="auth-redesign.css">
 </head>
-<body class="auth-page">
+<body class="landing-v2 auth-shell">
 
-<header class="letterhead">
-  <div class="letterhead-inner">
-    <a class="brand" href="index.html">
-      <span class="seal">TS</span>
-      <span class="brand-text">
-        <span class="title">TypeShala</span>
-        <span class="subtitle">Typing Practice Centre</span>
+<!-- Existing TypeShala landing-page header, unmodified except the
+     in-page anchor links (#platform etc.), which only make sense on
+     index.html itself — qualified here so they still work correctly
+     from this page instead of silently doing nothing. -->
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="lp-brand" href="index.html" aria-label="TypeShala home">
+      <span class="lp-brand-mark">TS</span>
+      <span>
+        <strong>TypeShala</strong>
+        <small>TYPING PRACTICE CENTRE</small>
       </span>
     </a>
+
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="index.html#platform">Platform</a>
+      <a href="index.html#analytics">Analytics</a>
+      <a href="index.html#pricing">Passes &amp; Credits</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a class="login-link" href="login.html">Log in</a>
+      <a class="lp-btn lp-btn-gold lp-btn-small" href="register.html">Get Started</a>
+    </div>
+
+    <button class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+      <i data-lucide="menu"></i>
+    </button>
+  </div>
+
+  <div class="mobile-menu">
+    <a href="index.html#platform">Platform</a>
+    <a href="index.html#analytics">Analytics</a>
+    <a href="index.html#pricing">Passes &amp; Credits</a>
+    <a href="login.html">Log in</a>
+    <a class="lp-btn lp-btn-gold" href="register.html">Get Started</a>
   </div>
 </header>
 
-<main class="page page-narrow">
+<main class="ts-auth-main">
+  <div class="auth-card">
 
-  <div class="card">
-    <div class="error-msg" id="errorMsg"></div>
-    <div class="success-msg" id="successMsg"></div>
+    <div class="auth-error-msg" id="errorMsg"></div>
+    <div class="auth-success-msg" id="successMsg"></div>
 
     <!-- STEP 1: CHOICE — default view, no fields at all -->
     <div id="viewChoice">
-      <h1 style="font-size:1.6rem; margin-bottom:20px;">Create Account</h1>
-      <button type="button" class="auth-choice-btn" id="googleLoginBtn" style="margin-bottom:12px;">
+      <div class="auth-card-head">
+        <h1>Welcome back</h1>
+        <p>Log in to continue your exam-ready typing practice.</p>
+      </div>
+
+      <button type="button" class="auth-google-btn" id="googleLoginBtn" style="margin-bottom:12px;">
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:none;">
           <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/>
@@ -38,43 +73,201 @@
         </svg>
         <span>Continue with Google</span>
       </button>
-      <button type="button" class="auth-choice-btn primary" id="showEmailBtn">
-        <span aria-hidden="true">&#9993;</span>
+      <button type="button" class="auth-submit-btn" id="showEmailBtn" style="background:var(--navy); box-shadow:none;">
+        <i data-lucide="mail"></i>
         <span>Continue with Email</span>
       </button>
     </div>
 
     <!-- STEP 2: SIGN IN — reached via "Continue with Email" -->
     <div id="viewSignIn" style="display:none;">
-      <button type="button" class="auth-back-link" id="backToChoiceBtn">&larr; Back</button>
-      <h1 style="font-size:1.5rem; margin-bottom:18px;">Sign in</h1>
+      <button type="button" class="auth-back-link" id="backToChoiceBtn">
+        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
+      </button>
+
+      <div class="auth-card-head" style="margin-bottom:22px;">
+        <h1>Sign in</h1>
+      </div>
 
       <form id="loginForm">
-        <div class="input-icon-field">
-          <span class="field-icon" aria-hidden="true">&#9993;</span>
-          <input type="email" id="loginEmail" placeholder="Enter your mail id" required autocomplete="email">
+        <div class="auth-field">
+          <label for="loginEmail">Email Address</label>
+          <div class="auth-input-wrap">
+            <i data-lucide="mail"></i>
+            <input type="email" id="loginEmail" placeholder="candidate@example.com" required autocomplete="email">
+          </div>
         </div>
-        <div class="input-icon-field">
-          <span class="field-icon" aria-hidden="true">&#128274;</span>
-          <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+
+        <div class="auth-field">
+          <div class="auth-field-row">
+            <label for="loginPassword">Password</label>
+            <a href="forgot-password.html" class="auth-forgot-link">Forgot Password?</a>
+          </div>
+          <div class="auth-input-wrap">
+            <i data-lucide="lock"></i>
+            <input type="password" id="loginPassword" class="has-toggle" placeholder="Enter your password" required autocomplete="current-password">
+            <button type="button" class="auth-toggle-visibility" id="togglePassword" aria-label="Show password">
+              <i data-lucide="eye" id="eyeIcon"></i>
+            </button>
+          </div>
         </div>
-        <p style="margin:-6px 0 16px; text-align:right;">
-          <a href="forgot-password.html" style="font-size:0.82rem; color:var(--stamp); text-decoration:none;">Forgot Password?</a>
-        </p>
-        <button type="submit" class="btn btn-full" id="loginBtn">Sign In</button>
+
+        <button type="submit" class="auth-submit-btn" id="loginBtn">
+          <span>Log In to Dashboard</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
       </form>
 
-      <p class="foot-link">
-        New here? <a href="register.html">Sign up</a>
+      <p class="auth-foot-link">
+        New here? <a href="register.html">Sign up for free</a>
       </p>
     </div>
-  </div>
 
+    <!-- Dynamic — never hard-coded. Populated by js/landing-products.js
+         (loadFreeCreditsCopy), the same function and same
+         get_public_free_signup_credits() RPC the landing page uses —
+         one source of truth, no separate copy of this logic. Hidden
+         entirely (rather than left showing stale/wrong text) if the
+         setting can't be loaded or the offer is disabled. -->
+    <div class="auth-free-credits" id="freeCreditsNote" style="display:none;">
+      <i data-lucide="sparkles"></i>
+      <span data-free-credits="New users get {n} free credits automatically upon signup!">New users get free credits automatically upon signup!</span>
+    </div>
+
+  </div>
 </main>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <div class="site-foot-social" aria-label="Follow TypeShala">
+      <a class="site-foot-social-link" href="https://indianshorthand.blogspot.com" target="_blank" rel="noopener noreferrer" aria-label="Blogger">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M14 8.5h1.5V6h-2A3 3 0 0 0 10.5 9v1.5H9V13h1.5v5H13v-5h1.8l.3-2.5H13V9c0-.3.2-.5.5-.5H14Z" fill="#fff"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://www.youtube.com/@shortdictations" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M16.5 9.3c-.1-.5-.5-.9-1-1-1-.2-3.5-.2-3.5-.2s-2.5 0-3.5.2c-.5.1-.9.5-1 1-.2 1-.2 2.7-.2 2.7s0 1.7.2 2.7c.1.5.5.9 1 1 1 .2 3.5.2 3.5.2s2.5 0 3.5-.2c.5-.1.9-.5 1-1 .2-1 .2-2.7.2-2.7s0-1.7-.2-2.7Z" stroke="#fff" stroke-width="0.5" fill="#fff" fill-opacity="0.15"/><path d="M10.8 10.2v3.6l3.1-1.8-3.1-1.8Z" fill="#fff"/></svg>
+      </a>
+      <a class="site-foot-social-link" href="https://t.me/shorthandjournals" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M17.5 7.2 15.8 16c-.1.6-.5.7-1 .4l-2.7-2-1.3 1.3c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1l-6.1 3.9-2.6-.8c-.6-.2-.6-.6.1-.9l10.3-4c.5-.2.9.1.6.9Z" fill="#fff"/></svg>
+      </a>
+    </div>
+
+    <div class="site-foot-divider"></div>
+
+    <div class="site-foot-bottom">
+      <span class="site-foot-copyright">&copy; TypeShala 2026. All rights reserved.</span>
+      <div class="site-foot-links">
+        <button type="button" class="site-foot-link-btn" data-modal-open="privacyModal">Privacy Policy</button>
+        <span class="site-foot-sep">|</span>
+        <button type="button" class="site-foot-link-btn" data-modal-open="termsModal">Terms and Conditions</button>
+        <span class="site-foot-sep">|</span>
+        <button type="button" class="site-foot-link-btn" data-modal-open="aboutModal">About Us</button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="info-modal-overlay" id="infoModalOverlay" hidden></div>
+<div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" hidden>
+  <div class="info-modal-head">
+    <h2 id="infoModalTitle"></h2>
+    <button type="button" class="info-modal-close" id="infoModalCloseBtn" aria-label="Close">&times;</button>
+  </div>
+  <div class="info-modal-body" id="infoModalBody"></div>
+</div>
+
+<template id="privacyModalContent">
+  <p><strong>Last Updated:</strong> 24 August 2026</p>
+  <h3>1. Introduction</h3>
+  <p>Welcome to TypeShala.</p>
+  <p>TypeShala is an online typing practice and mock-test platform. We respect the privacy of our users and are committed to handling personal information responsibly.</p>
+  <p>This Privacy Policy explains what information may be collected when you use TypeShala, how that information may be used, and the choices available to you.</p>
+  <p>By using TypeShala, you acknowledge this Privacy Policy.</p>
+  <h3>2. Information We Collect</h3>
+  <p>Depending on how you use the platform, TypeShala may collect or process information such as:</p>
+  <p><strong>Account Information:</strong></p>
+  <ul><li>Name</li><li>Email address</li><li>Login and authentication information</li><li>Account-related information</li></ul>
+  <p><strong>Typing and Performance Information:</strong></p>
+  <ul><li>Typing speed</li><li>Accuracy</li><li>Gross WPM</li><li>Net WPM</li><li>Weak-key/error statistics</li><li>Test history and results</li></ul>
+  <p><strong>Payment Information:</strong></p>
+  <ul><li>Purchase records (passes/credits)</li><li>Transaction identifiers</li><li>Payment status (processed securely through Razorpay; TypeShala does not store your card or bank details)</li></ul>
+  <p><strong>Technical Information:</strong></p>
+  <ul><li>Device/browser type</li><li>General usage data</li><li>Session information</li></ul>
+  <h3>3. How We Use Information</h3>
+  <p>Information collected may be used to:</p>
+  <ul><li>Provide and operate the typing practice and mock-test platform</li><li>Track your performance and progress</li><li>Process purchases of passes/credits</li><li>Maintain account security and prevent misuse</li><li>Improve platform features and content</li><li>Respond to support requests</li></ul>
+  <h3>4. Data Sharing</h3>
+  <p>TypeShala does not sell personal information.</p>
+  <p>Information may be shared only with:</p>
+  <ul><li>Supabase (our authentication and database provider)</li><li>Razorpay (our payment processor)</li><li>As required by law</li></ul>
+  <h3>5. Data Security</h3>
+  <p>We apply reasonable technical and organizational measures to protect user data. However, no online platform can guarantee absolute security.</p>
+  <h3>6. Data Retention</h3>
+  <p>Account and performance data is retained as long as your account remains active, or as required for legitimate business/legal purposes.</p>
+  <h3>7. Your Choices</h3>
+  <p>You may:</p>
+  <ul><li>Request correction of your account information</li><li>Request account deletion</li><li>Contact us regarding your data</li></ul>
+  <h3>8. Children's Privacy</h3>
+  <p>TypeShala is intended for typing exam preparation and is not directed at young children. If you believe a child has provided personal information without appropriate consent, please contact us.</p>
+  <h3>9. Changes to this Policy</h3>
+  <p>This Privacy Policy may be updated from time to time. Continued use of TypeShala after changes indicates acceptance of the updated policy.</p>
+  <h3>10. Contact</h3>
+  <p>For questions regarding this Privacy Policy: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
+<template id="termsModalContent">
+  <p><strong>Last Updated:</strong> 24 August 2026</p>
+  <h3>1. Acceptance of Terms</h3>
+  <p>By accessing or using TypeShala, you agree to these Terms and Conditions. If you do not agree, please do not use the platform.</p>
+  <h3>2. Description of Service</h3>
+  <p>TypeShala provides typing practice, mock tests, and performance analytics for exam preparation (including SSC, Legal/Court, and related typing categories).</p>
+  <h3>3. Account Responsibilities</h3>
+  <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
+  <h3>4. Passes &amp; Credits</h3>
+  <ul><li>Passes and credits are non-transferable.</li><li>Passes provide access for their stated validity period only.</li><li>Credits are consumed per mock-test attempt as described on the platform.</li><li>Purchases are processed securely through Razorpay.</li></ul>
+  <h3>5. Refund Policy</h3>
+  <p>Purchases of digital passes/credits are generally non-refundable once activated, except where required by applicable law or at TypeShala's discretion in cases of genuine technical error.</p>
+  <h3>6. Acceptable Use</h3>
+  <p>You agree not to:</p>
+  <ul><li>Misuse, copy, or redistribute TypeShala's typing passages or mock-test content</li><li>Attempt to bypass exam timing, scoring, or evaluation mechanisms</li><li>Share your account with others</li><li>Use the platform for unlawful purposes</li></ul>
+  <h3>7. Intellectual Property</h3>
+  <p>TypeShala's original website design, software, branding, logos, typing passages, mock-test content, practice materials, graphics, text and analysis systems are protected by applicable intellectual-property laws.</p>
+  <h3>8. Service Availability</h3>
+  <p>TypeShala is provided on an "as available" basis. We do not guarantee uninterrupted or error-free access at all times.</p>
+  <h3>9. Limitation of Liability</h3>
+  <p>TypeShala is a practice and preparation tool. We do not guarantee specific exam results, scores, or outcomes in any official examination.</p>
+  <h3>10. Changes to Service or Terms</h3>
+  <p>TypeShala may update these Terms, pricing, or features at any time. Continued use after changes indicates acceptance.</p>
+  <h3>11. Governing Law</h3>
+  <p>These Terms are governed by applicable Indian law.</p>
+  <h3>12. Contact</h3>
+  <p>For questions about these Terms: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
+<template id="aboutModalContent">
+  <p><strong>About TypeShala</strong></p>
+  <p>TypeShala is an exam-focused typing practice platform built for SSC, Legal/Court, and related typing examinations.</p>
+  <h3>What We Offer</h3>
+  <ul><li>Timed mock tests matching real exam formats</li><li>Accurate Gross WPM / Net WPM / Accuracy scoring</li><li>Weak-key analysis to target specific practice areas</li><li>Category-specific passages (SSC, Legal/Court)</li><li>Progress tracking across attempts</li></ul>
+  <h3>Our Approach</h3>
+  <p>TypeShala focuses on realistic, exam-style conditions rather than generic typing games — the goal is genuine exam readiness, not just typing speed.</p>
+  <h3>Continuous Improvement</h3>
+  <p>TypeShala is continuously being developed and improved. New features, practice materials and improvements may be introduced from time to time.</p>
+  <h3>Contact</h3>
+  <p>For questions, suggestions or support: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
+</template>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/landing-v3.js?v=2"></script>
+<script src="js/landing-footer.js?v=2"></script>
+<script src="js/landing-products.js?v=2"></script>
 <script>
+if (window.lucide) lucide.createIcons();
+
 function hideMessages() {
   document.getElementById('errorMsg').style.display = 'none';
   document.getElementById('successMsg').style.display = 'none';
@@ -85,7 +278,6 @@ function showError(text) {
   el.style.display = 'block';
 }
 
-// Simple 2-view toggle — no page reload, no separate route.
 document.getElementById('showEmailBtn').addEventListener('click', () => {
   hideMessages();
   document.getElementById('viewChoice').style.display = 'none';
@@ -97,10 +289,16 @@ document.getElementById('backToChoiceBtn').addEventListener('click', () => {
   document.getElementById('viewChoice').style.display = 'block';
 });
 
-// Handle Google OAuth login — reuses the same supabaseClient from
-// js/supabase-config.js, no separate client created. Works for both
-// an existing Google account (signs in) and a brand-new one (Supabase
-// creates it automatically) — same call either way.
+document.getElementById('togglePassword').addEventListener('click', () => {
+  const input = document.getElementById('loginPassword');
+  const icon = document.getElementById('eyeIcon');
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  icon.setAttribute('data-lucide', showing ? 'eye' : 'eye-off');
+  document.getElementById('togglePassword').setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+  if (window.lucide) lucide.createIcons();
+});
+
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
   hideMessages();
   const btn = document.getElementById('googleLoginBtn');
@@ -117,17 +315,14 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     btn.disabled = false;
     btn.querySelector('span:last-child').textContent = 'Continue with Google';
   }
-  // On success, Supabase redirects the browser to Google immediately —
-  // no further code runs here.
 });
 
-// Handle login — unchanged from before, same loginStudent() call
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   hideMessages();
   const btn = document.getElementById('loginBtn');
   btn.disabled = true;
-  btn.textContent = 'Signing in...';
+  btn.querySelector('span').textContent = 'Signing in...';
 
   try {
     const email = document.getElementById('loginEmail').value.trim();
@@ -137,14 +332,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   } catch (err) {
     showError(err.message || 'Login failed. Please check your details.');
     btn.disabled = false;
-    btn.textContent = 'Sign In';
+    btn.querySelector('span').textContent = 'Log In to Dashboard';
   }
 });
 
-// If this browser was just signed out because another device logged
-// into the same account, forceSessionLogout() (auth.js) left a
-// message here for exactly this page to show once. Read-and-clear so
-// it never reappears on a later, unrelated visit to this page.
+(async () => {
+  await loadFreeCreditsCopy();
+  const note = document.getElementById('freeCreditsNote');
+  const span = note.querySelector('[data-free-credits]');
+  if (span && !span.textContent.includes('{n}') && !/\bNew users get\s+0\b/i.test(span.textContent)) {
+    note.style.display = 'flex';
+  }
+})();
+
 let tsHadSessionInvalidatedMessage = false;
 (() => {
   const sessionMsg = sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
@@ -155,11 +355,6 @@ let tsHadSessionInvalidatedMessage = false;
   }
 })();
 
-// If already logged in, skip straight to dashboard — but not right
-// after showing the message above, since forceSessionLogout() always
-// signs out before redirecting here anyway (so this wouldn't
-// normally fire either way); this just avoids the message flashing
-// and instantly disappearing in any edge case where it somehow did.
 (async () => {
   if (tsHadSessionInvalidatedMessage) return;
   const user = await getCurrentUser();
