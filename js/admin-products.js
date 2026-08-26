@@ -80,9 +80,9 @@ function updateTypeFields() {
   const type = document.getElementById("pType").value;
   document.getElementById("passTypeWrap").style.display = type === "PASS" ? "block" : "none";
   document.getElementById("creditsWrap").style.display = type === "CREDIT" ? "block" : "none";
-  // Best Value is a PASS-only concept (CREDIT products don't use this badge).
-  document.getElementById("bestValueWrap").style.display = type === "PASS" ? "block" : "none";
-  if (type !== "PASS") document.getElementById("pBestValue").checked = false;
+  // Featured/badge is now available for BOTH product types — only one
+  // product across the whole catalog can hold it at a time (see
+  // clearOtherBestValue, no longer scoped to product_type).
 }
 
 /* ---------------- Loading / rendering ---------------- */
@@ -104,11 +104,11 @@ async function loadProducts() {
   window._productLookup = {};
   data.forEach(p => { window._productLookup[p.id] = p; });
 
-  renderList(data.filter(p => p.product_type === "PASS"), document.getElementById("passListBody"), "No pass plans yet.", true);
-  renderList(data.filter(p => p.product_type === "CREDIT"), document.getElementById("creditListBody"), "No credit packages yet.", false);
+  renderList(data.filter(p => p.product_type === "PASS"), document.getElementById("passListBody"), "No pass plans yet.");
+  renderList(data.filter(p => p.product_type === "CREDIT"), document.getElementById("creditListBody"), "No credit packages yet.");
 }
 
-function renderList(products, container, emptyText, showBestValue) {
+function renderList(products, container, emptyText) {
   if (products.length === 0) {
     container.innerHTML = '<div class="empty-state">' + emptyText + '</div>';
     return;
@@ -117,12 +117,10 @@ function renderList(products, container, emptyText, showBestValue) {
   let rows = "";
   products.forEach(p => {
     const subLabel = p.product_type === "PASS" ? p.pass_type : (p.credits + " credits");
-    const bestValueCell = showBestValue
-      ? '<td>' + (p.best_value ? '<span class="pill">&#9733; Best Value</span>' : '') + '</td>'
-      : "";
-    const bestValueAction = showBestValue
-      ? '<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleBestValue(\'' + p.id + '\')">' + (p.best_value ? "Remove Best Value" : "Set Best Value") + '</button>'
-      : "";
+    const featuredCell = p.best_value
+      ? '<td><span class="pill">&#9733; ' + escapeHtml(p.badge_text || "Featured") + '</span></td>'
+      : '<td></td>';
+    const featuredAction = '<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleBestValue(\'' + p.id + '\')">' + (p.best_value ? "Remove Featured" : "Set Featured") + '</button>';
     rows += `
       <tr>
         <td>${escapeHtml(p.name)}</td>
@@ -131,22 +129,21 @@ function renderList(products, container, emptyText, showBestValue) {
         <td>${p.validity_days} days</td>
         <td>${p.display_order}</td>
         <td>${p.active ? "Active" : "Inactive"}</td>
-        ${bestValueCell}
+        ${featuredCell}
         <td style="white-space:nowrap;">
           <button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="startEdit('${p.id}')">Edit</button>
           <button type="button" class="btn" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleActive('${p.id}')">${p.active ? "Deactivate" : "Activate"}</button>
-          ${bestValueAction}
+          ${featuredAction}
           <button type="button" class="btn" style="padding:5px 10px;font-size:0.75rem;" onclick="deleteProduct('${p.id}')">Delete</button>
         </td>
       </tr>`;
   });
 
-  const bestValueHeader = showBestValue ? "<th>Best Value</th>" : "";
   container.innerHTML = `
     <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
-        <tr><th>Name</th><th>Type</th><th>Price</th><th>Validity</th><th>Order</th><th>Status</th>${bestValueHeader}<th>Actions</th></tr>
+        <tr><th>Name</th><th>Type</th><th>Price</th><th>Validity</th><th>Order</th><th>Status</th><th>Featured</th><th>Actions</th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
@@ -177,9 +174,11 @@ async function handleSubmit(e) {
     features: features.length ? features : null,
     display_order: parseInt(document.getElementById("pOrder").value, 10) || 0,
     active: document.getElementById("pActive").value === "true",
-    // Best Value is PASS-only — CREDIT products never carry this flag,
-    // regardless of what the (hidden, auto-unchecked) checkbox holds.
-    best_value: type === "PASS" ? document.getElementById("pBestValue").checked : false
+    // Featured is now available for either product type — enforcement
+    // that only one product total can hold it lives in
+    // clearOtherBestValue below, not in a type check here.
+    best_value: document.getElementById("pBestValue").checked,
+    badge_text: document.getElementById("pBadgeText").value.trim() || null
   };
 
   // plan_code is only ever set on CREATION — the field is disabled during
@@ -224,13 +223,13 @@ async function handleSubmit(e) {
   }
 }
 
-// Clears best_value on every PASS product except the one being saved
-// (excludeId is null when creating a brand-new product).
+// Clears best_value on every product (either type) except the one
+// being saved (excludeId is null when creating a brand-new product) —
+// only one product across the whole catalog can be Featured at a time.
 async function clearOtherBestValue(excludeId) {
   let query = supabaseClient
     .from("products")
     .update({ best_value: false })
-    .eq("product_type", "PASS")
     .eq("best_value", true);
   if (excludeId) query = query.neq("id", excludeId);
   const { error } = await query;
@@ -266,6 +265,7 @@ function startEdit(id) {
   if (p.product_type === "PASS") document.getElementById("pPassType").value = p.pass_type;
   if (p.product_type === "CREDIT") document.getElementById("pCredits").value = p.credits;
   document.getElementById("pBestValue").checked = !!p.best_value;
+  document.getElementById("pBadgeText").value = p.badge_text || "";
   document.getElementById("pName").value = p.name;
   document.getElementById("pPrice").value = p.price;
   document.getElementById("pValidity").value = p.validity_days;
