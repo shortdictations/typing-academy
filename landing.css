@@ -750,4 +750,4 @@ body.landing-v2 .info-modal-body strong{ color: var(--ts-text); }
    h1/h2 color/font overrides from the OLD design that would have
    fought the new Tailwind-styled headings). Same flex:1 0 auto
    mechanism as before, just targeting the new class name. */
-body.landing-v2 main.ts-landing-main{ flex: 1 0 auto; }
+body.landing-v2 .ts-landing-main{ flex: 1 0 auto; }
