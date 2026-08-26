@@ -320,3 +320,83 @@ body.landing-v2 .info-modal-body strong{ color: var(--ts-text); }
    fought the new Tailwind-styled headings). Same flex:1 0 auto
    mechanism as before, just targeting the new class name. */
 body.landing-v2 .ts-landing-main{ flex: 1 0 auto; }
+
+/* ---------- Announcement ticker (copied from style.css) ----------
+   This page no longer loads style.css at all (see index.html's own
+   comment on that — it was a real collision source), but the
+   announcement ticker markup/JS (js/announcement-ticker.js, shared
+   with dashboard.html) is styled there. Copied here verbatim except
+   var(--brass), which doesn't exist on this page — replaced with
+   var(--gold), this design's own equivalent accent color (--ink is
+   unchanged since landing-v3.css defines it globally, at :root, so
+   it already resolves correctly here). Class names checked for
+   collisions with landing-v3.css before copying: none. */
+.announcement-ticker{
+  display: block;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.announcement-ticker-track{
+  width: 100%;
+  overflow: hidden;
+}
+.announcement-ticker-content{
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  width: max-content;
+  line-height: 1.4;
+}
+.announcement-ticker-content.is-animating{
+  animation-name: announcement-ticker-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.announcement-ticker:hover .announcement-ticker-content.is-animating{
+  animation-play-state: paused;
+}
+@keyframes announcement-ticker-scroll{
+  from{ transform: translateX(100vw); }
+  to{ transform: translateX(-100%); }
+}
+.announcement-ticker-icon{
+  color: var(--gold);
+  margin-right: 8px;
+}
+.announcement-ticker-item{
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+a.announcement-ticker-item:hover{ color: var(--gold); text-decoration: underline; }
+.announcement-ticker-sep{
+  color: var(--gold);
+  margin: 0 16px;
+  font-size: 0.7rem;
+}
+@media (max-width: 700px){
+  .announcement-ticker-item{ font-size: 14px; }
+  .announcement-ticker-sep{ margin: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .announcement-ticker-content.is-animating{ animation: none; }
+}
+
+/* ---------- Dynamic pricing/products fallback state ---------- */
+.plans-unavailable{
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--ink);
+  opacity: 0.6;
+  font-size: 14px;
+}
