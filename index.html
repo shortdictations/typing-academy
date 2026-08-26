@@ -9,28 +9,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- Load order matters here: style.css (this project's shared base
-     stylesheet, used on every page) defines generic classes like
-     .btn/.brand/.eyebrow/.hero-copy at the same specificity this
-     design's own landing-v3.css uses for the same names — loading
-     landing-v3.css AFTER style.css lets it win those ties by source
-     order. landing.css only contains high-specificity
-     body.landing-v2-scoped footer/modal rules at this point (its
-     old, lower-specificity rules that used to collide with these
-     same class names have been removed entirely — dead code from a
-     since-replaced design, confirmed unused before deleting), so its
-     position here doesn't affect anything. -->
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="landing-v3.css">
-<link rel="stylesheet" href="landing.css">
+<!-- style.css (this project's shared base stylesheet for logged-in
+     app pages) is deliberately NOT loaded here. It was the actual
+     source of a real, confirmed bug: it defines generic classes like
+     .btn/.brand/.eyebrow/.hero-copy at the same CSS specificity this
+     landing page's own stylesheet uses for unrelated purposes, and
+     depending on load order it could silently win and override this
+     page's intended colors/layout (confirmed directly — a "Get
+     Started" button rendered navy instead of gold because of exactly
+     this). This page doesn't actually need anything from style.css —
+     landing-v3.css defines its own complete, self-contained color
+     palette, and landing.css (loaded below, for the footer) defines
+     its own --ts-* variables independently. As a second, independent
+     layer of protection beyond simply not loading it, every class
+     name landing-v3.css/index.html use that could plausibly collide
+     with style.css's generic names has also been renamed with an
+     "lp-" prefix (lp-btn, lp-brand, lp-eyebrow, lp-hero*), so even if
+     style.css is ever reintroduced here for some other reason, it
+     cannot silently collide with this page's own styling again. -->
+<link rel="stylesheet" href="landing-v3.css?v=2">
+<link rel="stylesheet" href="landing.css?v=2">
 </head>
 <body class="landing-v2">
 
 <div class="ts-landing-main">
 <header class="site-header">
     <div class="container nav-wrap">
-      <a class="brand" href="index.html" aria-label="TypeShala home">
-        <span class="brand-mark">TS</span>
+      <a class="lp-brand" href="index.html" aria-label="TypeShala home">
+        <span class="lp-brand-mark">TS</span>
         <span>
           <strong>TypeShala</strong>
           <small>TYPING PRACTICE CENTRE</small>
@@ -45,7 +51,7 @@
 
       <div class="nav-actions">
         <a class="login-link" href="login.html">Log in</a>
-        <a class="btn btn-gold btn-small" href="register.html">Get Started</a>
+        <a class="lp-btn lp-btn-gold lp-btn-small" href="register.html">Get Started</a>
       </div>
 
       <button class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
@@ -58,27 +64,27 @@
       <a href="#analytics">Analytics</a>
       <a href="#pricing">Passes & Credits</a>
       <a href="login.html">Log in</a>
-      <a class="btn btn-gold" href="register.html">Get Started</a>
+      <a class="lp-btn lp-btn-gold" href="register.html">Get Started</a>
     </div>
   </header>
 
   <main>
     <!-- HERO -->
-    <section class="hero">
-      <div class="hero-glow hero-glow-one"></div>
-      <div class="hero-glow hero-glow-two"></div>
+    <section class="lp-hero">
+      <div class="lp-hero-glow lp-hero-glow-one"></div>
+      <div class="lp-hero-glow lp-hero-glow-two"></div>
 
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <div class="eyebrow"><span></span> FOR SSC & LEGAL TYPING ASPIRANTS</div>
+      <div class="container lp-hero-grid">
+        <div class="lp-hero-copy">
+          <div class="lp-eyebrow"><span></span> FOR SSC & LEGAL TYPING ASPIRANTS</div>
           <h1>Practice typing.<br><em>Prepare for the exam.</em></h1>
-          <p class="hero-text">
+          <p class="lp-hero-text">
             Exam-style mock tests, accurate scoring and useful performance insights —
             all in one focused practice platform.
           </p>
 
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="register.html">
+          <div class="lp-hero-actions">
+            <a class="lp-btn lp-btn-primary" href="register.html">
               Start Free with 3 Credits <i data-lucide="arrow-right"></i>
             </a>
             <a class="text-btn" href="#platform">Explore TypeShala <i data-lucide="arrow-down"></i></a>
@@ -90,7 +96,7 @@
           </div>
         </div>
 
-        <div class="hero-demo">
+        <div class="lp-hero-demo">
           <div class="demo-window">
             <div class="demo-top">
               <div class="window-dots"><span></span><span></span><span></span></div>
@@ -155,7 +161,7 @@
 
         <div class="audience-grid">
           <article class="audience-card blue-card">
-            <div class="icon-box"><img src="assets/ssc-logo.svg" alt="SSC logo" style="width:26px;height:26px;"></div>
+            <div class="icon-box"><img src="assets/ssc-logo.svg?v=2" alt="SSC logo" style="width:26px;height:26px;"></div>
             <div>
               <span class="card-tag">SSC</span>
               <h3>SSC Typing & DEST</h3>
@@ -410,7 +416,7 @@
             <h3>SSC Pass</h3>
             <div class="price">₹199 <small>60 days</small></div>
             <ul><li>Unlimited SSC mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="btn btn-outline" href="register.html">Get Started</a>
+            <a class="lp-btn lp-btn-outline" href="register.html">Get Started</a>
           </article>
 
           <article class="price-card featured">
@@ -419,7 +425,7 @@
             <h3>Legal Pass</h3>
             <div class="price">₹199 <small>60 days</small></div>
             <ul><li>Unlimited Legal / Court mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="btn btn-green" href="register.html">Get Started</a>
+            <a class="lp-btn lp-btn-green" href="register.html">Get Started</a>
           </article>
 
           <article class="price-card">
@@ -427,7 +433,7 @@
             <h3>Combo Pass</h3>
             <div class="price">₹249 <small>60 days</small></div>
             <ul><li>Unlimited SSC & Legal mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="btn btn-purple" href="register.html">Get Started</a>
+            <a class="lp-btn lp-btn-purple" href="register.html">Get Started</a>
           </article>
         </div>
 
@@ -454,7 +460,7 @@
         <span class="section-kicker light">READY WHEN YOU ARE</span>
         <h2>Build speed. Improve accuracy.<br>Get exam-ready.</h2>
         <p>Start with 3 free credits and experience TypeShala for yourself.</p>
-        <a class="btn btn-gold btn-large" href="register.html">Start Free with 3 Credits <i data-lucide="arrow-right"></i></a>
+        <a class="lp-btn lp-btn-gold lp-btn-large" href="register.html">Start Free with 3 Credits <i data-lucide="arrow-right"></i></a>
       </div>
     </section>
   </main>
@@ -776,10 +782,10 @@
   <p>For questions, suggestions or support: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
 </template>
 
-<script src="js/landing-footer.js"></script>
+<script src="js/landing-footer.js?v=2"></script>
 
 
-<script src="js/landing-v3.js"></script>
+<script src="js/landing-v3.js?v=2"></script>
 
 </body>
 </html>
