@@ -85,9 +85,12 @@
       <div class="field" id="bestValueWrap">
         <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
           <input type="checkbox" id="pBestValue" style="width:auto;">
-          Best Value
+          Featured
         </label>
-        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Only one Pass Plan can be Best Value at a time — marking this one automatically removes it from any other plan.</p>
+        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Only one product across the whole catalog (Pass Plans and Credit Packages together) can be Featured at a time — marking this one automatically removes it from whichever other product currently has it.</p>
+        <label for="pBadgeText" style="margin-top:10px; display:block;">Badge Text</label>
+        <input type="text" id="pBadgeText" maxlength="40" placeholder="e.g. Best Value, Best Offer, Popular">
+        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Shown on the landing page next to this product when Featured is checked. Leave blank for no badge text.</p>
       </div>
 
       <div class="field" id="creditsWrap" style="display:none;">
