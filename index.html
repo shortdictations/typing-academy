@@ -9,6 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Supabase client — this page now reads live product/pricing/
+     free-credits data (all public, RLS-gated: active products only,
+     and a minimal RPC for the free-credits number specifically —
+     see js/landing-products.js). No service-role key, anon key only,
+     same as every other page in this project. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <!-- style.css (this project's shared base stylesheet for logged-in
      app pages) is deliberately NOT loaded here. It was the actual
      source of a real, confirmed bug: it defines generic classes like
@@ -68,6 +75,13 @@
     </div>
   </header>
 
+  <!-- Admin-managed announcement ticker — same mechanism as the
+       dashboard (js/announcement-ticker.js), just targeting "home"
+       instead of "dashboard" as its locationKey. Hidden entirely
+       when nothing currently qualifies (active + in date window +
+       show_on includes "home"). -->
+  <div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+
   <main>
     <!-- HERO -->
     <section class="lp-hero">
@@ -85,13 +99,13 @@
 
           <div class="lp-hero-actions">
             <a class="lp-btn lp-btn-primary" href="register.html">
-              Start Free with 3 Credits <i data-lucide="arrow-right"></i>
+              <span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i>
             </a>
             <a class="text-btn" href="#platform">Explore TypeShala <i data-lucide="arrow-down"></i></a>
           </div>
 
           <div class="trust-row">
-            <span><i data-lucide="check-circle-2"></i> 3 free credits for new users</span>
+            <span><i data-lucide="check-circle-2"></i> <span data-free-credits="{n} free credits for new users">3 free credits for new users</span></span>
             <span><i data-lucide="check-circle-2"></i> 5 & 10 minute tests</span>
           </div>
         </div>
@@ -161,7 +175,7 @@
 
         <div class="audience-grid">
           <article class="audience-card blue-card">
-            <div class="icon-box"><img src="assets/ssc-logo.png" alt="SSC logo" style="width:26px;height:26px;"></div>
+            <div class="icon-box"><img src="assets/ssc-logo.svg?v=2" alt="SSC logo" style="width:26px;height:26px;"></div>
             <div>
               <span class="card-tag">SSC</span>
               <h3>SSC Typing & DEST</h3>
@@ -410,31 +424,8 @@
           <p>Use a Pass for unlimited practice or Credits when you only need individual mock tests.</p>
         </div>
 
-        <div class="pricing-grid">
-          <article class="price-card">
-            <div class="price-top"><span class="price-icon blue-bg"><i data-lucide="graduation-cap"></i></span><span>SSC</span></div>
-            <h3>SSC Pass</h3>
-            <div class="price">₹199 <small>60 days</small></div>
-            <ul><li>Unlimited SSC mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="lp-btn lp-btn-outline" href="register.html">Get Started</a>
-          </article>
-
-          <article class="price-card featured">
-            <div class="best-value">BEST VALUE</div>
-            <div class="price-top"><span class="price-icon green-bg"><i data-lucide="scale"></i></span><span>LEGAL</span></div>
-            <h3>Legal Pass</h3>
-            <div class="price">₹199 <small>60 days</small></div>
-            <ul><li>Unlimited Legal / Court mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="lp-btn lp-btn-green" href="register.html">Get Started</a>
-          </article>
-
-          <article class="price-card">
-            <div class="price-top"><span class="price-icon purple-bg"><i data-lucide="layers-2"></i></span><span>COMBO</span></div>
-            <h3>Combo Pass</h3>
-            <div class="price">₹249 <small>60 days</small></div>
-            <ul><li>Unlimited SSC & Legal mock tests</li><li>Access throughout validity</li><li>Non-recurring</li></ul>
-            <a class="lp-btn lp-btn-purple" href="register.html">Get Started</a>
-          </article>
+        <div class="pricing-grid" id="pricingGrid">
+          <p class="plans-unavailable">Loading plans…</p>
         </div>
 
         <div class="credits-box">
@@ -443,14 +434,10 @@
             <h3>Need only a few mock tests?</h3>
             <p>1 Credit = 1 test attempt. Credits are valid for 365 days.</p>
           </div>
-          <div class="credit-options">
-            <div><strong>10</strong><span>₹99</span></div>
-            <div><strong>20</strong><span>₹179</span></div>
-            <div class="credit-best"><strong>30</strong><span>₹239</span><small>Best offer</small></div>
-          </div>
+          <div class="credit-options" id="creditOptions"></div>
         </div>
 
-        <div class="free-credit-note"><i data-lucide="gift"></i><strong>New users get 3 free credits automatically.</strong><span>Try TypeShala before choosing a plan.</span></div>
+        <div class="free-credit-note"><i data-lucide="gift"></i><strong data-free-credits="New users get {n} free credits automatically.">New users get 3 free credits automatically.</strong><span>Try TypeShala before choosing a plan.</span></div>
       </div>
     </section>
 
@@ -459,8 +446,8 @@
       <div class="container final-inner">
         <span class="section-kicker light">READY WHEN YOU ARE</span>
         <h2>Build speed. Improve accuracy.<br>Get exam-ready.</h2>
-        <p>Start with 3 free credits and experience TypeShala for yourself.</p>
-        <a class="lp-btn lp-btn-gold lp-btn-large" href="register.html">Start Free with 3 Credits <i data-lucide="arrow-right"></i></a>
+        <p data-free-credits="Start with {n} free credits and experience TypeShala for yourself.">Start with 3 free credits and experience TypeShala for yourself.</p>
+        <a class="lp-btn lp-btn-gold lp-btn-large" href="register.html"><span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i></a>
       </div>
     </section>
   </main>
@@ -786,6 +773,17 @@
 
 
 <script src="js/landing-v3.js?v=2"></script>
+
+<!-- Dynamic commercial content — products/pricing/free-credits copy
+     and the home announcement ticker. Both read-only against
+     Supabase, both admin-controlled from admin-products.html and
+     admin-announcements.html respectively; nothing here needs a
+     redeploy to change. -->
+<script src="js/landing-products.js?v=2"></script>
+<script src="js/announcement-ticker.js?v=2"></script>
+<script>
+  initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — independent of everything else on the page, same pattern as dashboard.js
+</script>
 
 </body>
 </html>
