@@ -304,34 +304,19 @@ body.landing-v2 .stat-label{
   letter-spacing: 0.04em;
 }
 
-/* ---------- Section heading ---------- */
-body.landing-v2 .section-heading{
-  text-align: center;
-  font-size: 1.7rem;
-  font-weight: 800;
-  margin-top: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-}
-body.landing-v2 .section-heading::before,
-body.landing-v2 .section-heading::after{
-  content: "";
-  flex: 1 1 60px;
-  max-width: 90px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--ts-gold));
-}
-body.landing-v2 .section-heading::after{
-  background: linear-gradient(90deg, var(--ts-gold), transparent);
-}
-body.landing-v2 .section-sub{
-  text-align: center;
-  margin: 8px auto 28px;
-}
-
-/* ---------- Plans grid ---------- */
+/* ---------- Section heading & Plans grid ----------
+   NOTE: an old .section-heading/.section-sub rule set (from the
+   previous Tailwind-based landing page design, since fully replaced)
+   used to live here. index.html no longer contains that design at
+   all, but this stylesheet still loads alongside the new landing-v3.css
+   — and the new design ALSO uses a class named .section-heading for
+   something completely different (a centered kicker/heading/paragraph
+   block). Since .section-heading appears nowhere outside index.html,
+   that old rule was pure dead weight that had no purpose anymore
+   except accidentally overriding the new design's intended centered
+   layout with old flex/gap/gold-line-decoration styling — confirmed
+   directly via computed-style inspection (display:flex where the new
+   CSS never sets that) before removing it. */
 body.landing-v2 .passes-grid{
   gap: 24px;
 }
@@ -708,7 +693,6 @@ body.landing-v2 .info-modal-body strong{ color: var(--ts-text); }
   body.landing-v2 .landing-banner{ padding: 8px 16px; font-size: 0.78rem; justify-content: center; text-align: center; }
   body.landing-v2 .hero-copy h1{ font-size: 1.7rem; }
   body.landing-v2 .hero-copy .lede{ font-size: 0.92rem; }
-  body.landing-v2 .section-heading{ font-size: 1.35rem; gap: 10px; }
   body.landing-v2 .hero-panel{ padding: 18px; }
 }
 
