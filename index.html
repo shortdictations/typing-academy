@@ -9,11 +9,19 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="landing-v3.css">
-<!-- TypeShala's own stylesheets, loaded AFTER landing-v3.css so the
-     existing footer's specific class-based rules win any cascade
-     conflict with landing-v3.css's generic body/a element rules. -->
+<!-- Load order matters here: style.css (this project's shared base
+     stylesheet, used on every page) defines generic classes like
+     .btn/.brand/.eyebrow/.hero-copy at the same specificity this
+     design's own landing-v3.css uses for the same names — loading
+     landing-v3.css AFTER style.css lets it win those ties by source
+     order. landing.css only contains high-specificity
+     body.landing-v2-scoped footer/modal rules at this point (its
+     old, lower-specificity rules that used to collide with these
+     same class names have been removed entirely — dead code from a
+     since-replaced design, confirmed unused before deleting), so its
+     position here doesn't affect anything. -->
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="landing-v3.css">
 <link rel="stylesheet" href="landing.css">
 </head>
 <body class="landing-v2">
@@ -147,7 +155,7 @@
 
         <div class="audience-grid">
           <article class="audience-card blue-card">
-            <div class="icon-box"><img src="assets/ssc-logo.png" alt="SSC logo" style="width:26px;height:26px;"></div>
+            <div class="icon-box"><img src="assets/ssc-logo.svg" alt="SSC logo" style="width:26px;height:26px;"></div>
             <div>
               <span class="card-tag">SSC</span>
               <h3>SSC Typing & DEST</h3>
