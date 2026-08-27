@@ -7,6 +7,182 @@
 <script src="js/theme-init.js"></script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="app-shell.css">
+<style>
+/* ============================================================
+   Scoped subscriptions.html refinements — everything below is
+   scoped under body.subscriptions-page specifically so it can
+   never affect any other page, per the explicit file restriction
+   for this task. Nothing here touches app-shell.css/style.css/
+   subscriptions.js — the existing card-rendering logic, purchase
+   flow, and active/inactive determination are all untouched;
+   this only restyles the DOM subscriptions.js already produces,
+   and layers a read-only credit-history flip on top of the
+   existing Test Credits summary card.
+   ============================================================ */
+
+/* ---- 1. Bigger icons ---- */
+body.subscriptions-page .plan-icon{
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+}
+body.subscriptions-page .plan-icon svg{
+  width: 34px;
+  height: 34px;
+}
+
+/* ---- 2 & 4. Centered top section, bigger titles ----
+   Only the top identity block (icon/status/title/price/validity) —
+   feature lists and the button keep their existing left alignment,
+   per the brief's explicit instruction not to center the whole card. */
+body.subscriptions-page .pass-status-row,
+body.subscriptions-page .pass-status-row-inactive{
+  justify-content: center;
+}
+body.subscriptions-page .card-label{
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+body.subscriptions-page .pass-owned-label,
+body.subscriptions-page .pass-price,
+body.subscriptions-page .pass-valid-until{
+  text-align: center;
+}
+body.subscriptions-page .pass-duration-pill{
+  display: block;
+  width: fit-content;
+  margin: 0 auto 12px;
+}
+@media (max-width: 480px){
+  body.subscriptions-page .card-label{ font-size: 21px; }
+}
+
+/* ---- 5. Animated ACTIVE dot only ----
+   The word "Active"/"Not Active" and everything else keeps its
+   existing, unanimated styling — only .pass-status-dot itself
+   pulses, and only because it's already only rendered by
+   subscriptions.js for a genuinely active pass (see
+   buildPassCardHtml's activeState branch) — this never runs for
+   an inactive card, so no separate "only if active" check is
+   needed here. */
+@keyframes subsActiveDotPulse{
+  0%, 100%{
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.25);
+  }
+  50%{
+    transform: scale(1.15);
+    opacity: 0.85;
+    box-shadow: 0 0 0 5px rgba(22, 163, 74, 0);
+  }
+}
+body.subscriptions-page .pass-status-dot{
+  animation: subsActiveDotPulse 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  body.subscriptions-page .pass-status-dot{ animation: none; }
+}
+
+/* ---- 7/8/11/12. Credits card flip ----
+   .credits-flip-outer wraps the summary card's own existing content
+   completely unchanged as the FRONT face, and adds a new BACK face
+   for history — subscriptions.js's own HTML/classes for the card
+   itself are never modified, only wrapped (see the script below).
+   A fixed pixel height (set by JS, measured from the front face's
+   own natural size) is what keeps both faces identically sized and
+   stops any resize during the flip — this can't be done with CSS
+   alone since the content height varies per user. */
+body.subscriptions-page .credits-flip-outer{
+  perspective: 1200px;
+  width: 100%;
+}
+body.subscriptions-page .credits-flip-inner{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.1, 0.2, 1);
+  transform-style: preserve-3d;
+}
+body.subscriptions-page .credits-flip-inner.is-flipped{
+  transform: rotateY(180deg);
+}
+body.subscriptions-page .credits-flip-front,
+body.subscriptions-page .credits-flip-back{
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+body.subscriptions-page .credits-flip-back{
+  transform: rotateY(180deg);
+  text-align: left;
+  align-items: stretch;
+}
+@media (prefers-reduced-motion: reduce){
+  body.subscriptions-page .credits-flip-inner{ transition: none; }
+}
+
+body.subscriptions-page .credit-history-title{
+  text-align: center;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ts-gold-dark);
+  margin-bottom: 12px;
+}
+body.subscriptions-page .credit-history-list{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  max-height: 220px;
+  padding-right: 4px;
+  margin-bottom: 12px;
+  scrollbar-width: thin;
+}
+body.subscriptions-page .credit-history-list::-webkit-scrollbar{ width: 6px; }
+body.subscriptions-page .credit-history-list::-webkit-scrollbar-track{ background: transparent; }
+body.subscriptions-page .credit-history-list::-webkit-scrollbar-thumb{ background: var(--ts-border); border-radius: 8px; }
+
+body.subscriptions-page .credit-history-item{
+  padding: 10px 12px;
+  border: 1px solid var(--ts-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fff;
+}
+body.subscriptions-page .credit-history-item:last-child{ margin-bottom: 0; }
+body.subscriptions-page .credit-history-amount{
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--ts-gold-dark);
+}
+body.subscriptions-page .credit-history-dates{
+  font-size: 12px;
+  color: var(--ts-muted);
+  margin-top: 3px;
+}
+body.subscriptions-page .credit-history-empty{
+  text-align: center;
+  color: var(--ts-muted);
+  font-size: 13px;
+  padding: 20px 10px;
+}
+body.subscriptions-page .credit-history-empty strong{
+  display: block;
+  color: var(--ts-text);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+body.subscriptions-page .credit-history-back-btn{
+  margin-top: auto;
+}
+</style>
 </head>
 <body class="app-shell subscriptions-page">
 
@@ -167,6 +343,138 @@
 <script src="js/auth.js"></script>
 <script src="js/payments.js"></script>
 <script src="js/subscriptions.js"></script>
+
+<script>
+/* ============================================================
+   Scoped subscriptions.html enhancement — Credit History flip.
+   Does not modify subscriptions.js at all: it watches the grid
+   subscriptions.js already renders into, and once the existing
+   Test Credits summary card appears, wraps its EXISTING content
+   (untouched) as a flip-card front face, replaces only that
+   card's own "Buy Credits" link with "Show Credit History", and
+   adds a back face showing this user's own real purchased-credit
+   lots from wallet_credits (the same table subscriptions.js
+   already reads for the balance) — read-only, no new tables, no
+   changes to purchase/allocation logic.
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.getElementById("passProductsGrid");
+  if (!grid) return;
+
+  // subscriptions.js replaces grid.innerHTML wholesale on initial
+  // load AND after every successful purchase — this observer re-runs
+  // the enhancement each time, so a fresh (unflipped, balance-updated)
+  // card is correctly re-wrapped rather than left as the old,
+  // now-detached DOM node's stale flip state.
+  const observer = new MutationObserver(() => enhanceCreditsCard());
+  observer.observe(grid, { childList: true });
+  enhanceCreditsCard(); // in case the grid is already populated
+});
+
+function enhanceCreditsCard() {
+  const card = document.querySelector("#passProductsGrid .credits-summary-card");
+  // dataset guard: MutationObserver can fire more than once for a
+  // single innerHTML replacement — this stops the same card instance
+  // from being wrapped twice, without needing to unobserve/reobserve.
+  if (!card || card.dataset.flipReady) return;
+  card.dataset.flipReady = "true";
+
+  // Only this card's own "Buy Credits" link is removed — it was
+  // always just an anchor scrolling to the real purchase panel
+  // below (#creditProductsGrid), never the actual purchase action
+  // itself, so nothing about buying credits is lost.
+  const buyLink = card.querySelector("a.btn");
+  if (buyLink) buyLink.remove();
+
+  const front = document.createElement("div");
+  while (card.firstChild) front.appendChild(card.firstChild); // moves subscriptions.js's own markup verbatim, nothing rebuilt
+
+  const showHistoryBtn = document.createElement("button");
+  showHistoryBtn.type = "button";
+  showHistoryBtn.className = "btn btn-ghost btn-full";
+  showHistoryBtn.innerHTML = 'Show Credit History <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-left:4px;"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>';
+  front.appendChild(showHistoryBtn);
+
+  // Measured BEFORE the credits-flip-front class (position:absolute)
+  // is applied — measuring it AFTER would just read back whatever
+  // the absolute positioning resolved to, not the content's real
+  // natural height. As a plain block element temporarily appended to
+  // card, this reflects the true height needed, button included.
+  card.appendChild(front);
+  const naturalHeight = Math.ceil(front.getBoundingClientRect().height);
+  card.removeChild(front);
+  front.className = "credits-flip-front";
+
+  const back = document.createElement("div");
+  back.className = "credits-flip-back";
+  back.innerHTML =
+    '<div class="credit-history-title">Credit Purchase History</div>' +
+    '<div class="credit-history-list" id="creditHistoryList"><div class="credit-history-empty">Loading…</div></div>' +
+    '<button type="button" class="btn btn-ghost btn-full credit-history-back-btn">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Back to Credits</button>';
+
+  const inner = document.createElement("div");
+  inner.className = "credits-flip-inner";
+  inner.appendChild(front);
+  inner.appendChild(back);
+
+  const outer = document.createElement("div");
+  outer.className = "credits-flip-outer";
+  outer.style.height = naturalHeight + "px";
+  outer.appendChild(inner);
+
+  card.appendChild(outer);
+
+  showHistoryBtn.setAttribute("aria-label", "Show credit purchase history");
+  showHistoryBtn.addEventListener("click", () => inner.classList.add("is-flipped"));
+  const backBtn = back.querySelector(".credit-history-back-btn");
+  backBtn.setAttribute("aria-label", "Back to credits");
+  backBtn.addEventListener("click", () => inner.classList.remove("is-flipped"));
+
+  loadCreditHistory();
+}
+
+// Read-only: this user's own purchased (not free-signup) credit
+// lots, from the SAME wallet_credits table subscriptions.js already
+// queries for the balance total — no new table, no schema change.
+// RLS already scopes every row to auth.uid() (unchanged), and this
+// query explicitly filters to the current user's id as well.
+async function loadCreditHistory() {
+  const listEl = document.getElementById("creditHistoryList");
+  if (!listEl) return;
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    const { data, error } = await supabaseClient
+      .from("wallet_credits")
+      .select("credits_total, created_at, expires_at")
+      .eq("user_id", user.id)
+      .eq("credit_type", "purchased")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      listEl.innerHTML = '<div class="credit-history-empty"><strong>No credit purchases yet.</strong>Your purchased credit packages will appear here.</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.map(row => {
+      const purchased = new Date(row.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      const expires = new Date(row.expires_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      return '<div class="credit-history-item">' +
+        '<div class="credit-history-amount">' + row.credits_total + ' Credits</div>' +
+        '<div class="credit-history-dates">Purchased: ' + purchased + ' &middot; Expires: ' + expires + '</div>' +
+        '</div>';
+    }).join("");
+  } catch (err) {
+    console.error("Could not load credit history:", err);
+    listEl.innerHTML = '<div class="credit-history-empty">Could not load credit history right now.</div>';
+  }
+}
+</script>
 
 <!-- Mobile Profile drawer — opened by the Profile bottom-nav button
      (mobile only; the button that triggers this doesn't exist on
