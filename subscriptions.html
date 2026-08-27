@@ -369,7 +369,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const observer = new MutationObserver(() => enhanceCreditsCard());
   observer.observe(grid, { childList: true });
   enhanceCreditsCard(); // in case the grid is already populated
+
+  // Display-only: the credit pack chips ("10 Credits", "20 Credits",
+  // "30 Credits") should read "Tests" instead of "Credits" in this
+  // one section. The chip's label is the product's own real name
+  // from the database (p.name in subscriptions.js's
+  // creditPackChipHtml()) — never hard-coded here, and
+  // subscriptions.js itself is not modified at all. This only
+  // rewrites the TEXT NODE inside each already-rendered
+  // .credit-pack-name element, leaving its checkmark <span> child,
+  // the product id, the price, badge text, and every purchase
+  // function completely untouched. Re-applied on every re-render
+  // (initial load AND every pack-selection click, which
+  // subscriptions.js's own click handler re-renders this same grid
+  // for) via a second, independent observer — never touches
+  // #passProductsGrid or anything in it.
+  const creditGrid = document.getElementById("creditProductsGrid");
+  if (creditGrid) {
+    const creditObserver = new MutationObserver(() => relabelCreditPackNames());
+    creditObserver.observe(creditGrid, { childList: true, subtree: true });
+    relabelCreditPackNames();
+  }
 });
+
+function relabelCreditPackNames() {
+  document.querySelectorAll("#creditProductsGrid .credit-pack-name").forEach(el => {
+    Array.from(el.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent = node.textContent.replace(/credits/gi, "Tests");
+      }
+    });
+  });
+}
 
 function enhanceCreditsCard() {
   const card = document.querySelector("#passProductsGrid .credits-summary-card");
