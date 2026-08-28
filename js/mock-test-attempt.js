@@ -1074,8 +1074,8 @@ function renderPassCriteria(r) {
     <div class="mtr-criteria-item">
       <span class="mtr-criteria-mark ${c.met ? "mtr-criteria-met" : "mtr-criteria-unmet"}" aria-hidden="true">
         ${c.met
-          ? '<svg width="13" height="13" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
-          : '<svg width="13" height="13" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'}
+          ? '<svg width="14" height="14" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+          : '<svg width="14" height="14" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'}
       </span>
       <span class="mtr-criteria-text">${c.text}</span>
     </div>
