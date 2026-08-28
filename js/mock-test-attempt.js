@@ -24,6 +24,12 @@ let secondsLeft = 0;
 let testStartTime = null;
 let testActive = false;
 let testScreenOpen = false;
+// Guards cancelUnstartedTest() against firing twice for the same ESC
+// press — the browser's native fullscreen-exit (caught via
+// handleFullscreenChange) and the input's own keydown listener (the
+// fallback for when fullscreen never engaged) can both observe the
+// same Escape keystroke.
+let testCancelled = false;
 let passageChars = [];
 let wordRanges = [];
 // Word-level typing state (replaces the old character-index model).
@@ -187,6 +193,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (currentWord && currentWord.isLastInParagraph) {
         commitCurrentWord(input.value);
       }
+    } else if (e.key === "Escape" && !testActive) {
+      // Fallback path for when full-screen never actually engaged
+      // (blocked by the browser, or the Fullscreen API unsupported —
+      // see enterFullscreen()'s fsRetryBtn branch): in that case
+      // there's no fullscreen for the browser to exit, so
+      // handleFullscreenChange() would never fire on its own. This
+      // keydown listener catches Escape directly in that situation.
+      // When fullscreen DID engage, the browser's native exit fires
+      // fullscreenchange anyway, which reaches the same
+      // cancelUnstartedTest() — the testCancelled guard there means
+      // whichever path fires first (or both) only cancels once.
+      // Deliberately does NOT preventDefault(): if this browser IS in
+      // fullscreen, Escape's native fullscreen-exit is a browser
+      // security behavior JS cannot and should not try to block.
+      cancelUnstartedTest();
     }
   });
 
@@ -202,90 +223,90 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+
+  // "Test Not Started" popup — dismiss only, no navigation of its
+  // own (cancelUnstartedTest() already returned to the setup screen
+  // before this ever shows).
+  document.getElementById("testNotStartedOkBtn").addEventListener("click", () => {
+    document.getElementById("testNotStartedOverlay").hidden = true;
+    document.getElementById("testNotStartedModal").hidden = true;
+  });
 });
 
 /* ---------------- Starting the test ---------------- */
 
-// Runs when the student presses "Start Mock Test". For premium
-// mocks this is the ONE place a free sample can be consumed —
-// the page-load check above (can_access_mock) is read-only and
-// only decides whether to show the Start button at all. This
-// keeps consumption tied to the moment the student actually
-// begins, not to merely viewing the page, and re-verifies access
-// atomically in case something changed (e.g. the last free sample
-// was used in another tab) between page load and this click.
+// Runs when the student presses "Start Mock Test". Access
+// (eligible-pass vs credit-fallback) is now ONLY re-verified and
+// actually consumed later, at the first real keystroke (see
+// consumeTestAccess(), called from onTypingInput()) — opening the
+// test screen itself must never spend a credit or claim a pass, per
+// the "no typing = no consumption" rule. This click now only
+// re-checks the session and shows the test screen/fullscreen; it no
+// longer calls start_mock_test/start_credit_test at all.
 async function handleStartClick() {
-  const startBtn = document.getElementById("startBtn");
-
   // Before starting the test (and before any pass/credit consumption
-  // below), re-verify this browser's session is still the active one
-  // — a just-in-time check, not just relying on the page-load check
-  // from requireLogin(), since a student could sit on this setup
-  // screen for a while before clicking Start. checkSingleActiveSession()
-  // itself handles the sign-out/redirect if this session was replaced.
+  // later, at first keystroke), re-verify this browser's session is
+  // still the active one — a just-in-time check, not just relying on
+  // the page-load check from requireLogin(), since a student could
+  // sit on this setup screen for a while before clicking Start.
+  // checkSingleActiveSession() itself handles the sign-out/redirect
+  // if this session was replaced.
   const sessionOk = await checkSingleActiveSession();
   if (!sessionOk) return;
 
-  if (mockTest.access_type !== "free") {
-    // ---------------- STEP 1: eligible Pass ----------------
-    // Tried FIRST for every non-free test regardless of whether the
-    // test used to be "premium" or "credit" — an eligible pass always
-    // wins and NEVER consumes a credit. Re-verified atomically here
-    // (not just trusted from the page-load check).
-    startBtn.disabled = true;
-    startBtn.textContent = "Checking access...";
-
-    const { data: passData, error: passError } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
-    if (passError) console.error("start_mock_test RPC error:", passError);
-    const passResult = Array.isArray(passData) ? passData[0] : passData;
-    const passGranted = !passError && passResult && passResult.has_access;
-
-    if (!passGranted) {
-      // ---------------- STEP 2: Credit fallback ----------------
-      // No eligible pass — the ONLY place a credit is ever spent.
-      // Frontend visibility was never access control; this atomic,
-      // server-side check/deduct is what actually decides whether
-      // the test may start.
-      startBtn.textContent = "Checking credit balance...";
-
-      const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
-      if (error) console.error("start_credit_test RPC error:", error);
-
-      startBtn.disabled = false;
-      startBtn.textContent = "Start Mock Test";
-
-      const result = Array.isArray(data) ? data[0] : data;
-
-      if (error || !result || !result.has_access) {
-        // ---------------- STEP 3: neither pass nor credit ----------------
-        document.getElementById("setupInfo").innerHTML =
-          '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--stamp);">&#128274; Access Required</div>' +
-          '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You need an active eligible Pass or at least 1 Credit to take this test.</div>' +
-          '<a class="btn" style="margin-top:14px; display:inline-block;" href="subscriptions.html">View Passes &amp; Credits</a>';
-        startBtn.style.display = "none";
-        return;
-      }
-
-      if (result.access_reason === "ALREADY_COMPLETED") {
-        document.getElementById("setupInfo").innerHTML =
-          '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
-          '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this test using a credit. It cannot be retaken unless you have an active eligible Pass.</div>' +
-          '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
-        startBtn.style.display = "none";
-        return;
-      }
-      // result.access_reason === "CREDIT_USED" — 1 credit was just
-      // deducted and this test is now claimed for this student
-      // (unless/until an eligible Pass covers it later). Proceed to
-      // the timed test below.
-    } else {
-      startBtn.disabled = false;
-      startBtn.textContent = "Start Mock Test";
-    }
-  }
-
   startMockTest();
 }
+
+// The ONLY place a pass is checked or a credit is ever spent — called
+// once, from onTypingInput()'s first-keystroke branch, never from
+// handleStartClick(). Moving this here (rather than to the Start
+// button) is what makes "opening the test" and "starting the test"
+// genuinely different moments: a student who opens the test and exits
+// without typing a single character never has this function called at
+// all, so nothing is ever deducted. Same start_mock_test/
+// start_credit_test RPCs as before, same pass-then-credit priority,
+// same three outcomes — only the calling moment changed.
+//
+// Double-consumption safety: onTypingInput() only ever calls this once
+// per attempt (guarded by testActive, set synchronously before this
+// async function is even invoked) — and start_credit_test() itself is
+// additionally protected server-side by a unique constraint on
+// mock_unlocks(user_id, mock_test_id), so even a hypothetical duplicate
+// call here could not deduct a second credit.
+async function consumeTestAccess() {
+  if (mockTest.access_type === "free") return; // nothing to consume for a free test
+
+  const { data: passData, error: passError } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
+  if (passError) console.error("start_mock_test RPC error:", passError);
+  const passResult = Array.isArray(passData) ? passData[0] : passData;
+  const passGranted = !passError && passResult && passResult.has_access;
+
+  if (passGranted) return; // eligible pass covers it — never touches credits
+
+  const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
+  if (error) console.error("start_credit_test RPC error:", error);
+
+  const result = Array.isArray(data) ? data[0] : data;
+
+  if (error || !result || !result.has_access) {
+    // Extremely rare race condition: access was verified on the setup
+    // screen, but changed by the time the student actually started
+    // typing (e.g. their last credit/pass was used in another tab in
+    // the meantime). The test is already running at this point, so
+    // there is no "Start" button to disable — cancel the attempt
+    // outright rather than let it continue uncounted. No result is
+    // saved (cancelUnstartedTest() never calls endMockTest()), but
+    // testActive/the timer have already started, so this is
+    // deliberately NOT routed through the "Test Not Started" popup
+    // (that message would be factually wrong here) — a distinct,
+    // clearly-worded reason is shown instead.
+    cancelUnstartedTest("Your access to this test could not be confirmed. No credit or pass was used — please try again from the test list.");
+  }
+  // result.access_reason === "CREDIT_USED" — 1 credit was just
+  // deducted and this test is now claimed for this student
+  // (unless/until an eligible Pass covers it later).
+}
+
 
 function startMockTest() {
   testResultSaved = false;
@@ -317,6 +338,7 @@ function startMockTest() {
   testActive = false;
   testScreenOpen = true;
   testStartTime = null;
+  testCancelled = false;
 
   // Hides the desktop sidebar for exactly as long as the fullscreen
   // exam is in progress — see the CSS comment on body.mock-test-active
@@ -382,6 +404,13 @@ function handleFullscreenChange() {
     // invigilated exam would, and explain why on the result page.
     showWarningBanner("This mock test was submitted early because full-screen mode was exited.");
     endMockTest("fullscreen_exit");
+  } else if (testScreenOpen) {
+    // Left full-screen (ESC or otherwise) before typing anything —
+    // the test was never started, so this must never be treated as a
+    // submission. cancelUnstartedTest() is idempotent (guarded by
+    // testCancelled) since the keydown-based Escape handler below can
+    // also reach it for the same keystroke.
+    cancelUnstartedTest();
   }
 }
 
@@ -620,6 +649,12 @@ function onTypingInput(e) {
     testActive = true;
     testStartTime = Date.now();
     testTimer = setInterval(tickTimer, 1000);
+    // Fire-and-forget from this function's perspective — the timer
+    // must start immediately/synchronously for a responsive feel, not
+    // wait on a network round-trip. Guarded above by testActive (set
+    // synchronously, before this async call is even made), so this
+    // can only ever be reached once per attempt.
+    consumeTestAccess();
   }
 
   const typed = e.target.value;
@@ -730,6 +765,68 @@ function beforeUnloadHandler(e) {
   e.preventDefault();
   e.returnValue = "";
   return "";
+}
+
+/* ---------------- Cancelling an unstarted test ---------------- */
+
+// Called when the student exits (via ESC/fullscreen-exit) BEFORE
+// typing anything — testActive is still false, so no timer ever ran
+// and consumeTestAccess() was never called. This is deliberately NOT
+// a variant of endMockTest(): it never saves a result, never touches
+// wordResults/scoring, and never can (testActive stays false the
+// whole time, so even if this function were somehow skipped, nothing
+// downstream would treat the attempt as scoreable). Its only jobs are
+// (1) clean up exactly the same page-level state startMockTest() set
+// up — fullscreen, the sidebar-hiding body class, the beforeunload
+// guard — and (2) tell the student plainly that nothing was spent.
+//
+// customMessage is used only for the genuine-race-condition path in
+// consumeTestAccess() (access changed between setup and first
+// keystroke) — that path reaches here with testActive already true,
+// so it explicitly passes its own accurate wording rather than the
+// default "you didn't start" copy, which would be factually wrong at
+// that point.
+function cancelUnstartedTest(customMessage) {
+  if (testCancelled) return;
+  testCancelled = true;
+
+  if (testTimer) clearInterval(testTimer);
+  testActive = false;
+  testScreenOpen = false;
+  document.body.classList.remove("mock-test-active");
+  window.removeEventListener("beforeunload", beforeUnloadHandler);
+
+  const input = document.getElementById("typeInput");
+  if (input) input.disabled = true;
+
+  // Belt-and-suspenders: if still in fullscreen for any reason (e.g.
+  // this was reached via the keydown fallback rather than an actual
+  // fullscreen-exit), leave it — a cancelled test should never leave
+  // the student stuck in a full-screen view of a hidden test card.
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (isFs) {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exit) exit.call(document).catch(() => {});
+  }
+
+  document.getElementById("testCard").style.display = "none";
+  document.getElementById("resultCard").style.display = "none";
+  document.getElementById("setupCard").style.display = "block";
+
+  showTestNotStartedModal(customMessage);
+}
+
+function showTestNotStartedModal(customMessage) {
+  const modal = document.getElementById("testNotStartedModal");
+  const overlay = document.getElementById("testNotStartedOverlay");
+  const msgEl = document.getElementById("testNotStartedMessage");
+  if (!modal || !overlay) return;
+  if (msgEl) {
+    msgEl.textContent = customMessage ||
+      "You have not started the test, so your credit/pass has not been consumed. You can start a new test whenever you're ready.";
+  }
+  overlay.hidden = false;
+  modal.hidden = false;
 }
 
 /* ---------------- Ending the test ---------------- */
