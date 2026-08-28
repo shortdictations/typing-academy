@@ -2089,9 +2089,75 @@ body.app-shell .result-history-btn:hover{ background: var(--ts-blue); color: #ff
    the JS), not a scoped container, so a clickable sidebar would
    remain visible and clickable even "in fullscreen", making it a
    genuine trap: any nav click would exit fullscreen and
-   prematurely submit the test. Header (logo + minimal account
-   controls) stays visible throughout either way, as before. */
+   prematurely submit the test.
+
+   The header's user-menu (avatar/profile dropdown) and credit badge
+   used to stay visible throughout regardless, by deliberate earlier
+   design — a later, explicit requirement reversed that specifically:
+   the live test screen must be distraction-free with no profile
+   control reachable at all, not merely visually de-emphasized. Same
+   body.mock-test-active toggle as the sidebar above, so both appear/
+   disappear at exactly the same moments (test screen open → hidden;
+   setup/result screens → visible again). display:none (not
+   visibility/opacity) so no empty clickable area is left behind. */
 body.mock-test-active #appSidebar{ display: none; }
+body.mock-test-active .user-menu,
+body.mock-test-active .nav-links > .credit-badge{ display: none; }
+
+/* ---------- "Test Not Started" popup ----------
+   Shown by cancelUnstartedTest() (mock-test-attempt.js) when the
+   student exits before typing anything. Same fixed-overlay-plus-
+   centered-card pattern as the avatar picker above, kept
+   independent (own class names) since this one is a plain
+   dismiss-only alert rather than a form with options — no shared
+   behavior to lose by not merging them. Toggled via the `hidden`
+   attribute directly (not an .open class + transition) — deliberately
+   plain per "do not over-design", since this fires at a moment
+   (exiting a fullscreen exam) where instant clarity matters more than
+   a polished entrance animation. */
+body.app-shell .tns-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(11,28,63,0.45);
+  z-index: 1200;
+}
+body.app-shell .tns-modal{
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 360px;
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 20px 50px rgba(16,24,40,0.25);
+  padding: 28px 24px 24px;
+  box-sizing: border-box;
+  text-align: center;
+  z-index: 1201;
+}
+body.app-shell .tns-icon{
+  width: 48px; height: 48px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--ts-blue-tint);
+  color: var(--ts-blue);
+  display: flex; align-items: center; justify-content: center;
+}
+body.app-shell .tns-icon svg{ width: 24px; height: 24px; }
+body.app-shell .tns-title{
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ts-text);
+  margin-bottom: 8px;
+}
+body.app-shell .tns-message{
+  font-size: 0.9rem;
+  color: var(--ts-muted);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+body.app-shell .tns-ok-btn{ width: 100%; }
 body.test-mode .test-mode-main{
   max-width: 1200px;
   width: calc(100% - 48px);
