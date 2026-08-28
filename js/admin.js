@@ -28,6 +28,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
   if (!user) return; // requireAdmin already redirected
 
+  // Wires the header avatar dropdown, mobile profile drawer, bottom
+  // nav active state, and sidebar collapse toggle — same call
+  // dashboard.js/subscriptions.js already make. Never previously
+  // called on this page (checked directly: no admin JS file called
+  // this before), which meant the header's logout button and user
+  // menu were dead even before this redesign added the new mobile
+  // drawer that also depends on it. Called once here only —
+  // admin-analytics.js (loaded on this same page) intentionally does
+  // NOT also call this, to avoid wiring every listener twice.
+  if (typeof initAuthHeader === "function") initAuthHeader(user);
+
   document.getElementById("passageForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
   document.getElementById("filterCategory").addEventListener("change", loadPassages);

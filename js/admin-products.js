@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
   if (!user) return;
 
+  // Same call dashboard.js/subscriptions.js already make — wires the
+  // header avatar dropdown, mobile profile drawer, bottom nav active
+  // state, and sidebar collapse toggle. Not previously called on any
+  // admin page (checked directly), which left the header's logout
+  // button dead even before this redesign.
+  if (typeof initAuthHeader === "function") initAuthHeader(user);
+
   document.getElementById("pType").addEventListener("change", updateTypeFields);
   updateTypeFields();
 
