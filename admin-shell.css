@@ -1,0 +1,202 @@
+/* ============================================================
+   admin-shell.css
+   ------------------------------------------------------------
+   Scoped entirely under body.app-shell.admin-page — cannot affect
+   the landing page, student dashboard, or any other page. Covers
+   ONLY the admin-specific classes app-shell.css doesn't already
+   style (.marksheet, .pill, .btn, .card, .field, .empty-state,
+   .loading-strip etc. are already fully covered there and used
+   as-is here — nothing about them is touched or duplicated).
+
+   No admin JS file is modified for this redesign: every class
+   selector below targets markup admin.html/admin-analytics.js
+   already produce, unchanged. This file only changes how that
+   existing markup looks.
+   ============================================================ */
+
+/* ---------- Admin section headers (Overview, page titles) ---------- */
+body.app-shell.admin-page .admin-analytics-head{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+body.app-shell.admin-page .admin-analytics-controls{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+body.app-shell.admin-page .admin-period-select{
+  padding: 9px 14px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  background: #FFFFFF;
+  color: var(--ts-text);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+body.app-shell.admin-page .admin-refresh-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  border-radius: var(--ts-radius-md);
+}
+body.app-shell.admin-page .admin-refresh-btn svg{ width: 15px; height: 15px; transition: transform 0.5s ease; }
+body.app-shell.admin-page .admin-refresh-btn.is-refreshing svg{ animation: adminShellRefreshSpin 0.7s linear infinite; }
+@keyframes adminShellRefreshSpin{ to{ transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){
+  body.app-shell.admin-page .admin-refresh-btn.is-refreshing svg{ animation: none; }
+}
+
+body.app-shell.admin-page .admin-analytics-error{
+  background: var(--ts-red-tint, #FBEAE7);
+  border: 1px solid var(--ts-red, #D14343);
+  color: var(--ts-red, #B3261E);
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: var(--ts-radius-md);
+  margin-bottom: 16px;
+}
+
+/* ---------- Stat cards ----------
+   Same grid behavior as before (auto-fit, 1-col under 480px) — only
+   the CARD's own look changes, matching .dash-stat-card's rounded,
+   border-only (no heavy shadow) treatment from the student
+   dashboard, rather than app-shell.css's own .dash-stat-card rule
+   (kept separate since the markup/class names genuinely differ). */
+body.app-shell.admin-page .admin-stat-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 480px){
+  body.app-shell.admin-page .admin-stat-grid{ grid-template-columns: 1fr; }
+}
+body.app-shell.admin-page .admin-stat-card{
+  background: #FFFFFF;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg, 16px);
+  padding: 16px;
+  box-shadow: none;
+}
+body.app-shell.admin-page .admin-stat-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--ts-blue-tint);
+  color: var(--ts-blue);
+  margin-bottom: 12px;
+}
+body.app-shell.admin-page .admin-stat-icon svg{ width: 18px; height: 18px; }
+/* Color rotation across stat tiles, purely cosmetic (no JS change) —
+   mirrors the multi-color tile treatment already used on the
+   student dashboard's own stat row. */
+body.app-shell.admin-page .admin-stat-card:nth-of-type(5n+2) .admin-stat-icon{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell.admin-page .admin-stat-card:nth-of-type(5n+3) .admin-stat-icon{ background: var(--ts-orange-tint); color: var(--ts-orange); }
+body.app-shell.admin-page .admin-stat-card:nth-of-type(5n+4) .admin-stat-icon{ background: var(--ts-purple-tint); color: var(--ts-purple); }
+body.app-shell.admin-page .admin-stat-card:nth-of-type(5n+5) .admin-stat-icon{ background: var(--ts-red-tint); color: var(--ts-red); }
+body.app-shell.admin-page .admin-stat-label{
+  font-size: 0.78rem;
+  color: var(--ts-muted);
+  font-weight: 600;
+}
+body.app-shell.admin-page .admin-stat-value{
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ts-text);
+  margin-top: 2px;
+}
+body.app-shell.admin-page .admin-stat-note{
+  font-size: 0.72rem;
+  color: var(--ts-muted);
+  margin-top: 2px;
+}
+
+body.app-shell.admin-page .admin-stat-skeleton{ position: relative; overflow: hidden; }
+body.app-shell.admin-page .admin-stat-skel-icon,
+body.app-shell.admin-page .admin-stat-skel-line{
+  background: var(--ts-border);
+  border-radius: var(--ts-radius-md);
+}
+body.app-shell.admin-page .admin-stat-skel-icon{ width: 38px; height: 38px; border-radius: 10px; margin-bottom: 12px; }
+body.app-shell.admin-page .admin-stat-skel-line{ height: 12px; margin-top: 8px; }
+body.app-shell.admin-page .admin-stat-skeleton::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: adminShellSkelShimmer 1.3s ease-in-out infinite;
+}
+@keyframes adminShellSkelShimmer{
+  0%{ transform: translateX(-100%); }
+  100%{ transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce){
+  body.app-shell.admin-page .admin-stat-skeleton::after{ animation: none; display: none; }
+}
+
+/* ---------- Top Passages card ---------- */
+body.app-shell.admin-page .admin-top-passages-card{ overflow-x: auto; }
+body.app-shell.admin-page .admin-passage-table{ display: flex; flex-direction: column; }
+body.app-shell.admin-page .admin-passage-row{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ts-border);
+}
+body.app-shell.admin-page .admin-passage-row:last-child{ border-bottom: none; }
+body.app-shell.admin-page .admin-passage-rank{
+  font-family: inherit;
+  font-weight: 800;
+  color: var(--ts-blue);
+  width: 28px;
+  flex: none;
+}
+body.app-shell.admin-page .admin-passage-info{ flex: 1 1 auto; min-width: 0; }
+body.app-shell.admin-page .admin-passage-title{
+  font-weight: 600;
+  color: var(--ts-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.app-shell.admin-page .admin-passage-category{
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ts-muted);
+  background: var(--ts-blue-tint);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+body.app-shell.admin-page .admin-passage-attempts{
+  flex: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--ts-muted);
+  white-space: nowrap;
+}
+
+/* ---------- Section divider ---------- */
+body.app-shell.admin-page .admin-section-divider{
+  border: none;
+  border-top: 1px solid var(--ts-border);
+  margin: 32px 0;
+}
+
+@media (max-width: 640px){
+  body.app-shell.admin-page .admin-analytics-head{ flex-direction: column; align-items: stretch; }
+  body.app-shell.admin-page .admin-analytics-controls{ justify-content: space-between; }
+}
