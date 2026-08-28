@@ -94,10 +94,18 @@ body.subscriptions-page .pass-status-dot{
    completely unchanged as the FRONT face, and adds a new BACK face
    for history — subscriptions.js's own HTML/classes for the card
    itself are never modified, only wrapped (see the script below).
-   A fixed pixel height (set by JS, measured from the front face's
-   own natural size) is what keeps both faces identically sized and
-   stops any resize during the flip — this can't be done with CSS
-   alone since the content height varies per user. */
+   A fixed pixel height (set by JS) is what keeps both flip faces
+   identically sized and stops any resize during the flip — CSS
+   alone (height:100%) was tried and found insufficient: on mobile,
+   where the grid drops to a single column, each card's height
+   becomes "auto" rather than being stretched by a taller sibling,
+   and height:100% of an auto-height parent doesn't resolve to
+   anything usable (confirmed directly: content overlapped the
+   section below it). The JS measurement itself (see
+   enhanceCreditsCard()) reads the CARD's own rendered height, not
+   just the front content's isolated height — that's what correctly
+   captures a desktop grid-stretch AND a mobile natural-content
+   height with the same single measurement. */
 body.subscriptions-page .credits-flip-outer{
   perspective: 1200px;
   width: 100%;
@@ -184,6 +192,29 @@ body.subscriptions-page .credit-history-empty strong{
 }
 body.subscriptions-page .credit-history-back-btn{
   margin-top: auto;
+}
+
+/* Description text replacing subscriptions.js's own brief
+   ".credits-summary-note" — see enhanceCreditsCard() above. Sits
+   above the (margin-top:auto'd) "Show Credit History" button, same
+   as the description text pattern used on the other three cards. */
+body.subscriptions-page .credits-summary-description{
+  text-align: center;
+  margin: 10px 0 16px;
+}
+body.subscriptions-page .credits-summary-description p{
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ts-muted);
+}
+body.subscriptions-page .credits-summary-description-fact{
+  font-weight: 700;
+  color: var(--ts-gold-dark);
+}
+body.subscriptions-page .credits-summary-description-note{
+  font-size: 12px;
+  margin-bottom: 0;
 }
 </style>
 </head>
@@ -423,19 +454,43 @@ function enhanceCreditsCard() {
   const front = document.createElement("div");
   while (card.firstChild) front.appendChild(card.firstChild); // moves subscriptions.js's own markup verbatim, nothing rebuilt
 
+  // subscriptions.js's own markup includes a brief ".credits-summary-note"
+  // ("1 credit = 1 test") — replaced here with the fuller description
+  // requested, which already covers that same fact as its own line, so
+  // the short note would otherwise duplicate it right below.
+  const oldNote = front.querySelector(".credits-summary-note");
+  const description = document.createElement("div");
+  description.className = "credits-summary-description";
+  description.innerHTML =
+    '<p>Unlock any mock test you desire.</p>' +
+    '<p class="credits-summary-description-fact">1 Credit = 1 Test Attempt</p>' +
+    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase.</p>';
+  if (oldNote) {
+    oldNote.replaceWith(description);
+  } else {
+    front.appendChild(description);
+  }
+
   const showHistoryBtn = document.createElement("button");
   showHistoryBtn.type = "button";
   showHistoryBtn.className = "btn btn-ghost btn-full";
   showHistoryBtn.innerHTML = 'Show Credit History <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-left:4px;"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>';
   front.appendChild(showHistoryBtn);
 
-  // Measured BEFORE the credits-flip-front class (position:absolute)
-  // is applied — measuring it AFTER would just read back whatever
-  // the absolute positioning resolved to, not the content's real
-  // natural height. As a plain block element temporarily appended to
-  // card, this reflects the true height needed, button included.
+  // Measured on CARD itself (not front) while front sits inside it as
+  // a normal, non-absolutely-positioned block — this is what actually
+  // fixes the bug found by testing on a real grid: measuring front's
+  // own isolated height (the previous approach) ignores the fact that
+  // a CSS grid stretches the CARD taller to match its tallest sibling
+  // (e.g. Combo Pass, whose extra badge/status text makes it taller),
+  // which front alone — a plain block with no flex-grow — never
+  // expands to fill, leaving a gap. Measuring the card, which IS the
+  // element the grid actually stretches, gives the right number in
+  // both contexts: on desktop it reflects that stretch; on mobile
+  // (single-column, no stretching) it's simply the card's own natural
+  // content height with the new description/button already counted.
   card.appendChild(front);
-  const naturalHeight = Math.ceil(front.getBoundingClientRect().height);
+  const measuredHeight = Math.ceil(card.getBoundingClientRect().height);
   card.removeChild(front);
   front.className = "credits-flip-front";
 
@@ -454,7 +509,7 @@ function enhanceCreditsCard() {
 
   const outer = document.createElement("div");
   outer.className = "credits-flip-outer";
-  outer.style.height = naturalHeight + "px";
+  outer.style.height = measuredHeight + "px";
   outer.appendChild(inner);
 
   card.appendChild(outer);
