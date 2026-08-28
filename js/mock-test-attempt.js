@@ -967,7 +967,7 @@ function buildFailReasons(requiredDurationCompleted, accuracy, netWpm) {
 // Single source of truth for the required thresholds — this is now
 // an EXPLICIT, fixed standard (95% accuracy, 35 WPM net), not reused
 // from any prior grade-tier system. Every place that needs these
-// numbers (isTestPassed, buildFailReasons, renderFeedbackTips) reads
+// numbers (isTestPassed, buildFailReasons, renderPassCriteria) reads
 // these two constants, never a hard-coded literal.
 const REQUIRED_ACCURACY = 95;
 const REQUIRED_NET_WPM = 35;
@@ -1000,7 +1000,7 @@ function showResultTicket(r) {
   document.getElementById("resultWordsTyped").textContent = r.wordsTyped;
 
   renderStatusCard(passed, r.requiredDurationCompleted, r.failReasons);
-  renderFeedbackTips(r, passed);
+  renderPassCriteria(r);
   renderStatusBadge(passed);
   renderEncouragement(passed);
   wirePrintResults(r, passed);
@@ -1052,19 +1052,34 @@ function renderStatusCard(passed, requiredDurationCompleted, failReasons) {
 // Exact wording requested: a fixed explanatory sentence, then the
 // three concrete requirements for THIS attempt's selected duration —
 // no passage-completion mention anywhere, no grade tiers.
-function renderFeedbackTips(r, passed) {
+// Replaces the old "Feedback & Tips" card — three fixed criteria,
+// each with a dynamic pass/fail mark computed directly from the same
+// result values already used for the overall pass/fail decision
+// (r.requiredDurationCompleted / r.accuracy / r.netWpm, and the same
+// REQUIRED_ACCURACY/REQUIRED_NET_WPM constants isTestPassed() and
+// buildFailReasons() already use) — no new thresholds, no
+// duplicate pass/fail logic, this is purely a visual breakdown of
+// the SAME decision already made in endMockTest().
+function renderPassCriteria(r) {
   const list = document.getElementById("mtrFeedbackList");
   if (!list) return;
 
-  const tips = [
-    "To pass the test, you must complete the selected test duration. Your accuracy must be at least " +
-      REQUIRED_ACCURACY + "% and your net typing speed must be at least " + REQUIRED_NET_WPM + " WPM.",
-    `Test Duration: ${r.testDurationMinutes} minutes`,
-    `Minimum Accuracy: ${REQUIRED_ACCURACY}%`,
-    `Minimum Net Speed: ${REQUIRED_NET_WPM} WPM`
+  const criteria = [
+    { met: r.requiredDurationCompleted, text: "You must complete the selected test duration" },
+    { met: r.accuracy >= REQUIRED_ACCURACY, text: "Your accuracy must be at least " + REQUIRED_ACCURACY + "%" },
+    { met: r.netWpm >= REQUIRED_NET_WPM, text: "Your net typing speed must be at least " + REQUIRED_NET_WPM + " WPM" }
   ];
 
-  list.innerHTML = tips.map(t => `<div class="mtr-feedback-item"><span class="mtr-feedback-quote">&ldquo;</span>${t}</div>`).join("");
+  list.innerHTML = criteria.map(c => `
+    <div class="mtr-criteria-item">
+      <span class="mtr-criteria-mark ${c.met ? "mtr-criteria-met" : "mtr-criteria-unmet"}" aria-hidden="true">
+        ${c.met
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'}
+      </span>
+      <span class="mtr-criteria-text">${c.text}</span>
+    </div>
+  `).join("");
 }
 
 function renderStatusBadge(passed) {
@@ -1372,6 +1387,9 @@ function showWeakKeyAnalysis(keyStats) {
   const list = document.getElementById("weakKeyList");
   const chartEl = document.getElementById("weakKeyChart");
   const button = document.getElementById("practiceWeakKeysBtn");
+  const tipBox = document.querySelector("#weakKeyAnalysis .mtr-tip-box");
+  const axisLeft = document.querySelector("#weakKeyAnalysis .mtr-chart-axis-left");
+  const axisRight = document.querySelector("#weakKeyAnalysis .mtr-chart-axis-right");
 
   // Diagnostic only — never shown to the student, just visible in
   // devtools. If the graph is ever blank again, this is the first
@@ -1388,28 +1406,41 @@ function showWeakKeyAnalysis(keyStats) {
   }
   if (!container || !list) return;
 
+  // The card (and its chart area) is now ALWAYS visible, regardless
+  // of whether this test happened to produce any qualifying weak
+  // keys — this was the actual bug: the code used to set
+  // chartEl.style.display = "none" in the empty case, which hid the
+  // ENTIRE chart area (axis labels included) — the exact element the
+  // "no weak keys" message was simultaneously being written into,
+  // making that message invisible too. The card header and this
+  // chart area are unconditional now; only the axis labels/tip box
+  // (which only make sense when bars are actually present) and the
+  // bar list's own content vary between the two states.
+  container.style.display = "block";
+  chartEl.style.display = "flex";
+
   const weakKeys = getCurrentTestWeakKeys(keyStats || {});
   console.debug("showWeakKeyAnalysis: keyStats keys =", keyStats ? Object.keys(keyStats) : keyStats, "-> weakKeys =", weakKeys);
 
   if (!weakKeys.length) {
-    container.style.display = "block";
-    const chart = document.getElementById("weakKeyChart");
-    if (chart) chart.style.display = "none";
+    if (axisLeft) axisLeft.style.display = "none";
+    if (axisRight) axisRight.style.display = "none";
+    if (tipBox) tipBox.style.display = "none";
 
-    list.innerHTML = `
-      <div class="weak-key-empty">
-        <strong>Great job!</strong>
-        <p>No significant weak keys were detected in this test.</p>
-      </div>
-    `;
+    // Exact required wording — centered via .weak-key-empty itself
+    // (position:absolute; inset:0; flex-centered — see app-shell.css),
+    // not just padding, so it's genuinely centered both ways within
+    // the full chart height regardless of how tall that ends up being
+    // at any viewport width.
+    list.innerHTML = '<div class="weak-key-empty">No such weak key detected</div>';
 
     if (button) button.style.display = "none";
     return;
   }
 
-  container.style.display = "block";
-  const chart = document.getElementById("weakKeyChart");
-  if (chart) chart.style.display = "flex";
+  if (axisLeft) axisLeft.style.display = "";
+  if (axisRight) axisRight.style.display = "";
+  if (tipBox) tipBox.style.display = "";
 
   // Bar HEIGHT is now the actual mistake count, relative to the
   // worst key in this list (tallest bar = the highest error count
