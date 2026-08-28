@@ -6,7 +6,7 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="shortcut icon" href="/favicon.ico">
-<title>Manage Announcements — TypeShala Admin</title>
+<title>Manage Passages — TypeShala</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="app-shell.css">
 <link rel="stylesheet" href="admin-shell.css">
@@ -23,7 +23,6 @@
       </span>
     </a>
     <nav class="nav-links">
-      <a href="admin.html">Passages</a>
       <a href="admin-mock-tests.html">Mock Tests</a>
       <a href="admin-products.html">Subscription &amp; Credits</a>
       <a href="admin-announcements.html">Announcements</a>
@@ -52,7 +51,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
       <span class="app-nav-link-label">Dashboard</span>
     </a>
-    <a class="app-nav-link" href="admin-passages.html" title="Passages">
+    <a class="app-nav-link active" href="admin-passages.html" title="Passages">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
       <span class="app-nav-link-label">Passages</span>
     </a>
@@ -64,7 +63,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4V9Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
       <span class="app-nav-link-label">Pass</span>
     </a>
-    <a class="app-nav-link active" href="admin-announcements.html" title="Announcements">
+    <a class="app-nav-link" href="admin-announcements.html" title="Announcements">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
       <span class="app-nav-link-label">Announcements</span>
     </a>
@@ -78,99 +77,76 @@
 <main class="page">
 
   <p class="eyebrow">Admin Only</p>
-  <h1>Announcements</h1>
-  <p class="lede">Manage the announcement ticker shown on the Dashboard and/or the Home Page. Only announcements that are Active, within their date window (if set), and selected for that location appear to students.</p>
+  <h1>Manage Passages</h1>
+  <p class="lede">Add, edit, or remove typing passages. Changes appear on the student typing page immediately.</p>
 
   <!-- ADD / EDIT FORM -->
   <div class="card">
-    <div class="card-label" id="formLabel">Create Announcement</div>
+    <div class="card-label" id="formLabel">Add a New Passage</div>
     <div class="error-msg" id="formError"></div>
     <div class="success-msg" id="formSuccess"></div>
 
-    <form id="announcementForm">
+    <form id="passageForm">
       <div class="field">
-        <label for="aTitle">Title</label>
-        <input type="text" id="aTitle" placeholder="e.g. New SSC Mock Tests Available" required>
+        <label for="pTitle">Title</label>
+        <input type="text" id="pTitle" required>
       </div>
 
       <div class="field">
-        <label for="aMessage">Message</label>
-        <textarea id="aMessage" rows="3" placeholder="e.g. 10 new passages have been added." style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-body);font-size:0.95rem;" required></textarea>
+        <label for="pContent">Passage Content</label>
+        <textarea id="pContent" rows="6" required style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-mono);font-size:0.95rem;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="pCategory">Category</label>
+        <select id="pCategory">
+          <option value="SSC">SSC</option>
+          <option value="Legal">Legal</option>
+        </select>
       </div>
 
       <div class="setup-grid">
         <div class="field">
-          <label for="aType">Type</label>
-          <select id="aType">
-            <option value="IMPORTANT">Important</option>
-            <option value="UPDATE">Update</option>
-            <option value="GENERAL" selected>General</option>
+          <label for="pDuration">Duration</label>
+          <select id="pDuration">
+            <option value="10" selected>10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
           </select>
         </div>
         <div class="field">
-          <label for="aActive">Status</label>
-          <select id="aActive">
+          <label for="pActive">Status</label>
+          <select id="pActive">
             <option value="true" selected>Active (visible to students)</option>
             <option value="false">Inactive (hidden)</option>
           </select>
         </div>
       </div>
 
-      <div class="setup-grid">
-        <div class="field">
-          <label for="aStartAt">Start Date (optional)</label>
-          <input type="datetime-local" id="aStartAt">
-        </div>
-        <div class="field">
-          <label for="aEndAt">End Date (optional)</label>
-          <input type="datetime-local" id="aEndAt">
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="aOrder">Display Order</label>
-        <input type="number" id="aOrder" value="0" min="0" step="1" style="width:100px;">
-      </div>
-
-      <div class="field">
-        <label>Show On</label>
-        <div style="display:flex; gap:20px; margin-top:4px;">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:400;">
-            <input type="checkbox" id="aShowDashboard" style="width:auto;" checked>
-            Dashboard
-          </label>
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:400;">
-            <input type="checkbox" id="aShowHome" style="width:auto;">
-            Home Page
-          </label>
-        </div>
-        <p class="test-rules-note" style="margin-top:6px;">At least one location must be selected.</p>
-      </div>
-
-      <p class="lede" style="margin:18px 0 8px; font-size:0.85rem;">Optional action button (leave blank to hide it)</p>
-      <div class="setup-grid">
-        <div class="field">
-          <label for="aActionLabel">Button Label</label>
-          <input type="text" id="aActionLabel" placeholder="e.g. View Mock Tests">
-        </div>
-        <div class="field">
-          <label for="aActionUrl">Button Link</label>
-          <input type="text" id="aActionUrl" placeholder="e.g. mock-test.html">
-        </div>
-      </div>
-
       <div style="display:flex; gap:10px;">
-        <button type="submit" class="btn" id="submitBtn">Create Announcement</button>
+        <button type="submit" class="btn" id="submitBtn">Add Passage</button>
         <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
       </div>
     </form>
   </div>
 
-  <!-- LIST -->
+  <!-- LIST + FILTER -->
   <div class="card">
-    <div class="card-label">All Announcements</div>
-    <div id="announcementListBody">
-      <div class="loading-strip">Loading announcements...</div>
+    <div class="card-label">All Passages</div>
+
+    <div class="setup-grid" style="max-width:560px;">
+      <div class="field">
+        <label for="filterCategory">Filter by Category</label>
+        <select id="filterCategory">
+          <option value="all">All Categories</option>
+          <option value="SSC">SSC</option>
+          <option value="Legal">Legal</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="passageListBody">
+      <div class="loading-strip">Loading passages...</div>
     </div>
   </div>
 
@@ -180,7 +156,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/admin-announcements.js"></script>
+<script src="js/admin.js"></script>
 
 <nav class="app-bottom-nav">
   <div class="app-bottom-nav-inner">
