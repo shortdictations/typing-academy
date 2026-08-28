@@ -41,6 +41,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
   if (!user) return;
 
+  // admin.js used to also load on this page and carried this same
+  // call — now that Manage Passages has moved to its own page
+  // (admin-passages.html) and admin.js moved with it, this is the
+  // only remaining script on admin.html, so it needs this call
+  // itself or the header dropdown/mobile drawer/logout go dead
+  // again exactly as they were before that first fix.
+  if (typeof initAuthHeader === "function") initAuthHeader(user);
+
   renderSkeletons();
 
   document.getElementById("analyticsRefreshBtn").addEventListener("click", () => loadAnalytics());
