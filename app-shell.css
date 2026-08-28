@@ -961,16 +961,36 @@ body.app-shell .mtr-actions{ display: flex; gap: 12px; margin-top: 18px; }
 body.app-shell .mtr-actions .btn{ flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 body.app-shell .mtr-actions .btn svg{ width: 16px; height: 16px; flex: none; }
 
-body.app-shell .mtr-feedback-list{ display: flex; flex-direction: column; gap: 12px; }
-body.app-shell .mtr-feedback-item{
-  position: relative;
-  padding: 10px 12px 10px 16px;
-  border-left: 3px solid var(--ts-blue-tint);
-  font-size: 0.85rem;
+body.app-shell .mtr-feedback-list{ display: flex; flex-direction: column; gap: 14px; }
+/* "To pass the test" criteria card — replaces the old quote-styled
+   .mtr-feedback-item rows above (same container, #mtrFeedbackList,
+   still uses .mtr-feedback-list for the outer gap/layout). Deliberately
+   NOT an <input type="checkbox">/radio anywhere — a plain span holding
+   an inline SVG check/x icon, per the explicit "no checkboxes, no
+   toggle controls" requirement. */
+body.app-shell .mtr-criteria-item{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+body.app-shell .mtr-criteria-mark{
+  flex: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+body.app-shell .mtr-criteria-mark svg{ width: 14px; height: 14px; }
+body.app-shell .mtr-criteria-met{ background: var(--ts-green-tint); color: var(--ts-green); }
+body.app-shell .mtr-criteria-unmet{ background: var(--ts-red-tint); color: var(--ts-red); }
+body.app-shell .mtr-criteria-text{
+  font-size: 0.88rem;
   color: var(--ts-text);
   line-height: 1.5;
+  padding-top: 2px;
 }
-body.app-shell .mtr-feedback-quote{ color: var(--ts-blue-tint); font-size: 1.3rem; font-weight: 800; margin-right: 2px; line-height: 0; vertical-align: -2px; }
 
 body.app-shell .mtr-summary-row{
   display: flex;
@@ -1017,22 +1037,21 @@ body.app-shell .mtr-encourage-card p{ margin: 2px 0 0; font-size: 0.82rem; color
 body.app-shell .mtr-banner{
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--ts-blue-tint);
   border-radius: var(--ts-radius-lg);
-  padding: 18px 22px;
-  margin-top: 20px;
+  padding: 14px 18px;
 }
 body.app-shell .mtr-banner-icon{
-  width: 40px; height: 40px; flex: none;
+  width: 34px; height: 34px; flex: none;
   border-radius: 50%;
   background: var(--ts-blue);
   color: #fff;
   display: flex; align-items: center; justify-content: center;
 }
-body.app-shell .mtr-banner-icon svg{ width: 20px; height: 20px; }
-body.app-shell .mtr-banner strong{ display: block; color: var(--ts-blue); font-size: 1rem; }
-body.app-shell .mtr-banner p{ margin: 2px 0 0; font-size: 0.85rem; color: var(--ts-text); }
+body.app-shell .mtr-banner-icon svg{ width: 17px; height: 17px; }
+body.app-shell .mtr-banner strong{ display: block; color: var(--ts-blue); font-size: 0.95rem; }
+body.app-shell .mtr-banner p{ margin: 2px 0 0; font-size: 0.82rem; color: var(--ts-text); }
 
 body.app-shell .mtr-nav-actions{ display: flex; gap: 12px; margin-top: 20px; }
 
@@ -1040,8 +1059,22 @@ body.app-shell .mtr-nav-actions{ display: flex; gap: 12px; margin-top: 20px; }
    than renamed, since js/mock-test-attempt.js still targets these
    ids/classes directly. */
 body.app-shell .weak-key-header{ display: none; } /* old header replaced by .mtr-card-head above it */
-body.app-shell .weak-key-empty{ text-align: center; padding: 30px 10px; color: var(--ts-muted); font-size: 0.88rem; }
-body.app-shell .weak-key-empty strong{ display: block; color: var(--ts-text); font-size: 0.95rem; margin-bottom: 4px; }
+/* True centering (both axes) within the full chart height, not just
+   padding — position:absolute against .mtr-chart-bars' own
+   position:relative (set above) so this fills exactly the same
+   200px-tall area the bars would otherwise occupy, regardless of the
+   axis labels/tip box being hidden alongside it. */
+body.app-shell .weak-key-empty{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--ts-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
 
 @media (max-width: 900px){
   body.app-shell .mtr-grid{ grid-template-columns: 1fr; }
