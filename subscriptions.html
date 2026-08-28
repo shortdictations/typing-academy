@@ -79,6 +79,46 @@ body.subscriptions-page .plan-features{ margin-top: 10px; }
 body.subscriptions-page .plan-features li{ margin-bottom: 6px; }
 body.subscriptions-page .pass-card .plan-features{ margin-bottom: 8px; }
 
+/* ---- Best Value badge ----
+   Explicit, self-contained positioning (rather than relying on
+   app-shell.css's own top:16px/right:16px corner placement) — a
+   centered ribbon sitting astride the card's top edge reads as more
+   intentional than a small pill tucked in the corner, and is the
+   more common "this is the recommended option" pattern. Subtle
+   shadow + slightly larger padding for a less flat, more premium
+   feel; a small star (CSS-drawn, no JS/markup change needed since
+   subscriptions.js only ever renders the badge's text) reinforces
+   "this one's special" without needing an icon font or extra HTML.
+   Scoped to .best-value-badge only — .credit-pack-badge ("Best
+   Offer" on the credit chips below) already has its own working
+   style and wasn't part of what looked off. */
+body.subscriptions-page .best-value-badge{
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 16px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(124,58,237,0.35);
+}
+body.subscriptions-page .best-value-badge::before{
+  content: "\2605";
+  font-size: 0.8em;
+  line-height: 1;
+}
+body.subscriptions-page .best-value-badge.best-offer-badge{
+  box-shadow: 0 4px 10px rgba(245,179,1,0.35);
+}
+
 /* ---- 5. Animated ACTIVE dot only ----
    The word "Active"/"Not Active" and everything else keeps its
    existing, unanimated styling — only .pass-status-dot itself
@@ -478,9 +518,9 @@ function enhanceCreditsCard() {
   const description = document.createElement("div");
   description.className = "credits-summary-description";
   description.innerHTML =
-    '<p>Unlock any mock test you desire. Use your credits flexibly and take individual tests.</p>' +
+    '<p>Unlock any mock test you desire whenever you\u2019re ready to practice. Use your credits flexibly and take individual tests.</p>' +
     '<p class="credits-summary-description-fact">1 Credit = 1 Test Attempt</p>' +
-    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase.</p>';
+    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase and can be used at your own pace.</p>';
   if (oldNote) {
     oldNote.replaceWith(description);
   } else {
