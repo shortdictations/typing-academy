@@ -196,6 +196,24 @@ body.app-shell.admin-page .admin-section-divider{
   margin: 32px 0;
 }
 
+/* ---------- Mobile bottom nav: 6 items instead of the student
+   pages' 5 ----------
+   .app-bottom-nav-link's shared min-height:56px (app-shell.css)
+   already keeps every icon at the same y-position even when a label
+   wraps — confirmed directly by rendering it. What actually reads as
+   "misaligned" is "Mock Tests" wrapping to 2 lines while every other
+   label fits on 1, at the narrower per-item width 6 items produce
+   (vs. the 5 this component was originally sized for). Fixing the
+   real cause — the wrap itself — rather than compensating with more
+   height/reserved space. */
+body.app-shell.admin-page .app-bottom-nav-link{
+  font-size: 0.52rem;
+  padding-left: 2px;
+  padding-right: 2px;
+  gap: 2px;
+}
+body.app-shell.admin-page .app-bottom-nav-icon{ width: 28px; }
+
 @media (max-width: 640px){
   body.app-shell.admin-page .admin-analytics-head{ flex-direction: column; align-items: stretch; }
   body.app-shell.admin-page .admin-analytics-controls{ justify-content: space-between; }
