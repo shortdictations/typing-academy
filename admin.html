@@ -195,6 +195,37 @@
   </div>
 </div>
 
+<!-- Avatar picker — small popup opened via the pencil button on the
+     drawer avatar. Not a photo-upload system: selects between the
+     two built-in demo avatars and saves the choice to
+     user_metadata.avatar_choice, the same supabaseClient.auth.
+     updateUser({data:{...}}) pattern settings.html already uses for
+     phone/full_name. Required for wireAvatar() (js/auth.js) to
+     render anything at all — it early-returns without these two
+     elements present, which is exactly why the profile avatar never
+     rendered on any admin page before this fix. -->
+<div class="avatar-picker-overlay" id="avatarPickerOverlay" hidden></div>
+<div class="avatar-picker-modal" id="avatarPickerModal" role="dialog" aria-modal="true" aria-label="Choose avatar" hidden>
+  <div class="avatar-picker-title">Choose Avatar</div>
+  <div class="avatar-picker-options">
+    <button type="button" class="avatar-picker-option" id="avatarPickerMale" data-avatar="male">
+      <span class="avatar-picker-preview-wrap">
+        <span class="avatar-picker-preview" id="avatarPreviewMale"></span>
+        <span class="avatar-picker-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      </span>
+      <span>Male</span>
+    </button>
+    <button type="button" class="avatar-picker-option" id="avatarPickerFemale" data-avatar="female">
+      <span class="avatar-picker-preview-wrap">
+        <span class="avatar-picker-preview" id="avatarPreviewFemale"></span>
+        <span class="avatar-picker-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      </span>
+      <span>Female</span>
+    </button>
+  </div>
+  <button type="button" class="btn btn-ghost avatar-picker-cancel" id="avatarPickerCancelBtn">Cancel</button>
+</div>
+
 <script>
 // Sidebar "Profile" button proxies to the existing, already-wired
 // header user-menu dropdown (id="userMenuTrigger", wired by
