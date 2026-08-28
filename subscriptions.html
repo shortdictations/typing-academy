@@ -23,15 +23,19 @@
    existing Test Credits summary card.
    ============================================================ */
 
-/* ---- 1. Bigger icons ---- */
+/* ---- 1. Bigger icons ----
+   Slightly reduced from an earlier pass (72px) per explicit
+   follow-up feedback that the cards had grown too tall — still
+   noticeably bigger than app-shell.css's own 44px base, honoring
+   the original "make icons bigger" request, just less extreme. */
 body.subscriptions-page .plan-icon{
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 14px;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 10px;
 }
 body.subscriptions-page .plan-icon svg{
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
 }
 
 /* ---- 2 & 4. Centered top section, bigger titles ----
@@ -41,12 +45,14 @@ body.subscriptions-page .plan-icon svg{
 body.subscriptions-page .pass-status-row,
 body.subscriptions-page .pass-status-row-inactive{
   justify-content: center;
+  margin-bottom: 6px;
 }
 body.subscriptions-page .card-label{
   text-align: center;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  margin: 0;
 }
 body.subscriptions-page .pass-owned-label,
 body.subscriptions-page .pass-price,
@@ -56,11 +62,22 @@ body.subscriptions-page .pass-valid-until{
 body.subscriptions-page .pass-duration-pill{
   display: block;
   width: fit-content;
-  margin: 0 auto 12px;
+  margin: 0 auto 8px;
 }
 @media (max-width: 480px){
-  body.subscriptions-page .card-label{ font-size: 21px; }
+  body.subscriptions-page .card-label{ font-size: 20px; }
 }
+
+/* ---- Compact card spacing ----
+   Tightens the vertical rhythm between sections (features list,
+   the card's own padding) so the tallest card's natural height —
+   which drives the grid's stretch-to-match on all four cards — is
+   itself shorter, directly reducing the empty space between content
+   and the bottom-pinned button on every card, not just this one. */
+body.subscriptions-page .pass-card{ padding: 18px; }
+body.subscriptions-page .plan-features{ margin-top: 10px; }
+body.subscriptions-page .plan-features li{ margin-bottom: 6px; }
+body.subscriptions-page .pass-card .plan-features{ margin-bottom: 8px; }
 
 /* ---- 5. Animated ACTIVE dot only ----
    The word "Active"/"Not Active" and everything else keeps its
@@ -151,7 +168,6 @@ body.subscriptions-page .credit-history-list{
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  max-height: 220px;
   padding-right: 4px;
   margin-bottom: 12px;
   scrollbar-width: thin;
@@ -462,9 +478,9 @@ function enhanceCreditsCard() {
   const description = document.createElement("div");
   description.className = "credits-summary-description";
   description.innerHTML =
-    '<p>Unlock any mock test you desire.</p>' +
+    '<p>Unlock any mock test you desire whenever you\u2019re ready to practice. Use your credits flexibly and take individual tests.</p>' +
     '<p class="credits-summary-description-fact">1 Credit = 1 Test Attempt</p>' +
-    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase.</p>';
+    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase and can be used at your own pace.</p>';
   if (oldNote) {
     oldNote.replaceWith(description);
   } else {
