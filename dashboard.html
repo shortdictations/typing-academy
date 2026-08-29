@@ -191,43 +191,40 @@
             <div class="lab" id="statTestsLabel">Tests Completed</div>
           </div>
         </div>
-        <div class="dash-stat-card">
+
+        <!-- Performance — combines the previous Avg WPM + Avg Accuracy
+             cards into one. #statAvgWpm/#statAvgAccuracy are the EXACT
+             same element ids renderSummary() (dashboard.js) already
+             populates — only their surrounding markup moved into one
+             card together, so that function needed zero changes. -->
+        <div class="dash-stat-card dash-perf-card">
           <div class="dash-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
           <div class="dash-stat-text">
-            <div class="big" id="statAvgWpm">0</div>
-            <div class="lab">Average<br>WPM</div>
-          </div>
-        </div>
-        <div class="dash-stat-card">
-          <div class="dash-stat-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div>
-          <div class="dash-stat-text">
-            <div class="big" id="statAvgAccuracy">0%</div>
-            <div class="lab">Average<br>Accuracy</div>
+            <div class="lab dash-perf-title">Performance</div>
+            <div class="dash-perf-metrics">
+              <div class="dash-perf-metric">
+                <div class="big" id="statAvgWpm">0</div>
+                <div class="lab">Avg WPM</div>
+              </div>
+              <div class="dash-perf-metric">
+                <div class="big" id="statAvgAccuracy">0%</div>
+                <div class="lab">Accuracy</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Active Pass and Remaining Credits — two more cards in the
              SAME row, using the exact same .dash-stat-card markup
-             (not a separate "card" class) so all 5 tiles are
+             (not a separate "card" class) so all 4 tiles are
              guaranteed identical sizing/styling rather than visually
-             approximating each other. (A leftover global ".card +
-             .card" margin rule was previously pushing the second of
-             these two cards down — using dash-stat-card avoids that
-             entirely, since the other 3 tiles never hit that rule
-             either.) Populated by renderPassCreditsCard() in
-             dashboard.js, which reuses the SAME
-             fetchActivePasses()/fetchTotalCredits() helpers from
+             approximating each other. Populated by
+             renderPassCreditsCard() in dashboard.js, which reuses the
+             SAME fetchActivePasses()/fetchTotalCredits() helpers from
              js/auth.js that already power the header dropdown. -->
-        <div class="dash-stat-card" id="passBlock"></div>
+        <div class="dash-stat-card dash-pass-card" id="passBlock"></div>
         <div class="dash-stat-card" id="creditsBlock"></div>
       </div>
-
-      <!-- Scroll-position dots for the mobile horizontal card strip
-           above — hidden on desktop via CSS, populated/kept in sync
-           by JS based on the actual number of cards and the strip's
-           real scroll position (see wireStatsScrollDots() in
-           dashboard.js), not a hardcoded count. -->
-      <div class="dash-stats-dots" id="dashStatsDots"></div>
 
       <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
       <div class="card dash-target-card">
