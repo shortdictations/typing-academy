@@ -975,14 +975,14 @@ body.app-shell .mtr-criteria-item{
 }
 body.app-shell .mtr-criteria-mark{
   flex: none;
-  width: 22px; height: 22px;
+  width: 24px; height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 1px;
 }
-body.app-shell .mtr-criteria-mark svg{ width: 13px; height: 13px; }
+body.app-shell .mtr-criteria-mark svg{ width: 14px; height: 14px; }
 body.app-shell .mtr-criteria-met{ background: var(--ts-green-tint); color: var(--ts-green); }
 body.app-shell .mtr-criteria-unmet{ background: var(--ts-red-tint); color: var(--ts-red); }
 body.app-shell .mtr-criteria-text{
@@ -1037,22 +1037,21 @@ body.app-shell .mtr-encourage-card p{ margin: 2px 0 0; font-size: 0.82rem; color
 body.app-shell .mtr-banner{
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--ts-blue-tint);
   border-radius: var(--ts-radius-lg);
-  padding: 18px 22px;
-  margin-top: 20px;
+  padding: 14px 18px;
 }
 body.app-shell .mtr-banner-icon{
-  width: 40px; height: 40px; flex: none;
+  width: 34px; height: 34px; flex: none;
   border-radius: 50%;
   background: var(--ts-blue);
   color: #fff;
   display: flex; align-items: center; justify-content: center;
 }
-body.app-shell .mtr-banner-icon svg{ width: 20px; height: 20px; }
-body.app-shell .mtr-banner strong{ display: block; color: var(--ts-blue); font-size: 1rem; }
-body.app-shell .mtr-banner p{ margin: 2px 0 0; font-size: 0.85rem; color: var(--ts-text); }
+body.app-shell .mtr-banner-icon svg{ width: 17px; height: 17px; }
+body.app-shell .mtr-banner strong{ display: block; color: var(--ts-blue); font-size: 0.95rem; }
+body.app-shell .mtr-banner p{ margin: 2px 0 0; font-size: 0.82rem; color: var(--ts-text); }
 
 body.app-shell .mtr-nav-actions{ display: flex; gap: 12px; margin-top: 20px; }
 
@@ -1182,20 +1181,108 @@ body.app-shell .app-greeting-row .btn{
    automatically at narrower widths instead of forcing a fixed column
    count that could overflow. */
 body.app-shell .dash-stats-grid{
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 @media (max-width: 1100px){
-  /* Wraps to 3 + 2 (an even split) rather than letting auto-fit
-     leave a single card alone on its own row, stretched to fill the
-     whole width. */
-  body.app-shell .dash-stats-grid{ grid-template-columns: repeat(3, 1fr); }
+  /* Even 2x2 split rather than an awkward 3+1 at tablet widths, now
+     that there are exactly 4 cards (used to be 5, hence the old
+     repeat(3,1fr) 3+2 split). */
+  body.app-shell .dash-stats-grid{ grid-template-columns: repeat(2, 1fr); }
 }
 body.app-shell .dash-stat-card{ border-radius: var(--ts-radius-lg); border-color: var(--ts-border); box-shadow: none; padding: 14px; min-width: 0; }
-/* Scroll-position dots only ever apply to the mobile horizontal
-   scroll strip — hidden by default, shown inside the
-   max-width:700px block below. */
-body.app-shell .dash-stats-dots{ display: none; }
 body.app-shell .dash-stat-text{ min-width: 0; }
+
+/* ---------- Performance card (Avg WPM + Accuracy combined) ----------
+   Two compact metrics side by side under one "Performance" label,
+   inside the same .dash-stat-card/.dash-stat-icon shell as the other
+   three tiles — only the space where a single .big/.lab pair used to
+   sit now holds two smaller ones. */
+body.app-shell .dash-perf-title{ margin-bottom: 6px; }
+body.app-shell .dash-perf-metrics{
+  display: flex;
+  gap: 18px;
+}
+body.app-shell .dash-perf-metric .big{ font-size: 1.3rem; }
+body.app-shell .dash-perf-metric .lab{ font-size: 0.72rem; }
+
+/* ---------- Active Pass card (list, not a single tile) ----------
+   Unlike the other three cards, this one lays out top-to-bottom
+   (icon+heading+status row, then the list) rather than icon-beside-
+   text, since a list of passes needs the full card width to itself.
+   .dash-pass-list scrolls vertically INSIDE the card once content
+   exceeds max-height — the card itself never grows past that, and
+   nothing here introduces any horizontal scrolling. */
+body.app-shell .dash-pass-card{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+body.app-shell .dash-pass-card-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+body.app-shell .dash-pass-card-head-left{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+body.app-shell .dash-pass-card .dash-stat-icon{ margin: 0; }
+@keyframes dashPassActiveDotPulse{
+  0%, 100%{ transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(22,163,74,0.25); }
+  50%{ transform: scale(1.15); opacity: 0.85; box-shadow: 0 0 0 4px rgba(22,163,74,0); }
+}
+body.app-shell .dash-pass-active-dot{
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ts-green);
+  flex: none;
+  animation: dashPassActiveDotPulse 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  body.app-shell .dash-pass-active-dot{ animation: none; }
+}
+body.app-shell .dash-pass-list{
+  overflow-y: auto;
+  max-height: 118px;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+body.app-shell .dash-pass-list::-webkit-scrollbar{ width: 5px; }
+body.app-shell .dash-pass-list::-webkit-scrollbar-track{ background: transparent; }
+body.app-shell .dash-pass-list::-webkit-scrollbar-thumb{ background: var(--ts-border); border-radius: 8px; }
+body.app-shell .dash-pass-row{
+  padding: 8px 10px;
+  border: 1px solid var(--ts-border);
+  border-radius: 10px;
+  flex: none;
+}
+body.app-shell .dash-pass-row-name{
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ts-text);
+}
+body.app-shell .dash-pass-row-expiry{
+  font-size: 0.72rem;
+  color: var(--ts-muted);
+  margin-top: 2px;
+}
+body.app-shell .dash-pass-empty{
+  font-size: 0.78rem;
+  color: var(--ts-muted);
+  line-height: 1.4;
+}
+body.app-shell .dash-pass-empty strong{
+  display: block;
+  color: var(--ts-text);
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+/* Scroll-position dots — carousel removed, no longer used. */
 
 /* Active Pass card: plan-name typewriter rotation. Scoped to this
    one element's id specifically — NOT the shared .dash-stat-text
@@ -2304,41 +2391,27 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
     font-size: 0.85rem;
   }
 
-  /* Tests Completed / Avg WPM / Avg Accuracy / Active Pass+Credits —
-     a single horizontally-scrollable strip instead of a wrapping
-     grid, so each card keeps its full layout (no squeezed/overflowing
-     text) regardless of screen width. Snap-scrolling + a hidden
-     scrollbar matches the existing chart-carousel pattern already
-     used elsewhere on this page. Card width is 80% of the strip
-     (capped so it doesn't balloon on larger phones/small tablets in
-     this same breakpoint) so the next card visibly peeks in as a
-     scroll affordance, per spec. */
+  /* Tests Completed / Performance / Active Pass / Credits Left —
+     static 2x2 grid, not a horizontal scroll/swipe strip (the
+     previous carousel-plus-dots approach removed entirely per an
+     explicit follow-up: no horizontal card scrolling anywhere on
+     the dashboard, mobile always shows exactly 2 cards per row). */
   body.app-shell .dash-stats-grid{
-    display: flex;
-    grid-template-columns: unset;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     margin-bottom: 10px;
   }
-  body.app-shell .dash-stats-grid::-webkit-scrollbar{ display: none; }
-  /* Icon-on-top layout, replacing the row (icon-beside-text) layout
-     used everywhere else — taller, more breathing room, matches the
-     requested mobile card shape specifically. Desktop is untouched;
-     this only exists inside this max-width:700px block. Width is a
-     fixed, content-appropriate size (not a percentage of viewport —
-     that was the previous, too-wide approach) — vertical padding,
-     min-height, icon size, and typography are all left exactly as
-     they were; only horizontal padding and the flex-basis width
-     changed, since those are the only two things actually
-     responsible for the leftover empty space. */
+  /* Icon-on-top layout for the two simple tiles (Tests Completed,
+     Credits Left) — taller, more breathing room than the icon-beside-
+     text row layout used on desktop. Width is now 100% of its grid
+     cell (auto), not the old carousel's fixed 138px flex-basis.
+     .dash-perf-card/.dash-pass-card override this immediately below,
+     since those two need their own internal layouts, not this
+     generic shape — this rule alone would otherwise win on mobile
+     despite being defined earlier in the file, since equal-specificity
+     rules cascade by source order and this media query comes later. */
   body.app-shell .dash-stat-card{
-    flex: 0 0 138px;
-    scroll-snap-align: start;
     padding: 22px 14px;
     flex-direction: column;
     align-items: flex-start;
@@ -2352,33 +2425,34 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
   body.app-shell .dash-stat-text .big{ font-size: 1.35rem; line-height: 1.2; }
   body.app-shell .dash-stat-text .lab{ font-size: 0.8rem; line-height: 1.3; margin-top: 5px; }
 
-  /* Scroll-position dots — purely a visual reflection of
-     scrollLeft/scrollWidth, computed and kept in sync by JS
-     (see dashboard.js) rather than a fixed count baked into the
-     markup, so this still works correctly if the number of cards
-     (or how many fit per "page") ever changes. */
-  body.app-shell .dash-stats-dots{
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin: 2px 0 18px;
+  /* Performance and Active Pass keep their own internal layouts
+     (set in the desktop rules above, unscoped by any media query) —
+     these overrides just undo the icon-on-top/min-height treatment
+     the generic mobile .dash-stat-card rule above would otherwise
+     force onto them too. */
+  body.app-shell .dash-perf-card,
+  body.app-shell .dash-pass-card{
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 0;
+    padding: 14px;
   }
-  body.app-shell .dash-stats-dot{
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--ts-border);
-    transition: background-color 0.2s ease, transform 0.2s ease;
+  body.app-shell .dash-perf-card .dash-stat-icon,
+  body.app-shell .dash-pass-card .dash-stat-icon{
+    width: 34px; height: 34px; margin-bottom: 0; flex: none;
   }
-  body.app-shell .dash-stats-dot.active{ background: var(--ts-blue); transform: scale(1.25); }
-  @media (prefers-reduced-motion: reduce){
-    body.app-shell .dash-stats-dot{ transition: none; }
-  }
+  body.app-shell .dash-perf-card .dash-stat-icon svg,
+  body.app-shell .dash-pass-card .dash-stat-icon svg{ width: 16px; height: 16px; }
+  body.app-shell .dash-perf-metrics{ gap: 12px; }
+  body.app-shell .dash-perf-metric .big{ font-size: 1.1rem; }
+  body.app-shell .dash-pass-list{ max-height: 96px; }
 
   /* Active Pass and Remaining Credits use this exact same
      .dash-stat-card rule above (same class, not a separate one) —
-     so they automatically get the identical 118px scroll-strip width
-     as Tests Completed / Avg WPM / Avg Accuracy, with no risk of the
-     two ever drifting out of sync with each other. */
+     so they automatically get the identical sizing as Tests
+     Completed / Performance, with no risk of the two ever drifting
+     out of sync with each other. */
 
   /* Recent Tests: more compact rows */
   body.app-shell .app-recent-card{ padding: 14px 14px; }
