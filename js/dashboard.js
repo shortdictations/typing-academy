@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     startMockTestBtn.addEventListener("click", () => handleStartMockTestClick(user, startMockTestBtn));
   }
 
-  wireStatsScrollDots();
+  // Carousel removed per spec — mobile now uses a static 2x2 grid
+  // (see app-shell.css), so there's no scroll position to track.
 
   // Every section below is independently guarded: this page has
   // several unrelated widgets (target WPM, pass/credits cards,
@@ -74,6 +75,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (err) {
     console.error("Could not load dashboard stats/chart/recent tests:", err);
+  }
+
+  try {
+    await loadWeakKeysCard(user);
+  } catch (err) {
+    console.error("Could not load weak-keys card:", err);
   }
 });
 
@@ -745,6 +752,47 @@ function statTileHtml(tileClass, iconSvg, bigHtml, labHtml) {
     '<div class="dash-stat-text"><div class="big">' + bigHtml + '</div><div class="lab">' + labHtml + '</div></div>';
 }
 
+// Active Pass card — icon + heading + active-status dot at top, then
+// every currently active pass listed below (name + expiry each),
+// scrolling internally once there are enough to exceed the card's
+// max-height (see .dash-pass-list in app-shell.css) rather than the
+// previous single-tile-plus-typewriter-rotation approach. All from
+// the exact same fetchActivePasses() array (already correctly
+// filtered to non-cancelled, started, non-expired passes, sorted by
+// soonest-expiring first) — nothing new is fetched or calculated.
+function buildActivePassCardHtml(activePasses) {
+  const icon = passCreditsIcon("pass");
+
+  if (activePasses.length === 0) {
+    return '<div class="dash-stat-icon dash-tile-green">' + icon + '</div>' +
+      '<div class="dash-stat-text">' +
+        '<div class="lab">Active Pass</div>' +
+        '<div class="dash-pass-empty">' +
+          '<strong>No active pass</strong>' +
+          'Get a pass to unlock more mock tests. ' +
+          '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>' +
+        '</div>' +
+      '</div>';
+  }
+
+  const rows = activePasses.map(p => {
+    const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    return '<div class="dash-pass-row">' +
+      '<div class="dash-pass-row-name">' + escapeHtmlDash(p.label) + '</div>' +
+      '<div class="dash-pass-row-expiry">Expires: ' + expiresText + '</div>' +
+    '</div>';
+  }).join("");
+
+  return '<div class="dash-stat-icon dash-tile-green">' + icon + '</div>' +
+    '<div class="dash-stat-text">' +
+      '<div class="dash-pass-card-head">' +
+        '<div class="dash-pass-card-head-left"><span class="lab">Active Pass</span></div>' +
+        '<span class="dash-pass-active-dot" aria-hidden="true" title="Active"></span>' +
+      '</div>' +
+      '<div class="dash-pass-list">' + rows + '</div>' +
+    '</div>';
+}
+
 async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
   // Promise.allSettled instead of Promise.all: previously, if ANY one
   // of these three fetches rejected (a network blip, an RLS/schema
@@ -770,34 +818,12 @@ async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
   if (passBlock) {
     if (passResult.status === "rejected") {
       passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
-    } else if (activePasses.length === 0) {
-      stopPlanNameTypewriter(); // in case a previous render had one running (e.g. after a purchase refresh) — req #17, never leave a stray timer
-      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "No Pass", '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>');
     } else {
-      // Icon/container built ONCE via statTileHtml — only
-      // #dashPlanName and #dashPlanDaysLeft ever get touched again
-      // after this, whether by the static single-pass path below or
-      // the typewriter rotation. The icon, card, and "days left"
-      // label position never re-render.
-      passBlock.innerHTML = statTileHtml(
-        "dash-tile-green",
-        passCreditsIcon("pass"),
-        '<span id="dashPlanName"></span>',
-        '<span id="dashPlanDaysLeft"></span>'
-      );
-      const nameEl = document.getElementById("dashPlanName");
-      const daysEl = document.getElementById("dashPlanDaysLeft");
-
-      if (activePasses.length === 1) {
-        stopPlanNameTypewriter(); // only one plan — no rotation, per requirement #7
-        const p = activePasses[0];
-        nameEl.textContent = p.label;
-        daysEl.textContent = formatDaysLeft(p.expiresAt);
-        const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-        passBlock.title = p.label + " — valid till " + expiresText;
-      } else {
-        startPlanNameTypewriter(activePasses, nameEl, daysEl, passBlock);
-      }
+      passBlock.innerHTML = buildActivePassCardHtml(activePasses);
+      const titleText = activePasses.length
+        ? activePasses.map(p => p.label).join(", ")
+        : "";
+      if (titleText) passBlock.title = titleText;
     }
   }
 
@@ -974,202 +1000,44 @@ function showAllMocksCompletedMessage(btn, originalHtml) {
   btn.insertAdjacentElement("afterend", note);
 }
 
-// Never "0 Days Left" or a negative number — compares CALENDAR days
-// (midnight to midnight), not raw 24-hour windows, so a pass
-// expiring later today reads as "Expires Today" rather than a
-// misleading "1 Day Left" or the explicitly-forbidden "0 Days Left".
-function formatDaysLeft(expiresAt) {
-  const now = new Date();
-  const expiry = new Date(expiresAt);
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfExpiryDay = new Date(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
-  const dayDiff = Math.round((startOfExpiryDay - startOfToday) / (24 * 60 * 60 * 1000));
-
-  if (dayDiff <= 0) return "Expires Today";
-  if (dayDiff === 1) return "1 Day Left";
-  return dayDiff + " Days Left";
-}
 
 /* ============================================================
-   Dashboard Active Pass card — plan name typewriter rotation
+   Weak Keys dashboard card
    ------------------------------------------------------------
-   Only ever touches #dashPlanName's text (character by character)
-   and, once per full cycle, #dashPlanDaysLeft's text (instantly,
-   no animation) — the icon, card, and everything else built by
-   statTileHtml() above is never re-rendered by this. Runs only
-   when there are 2+ active passes; a single pass or no pass never
-   reaches this code (see renderPassCreditsCardInner above).
-
-   One module-level controller, stopped and replaced (never
-   stacked) every time this is (re)started — this is the single
-   thing requirement #17 is about: without it, calling
-   renderPassCreditsCard() a second time (e.g. after a purchase
-   refreshes the page's data) would leave the OLD interval still
-   running alongside a new one, corrupting the text with two
-   simultaneous typers.
+   Lifetime view (>=30 attempts per key), distinct from the
+   per-test weak-key check on the result screen (mock-test-
+   attempt.js), which uses a lower bar since a single test may
+   never reach 30 occurrences of any one key. Hidden entirely
+   when there isn't enough data yet, per spec.
    ============================================================ */
-let planNameTypewriterController = null;
+async function loadWeakKeysCard(user) {
+  const card = document.getElementById("weakKeysCard");
+  if (!card) return;
 
-function stopPlanNameTypewriter() {
-  if (planNameTypewriterController) {
-    planNameTypewriterController.stopped = true;
-    clearTimeout(planNameTypewriterController.timeoutId);
-    planNameTypewriterController = null;
-  }
-}
+  const { data, error } = await supabaseClient
+    .from("typing_key_stats")
+    .select("key, attempts, correct_count, error_count")
+    .eq("user_id", user.id)
+    .gte("attempts", 30)
+    .order("error_count", { ascending: false })
+    .limit(5);
 
-function startPlanNameTypewriter(activePasses, nameEl, daysEl, passBlock) {
-  stopPlanNameTypewriter(); // exactly one controller ever runs — see comment above
+  if (error) { console.error("loadWeakKeysCard:", error); return; }
 
-  const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const controller = { stopped: false, timeoutId: null };
-  planNameTypewriterController = controller;
+  const weakKeys = (data || [])
+    .map(item => ({
+      key: item.key,
+      accuracy: item.attempts > 0 ? (item.correct_count / item.attempts) * 100 : 100
+    }))
+    .filter(item => item.accuracy < 90);
 
-  const showPlan = (pass) => {
-    nameEl.textContent = pass.label;
-    daysEl.textContent = formatDaysLeft(pass.expiresAt); // updates cleanly, never animated — requirement #5
-    const expiresText = new Date(pass.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    passBlock.title = pass.label + " — valid till " + expiresText;
-  };
+  if (weakKeys.length === 0) return; // stays hidden — display:none is the default in the markup
 
-  if (prefersReducedMotion) {
-    // Requirement #18: show the first active plan normally, no
-    // repeated changes, no timers started at all.
-    showPlan(activePasses[0]);
-    return;
-  }
-
-  let index = 0;
-
-  // Filters out any pass whose real expiry has passed since the
-  // page loaded (requirement #15) — checked fresh against the
-  // current time at every step, not just once at start, so this
-  // stays correct even if the dashboard is left open for hours.
-  const stillActive = (list) => list.filter(p => new Date(p.expiresAt) > new Date());
-
-  function schedule(fn, delay) {
-    if (controller.stopped) return;
-    controller.timeoutId = setTimeout(() => { if (!controller.stopped) fn(); }, delay);
-  }
-
-  function cycle() {
-    if (controller.stopped) return;
-
-    const live = stillActive(activePasses);
-    if (live.length === 0) {
-      // Every pass expired mid-session — fall back to the existing
-      // no-active-plan state rather than animating something stale.
-      stopPlanNameTypewriter();
-      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "No Pass", '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>');
-      return;
-    }
-    if (live.length === 1) {
-      // Down to one live pass — stop rotating, show it plainly.
-      stopPlanNameTypewriter();
-      showPlan(live[0]);
-      return;
-    }
-
-    index = index % live.length;
-    const current = live[index];
-    const next = live[(index + 1) % live.length];
-
-    nameEl.textContent = current.label;
-    daysEl.textContent = formatDaysLeft(current.expiresAt);
-    hideCursor(nameEl); // full name, sitting still — no cursor during this pause (requirement #11)
-
-    schedule(() => { showCursor(nameEl); backspace(current.label.length, next); }, 3000 + Math.random() * 1000); // pause 3–4s, requirement #3
-  }
-
-  function backspace(remainingChars, next) {
-    if (controller.stopped) return;
-    if (remainingChars <= 0) {
-      schedule(() => typeNext(next, 0), 200 + Math.random() * 200); // brief pause at empty, requirement #13 step 4 — cursor stays visible, this is motion mid-transition, not the paused-between-plans state
-      return;
-    }
-    nameEl.textContent = nameEl.textContent.slice(0, -1);
-    schedule(() => backspace(remainingChars - 1, next), 45 + Math.random() * 30); // 45–75ms/char, requirement #2
-  }
-
-  function typeNext(next, charsTyped) {
-    if (controller.stopped) return;
-    if (charsTyped >= next.label.length) {
-      index = (index + 1) % activePasses.length;
-      schedule(cycle, 0); // full name shown — cycle() re-derives the live list, hides the cursor, and re-pauses before the next backspace
-      return;
-    }
-    nameEl.textContent = next.label.slice(0, charsTyped + 1);
-    schedule(() => typeNext(next, charsTyped + 1), 65 + Math.random() * 45); // 65–110ms/char, requirement #2
-  }
-
-  cycle();
-}
-
-// Subtle blinking cursor, only ever a sibling text node next to the
-// plan name — never affects layout width, and disappears entirely
-// (not just stops blinking) whenever the animation is paused,
-// per requirement #11.
-function showCursor(nameEl) {
-  hideCursor(nameEl);
-  const cursor = document.createElement("span");
-  cursor.className = "typewriter-cursor";
-  nameEl.insertAdjacentElement("afterend", cursor);
-}
-function hideCursor(nameEl) {
-  const existing = nameEl.parentElement && nameEl.parentElement.querySelector(".typewriter-cursor");
-  if (existing) existing.remove();
-}
-
-/* ============================================================
-   Mobile stat-card strip — scroll-position dots
-   ------------------------------------------------------------
-   Purely visual/desktop-hidden via CSS (.dash-stats-dots is
-   display:none outside the mobile breakpoint), but wired
-   unconditionally here — harmless on desktop since the container
-   stays hidden, and avoids re-running this on resize/breakpoint
-   changes. Dot count comes from the actual number of .dash-stat-card
-   elements in the strip at wire-time (5 today: Tests Completed,
-   Avg WPM, Avg Accuracy, Active Pass, Credits — but this reads the
-   real DOM, not a hardcoded 5, so it stays correct if that ever
-   changes). Active dot is derived from the strip's real scrollLeft
-   against each card's actual offsetLeft, not an assumed card width,
-   so it stays correct across screen sizes and the responsive
-   80%-width card sizing in app-shell.css.
-   ============================================================ */
-function wireStatsScrollDots() {
-  const strip = document.querySelector(".dash-stats-grid");
-  const dotsContainer = document.getElementById("dashStatsDots");
-  if (!strip || !dotsContainer) return;
-
-  const cards = Array.from(strip.querySelectorAll(".dash-stat-card"));
-  if (cards.length === 0) return;
-
-  dotsContainer.innerHTML = cards
-    .map((_, i) => '<span class="dash-stats-dot' + (i === 0 ? " active" : "") + '"></span>')
+  document.getElementById("weakKeysCardLetters").innerHTML = weakKeys
+    .map(item => '<span class="weak-keys-card-letter">' + item.key + '</span>')
     .join("");
-  const dots = Array.from(dotsContainer.children);
+  document.getElementById("weakKeysCardNote").textContent =
+    weakKeys.length + (weakKeys.length === 1 ? " key needs" : " keys need") + " attention";
 
-  let ticking = false;
-  function updateActiveDot() {
-    const scrollLeft = strip.scrollLeft;
-    let closestIndex = 0;
-    let closestDistance = Infinity;
-    cards.forEach((card, i) => {
-      const distance = Math.abs(card.offsetLeft - strip.offsetLeft - scrollLeft);
-      if (distance < closestDistance) { closestDistance = distance; closestIndex = i; }
-    });
-    dots.forEach((dot, i) => dot.classList.toggle("active", i === closestIndex));
-    ticking = false;
-  }
-
-  // rAF-gated so a fast swipe fires this once per frame, not once
-  // per scroll-event tick.
-  strip.addEventListener("scroll", () => {
-    if (!ticking) {
-      requestAnimationFrame(updateActiveDot);
-      ticking = true;
-    }
-  }, { passive: true });
-
-  window.addEventListener("resize", updateActiveDot);
+  card.style.display = "block";
 }
