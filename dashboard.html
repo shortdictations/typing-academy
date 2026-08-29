@@ -175,55 +175,98 @@
         </div>
       </div>
 
-      <div class="app-greeting-row">
+      <div class="app-greeting-row app-greeting-row-with-plan">
         <div>
           <h1 class="dashboard-h1">Hey, <span id="welcomeName">there</span>! &#128075;</h1>
           <p class="lede dashboard-greeting-sub" style="max-width:none;">Ready to improve your typing today?</p>
         </div>
-        <button type="button" class="btn dash-btn-primary" id="startMockTestBtn">Start a Mock Test <span aria-hidden="true">&rarr;</span></button>
+        <!-- Current Plan — a single card showing the soonest-expiring
+             active pass (or an empty state), separate from the four
+             stat cards below and always in this top-right position.
+             Populated by renderPassCreditsCard() in dashboard.js,
+             reusing the same fetchActivePasses() helper from
+             js/auth.js — same data source as before, just a different
+             presentation (one plan, not a scrollable list) and a new
+             location on the page. -->
+        <div class="dash-current-plan-card" id="currentPlanBlock"></div>
       </div>
 
       <div class="dash-stats-grid">
-        <div class="dash-stat-card">
+        <div class="dash-stat-card dash-wave-card">
           <div class="dash-stat-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="4" rx="1"/><path d="M7 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1"/><path d="M9 13h6M9 17h4"/></svg></div>
           <div class="dash-stat-text">
+            <div class="lab">Tests Taken</div>
             <div class="big" id="statTests">0</div>
-            <div class="lab" id="statTestsLabel">Tests Completed</div>
+            <div class="dash-stat-sub">Total attempts</div>
           </div>
+          <div class="dash-wave dash-wave-blue"><svg viewBox="0 0 120 24" preserveAspectRatio="none"><path d="M0 16 Q 30 4 60 14 T 120 10 V24 H0 Z"/></svg><span class="dash-wave-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-4 4 4 4-8 4 4"/></svg></span></div>
         </div>
 
-        <!-- Performance — combines the previous Avg WPM + Avg Accuracy
-             cards into one. #statAvgWpm/#statAvgAccuracy are the EXACT
-             same element ids renderSummary() (dashboard.js) already
-             populates — only their surrounding markup moved into one
-             card together, so that function needed zero changes. -->
-        <div class="dash-stat-card dash-perf-card">
-          <div class="dash-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+        <div class="dash-stat-card dash-wave-card">
+          <div class="dash-stat-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div>
           <div class="dash-stat-text">
-            <div class="lab dash-perf-title">Performance</div>
-            <div class="dash-perf-metrics">
-              <div class="dash-perf-metric">
-                <div class="big" id="statAvgWpm">0</div>
-                <div class="lab">Avg WPM</div>
-              </div>
-              <div class="dash-perf-metric">
-                <div class="big" id="statAvgAccuracy">0%</div>
-                <div class="lab">Accuracy</div>
-              </div>
-            </div>
+            <div class="lab">Accuracy</div>
+            <div class="big" id="statBestAccuracy">0%</div>
+            <div class="dash-stat-sub">Best accuracy</div>
           </div>
+          <div class="dash-wave dash-wave-green"><svg viewBox="0 0 120 24" preserveAspectRatio="none"><path d="M0 16 Q 30 4 60 14 T 120 10 V24 H0 Z"/></svg><span class="dash-wave-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.8L21 11l-6.6 2.2L12 20l-2.4-6.8L3 11l6.6-2.2Z"/></svg></span></div>
         </div>
 
-        <!-- Active Pass and Remaining Credits — two more cards in the
-             SAME row, using the exact same .dash-stat-card markup
-             (not a separate "card" class) so all 4 tiles are
-             guaranteed identical sizing/styling rather than visually
-             approximating each other. Populated by
-             renderPassCreditsCard() in dashboard.js, which reuses the
-             SAME fetchActivePasses()/fetchTotalCredits() helpers from
-             js/auth.js that already power the header dropdown. -->
-        <div class="dash-stat-card dash-pass-card" id="passBlock"></div>
-        <div class="dash-stat-card" id="creditsBlock"></div>
+        <div class="dash-stat-card dash-wave-card">
+          <div class="dash-stat-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.07 19.07A10 10 0 1 0 4.93 4.93a10 10 0 0 0 14.14 14.14Z"/><path d="M12 12l3-2"/></svg></div>
+          <div class="dash-stat-text">
+            <div class="lab">WPM Record</div>
+            <div class="big" id="statBestWpm">0</div>
+            <div class="dash-stat-sub">Best speed</div>
+          </div>
+          <div class="dash-wave dash-wave-purple"><svg viewBox="0 0 120 24" preserveAspectRatio="none"><path d="M0 16 Q 30 4 60 14 T 120 10 V24 H0 Z"/></svg><span class="dash-wave-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></span></div>
+        </div>
+
+        <!-- Credits Left — populated by renderPassCreditsCard() in
+             dashboard.js (same fetchTotalCredits() helper as before),
+             built with the same .dash-stat-icon/.dash-stat-text/
+             .dash-wave structure as the three static cards above so
+             all four match exactly regardless of which are
+             server-rendered vs JS-populated. -->
+        <div class="dash-stat-card dash-wave-card" id="creditsBlock"></div>
+      </div>
+
+      <!-- Practice CTA — new card added to match the supplied
+           reference exactly; #startMockTestBtn is the SAME button
+           (same id, same click handler wired in DOMContentLoaded
+           below) that used to sit next to the greeting — only its
+           position and label text ("Start Test Now" vs "Start a Mock
+           Test") changed, per the reference. -->
+      <div class="card dash-practice-cta">
+        <div class="dash-practice-cta-text">
+          <h2>Practice more, improve more!</h2>
+          <p>Start a test now and boost your typing skills.</p>
+          <button type="button" class="btn dash-btn-primary" id="startMockTestBtn">Start Test Now <span aria-hidden="true">&rarr;</span></button>
+        </div>
+        <div class="dash-practice-cta-illustration" aria-hidden="true">
+          <svg viewBox="0 0 200 140" fill="none">
+            <rect x="70" y="18" width="66" height="88" rx="8" fill="#fff" stroke="#2563EB" stroke-width="3"/>
+            <rect x="88" y="10" width="30" height="14" rx="4" fill="#2563EB"/>
+            <path d="M84 40h38M84 52h38M84 64h20" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="88" cy="40" r="6" fill="#22C55E"/>
+            <path d="M85.5 40l1.8 1.8L91 38" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="88" cy="52" r="6" fill="#22C55E"/>
+            <path d="M85.5 52l1.8 1.8L91 50" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="88" cy="64" r="6" fill="#22C55E"/>
+            <path d="M85.5 64l1.8 1.8L91 62" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="10" y="86" width="110" height="34" rx="6" fill="#1E293B"/>
+            <g fill="#475569">
+              <rect x="18" y="94" width="10" height="8" rx="2"/><rect x="31" y="94" width="10" height="8" rx="2"/><rect x="44" y="94" width="10" height="8" rx="2"/><rect x="57" y="94" width="10" height="8" rx="2"/><rect x="70" y="94" width="10" height="8" rx="2"/><rect x="83" y="94" width="10" height="8" rx="2"/><rect x="96" y="94" width="10" height="8" rx="2"/>
+              <rect x="18" y="105" width="10" height="8" rx="2"/><rect x="31" y="105" width="10" height="8" rx="2"/><rect x="44" y="105" width="10" height="8" rx="2"/><rect x="57" y="105" width="10" height="8" rx="2"/><rect x="70" y="105" width="10" height="8" rx="2"/><rect x="83" y="105" width="24" height="8" rx="2"/>
+            </g>
+            <circle cx="150" cy="70" r="24" fill="#fff" stroke="#2563EB" stroke-width="3"/>
+            <path d="M150 58v12l8 6" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="34" cy="28" r="3" fill="#93C5FD"/>
+            <circle cx="170" cy="30" r="3" fill="#93C5FD"/>
+            <circle cx="184" cy="90" r="3" fill="#93C5FD"/>
+            <circle cx="20" cy="70" r="3" fill="#93C5FD"/>
+          </svg>
+        </div>
       </div>
 
       <!-- Target WPM + Actual-vs-Target progress — unchanged from before -->
