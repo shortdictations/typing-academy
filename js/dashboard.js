@@ -516,17 +516,19 @@ function renderSummary(results) {
   // so the dashboard's headline number matches what students already
   // see immediately after finishing a test. Gross WPM remains visible
   // per-row in the history table below, just not used for this average.
+  // avgWpm specifically is still needed as-is for the Target WPM
+  // progress card further down this page (see the return value below)
+  // — untouched by the stat-card redesign, which uses BEST (max) values
+  // instead, computed separately right below.
   const avgWpm = testsTaken
     ? Math.round(results.reduce((sum, r) => sum + r.net_wpm, 0) / testsTaken)
     : 0;
-  const avgAccuracy = testsTaken
-    ? Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / testsTaken)
-    : 0;
+  const bestWpm = testsTaken ? Math.max(...results.map(r => r.net_wpm)) : 0;
+  const bestAccuracy = testsTaken ? Math.max(...results.map(r => r.accuracy)) : 0;
 
   document.getElementById("statTests").textContent = testsTaken;
-  document.getElementById("statTestsLabel").textContent = testsTaken === 1 ? "Test Completed" : "Tests Completed";
-  document.getElementById("statAvgWpm").textContent = avgWpm;
-  document.getElementById("statAvgAccuracy").textContent = avgAccuracy + "%";
+  document.getElementById("statBestAccuracy").textContent = bestAccuracy + "%";
+  document.getElementById("statBestWpm").textContent = bestWpm;
 
   // "Last Test" is no longer shown as its own tile (replaced in the
   // grid by the Active Pass/Credits card), but the element is guarded
@@ -730,70 +732,64 @@ function renderRecentTests(results) {
    date, etc.) is still one click away on Pass & Credits; this card
    is a glance, like its neighbors. */
 async function renderPassCreditsCard(user) {
-  const passBlock = document.getElementById("passBlock");
+  const currentPlanBlock = document.getElementById("currentPlanBlock");
   const creditsBlock = document.getElementById("creditsBlock");
-  if (!passBlock && !creditsBlock) return;
+  if (!currentPlanBlock && !creditsBlock) return;
 
   try {
-    await renderPassCreditsCardInner(user, passBlock, creditsBlock);
+    await renderPassCreditsCardInner(user, currentPlanBlock, creditsBlock);
   } catch (err) {
     console.error("renderPassCreditsCard failed:", err);
-    if (passBlock) passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
-    if (creditsBlock) creditsBlock.innerHTML = statTileHtml("dash-tile-purple", passCreditsIcon("credits"), "—", "Could not load");
+    if (currentPlanBlock) currentPlanBlock.innerHTML = '<div class="dash-current-plan-body"><div class="dash-current-plan-lab">Current Plan</div><div class="dash-current-plan-name">Could not load</div></div>';
+    if (creditsBlock) creditsBlock.innerHTML = statTileHtml("dash-tile-orange", passCreditsIcon("credits"), "—", "Credits Left", "Could not load", "dash-wave-orange", giftIconSvg());
   }
 }
 
-// Same icon + big-value + label structure as the plain stat tiles
-// (see the Tests Completed / Avg WPM / Avg Accuracy markup in
-// dashboard.html) — built as a helper here so Active Pass and
-// Remaining Credits can never drift from that shape.
-function statTileHtml(tileClass, iconSvg, bigHtml, labHtml) {
+// Same icon + big-value + label + wave-decoration structure as the
+// three static stat cards (see dashboard.html) — built as a helper
+// here so the JS-populated Credits Left card can never drift from
+// that shape. iconIndex picks which wave color/mini-icon variant to
+// use, matching the reference's 4th (orange) card specifically.
+function statTileHtml(tileClass, iconSvg, bigHtml, labHtml, subText, waveClass, waveIconSvg) {
   return '<div class="dash-stat-icon ' + tileClass + '">' + iconSvg + '</div>' +
-    '<div class="dash-stat-text"><div class="big">' + bigHtml + '</div><div class="lab">' + labHtml + '</div></div>';
+    '<div class="dash-stat-text"><div class="lab">' + labHtml + '</div><div class="big">' + bigHtml + '</div><div class="dash-stat-sub">' + subText + '</div></div>' +
+    '<div class="dash-wave ' + waveClass + '"><svg viewBox="0 0 120 24" preserveAspectRatio="none"><path d="M0 16 Q 30 4 60 14 T 120 10 V24 H0 Z"/></svg><span class="dash-wave-icon">' + waveIconSvg + '</span></div>';
 }
 
-// Active Pass card — icon + heading + active-status dot at top, then
-// every currently active pass listed below (name + expiry each),
-// scrolling internally once there are enough to exceed the card's
-// max-height (see .dash-pass-list in app-shell.css) rather than the
-// previous single-tile-plus-typewriter-rotation approach. All from
-// the exact same fetchActivePasses() array (already correctly
-// filtered to non-cancelled, started, non-expired passes, sorted by
-// soonest-expiring first) — nothing new is fetched or calculated.
-function buildActivePassCardHtml(activePasses) {
-  const icon = passCreditsIcon("pass");
+// Current Plan card — shows the single soonest-expiring active pass
+// (fetchActivePasses() already sorts this way), or an empty state.
+// Separate from the four stat cards, always at the top of the page
+// per the reference — a deliberate change from the previous "Active
+// Pass" list-of-all-passes card, which this replaces entirely. Same
+// fetchActivePasses() data either way; nothing new fetched.
+function buildCurrentPlanCardHtml(activePasses) {
+  const diamondIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M2 9h20M12 3v18"/></svg>';
 
   if (activePasses.length === 0) {
-    return '<div class="dash-stat-icon dash-tile-green">' + icon + '</div>' +
-      '<div class="dash-stat-text">' +
-        '<div class="lab">Active Pass</div>' +
-        '<div class="dash-pass-empty">' +
-          '<strong>No active pass</strong>' +
-          'Get a pass to unlock more mock tests. ' +
-          '<a class="dash-change-link" href="subscriptions.html">Get a pass</a>' +
-        '</div>' +
-      '</div>';
+    return '<div class="dash-current-plan-icon">' + diamondIcon + '</div>' +
+      '<div class="dash-current-plan-body">' +
+        '<div class="dash-current-plan-lab">Current Plan</div>' +
+        '<div class="dash-current-plan-name">No active plan</div>' +
+      '</div>' +
+      '<a class="dash-current-plan-btn" href="subscriptions.html">Get a pass</a>';
   }
 
-  const rows = activePasses.map(p => {
-    const expiresText = new Date(p.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    return '<div class="dash-pass-row">' +
-      '<div class="dash-pass-row-name">' + escapeHtmlDash(p.label) + '</div>' +
-      '<div class="dash-pass-row-expiry">Expires: ' + expiresText + '</div>' +
-    '</div>';
-  }).join("");
+  const current = activePasses[0];
+  const expiresText = new Date(current.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-  return '<div class="dash-stat-icon dash-tile-green">' + icon + '</div>' +
-    '<div class="dash-stat-text">' +
-      '<div class="dash-pass-card-head">' +
-        '<div class="dash-pass-card-head-left"><span class="lab">Active Pass</span></div>' +
-        '<span class="dash-pass-active-dot" aria-hidden="true" title="Active"></span>' +
-      '</div>' +
-      '<div class="dash-pass-list">' + rows + '</div>' +
+  return '<div class="dash-current-plan-icon">' + diamondIcon + '</div>' +
+    '<div class="dash-current-plan-body">' +
+      '<div class="dash-current-plan-lab">Current Plan</div>' +
+      '<div class="dash-current-plan-name">' + escapeHtmlDash(current.label) + '</div>' +
+    '</div>' +
+    '<a class="dash-current-plan-btn" href="subscriptions.html">View details</a>' +
+    '<div class="dash-current-plan-expiry">' +
+      '<div class="dash-current-plan-lab">Valid till</div>' +
+      '<div class="dash-current-plan-date">' + expiresText + '</div>' +
     '</div>';
 }
 
-async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
+async function renderPassCreditsCardInner(user, currentPlanBlock, creditsBlock) {
   // Promise.allSettled instead of Promise.all: previously, if ANY one
   // of these three fetches rejected (a network blip, an RLS/schema
   // surprise on wallet_credits, etc.), the whole Promise.all rejected
@@ -815,15 +811,11 @@ async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
   const creditsTotal = creditsResult.status === "fulfilled" ? creditsResult.value : "—";
   const creditsExpiry = expiryResult.status === "fulfilled" ? expiryResult.value : null;
 
-  if (passBlock) {
+  if (currentPlanBlock) {
     if (passResult.status === "rejected") {
-      passBlock.innerHTML = statTileHtml("dash-tile-green", passCreditsIcon("pass"), "—", "Could not load");
+      currentPlanBlock.innerHTML = '<div class="dash-current-plan-body"><div class="dash-current-plan-lab">Current Plan</div><div class="dash-current-plan-name">Could not load</div></div>';
     } else {
-      passBlock.innerHTML = buildActivePassCardHtml(activePasses);
-      const titleText = activePasses.length
-        ? activePasses.map(p => p.label).join(", ")
-        : "";
-      if (titleText) passBlock.title = titleText;
+      currentPlanBlock.innerHTML = buildCurrentPlanCardHtml(activePasses);
     }
   }
 
@@ -832,7 +824,7 @@ async function renderPassCreditsCardInner(user, passBlock, creditsBlock) {
       ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
       : null;
     if (creditsValidity) creditsBlock.title = "Validity: " + creditsValidity;
-    creditsBlock.innerHTML = statTileHtml("dash-tile-purple", passCreditsIcon("credits"), escapeHtmlDash(String(creditsTotal)), "Credits Left");
+    creditsBlock.innerHTML = statTileHtml("dash-tile-orange", passCreditsIcon("credits"), escapeHtmlDash(String(creditsTotal)), "Credits Left", "Available credits", "dash-wave-orange", giftIconSvg());
   }
 }
 
@@ -867,6 +859,14 @@ function escapeHtmlDash(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+// Small mini-icon shown inside the Credits Left card's wave
+// decoration specifically (see statTileHtml()) — distinct from
+// passCreditsIcon("credits")'s coin-stack icon, which is the card's
+// main (larger) icon.
+function giftIconSvg() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 8v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8"/><path d="M12 8c-2 0-3.5-1.5-3.5-3S9.5 2 11 2s1 3 1 6"/><path d="M12 8c2 0 3.5-1.5 3.5-3S14.5 2 13 2s-1 3-1 6"/></svg>';
 }
 
 /* ============================================================
