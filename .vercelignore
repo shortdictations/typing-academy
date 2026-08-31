@@ -1,0 +1,16 @@
+# TypeShala — files excluded from the Vercel deployment.
+#
+# This project deploys as a flat static site (the whole repo root is
+# the web root, no build step) — moving a file to a subfolder like
+# docs/ does NOT stop Vercel from serving it publicly by itself; only
+# this ignore file does that. Both were done together deliberately:
+# docs/ for organization, this file for actually keeping it out of
+# the deployed bundle.
+
+# Historical/legacy SQL setup scripts — superseded by the current
+# mock_test_results-based schema; kept for reference only.
+docs/legacy/
+
+# SQL migration snippets and Markdown design notes — reference
+# material for maintainers, not needed by the browser at runtime.
+docs/notes/
