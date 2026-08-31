@@ -1,15 +1,22 @@
 /* ============================================================
    mock-test-attempt.js
    ------------------------------------------------------------
-   Loads ONE specific mock test (?id=...) from the mock_tests
-   catalog, auto-loads its assigned passage (the student never
-   picks a passage), runs the timed test, and saves the result
-   to mock_test_results with the mock's identity attached.
+   Loads ONE mock test attempt, identified by a session id
+   (?session=...) rather than a mock id — the mock itself is
+   assigned server-side by start_or_resume_mock_test()/
+   start_reattempt() (called from mock-test.html / mock-history.js)
+   BEFORE this page ever loads. Access (pass or credit) is already
+   resolved and, if a credit was needed, already spent by that point
+   — this page never calls can_access_mock/start_mock_test/
+   start_credit_test at all; it only loads the session's already-
+   assigned mock+passage, runs the timed test, and completes the
+   session via complete_mock_session() at the end.
    ============================================================ */
 
 let currentUser = null;
 let mockTest = null;      // the mock_tests row
 let selectedPassage = null; // the joined passages row
+let currentSession = null; // the mock_test_sessions row this attempt belongs to
 
 // User-selectable fixed test duration (5 or 10 minutes) — defaults
 // to the mock test's own configured duration, but the setup screen's
@@ -50,17 +57,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!currentUser) return;
 
   const params = new URLSearchParams(window.location.search);
-  const mockId = params.get("id");
+  const sessionId = params.get("session");
 
-  if (!mockId) {
-    document.getElementById("setupInfo").textContent = "No mock test was specified.";
+  if (!sessionId) {
+    document.getElementById("setupInfo").textContent = "No test session was specified. Please start a mock test from the Mock Test page.";
     return;
   }
+
+  // RLS already scopes this to the caller's own session rows — no
+  // separate ownership check needed beyond .eq("user_id", ...), which
+  // is here for defense-in-depth/clarity, not as the real security
+  // boundary.
+  const { data: sessionRow, error: sessionError } = await supabaseClient
+    .from("mock_test_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (sessionError || !sessionRow) {
+    document.getElementById("setupInfo").innerHTML =
+      '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session could not be found. ' +
+      '<a href="mock-test.html">Start a new mock test</a>.</div>';
+    return;
+  }
+
+  if (sessionRow.status !== "in_progress") {
+    // Already completed or expired (e.g. a stale bookmark/back-button
+    // to a session that finished or timed out in another tab) — never
+    // let a non-in_progress session re-enter the live test screen.
+    document.getElementById("setupInfo").innerHTML =
+      '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session is no longer active. ' +
+      '<a href="mock-test.html">Start a new mock test</a>.</div>';
+    return;
+  }
+
+  currentSession = sessionRow;
 
   const { data, error } = await supabaseClient
     .from("mock_tests")
     .select("*, passages(*)")
-    .eq("id", mockId)
+    .eq("id", sessionRow.mock_test_id)
     .eq("active", true)
     .maybeSingle();
 
@@ -73,48 +110,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   mockTest = data;
   selectedPassage = data.passages;
 
-  // ---------------- Access priority (new TypeShala access model) ----------------
-  // PASS and CREDIT are now two access METHODS for the same SSC/Legal
-  // test library — not two separate libraries. For any non-free test:
-  //   STEP 1: does the student have an active eligible pass? (checked
-  //           via the SAME can_access_mock() function used to enforce
-  //           saving — never re-implemented client-side.) If yes:
-  //           unlimited access, no credit involved, regardless of
-  //           whether this specific test used to be "premium" or
-  //           "credit" — that distinction no longer changes behaviour.
-  //   STEP 2: no eligible pass — fall back to the existing credit
-  //           system exactly as before (1 credit, once).
-  //   STEP 3: neither — locked, show purchase options.
-  let hasEligiblePass = false;
-
-  if (mockTest.access_type !== "free") {
-    const { data: allowed, error: accessError } = await supabaseClient.rpc("can_access_mock", { mock_id: mockTest.id });
-    if (accessError) console.error("can_access_mock RPC error:", accessError);
-    hasEligiblePass = !accessError && !!allowed;
-  }
-
-  if (mockTest.access_type !== "free" && !hasEligiblePass) {
-    // No eligible pass — read-only check here (never deducts) so a
-    // test already claimed with a credit shows that plainly instead
-    // of a Start button that would just be rejected. The actual
-    // credit spend only happens inside start_credit_test(), called
-    // from handleStartClick below.
-    const { data: existingUnlock } = await supabaseClient
-      .from("mock_unlocks")
-      .select("id")
-      .eq("user_id", currentUser.id)
-      .eq("mock_test_id", mockTest.id)
-      .maybeSingle();
-
-    if (existingUnlock) {
-      document.getElementById("setupInfo").innerHTML =
-        '<div style="font-family:var(--font-display); font-size:1.2rem; font-weight:700;">&#10003; Completed</div>' +
-        '<div style="color:var(--ink-soft); margin-top:8px; font-size:0.9rem;">You have already completed this test using a credit. It cannot be retaken unless you have an active eligible Pass.</div>' +
-        '<a class="btn" style="margin-top:14px; display:inline-block;" href="mock-history.html">View Result</a>';
-      return; // startBtn is never shown
-    }
-  }
-
   // Defaults to whichever of 5/10 the mock test's own configured
   // duration is closest to, but the picker below lets the student
   // change it before starting — selectedDurationMinutes (not
@@ -122,10 +117,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   // running.
   selectedDurationMinutes = mockTest.duration <= 7 ? 5 : 10;
 
+  // Access/payment is already settled — this label reflects HOW this
+  // session was funded (set by start_or_resume_mock_test/
+  // start_reattempt), never re-derived here.
+  const accessLabel = mockTest.access_type === "free" ? "Free"
+    : sessionRow.access_method === "pass" ? "PASS INCLUDED"
+    : "1 CREDIT";
+
   document.getElementById("setupInfo").innerHTML =
-    '<div class="mock-test-title">' + escapeHtml(mockTest.title) + '</div>' +
-    '<div class="mock-test-meta">' +
-    (mockTest.access_type === "free" ? "Free" : (hasEligiblePass ? "PASS INCLUDED" : "1 CREDIT")) + '</div>' +
+    '<div class="mock-test-title">' + escapeHtml(mockTest.title) + (sessionRow.is_reattempt ? ' <span class="pill">Re-attempt</span>' : '') + '</div>' +
+    '<div class="mock-test-meta">' + accessLabel + '</div>' +
     '<div class="mock-duration-picker" id="durationPicker" role="radiogroup" aria-label="Test duration">' +
       '<button type="button" class="mock-duration-btn" data-duration="5">5 Minutes</button>' +
       '<button type="button" class="mock-duration-btn" data-duration="10">10 Minutes</button>' +
@@ -235,15 +236,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ---------------- Starting the test ---------------- */
 
-// Runs when the student presses "Start Mock Test". Access
-// (eligible-pass vs credit-fallback) is now ONLY re-verified and
-// actually consumed later, at the first real keystroke (see
-// consumeTestAccess(), called from onTypingInput()) — opening the
-// test screen itself must never spend a credit or claim a pass, per
-// the "no typing = no consumption" rule. This click now only
-// re-checks the session and shows the test screen/fullscreen; it no
-// longer calls start_mock_test/start_credit_test at all.
+// Runs when the student presses "Start Mock Test". Unlike the old
+// flow, this click no longer touches access/credit logic AT ALL —
+// the session already exists and was already fully paid for (pass or
+// credit) back on mock-test.html, before this page even loaded. This
+// click's only job is to show the test screen/fullscreen.
 async function handleStartClick() {
+
   // Before starting the test (and before any pass/credit consumption
   // later, at first keystroke), re-verify this browser's session is
   // still the active one — a just-in-time check, not just relying on
@@ -255,56 +254,6 @@ async function handleStartClick() {
   if (!sessionOk) return;
 
   startMockTest();
-}
-
-// The ONLY place a pass is checked or a credit is ever spent — called
-// once, from onTypingInput()'s first-keystroke branch, never from
-// handleStartClick(). Moving this here (rather than to the Start
-// button) is what makes "opening the test" and "starting the test"
-// genuinely different moments: a student who opens the test and exits
-// without typing a single character never has this function called at
-// all, so nothing is ever deducted. Same start_mock_test/
-// start_credit_test RPCs as before, same pass-then-credit priority,
-// same three outcomes — only the calling moment changed.
-//
-// Double-consumption safety: onTypingInput() only ever calls this once
-// per attempt (guarded by testActive, set synchronously before this
-// async function is even invoked) — and start_credit_test() itself is
-// additionally protected server-side by a unique constraint on
-// mock_unlocks(user_id, mock_test_id), so even a hypothetical duplicate
-// call here could not deduct a second credit.
-async function consumeTestAccess() {
-  if (mockTest.access_type === "free") return; // nothing to consume for a free test
-
-  const { data: passData, error: passError } = await supabaseClient.rpc("start_mock_test", { mock_id: mockTest.id });
-  if (passError) console.error("start_mock_test RPC error:", passError);
-  const passResult = Array.isArray(passData) ? passData[0] : passData;
-  const passGranted = !passError && passResult && passResult.has_access;
-
-  if (passGranted) return; // eligible pass covers it — never touches credits
-
-  const { data, error } = await supabaseClient.rpc("start_credit_test", { mock_id: mockTest.id });
-  if (error) console.error("start_credit_test RPC error:", error);
-
-  const result = Array.isArray(data) ? data[0] : data;
-
-  if (error || !result || !result.has_access) {
-    // Extremely rare race condition: access was verified on the setup
-    // screen, but changed by the time the student actually started
-    // typing (e.g. their last credit/pass was used in another tab in
-    // the meantime). The test is already running at this point, so
-    // there is no "Start" button to disable — cancel the attempt
-    // outright rather than let it continue uncounted. No result is
-    // saved (cancelUnstartedTest() never calls endMockTest()), but
-    // testActive/the timer have already started, so this is
-    // deliberately NOT routed through the "Test Not Started" popup
-    // (that message would be factually wrong here) — a distinct,
-    // clearly-worded reason is shown instead.
-    cancelUnstartedTest("Your access to this test could not be confirmed. No credit or pass was used — please try again from the test list.");
-  }
-  // result.access_reason === "CREDIT_USED" — 1 credit was just
-  // deducted and this test is now claimed for this student
-  // (unless/until an eligible Pass covers it later).
 }
 
 
@@ -649,12 +598,13 @@ function onTypingInput(e) {
     testActive = true;
     testStartTime = Date.now();
     testTimer = setInterval(tickTimer, 1000);
-    // Fire-and-forget from this function's perspective — the timer
-    // must start immediately/synchronously for a responsive feel, not
-    // wait on a network round-trip. Guarded above by testActive (set
-    // synchronously, before this async call is even made), so this
-    // can only ever be reached once per attempt.
-    consumeTestAccess();
+    // Access/credit consumption already happened before this page
+    // loaded (start_or_resume_mock_test/start_reattempt, called from
+    // mock-test.html/mock-history.js) — nothing to consume here
+    // anymore. The timer still only starts on the first real
+    // keystroke, same as before, purely for a responsive/expected
+    // typing-test feel — it no longer has anything to do with
+    // whether anything gets spent.
   }
 
   const typed = e.target.value;
@@ -770,22 +720,24 @@ function beforeUnloadHandler(e) {
 /* ---------------- Cancelling an unstarted test ---------------- */
 
 // Called when the student exits (via ESC/fullscreen-exit) BEFORE
-// typing anything — testActive is still false, so no timer ever ran
-// and consumeTestAccess() was never called. This is deliberately NOT
-// a variant of endMockTest(): it never saves a result, never touches
-// wordResults/scoring, and never can (testActive stays false the
-// whole time, so even if this function were somehow skipped, nothing
-// downstream would treat the attempt as scoreable). Its only jobs are
-// (1) clean up exactly the same page-level state startMockTest() set
-// up — fullscreen, the sidebar-hiding body class, the beforeunload
-// guard — and (2) tell the student plainly that nothing was spent.
+// typing anything — testActive is still false, so no timer ever ran.
+// This is deliberately NOT a variant of endMockTest(): it never saves
+// a result, never touches wordResults/scoring, and never can
+// (testActive stays false the whole time, so even if this function
+// were somehow skipped, nothing downstream would treat the attempt as
+// scoreable). Its only jobs are (1) clean up exactly the same
+// page-level state startMockTest() set up — fullscreen, the
+// sidebar-hiding body class, the beforeunload guard — and (2) tell
+// the student their progress is saved, not lost.
 //
-// customMessage is used only for the genuine-race-condition path in
-// consumeTestAccess() (access changed between setup and first
-// keystroke) — that path reaches here with testActive already true,
-// so it explicitly passes its own accurate wording rather than the
-// default "you didn't start" copy, which would be factually wrong at
-// that point.
+// IMPORTANT: unlike the old flow, access/credit consumption already
+// happened BEFORE this page even loaded (start_or_resume_mock_test/
+// start_reattempt, called from mock-test.html/mock-history.js) — so
+// this function does NOT mean "nothing was spent". What it DOES mean
+// is that the session itself is untouched here (still status =
+// 'in_progress' in the database, since this function never calls any
+// RPC) — so the student can pick up the exact same session later from
+// the Mock Test page's "Continue Test" card, at no additional cost.
 function cancelUnstartedTest(customMessage) {
   if (testCancelled) return;
   testCancelled = true;
@@ -823,7 +775,7 @@ function showTestNotStartedModal(customMessage) {
   if (!modal || !overlay) return;
   if (msgEl) {
     msgEl.textContent = customMessage ||
-      "You have not started the test, so your credit/pass has not been consumed. You can start a new test whenever you're ready.";
+      "You exited before starting. Your test is still saved — you can continue it anytime from the Mock Test page, at no additional cost.";
   }
   overlay.hidden = false;
   modal.hidden = false;
@@ -1173,22 +1125,35 @@ async function saveMockResult(r) {
     return;
   }
 
-  const { error } = await supabaseClient.from("mock_test_results").insert({
-    user_id: currentUser.id,
-    mock_test_id: mockTest.id,
-    mock_name: mockTest.title,
-    category: mockTest.category,
-    passage_id: selectedPassage.id,
-    passage_title: selectedPassage.title,
-    duration: r.testDurationMinutes,
-    gross_wpm: r.grossWpm,
-    net_wpm: r.netWpm,
-    accuracy: r.accuracy,
-    errors: r.errors,
-    total_words: r.wordsTyped,
-    is_completed: r.requiredDurationCompleted,
-    is_passed: r.passed,
-    words_typed: r.wordsTyped
+  if (!currentSession) {
+    console.error("No session context — mock test result was not saved.");
+    return;
+  }
+
+  // Calls complete_mock_session() instead of inserting into
+  // mock_test_results directly — this is what atomically marks the
+  // SESSION completed (linking result_id back to it) in the same
+  // operation as saving the result, which is what makes re-attempt
+  // counting and "Tests Completed" both derive from one consistent
+  // source of truth. Exact same result fields as the old direct
+  // insert — no new value invented, exam_name still left null since
+  // the old insert never set it either.
+  const { error } = await supabaseClient.rpc("complete_mock_session", {
+    p_session_id: currentSession.id,
+    p_exam_name: null,
+    p_passage_title: selectedPassage.title,
+    p_duration: r.testDurationMinutes,
+    p_gross_wpm: r.grossWpm,
+    p_net_wpm: r.netWpm,
+    p_accuracy: r.accuracy,
+    p_errors: r.errors,
+    p_total_words: r.wordsTyped,
+    p_mock_name: mockTest.title,
+    p_category: mockTest.category,
+    p_passage_id: selectedPassage.id,
+    p_is_completed: r.requiredDurationCompleted,
+    p_is_passed: r.passed,
+    p_words_typed: r.wordsTyped
   });
 
   if (error) {

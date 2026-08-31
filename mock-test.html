@@ -80,20 +80,30 @@
 
   <p class="eyebrow">Exam Simulation</p>
   <h1>Mock Test</h1>
-  <p class="lede">Choose a category to see the individual mock tests inside it.</p>
+  <p class="lede">Choose a category — we'll assign you a mock test automatically.</p>
 
-  <div class="feature-grid">
+  <!-- Shown only when an in_progress session already exists (spec:
+       an unfinished test always takes priority). Hidden by default;
+       populated by js/mock-test.js on load. Clicking Continue Test
+       goes straight to the SAME session/mock — never a new one. -->
+  <div class="card unfinished-test-card" id="unfinishedTestCard" style="display:none;">
+    <div class="card-label">Unfinished Mock Test</div>
+    <p class="lede" style="max-width:none;">You have an unfinished test. Pick up right where you left off — no new credit, no new attempt.</p>
+    <a class="btn" id="continueTestBtn" href="#">Continue Test</a>
+  </div>
+
+  <div class="feature-grid" id="categoryCardsGrid">
     <div class="feature">
       <div class="num">LEGAL MOCK</div>
       <h3>Court &amp; Legal Typing Mock Tests</h3>
       <p>Simulated tests modeled on court and legal typing exams. Unlocked by an eligible Pass, or by Credits.</p>
-      <a class="btn" href="mock-test-list.html?category=legal">View Legal Mocks</a>
+      <button type="button" class="btn" id="startLegalBtn" data-category="legal">Start Mock Test</button>
     </div>
     <div class="feature">
       <div class="num">SSC MOCK</div>
       <h3>SSC Typing / DEST Mock Tests</h3>
       <p>Simulated tests modeled on SSC typing and DEST exams. Unlocked by an eligible Pass, or by Credits.</p>
-      <a class="btn" href="mock-test-list.html?category=ssc">View SSC Mocks</a>
+      <button type="button" class="btn" id="startSscBtn" data-category="ssc">Start Mock Test</button>
     </div>
   </div>
 

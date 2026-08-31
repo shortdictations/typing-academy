@@ -4,16 +4,27 @@
    Loads the logged-in student's mock_test_results — kept
    completely separate from typing_results (regular practice
    history on dashboard.html).
+
+   Re-attempt button added: shown only for a result that (a) went
+   through the new session system (session_id is not null — the 42
+   historical rows that predate it are left alone, since they have no
+   session to count against the 2-attempt cap) and (b) is still the
+   ONLY completed session for that mock (no re-attempt used yet).
+   Clicking it calls start_reattempt() directly — the same RPC-driven
+   flow as starting a fresh mock from mock-test.html, just targeting
+   one specific mock instead of letting the server pick.
    ============================================================ */
 
+let currentUser = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
-  const user = await requireLogin();
-  if (!user) return;
+  currentUser = await requireLogin();
+  if (!currentUser) return;
 
   const { data: results, error } = await supabaseClient
     .from("mock_test_results")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -23,10 +34,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  renderHistory(results);
+  // Completed-session counts per mock — the SAME thing
+  // get_mock_access()/start_reattempt() check server-side, fetched
+  // here only to decide whether to SHOW the button (never to decide
+  // access itself — that's still fully re-checked server-side when
+  // the button is actually clicked).
+  const { data: sessions, error: sessionsError } = await supabaseClient
+    .from("mock_test_sessions")
+    .select("mock_test_id, status")
+    .eq("user_id", currentUser.id)
+    .eq("status", "completed");
+
+  const completedCountByMock = {};
+  if (!sessionsError) {
+    (sessions || []).forEach(s => {
+      completedCountByMock[s.mock_test_id] = (completedCountByMock[s.mock_test_id] || 0) + 1;
+    });
+  }
+
+  renderHistory(results, completedCountByMock);
 });
 
-function renderHistory(results) {
+function renderHistory(results, completedCountByMock) {
   const container = document.getElementById("historyBody");
 
   if (results.length === 0) {
@@ -42,6 +71,11 @@ function renderHistory(results) {
     const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     const rowId = "mockrow-" + i;
 
+    const canReattempt = r.session_id && r.mock_test_id && completedCountByMock[r.mock_test_id] === 1;
+    const reattemptHtml = canReattempt
+      ? `<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;margin-left:6px;" onclick="handleReattemptClick('${r.mock_test_id}', this)">Re-attempt</button>`
+      : "";
+
     rows += `
       <tr>
         <td data-label="Mock Name">${escapeHtml(r.mock_name || "-")}</td>
@@ -51,7 +85,9 @@ function renderHistory(results) {
         <td data-label="Net WPM">${r.net_wpm}</td>
         <td data-label="Accuracy">${r.accuracy}%</td>
         <td data-label="Errors">${r.errors}</td>
-        <td data-label="Result"><button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleDetail('${rowId}')">View Result</button></td>
+        <td data-label="Result">
+          <button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleDetail('${rowId}')">View Result</button>${reattemptHtml}
+        </td>
       </tr>
       <tr id="${rowId}" class="history-detail-row" style="display:none;">
         <td colspan="8" style="background:var(--paper-dark); font-size:0.85rem;">
@@ -82,6 +118,43 @@ function renderHistory(results) {
       <tbody>${rows}</tbody>
     </table>
     </div>`;
+}
+
+async function handleReattemptClick(mockTestId, btn) {
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Please wait...";
+
+  try {
+    const { data, error } = await supabaseClient.rpc("start_reattempt", { p_mock_test_id: mockTestId });
+
+    if (error) {
+      console.error("start_reattempt RPC error:", error);
+      alert("Something went wrong starting the re-attempt. Please try again.");
+      return;
+    }
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.session_id) {
+      const reasonMessages = {
+        NOT_YET_ATTEMPTED: "This mock hasn't been completed yet, so there's nothing to re-attempt.",
+        REATTEMPT_ALREADY_USED: "You've already used your one re-attempt for this mock test.",
+        NO_CREDITS: "You need an active eligible Pass or at least 1 Credit to re-attempt this test.",
+        LOCKED: "This mock test is no longer available."
+      };
+      alert((result && reasonMessages[result.access_reason]) || "Could not start the re-attempt. Please try again.");
+      return;
+    }
+
+    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id);
+  } catch (err) {
+    console.error("start_reattempt failed:", err);
+    alert("Something went wrong starting the re-attempt. Please try again.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 }
 
 function toggleDetail(rowId) {
