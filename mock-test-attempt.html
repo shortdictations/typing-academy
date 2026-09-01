@@ -267,20 +267,6 @@
        normal result page above is never altered by printing. -->
   <div id="printResultView" class="print-only" aria-hidden="true"></div>
 
-  <!-- "Test Not Started" popup — shown by cancelUnstartedTest() when
-       the student exits (ESC/fullscreen-exit) before typing anything.
-       Same overlay+modal pattern used elsewhere in the app (e.g. the
-       footer's info modals on the public pages), not a new dialog
-       system. -->
-  <div class="tns-overlay" id="testNotStartedOverlay" hidden></div>
-  <div class="tns-modal" id="testNotStartedModal" role="alertdialog" aria-modal="true" aria-labelledby="testNotStartedTitle" hidden>
-    <div class="tns-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-    </div>
-    <div class="tns-title" id="testNotStartedTitle">Test Not Started</div>
-    <p class="tns-message" id="testNotStartedMessage"></p>
-    <button type="button" class="btn tns-ok-btn" id="testNotStartedOkBtn">OK</button>
-  </div>
 
 </main>
 
