@@ -2481,59 +2481,12 @@ body.mock-test-active .user-menu,
 body.mock-test-active .nav-links > .credit-badge{ display: none; }
 
 /* ---------- "Test Not Started" popup ----------
-   Shown by cancelUnstartedTest() (mock-test-attempt.js) when the
-   student exits before typing anything. Same fixed-overlay-plus-
-   centered-card pattern as the avatar picker above, kept
-   independent (own class names) since this one is a plain
-   dismiss-only alert rather than a form with options — no shared
-   behavior to lose by not merging them. Toggled via the `hidden`
-   attribute directly (not an .open class + transition) — deliberately
-   plain per "do not over-design", since this fires at a moment
-   (exiting a fullscreen exam) where instant clarity matters more than
-   a polished entrance animation. */
-body.app-shell .tns-overlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(11,28,63,0.45);
-  z-index: 1200;
-}
-body.app-shell .tns-modal{
-  position: fixed;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 360px;
-  background: #fff;
-  border: 1px solid var(--ts-border);
-  border-radius: var(--ts-radius-lg);
-  box-shadow: 0 20px 50px rgba(16,24,40,0.25);
-  padding: 28px 24px 24px;
-  box-sizing: border-box;
-  text-align: center;
-  z-index: 1201;
-}
-body.app-shell .tns-icon{
-  width: 48px; height: 48px;
-  margin: 0 auto 14px;
-  border-radius: 50%;
-  background: var(--ts-blue-tint);
-  color: var(--ts-blue);
-  display: flex; align-items: center; justify-content: center;
-}
-body.app-shell .tns-icon svg{ width: 24px; height: 24px; }
-body.app-shell .tns-title{
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--ts-text);
-  margin-bottom: 8px;
-}
-body.app-shell .tns-message{
-  font-size: 0.9rem;
-  color: var(--ts-muted);
-  line-height: 1.5;
-  margin: 0 0 20px;
-}
-body.app-shell .tns-ok-btn{ width: 100%; }
+   Removed: cancelUnstartedTest() now shows the shared
+   showUnfinishedTestModal() (js/auth.js, .utc-* styles) instead of
+   this bespoke modal, so the "same session/mock/duration everywhere"
+   card design is consistent across every place a student can run
+   into an existing in_progress session, rather than a separate,
+   differently-styled one-off just for this specific exit path. */
 body.test-mode .test-mode-main{
   max-width: 1200px;
   width: calc(100% - 48px);
