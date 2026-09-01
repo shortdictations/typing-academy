@@ -94,10 +94,19 @@ async function handleStartClick(category) {
       return;
     }
 
-    // Redirect regardless of is_resumed — the attempt page itself
-    // reads the session's own state and shows the right screen
-    // (fresh setup vs. resumed-in-progress) rather than this page
-    // needing to know the difference.
+    // A resumed session may belong to a DIFFERENT category than the
+    // one just clicked — "one active session per user" (spec §9)
+    // applies across categories, not per-category, so clicking Legal
+    // while an unfinished SSC session still exists correctly resumes
+    // the SSC one rather than starting a new Legal one. Silently
+    // redirecting in that case looks exactly like "the wrong category
+    // got assigned" from the student's point of view — this makes
+    // clear what's actually happening before navigating away, without
+    // changing which session gets resumed at all.
+    if (result.is_resumed) {
+      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before starting a different mock.");
+    }
+
     window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id);
   } catch (err) {
     console.error("start_or_resume_mock_test failed:", err);
