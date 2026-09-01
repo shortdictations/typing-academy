@@ -265,14 +265,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-
-  // "Test Not Started" popup — dismiss only, no navigation of its
-  // own (cancelUnstartedTest() already returned to the setup screen
-  // before this ever shows).
-  document.getElementById("testNotStartedOkBtn").addEventListener("click", () => {
-    document.getElementById("testNotStartedOverlay").hidden = true;
-    document.getElementById("testNotStartedModal").hidden = true;
-  });
 });
 
 /* ---------------- Starting the test ---------------- */
@@ -845,20 +837,28 @@ function cancelUnstartedTest(customMessage) {
   document.getElementById("resultCard").style.display = "none";
   document.getElementById("setupCard").style.display = "block";
 
-  showTestNotStartedModal(customMessage);
-}
-
-function showTestNotStartedModal(customMessage) {
-  const modal = document.getElementById("testNotStartedModal");
-  const overlay = document.getElementById("testNotStartedOverlay");
-  const msgEl = document.getElementById("testNotStartedMessage");
-  if (!modal || !overlay) return;
-  if (msgEl) {
-    msgEl.textContent = customMessage ||
-      "You exited before starting. Your unfinished mock is still active — continue it anytime from the Mock Test page, at no additional cost. The typing area will start fresh.";
-  }
-  overlay.hidden = false;
-  modal.hidden = false;
+  // Same shared "Unfinished Mock Test" component used everywhere else
+  // a student can run into an existing in_progress session — "Test
+  // Not Started" wording specifically for this case (never typed
+  // anything), Back instead of Cancel since there's nowhere else on
+  // THIS page to stay on, and Continue Test reloads this exact page
+  // (same session, same passage, fresh timer) rather than navigating
+  // anywhere else.
+  showUnfinishedTestModal({
+    mockTitle: mockTest ? mockTest.title : null,
+    category: mockTest ? mockTest.category : null,
+    duration: selectedDurationMinutes,
+    startedAt: currentSession ? (currentSession.test_started_at || currentSession.started_at) : null,
+    title: "Test Not Started",
+    subtitle: customMessage || "You exited before starting.<br>Your unfinished mock is still active.",
+    cancelLabel: "Back"
+  }).then(proceed => {
+    if (proceed) {
+      window.location.reload();
+    } else {
+      window.location.href = "dashboard.html";
+    }
+  });
 }
 
 /* ---------------- Ending the test ---------------- */
