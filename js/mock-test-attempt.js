@@ -253,6 +253,21 @@ async function handleStartClick() {
   const sessionOk = await checkSingleActiveSession();
   if (!sessionOk) return;
 
+  // Marks the moment the student actually pressed Start (entering the
+  // test screen), distinct from when the session itself was created
+  // (back on mock-test.html/mock-history.html, when the mock was
+  // assigned and any credit consumed). This is what mock-test.html's
+  // "Continue Test" banner checks for — a session that was created
+  // but never actually started here must not show as resumable,
+  // since the student never got past the setup screen for it. A
+  // failure here is logged but never blocks starting the test itself
+  // — this flag is purely informational for the hub page's banner,
+  // not part of access control.
+  if (currentSession) {
+    const { error } = await supabaseClient.rpc("mark_test_started", { p_session_id: currentSession.id });
+    if (error) console.error("mark_test_started RPC error:", error);
+  }
+
   startMockTest();
 }
 
