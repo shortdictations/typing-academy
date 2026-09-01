@@ -180,24 +180,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
 
-  // Skips this setup screen entirely and goes straight into the test
-  // — access, mock assignment, and duration are all already decided
-  // before this page ever loads (dashboard's Step 1/Step 2, or
-  // mock-history's Re-attempt), so there is nothing left here for the
-  // student to actually decide before starting. Hidden immediately,
-  // synchronously, so it never has a chance to flash into view first.
-  //
-  // The one thing this can't guarantee is automatic full-screen:
-  // browsers only grant that to a request made from a genuine,
-  // synchronous user gesture on THIS exact page, which a
-  // programmatic call like this one is not (confirmed directly, more
-  // than once) — startMockTest()'s own showFullscreenFallback() path
-  // already handles that gracefully with a clear one-click recovery
-  // button, so this still reaches a working test screen either way,
-  // just occasionally with that one extra click for full-screen
-  // specifically, never for anything else.
-  document.getElementById("setupCard").style.display = "none";
-  handleStartClick();
+  // Deliberately NOT auto-starting anymore (a previous version did):
+  // confirmed directly, more than once, that a browser will not grant
+  // full-screen to a page-load-triggered request with no genuine user
+  // gesture on this exact page — not even immediately after full-
+  // screen was genuinely entered via a real click on the page before
+  // this one, since full-screen state does not survive a navigation
+  // at all. Skipping this screen only ever produced an immediate
+  // "click again to actually go full-screen" fallback anyway — this
+  // setup screen's own Start button IS that one genuine click,
+  // reliably entering full-screen every time with nothing left over
+  // to fall back to. The mock/passage/duration are already decided
+  // before this page loads either way; this screen just confirms them
+  // and provides the one click full-screen actually needs.
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
