@@ -119,17 +119,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Dashboard's Step 1/Step 2 selection flow (js/dashboard.js) already
   // collected both category and duration before ever navigating here
-  // — ?duration=&autostart=1 carry that choice over so this page can
-  // skip its own duration picker and go straight into the test rather
-  // than showing a setup screen asking for something already chosen.
-  // Only ever overrides the DEFAULT above — never touches
-  // mockTest.duration itself, and does nothing at all to the test
-  // engine (startMockTest()/the timer/WPM math) that follows.
+  // — ?duration= carries that choice over so this page's own duration
+  // picker starts pre-selected on what was already chosen, rather
+  // than the student needing to pick it again. Only ever overrides
+  // the DEFAULT above — never touches mockTest.duration itself.
+  //
+  // Deliberately NOT auto-triggering Start anymore (a previous
+  // version did, via a now-removed ?autostart=1 flag): confirmed
+  // directly, twice, with two different approaches, that a browser
+  // will not grant fullscreen to a page-load-triggered request with
+  // no genuine user gesture on THAT SPECIFIC page — not even
+  // immediately after fullscreen was genuinely entered via a real
+  // click on the page before this one, since fullscreen state does
+  // not survive a navigation at all. Autostarting here only ever
+  // produced a same, confusing "click again to actually go
+  // fullscreen" fallback screen — worse than just showing the
+  // ordinary Start button, which reliably enters fullscreen in one
+  // click since it's a genuine gesture on this exact page.
   const requestedDuration = Number(params.get("duration"));
   if (requestedDuration === 5 || requestedDuration === 10) {
     selectedDurationMinutes = requestedDuration;
   }
-  const shouldAutostart = params.get("autostart") === "1";
 
   // Access/payment is already settled — this label reflects HOW this
   // session was funded (set by start_or_resume_mock_test/
@@ -166,20 +176,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
-
-  if (shouldAutostart) {
-    // Hidden immediately (before the async checkSingleActiveSession
-    // inside handleStartClick even resolves) so the setup screen
-    // never has a chance to flash into view first — matches "close
-    // the selection card -> enter the typing-test interface" reading
-    // as one seamless motion rather than a visible in-between step.
-    document.getElementById("setupCard").style.display = "none";
-    // Calls the EXACT same function the Start button's own click
-    // fires — not a parallel path, so every existing safety check
-    // inside it (the just-in-time single-session re-check, marking
-    // test_started_at) still runs identically to a manual click.
-    handleStartClick();
-  }
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
@@ -366,7 +362,7 @@ function enterFullscreen() {
     if (result && typeof result.catch === "function") {
       result
         .then(hideFullscreenFallback)
-        .catch(showFullscreenFallback); // most common path: autostart calling this with no direct user gesture on THIS page — browsers require one, unavoidably (confirmed directly: even fullscreen entered via a genuine click on the PREVIOUS page does not carry over across a navigation)
+        .catch(showFullscreenFallback); // e.g. a popup blocker, an iframe without allow="fullscreen", or any other browser policy that rejects an automatic request
     } else {
       hideFullscreenFallback();
     }
@@ -377,8 +373,7 @@ function enterFullscreen() {
 
 // One click on this button IS a direct user gesture on this exact
 // page/document, so it reliably succeeds even when the automatic
-// attempt above couldn't (confirmed directly, including specifically
-// after an autostart redirect) — this is the actual, working recovery
+// attempt above couldn't — this is the actual, working recovery
 // path, not just a dead-end message. Focused so Enter/Space works
 // immediately without the student needing to move the mouse first.
 function showFullscreenFallback() {
