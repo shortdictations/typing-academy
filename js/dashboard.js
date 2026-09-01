@@ -17,10 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   showStudentName(user);
   showOnboardingWelcomeName(user);
 
-  const startMockTestBtn = document.getElementById("startMockTestBtn");
-  if (startMockTestBtn) {
-    startMockTestBtn.addEventListener("click", () => handleStartMockTestClick(user, startMockTestBtn));
-  }
+  wireMockTestSelectionFlow();
 
   // Carousel removed per spec — mobile now uses a static 2x2 grid
   // (see app-shell.css), so there's no scroll position to track.
@@ -891,94 +888,173 @@ function giftIconSvg() {
    happens if/when the student presses Start on the attempt page
    itself — this only navigates there.
    ============================================================ */
-async function handleStartMockTestClick(user, btn) {
+/* ============================================================
+   Mock Test selection flow (Step 1: category, Step 2: duration)
+   ------------------------------------------------------------
+   Replaces the old handleStartMockTestClick(), which fetched the
+   entire mock_tests catalog client-side and redirected to
+   mock-test-attempt.html?id=... — a URL format mock-test-attempt.js
+   no longer reads at all since it moved to session-based URLs
+   (?session=...). That function was already silently broken before
+   this change; this replaces it rather than patching it, since the
+   whole point of this flow is to collect category+duration up front
+   and hand off to the SAME start_or_resume_mock_test RPC
+   mock-test.html already uses — no new access/credit logic, no
+   second mock-selection path.
+   ============================================================ */
+
+let mtsSelectedType = null;
+let mtsSelectedDuration = null;
+
+function wireMockTestSelectionFlow() {
+  const step1Modal = document.getElementById("mockTestStep1Modal");
+  const step2Modal = document.getElementById("mockTestStep2Modal");
+  if (!step1Modal || !step2Modal) return; // this page doesn't have the flow (defensive — dashboard.html always does)
+
+  document.getElementById("mtsSscCard").addEventListener("click", () => selectMockTestType("ssc"));
+  document.getElementById("mtsLegalCard").addEventListener("click", () => selectMockTestType("legal"));
+  document.getElementById("mtsFiveCard").addEventListener("click", () => selectMockTestDuration(5));
+  document.getElementById("mtsTenCard").addEventListener("click", () => selectMockTestDuration(10));
+
+  document.getElementById("mockTestContinueBtn").addEventListener("click", goToMockTestStep2);
+  document.getElementById("mockTestBackBtn").addEventListener("click", backToMockTestStep1);
+  document.getElementById("mockTestStartBtn").addEventListener("click", handleMockTestStart);
+  document.getElementById("mockTestStep1CloseBtn").addEventListener("click", closeMockTestModals);
+  document.getElementById("mockTestStep2CloseBtn").addEventListener("click", closeMockTestModals);
+
+  // Both trigger points named in the brief: the dashboard's own
+  // "Start Test Now" button, and the left sidebar's "Start Test" nav
+  // link (which otherwise just navigates to mock-test.html).
+  const startMockTestBtn = document.getElementById("startMockTestBtn");
+  if (startMockTestBtn) startMockTestBtn.addEventListener("click", openMockTestStep1);
+
+  const sidebarStartTestLink = document.getElementById("sidebarStartTestLink");
+  if (sidebarStartTestLink) {
+    sidebarStartTestLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      openMockTestStep1();
+    });
+  }
+}
+
+function openMockTestStep1() {
+  mtsSelectedType = null;
+  mtsSelectedDuration = null;
+  document.querySelectorAll(".mts-option-card, .mts-duration-card").forEach(c => c.classList.remove("mts-selected"));
+  document.getElementById("mockTestContinueBtn").disabled = true;
+  document.getElementById("mockTestStartBtn").disabled = true;
+
+  const modal = document.getElementById("mockTestStep1Modal");
+  modal.hidden = false;
+  modal.classList.add("mts-anim-in");
+  // Two rAFs: the first lets the browser paint the just-unhidden,
+  // pre-transition (opacity:0, scale:0.95) state; only the SECOND
+  // frame adds -active, which is what the CSS transition actually
+  // animates from. A single rAF right after removing [hidden] can
+  // fire before that first paint completes, silently skipping the
+  // animation on some browsers.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => modal.classList.add("mts-anim-in-active"));
+  });
+}
+
+function goToMockTestStep2() {
+  if (!mtsSelectedType) return;
+
+  // Instant switch — no transition, no timeout, per the brief.
+  const step1 = document.getElementById("mockTestStep1Modal");
+  step1.hidden = true;
+  step1.classList.remove("mts-anim-in", "mts-anim-in-active");
+
+  document.getElementById("mockTestStep2Modal").hidden = false;
+}
+
+function backToMockTestStep1() {
+  // Also instant — Step 1 does NOT replay its opening animation when
+  // returned to from Back.
+  document.getElementById("mockTestStep2Modal").hidden = true;
+  document.getElementById("mockTestStep1Modal").hidden = false;
+}
+
+function closeMockTestModals() {
+  const step1 = document.getElementById("mockTestStep1Modal");
+  step1.hidden = true;
+  step1.classList.remove("mts-anim-in", "mts-anim-in-active");
+  document.getElementById("mockTestStep2Modal").hidden = true;
+}
+
+function selectMockTestType(type) {
+  mtsSelectedType = type;
+  document.querySelectorAll(".mts-option-card").forEach(c => c.classList.remove("mts-selected"));
+  document.getElementById(type === "ssc" ? "mtsSscCard" : "mtsLegalCard").classList.add("mts-selected");
+  document.getElementById("mockTestContinueBtn").disabled = false;
+}
+
+function selectMockTestDuration(duration) {
+  mtsSelectedDuration = duration;
+  document.querySelectorAll(".mts-duration-card").forEach(c => c.classList.remove("mts-selected"));
+  document.getElementById(duration === 5 ? "mtsFiveCard" : "mtsTenCard").classList.add("mts-selected");
+
+  document.getElementById("mtsSummaryType").textContent = mtsSelectedType === "ssc" ? "SSC Typing" : "Legal Typing";
+  document.getElementById("mtsSummaryDuration").textContent = duration + " Minutes";
+
+  document.getElementById("mockTestStartBtn").disabled = false;
+}
+
+async function handleMockTestStart() {
+  if (!mtsSelectedType || !mtsSelectedDuration) return;
+
+  const btn = document.getElementById("mockTestStartBtn");
   const originalHtml = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = "Finding your next test...";
+  btn.textContent = "Starting...";
 
   try {
-    const { data: mocks, error: mocksError } = await supabaseClient
-      .from("mock_tests")
-      .select("id, category, access_type, display_order")
-      .eq("active", true)
-      .order("display_order", { ascending: true });
+    // The SAME RPC mock-test.html's category buttons call — no
+    // second access/credit/session-selection system. Checks for an
+    // existing in_progress session first (never creates a second
+    // one), then pass, then credit, exactly as documented there.
+    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: mtsSelectedType });
 
-    if (mocksError || !mocks || mocks.length === 0) {
-      window.location.href = "mock-test.html";
-      return;
-    }
-    // Group by category (SSC before Legal) on top of the
-    // display_order already applied above — avoids chaining a
-    // second .order() call for a two-column sort.
-    mocks.sort((a, b) => (a.category === b.category ? 0 : a.category === "ssc" ? -1 : 1));
-
-    const { data: results } = await supabaseClient
-      .from("mock_test_results")
-      .select("mock_test_id")
-      .eq("user_id", user.id);
-    const completedIds = new Set((results || []).map(r => r.mock_test_id));
-
-    const available = mocks.filter(m => !completedIds.has(m.id));
-
-    if (available.length === 0) {
-      showAllMocksCompletedMessage(btn, originalHtml);
+    if (error) {
+      console.error("start_or_resume_mock_test RPC error:", error);
+      alert("Something went wrong starting the test. Please try again.");
       return;
     }
 
-    // Active pass categories — same "status != cancelled AND
-    // starts_at <= now AND expires_at > now" rule used everywhere
-    // else this is checked (fetchActivePasses in auth.js,
-    // loadActivePassTypes in subscriptions.js).
-    const { data: passRows } = await supabaseClient
-      .from("user_passes")
-      .select("pass_type, status, starts_at, expires_at")
-      .eq("user_id", user.id);
-    const now = new Date();
-    const activePassTypes = new Set(
-      (passRows || [])
-        .filter(p => p.status !== "cancelled" && new Date(p.starts_at) <= now && new Date(p.expires_at) > now)
-        .map(p => p.pass_type)
-    );
-    const passCoversCategory = (category) => {
-      const wanted = category === "ssc" ? "SSC" : "LEGAL";
-      return activePassTypes.has(wanted) || activePassTypes.has("COMBO");
-    };
+    const result = Array.isArray(data) ? data[0] : data;
 
-    const nonFreeCandidates = available.filter(m => m.access_type !== "free" && !passCoversCategory(m.category));
-    let unlockedIds = new Set();
-    if (nonFreeCandidates.length > 0) {
-      const { data: unlocks } = await supabaseClient
-        .from("mock_unlocks")
-        .select("mock_test_id")
-        .eq("user_id", user.id)
-        .in("mock_test_id", nonFreeCandidates.map(m => m.id));
-      unlockedIds = new Set((unlocks || []).map(u => u.mock_test_id));
-    }
-    const creditBalance = await fetchTotalCredits(user.id);
-    const hasSpendableCredit = typeof creditBalance === "number" && creditBalance > 0;
-
-    const free = available.find(m => m.access_type === "free");
-    if (free) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(free.id); return; }
-
-    const passCovered = available.find(m => m.access_type !== "free" && passCoversCategory(m.category));
-    if (passCovered) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(passCovered.id); return; }
-
-    const resumable = available.find(m => m.access_type !== "free" && !passCoversCategory(m.category) && unlockedIds.has(m.id));
-    if (resumable) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(resumable.id); return; }
-
-    if (hasSpendableCredit) {
-      const creditEligible = available.find(m => m.access_type !== "free" && !passCoversCategory(m.category) && !unlockedIds.has(m.id));
-      if (creditEligible) { window.location.href = "mock-test-attempt.html?id=" + encodeURIComponent(creditEligible.id); return; }
+    if (!result || !result.session_id) {
+      closeMockTestModals();
+      if (result && result.access_reason === "NO_CREDITS") {
+        window.location.href = "subscriptions.html";
+      } else if (result && result.access_reason === "NO_ELIGIBLE_MOCK") {
+        showAllMocksCompletedMessage(document.getElementById("startMockTestBtn"), document.getElementById("startMockTestBtn").innerHTML);
+      } else {
+        alert("Could not start the test. Please try again.");
+      }
+      return;
     }
 
-    // Unattempted mocks exist, but none are currently accessible
-    // (no pass, no credits) — send the student to buy access rather
-    // than claiming "all completed", which would be inaccurate.
-    window.location.href = "subscriptions.html";
+    if (result.is_resumed) {
+      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before starting a different mock.");
+    }
+
+    // duration+autostart tell mock-test-attempt.js to skip its own
+    // duration picker and go straight to the fullscreen test with the
+    // duration already chosen here — see the small, additive
+    // autostart check added to that file's DOMContentLoaded. Nothing
+    // about the test engine itself changes.
+    window.location.href =
+      "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) +
+      "&duration=" + encodeURIComponent(mtsSelectedDuration) +
+      "&autostart=1";
   } catch (err) {
-    console.error("handleStartMockTestClick failed:", err);
-    window.location.href = "mock-test.html"; // safe fallback — never leaves the button stuck
+    console.error("start_or_resume_mock_test failed:", err);
+    alert("Something went wrong starting the test. Please try again.");
   } finally {
+    // Only reached on an error/denial path above — a successful
+    // redirect abandons this page before this can run.
     btn.disabled = false;
     btn.innerHTML = originalHtml;
   }
