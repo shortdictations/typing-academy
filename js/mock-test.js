@@ -45,19 +45,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 // mock_test_sessions already scopes this to the caller's own rows;
 // nothing here can see another student's session.
 //
-// Shows the banner for ANY in_progress session, full stop — status
-// alone is the authoritative signal for "does an active session
-// exist" (a previous version additionally required test_started_at
-// to be set, to avoid the banner appearing for a session the student
-// had technically created but never actually pressed Start on; that
-// extra condition has been removed, since the server-side start
-// flow itself never used it for the equivalent access-blocking
-// decision either — status = 'in_progress' was always the sole
-// authoritative signal there, and the two are now consistent).
+// Only shows the banner once the session's own test page has
+// genuinely opened at least once (page_opened_at set) — a session row
+// can exist (created here, before any navigation) without that ever
+// happening, e.g. the tab closed mid-redirect, and from the student's
+// own point of view they never saw any test, so "you have an
+// unfinished test" would be confusing for something they never saw.
 async function checkForUnfinishedSession() {
   const { data, error } = await supabaseClient
     .from("mock_test_sessions")
-    .select("id")
+    .select("id, page_opened_at")
     .eq("user_id", currentUser.id)
     .eq("status", "in_progress")
     .maybeSingle();
@@ -67,7 +64,7 @@ async function checkForUnfinishedSession() {
     return;
   }
 
-  if (data) {
+  if (data && data.page_opened_at) {
     document.getElementById("unfinishedTestCard").style.display = "block";
     document.getElementById("categoryCardsGrid").style.display = "none";
     document.getElementById("continueTestBtn").href = "mock-test-attempt.html?session=" + encodeURIComponent(data.id);
@@ -102,17 +99,26 @@ async function handleStartClick(category) {
       return;
     }
 
-    // A resumed session may belong to a DIFFERENT category than the
-    // one just clicked — one active session per user is GLOBAL across
-    // SSC and Legal, not per-category, so clicking Legal while an
-    // unfinished SSC session still exists correctly resumes the SSC
-    // one rather than starting a new Legal one. Silently redirecting
-    // in that case looks exactly like "the wrong category got
-    // assigned" from the student's point of view — this makes clear
-    // what's actually happening before navigating away, without
-    // changing which session gets resumed at all. Cancel means the
-    // student stays right here, on this page, with nothing navigated.
-    if (result.is_resumed) {
+    // A resumed session that never actually had its page opened
+    // (e.g. the tab closed mid-redirect on a previous attempt) looks,
+    // from the student's own point of view, exactly like starting
+    // fresh — showing "you have an unfinished test" would only be
+    // confusing for something they never saw. Skip the modal in that
+    // case; the redirect below still safely resumes the SAME session
+    // either way (no duplicate, no second charge).
+    //
+    // When the page WAS genuinely opened before: a resumed session
+    // may belong to a DIFFERENT category than the one just clicked —
+    // one active session per user is GLOBAL across SSC and Legal, not
+    // per-category, so clicking Legal while an unfinished SSC session
+    // still exists correctly resumes the SSC one rather than starting
+    // a new Legal one. Silently redirecting in that case looks
+    // exactly like "the wrong category got assigned" from the
+    // student's point of view — this makes clear what's actually
+    // happening before navigating away, without changing which
+    // session gets resumed at all. Cancel means the student stays
+    // right here, on this page, with nothing navigated.
+    if (result.is_resumed && result.page_opened) {
       const proceed = await showUnfinishedTestModal({
         mockTitle: result.mock_title,
         category: result.mock_category,
