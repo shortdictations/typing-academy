@@ -950,7 +950,39 @@ function wireMockTestSelectionFlow() {
   }
 }
 
-function openMockTestStep1() {
+async function openMockTestStep1() {
+  // One active session is GLOBAL across SSC and Legal — checked here,
+  // BEFORE Step 1 even opens, rather than only after the student has
+  // already picked a category and duration on Step 2. There is no
+  // point making them choose either when an unfinished session
+  // already exists and is what they'll actually continue regardless
+  // of what they'd have picked. Fetched fresh here (rather than
+  // relying on a module-level variable) since this function is also
+  // wired directly as a click handler, which would otherwise receive
+  // the click Event itself as its argument, not a user id.
+  const user = await getCurrentUser();
+  if (!user) return; // not logged in / session expired — nothing sensible to do here; the page's own requireLogin() already handles the redirect on load
+
+  const { data: existing, error } = await supabaseClient
+    .from("mock_test_sessions")
+    .select("id, category, duration, test_started_at, started_at, mock_tests(title)")
+    .eq("user_id", user.id)
+    .eq("status", "in_progress")
+    .maybeSingle();
+
+  if (!error && existing) {
+    const proceed = await showUnfinishedTestModal({
+      mockTitle: existing.mock_tests ? existing.mock_tests.title : null,
+      category: existing.category,
+      duration: existing.duration,
+      startedAt: existing.test_started_at || existing.started_at
+    });
+    if (proceed) {
+      window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
+    }
+    return; // Step 1 never opens either way — either redirected, or the student cancelled and stays on the dashboard exactly as it was.
+  }
+
   mtsSelectedType = null;
   mtsSelectedDuration = null;
   document.querySelectorAll(".mts-option-card, .mts-duration-card").forEach(c => c.classList.remove("mts-selected"));
