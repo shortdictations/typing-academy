@@ -110,6 +110,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   mockTest = data;
   selectedPassage = data.passages;
 
+  // Marks that this session's page genuinely opened and loaded the
+  // test — distinct from mark_test_started() later, which only fires
+  // on the Start click itself. A session can exist (created on the
+  // dashboard, before any navigation) without this ever being set —
+  // e.g. the tab closed mid-redirect — and such a session should
+  // never be shown elsewhere as "you have an unfinished test", even
+  // though it's still the one safely resumed (never duplicated, never
+  // double-charged) if the student tries again. Fire-and-forget: a
+  // transient failure here just means the next page that checks this
+  // session treats it as not-yet-opened, which is the safe default
+  // anyway, not a broken test.
+  supabaseClient.rpc("mark_page_opened", { p_session_id: sessionRow.id })
+    .then(({ error }) => { if (error) console.error("mark_page_opened RPC error:", error); });
+
   // Defaults to whichever of 5/10 the mock test's own configured
   // duration is closest to — only ever used as a last-resort fallback
   // now, for the small number of historical sessions that predate the
