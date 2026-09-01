@@ -34,12 +34,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 // §27's example UI. The RLS policy on mock_test_sessions already
 // scopes this to the caller's own rows; nothing here can see another
 // student's session.
+//
+// Only shows the banner if the student actually pressed Start Mock
+// Test on the attempt page (test_started_at is set there, via
+// mark_test_started() — see mock-test-attempt.js) — NOT merely
+// because a session row exists. A session is created as soon as this
+// page's own Start Mock Test button is clicked (mock assigned, any
+// credit already consumed); if the student then navigates away from
+// the attempt page's setup screen without ever pressing ITS Start
+// button, that session is still technically in_progress, but showing
+// "Continue Test" for it would be misleading — the student never
+// actually began that test.
 async function checkForUnfinishedSession() {
   const { data, error } = await supabaseClient
     .from("mock_test_sessions")
     .select("id")
     .eq("user_id", currentUser.id)
     .eq("status", "in_progress")
+    .not("test_started_at", "is", null)
     .maybeSingle();
 
   if (error) {
