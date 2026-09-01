@@ -136,15 +136,22 @@ async function handleReattemptClick(mockTestId, duration, btn) {
       return;
     }
 
-    // A resumed session may point to a COMPLETELY DIFFERENT mock than
-    // the one Re-attempt was clicked on — one active session per user
-    // is checked FIRST and always takes priority, blocking a new
-    // re-attempt from being created while one is still unfinished.
-    // Silently redirecting in that case would look like a broken/
-    // wrong-mock bug rather than the intended "finish your current
-    // test first" behavior. Cancel means the student stays right
-    // here, on Mock History, with nothing navigated.
-    if (result.is_resumed) {
+    // A resumed session that never actually had its page opened
+    // (e.g. the tab closed mid-redirect on a previous attempt) looks,
+    // from the student's own point of view, exactly like starting
+    // fresh — skip the modal in that case; the redirect below still
+    // safely resumes the SAME session either way.
+    //
+    // When the page WAS genuinely opened before: a resumed session
+    // may point to a COMPLETELY DIFFERENT mock than the one Re-attempt
+    // was clicked on — one active session per user is checked FIRST
+    // and always takes priority, blocking a new re-attempt from being
+    // created while one is still unfinished. Silently redirecting in
+    // that case would look like a broken/wrong-mock bug rather than
+    // the intended "finish your current test first" behavior. Cancel
+    // means the student stays right here, on Mock History, with
+    // nothing navigated.
+    if (result.is_resumed && result.page_opened) {
       const proceed = await showUnfinishedTestModal({
         mockTitle: result.mock_title,
         category: result.mock_category,
