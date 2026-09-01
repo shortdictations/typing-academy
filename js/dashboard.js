@@ -965,12 +965,24 @@ async function openMockTestStep1() {
 
   const { data: existing, error } = await supabaseClient
     .from("mock_test_sessions")
-    .select("id, category, duration, test_started_at, started_at, mock_tests(title)")
+    .select("id, category, duration, test_started_at, started_at, page_opened_at, mock_tests(title)")
     .eq("user_id", user.id)
     .eq("status", "in_progress")
     .maybeSingle();
 
   if (!error && existing) {
+    if (!existing.page_opened_at) {
+      // A session row exists (created here or on a previous visit),
+      // but mock-test-attempt.html never actually loaded it — e.g.
+      // the tab closed mid-redirect, or the network dropped. From the
+      // student's own point of view they never saw any test, so
+      // showing "you have an unfinished test" would be confusing.
+      // Redirect straight to it instead — this safely resumes the
+      // SAME session (no duplicate, no second credit charge) while
+      // looking, to the student, exactly like starting fresh.
+      window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
+      return;
+    }
     const proceed = await showUnfinishedTestModal({
       mockTitle: existing.mock_tests ? existing.mock_tests.title : null,
       category: existing.category,
@@ -1084,7 +1096,15 @@ async function handleMockTestStart() {
       return;
     }
 
-    if (result.is_resumed) {
+    // A resumed session that never actually had its page opened
+    // (e.g. the tab closed mid-redirect on a previous attempt) looks,
+    // from the student's own point of view, exactly like starting
+    // fresh — showing "you have an unfinished test" for something
+    // they never saw would only be confusing. Skip the modal in that
+    // case and just proceed straight to the redirect below, which
+    // safely resumes the SAME session either way (no duplicate, no
+    // second charge).
+    if (result.is_resumed && result.page_opened) {
       // Shown in place of the Step 1/Step 2 modal, not on top of it —
       // closeMockTestModals() hides the selection flow first so only
       // one modal is ever visible at once. Cancel means the student
