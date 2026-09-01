@@ -1084,7 +1084,7 @@ function wireSidebarCollapse() {
    Continue Test, false for Cancel or the close (×) button — the
    caller decides what to do with that (redirect, or just stay put).
    ============================================================ */
-function showUnfinishedTestModal({ mockTitle, category, duration, startedAt }) {
+function showUnfinishedTestModal({ mockTitle, category, duration, startedAt, title, subtitle, cancelLabel }) {
   let modal = document.getElementById("utcModal");
   if (!modal) {
     modal = document.createElement("div");
@@ -1096,8 +1096,8 @@ function showUnfinishedTestModal({ mockTitle, category, duration, startedAt }) {
         <div class="utc-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><circle cx="17" cy="17" r="4"/><path d="M17 15.5V17l1 1"/></svg>
         </div>
-        <h2 class="utc-title">Unfinished Mock Test</h2>
-        <p class="utc-subtitle">You have an unfinished mock test in progress.<br>Finish it before starting a different mock.</p>
+        <h2 class="utc-title" id="utcTitle"></h2>
+        <p class="utc-subtitle" id="utcSubtitle"></p>
         <div class="utc-info-card">
           <div class="utc-info-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
@@ -1112,13 +1112,16 @@ function showUnfinishedTestModal({ mockTitle, category, duration, startedAt }) {
           </div>
         </div>
         <div class="utc-actions">
-          <button type="button" class="utc-btn utc-btn-cancel" id="utcCancelBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Cancel</button>
+          <button type="button" class="utc-btn utc-btn-cancel" id="utcCancelBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span id="utcCancelLabel"></span></button>
           <button type="button" class="utc-btn utc-btn-continue" id="utcContinueBtn">Continue Test<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         </div>
       </div>`;
     document.body.appendChild(modal);
   }
 
+  document.getElementById("utcTitle").textContent = title || "Unfinished Mock Test";
+  document.getElementById("utcSubtitle").innerHTML = subtitle || "You have an unfinished mock test in progress.<br>Finish it before starting a different mock.";
+  document.getElementById("utcCancelLabel").textContent = cancelLabel || "Cancel";
   document.getElementById("utcMockTitle").textContent = mockTitle || (category === "legal" ? "Legal Typing Test" : "SSC Typing Test");
   document.getElementById("utcDuration").textContent = (duration || "—") + " Minutes";
   document.getElementById("utcStartedAt").textContent = "Started " + formatRelativeStartTime(startedAt);
