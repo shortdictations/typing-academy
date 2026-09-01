@@ -479,10 +479,16 @@
      start_or_resume_mock_test RPC mock-test.html uses (no new access/
      credit system), then goes straight to mock-test-attempt.html with
      both the session and the chosen duration — the actual typing-test
-     engine on that page is completely untouched; see
-     js/mock-test-attempt.js's autostart handling for the one small,
-     additive change that lets it skip its own duration picker when a
-     duration already arrived from here. -->
+     engine on that page is completely untouched; see the ?duration=
+     handling in js/mock-test-attempt.js's DOMContentLoaded, which only
+     pre-selects that page's own duration picker so the student doesn't
+     need to pick it again. The student still presses that page's own
+     Start button once — this used to also auto-trigger that click
+     (?autostart=1), but that was removed: a browser will never grant
+     fullscreen to a page-load-triggered request with no genuine user
+     gesture on that specific page, so autostarting there only ever
+     produced an immediate "click again to actually go fullscreen"
+     fallback screen, confirmed directly. -->
 <div id="mockTestStep1Modal" class="mts-modal" hidden>
   <div class="mts-card" id="mockTestStep1Card">
     <button type="button" class="mts-close" id="mockTestStep1CloseBtn" aria-label="Close">
