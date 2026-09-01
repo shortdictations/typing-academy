@@ -117,6 +117,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   // running.
   selectedDurationMinutes = mockTest.duration <= 7 ? 5 : 10;
 
+  // Dashboard's Step 1/Step 2 selection flow (js/dashboard.js) already
+  // collected both category and duration before ever navigating here
+  // — ?duration=&autostart=1 carry that choice over so this page can
+  // skip its own duration picker and go straight into the test rather
+  // than showing a setup screen asking for something already chosen.
+  // Only ever overrides the DEFAULT above — never touches
+  // mockTest.duration itself, and does nothing at all to the test
+  // engine (startMockTest()/the timer/WPM math) that follows.
+  const requestedDuration = Number(params.get("duration"));
+  if (requestedDuration === 5 || requestedDuration === 10) {
+    selectedDurationMinutes = requestedDuration;
+  }
+  const shouldAutostart = params.get("autostart") === "1";
+
   // Access/payment is already settled — this label reflects HOW this
   // session was funded (set by start_or_resume_mock_test/
   // start_reattempt), never re-derived here.
@@ -152,6 +166,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
+
+  if (shouldAutostart) {
+    // Hidden immediately (before the async checkSingleActiveSession
+    // inside handleStartClick even resolves) so the setup screen
+    // never has a chance to flash into view first — matches "close
+    // the selection card -> enter the typing-test interface" reading
+    // as one seamless motion rather than a visible in-between step.
+    document.getElementById("setupCard").style.display = "none";
+    // Calls the EXACT same function the Start button's own click
+    // fires — not a parallel path, so every existing safety check
+    // inside it (the just-in-time single-session re-check, marking
+    // test_started_at) still runs identically to a manual click.
+    handleStartClick();
+  }
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
