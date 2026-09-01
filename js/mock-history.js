@@ -147,6 +147,17 @@ async function handleReattemptClick(mockTestId, btn) {
       return;
     }
 
+    // A resumed session may point to a COMPLETELY DIFFERENT mock than
+    // the one Re-attempt was clicked on (spec §21/25: an existing
+    // in_progress session always takes priority and blocks a new
+    // re-attempt from being created). Silently redirecting in that
+    // case would look like a broken/wrong-mock bug rather than the
+    // intended "finish your current test first" behavior — same fix
+    // already applied to mock-test.js's category buttons.
+    if (result.is_resumed) {
+      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before re-attempting a different mock.");
+    }
+
     window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id);
   } catch (err) {
     console.error("start_reattempt failed:", err);
