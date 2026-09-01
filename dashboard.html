@@ -28,7 +28,7 @@
            mobile sidebar, which is also hidden on this page in favor
            of the new sidebar/bottom nav below. Removing them would
            only affect the (now-hidden) legacy menu's link list. -->
-      <a href="dashboard.html?startTest=1">Mock Tests</a>
+      <a href="mock-test-attempt.html">Mock Tests</a>
       <a href="mock-history.html">Mock History</a>
       <a href="subscriptions.html">Subscribe</a>
       <a href="subscriptions.html">Credits</a>
@@ -61,7 +61,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
       <span class="app-nav-link-label">Dashboard</span>
     </a>
-    <a class="app-nav-link" href="dashboard.html?startTest=1" title="Start Test" id="sidebarStartTestLink">
+    <a class="app-nav-link" href="mock-test-attempt.html" title="Start Test" id="sidebarStartTestLink">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
       <span class="app-nav-link-label">Start Test</span>
     </a>
@@ -241,7 +241,7 @@
         <div class="dash-practice-cta-text">
           <h2>Practice more, improve more!</h2>
           <p>Start a test now and boost your typing skills.</p>
-          <button type="button" class="btn dash-btn-primary" id="startMockTestBtn">Start Test Now <span aria-hidden="true">&rarr;</span></button>
+          <a class="btn dash-btn-primary" id="startMockTestBtn" href="mock-test-attempt.html">Start Test Now <span aria-hidden="true">&rarr;</span></a>
         </div>
         <div class="dash-practice-cta-illustration" aria-hidden="true">
           <svg viewBox="0 0 200 140" fill="none">
@@ -358,7 +358,7 @@
       <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
       Dashboard
     </a>
-    <a class="app-bottom-nav-link" href="dashboard.html?startTest=1">
+    <a class="app-bottom-nav-link" href="mock-test-attempt.html">
       <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
       Start Test
     </a>
@@ -461,113 +461,6 @@
   <button type="button" class="btn btn-ghost avatar-picker-cancel" id="avatarPickerCancelBtn">Cancel</button>
 </div>
 
-<!-- ============================================================
-     Mock Test selection flow — Step 1 (category) / Step 2 (duration)
-     ------------------------------------------------------------
-     Triggered by #startMockTestBtn (Practice CTA) and the left
-     sidebar's "Start Test" nav link — both now open this flow
-     instead of navigating to mock-test.html directly (see
-     js/dashboard.js). Visual design translated from the supplied
-     reference (dark glassmorphic cards, indigo accent) into this
-     project's plain CSS, since the reference itself used Tailwind +
-     Phosphor icons via CDN, neither of which this project loads —
-     adding those CDNs here would be a much bigger, riskier change
-     than translating the same visual result into scoped CSS. Icons
-     are inline SVG, matching every other icon already in this file.
-
-     Selecting Duration and pressing "Start Test" calls the SAME
-     start_or_resume_mock_test RPC mock-test.html uses (no new access/
-     credit system), then goes straight to mock-test-attempt.html with
-     both the session and the chosen duration — the actual typing-test
-     engine on that page is completely untouched; see the ?duration=
-     handling in js/mock-test-attempt.js's DOMContentLoaded, which only
-     pre-selects that page's own duration picker so the student doesn't
-     need to pick it again. The student still presses that page's own
-     Start button once — this used to also auto-trigger that click
-     (?autostart=1), but that was removed: a browser will never grant
-     fullscreen to a page-load-triggered request with no genuine user
-     gesture on that specific page, so autostarting there only ever
-     produced an immediate "click again to actually go fullscreen"
-     fallback screen, confirmed directly. -->
-<div id="mockTestStep1Modal" class="mts-modal" hidden>
-  <div class="mts-card" id="mockTestStep1Card">
-    <button type="button" class="mts-close" id="mockTestStep1CloseBtn" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-    <div class="mts-eyebrow">Step 1 of 2 &bull; Test Selection</div>
-    <h2 class="mts-title">Choose Your Test</h2>
-    <p class="mts-subtitle">Select the typing category you want to practice.</p>
-
-    <div class="mts-grid mts-grid-2">
-      <div class="mts-option-card" id="mtsSscCard" data-type="ssc" role="button" tabindex="0">
-        <div class="mts-option-icon mts-option-icon-blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
-        </div>
-        <h3 class="mts-option-title">SSC Typing</h3>
-        <p class="mts-option-desc">Typing practice for SSC skill and typing tests.</p>
-        <div class="mts-option-tags"><span>SSC</span><span>Typing</span></div>
-        <div class="mts-option-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.6-4.4-4.4 1.4-1.4 3 3 6-6 1.4 1.4Z"/></svg></div>
-      </div>
-
-      <div class="mts-option-card" id="mtsLegalCard" data-type="legal" role="button" tabindex="0">
-        <div class="mts-option-icon mts-option-icon-violet">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7l-3 6a4 4 0 0 0 6 0ZM19 7l-3 6a4 4 0 0 0 6 0ZM5 7h14M4 21h16"/></svg>
-        </div>
-        <h3 class="mts-option-title">Legal Typing</h3>
-        <p class="mts-option-desc">Court and legal typing practice for your preparation.</p>
-        <div class="mts-option-tags"><span>Legal</span><span>Court</span></div>
-        <div class="mts-option-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.6-4.4-4.4 1.4-1.4 3 3 6-6 1.4 1.4Z"/></svg></div>
-      </div>
-    </div>
-
-    <div class="mts-actions mts-actions-end">
-      <button type="button" class="mts-btn mts-btn-primary" id="mockTestContinueBtn" disabled>
-        Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div id="mockTestStep2Modal" class="mts-modal" hidden>
-  <div class="mts-card" id="mockTestStep2Card">
-    <button type="button" class="mts-close" id="mockTestStep2CloseBtn" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-    <div class="mts-eyebrow">Step 2 of 2 &bull; Duration Selection</div>
-    <h2 class="mts-title">Choose Test Duration</h2>
-    <p class="mts-subtitle">Select how long you want to practice.</p>
-
-    <div class="mts-grid mts-grid-2">
-      <div class="mts-duration-card" id="mtsFiveCard" data-duration="5" role="button" tabindex="0">
-        <div class="mts-duration-value">5 <span>Minutes</span></div>
-        <p class="mts-option-desc">Quick typing practice</p>
-        <div class="mts-duration-badge mts-duration-badge-amber">Quick Practice</div>
-        <div class="mts-option-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.6-4.4-4.4 1.4-1.4 3 3 6-6 1.4 1.4Z"/></svg></div>
-      </div>
-
-      <div class="mts-duration-card" id="mtsTenCard" data-duration="10" role="button" tabindex="0">
-        <div class="mts-duration-value">10 <span>Minutes</span></div>
-        <p class="mts-option-desc">Extended typing practice</p>
-        <div class="mts-duration-badge mts-duration-badge-indigo">Full Practice</div>
-        <div class="mts-option-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.6-4.4-4.4 1.4-1.4 3 3 6-6 1.4 1.4Z"/></svg></div>
-      </div>
-    </div>
-
-    <div class="mts-summary">
-      <div>Test Type: <span id="mtsSummaryType">--</span></div>
-      <div>Duration: <span id="mtsSummaryDuration">--</span></div>
-    </div>
-
-    <div class="mts-actions mts-actions-between">
-      <button type="button" class="mts-btn mts-btn-ghost" id="mockTestBackBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Back
-      </button>
-      <button type="button" class="mts-btn mts-btn-launch" id="mockTestStartBtn" disabled>
-        Start Test <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>

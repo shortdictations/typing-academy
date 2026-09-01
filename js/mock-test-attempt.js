@@ -60,10 +60,163 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sessionId = params.get("session");
 
   if (!sessionId) {
-    document.getElementById("setupInfo").textContent = "No test session was specified. Please start a mock test from the Mock Test page.";
+    // Normal "Start Test" entry point — no session exists yet.
+    // Selecting a category/duration here creates nothing at all;
+    // only clicking Start Mock Test does (see handleNewMockStart()).
+    document.getElementById("setupCard").style.display = "none";
+    initPreTestSelection();
     return;
   }
 
+  const loaded = await loadSessionIntoSetupScreen(sessionId, params.get("duration"));
+  if (!loaded) return; // error already shown by loadSessionIntoSetupScreen
+
+  const startBtn = document.getElementById("startBtn");
+  startBtn.style.display = "inline-flex";
+  startBtn.addEventListener("click", handleStartClick);
+
+  wireTestInputHandlers();
+});
+
+/* ---------------- Pre-test selection (no session yet) ---------------- */
+
+let ptsSelectedType = "ssc";
+let ptsSelectedDuration = 5;
+
+function initPreTestSelection() {
+  document.getElementById("preTestCard").style.display = "block";
+
+  document.getElementById("ptsSscOption").addEventListener("click", () => selectPtsType("ssc"));
+  document.getElementById("ptsLegalOption").addEventListener("click", () => selectPtsType("legal"));
+  document.getElementById("ptsFiveOption").addEventListener("click", () => selectPtsDuration(5));
+  document.getElementById("ptsTenOption").addEventListener("click", () => selectPtsDuration(10));
+  document.getElementById("ptsStartBtn").addEventListener("click", handleNewMockStart);
+}
+
+function selectPtsType(type) {
+  ptsSelectedType = type;
+  document.getElementById("ptsSscOption").classList.toggle("pts-selected", type === "ssc");
+  document.getElementById("ptsSscOption").setAttribute("aria-pressed", type === "ssc" ? "true" : "false");
+  document.getElementById("ptsLegalOption").classList.toggle("pts-selected", type === "legal");
+  document.getElementById("ptsLegalOption").setAttribute("aria-pressed", type === "legal" ? "true" : "false");
+}
+
+function selectPtsDuration(duration) {
+  ptsSelectedDuration = duration;
+  document.getElementById("ptsFiveOption").classList.toggle("pts-selected", duration === 5);
+  document.getElementById("ptsFiveOption").setAttribute("aria-pressed", duration === 5 ? "true" : "false");
+  document.getElementById("ptsTenOption").classList.toggle("pts-selected", duration === 10);
+  document.getElementById("ptsTenOption").setAttribute("aria-pressed", duration === 10 ? "true" : "false");
+}
+
+function showPreTestError(html) {
+  const box = document.getElementById("preTestError");
+  box.innerHTML = '<div class="error-msg" style="margin:0 0 18px;">' + html + '</div>';
+}
+
+// The ONLY place a new session can be created from this page — a
+// direct response to the Start Mock Test click, never to opening the
+// page or selecting an option (spec: "selection should NOT itself
+// create an active session"). Calls the SAME start_or_resume_mock_test
+// RPC the old dashboard modal used — no new/duplicate access, credit,
+// or session-selection system.
+async function handleNewMockStart() {
+  const btn = document.getElementById("ptsStartBtn");
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = "Please wait...";
+  document.getElementById("preTestError").innerHTML = "";
+
+  try {
+    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: ptsSelectedType, p_duration: ptsSelectedDuration });
+
+    if (error) {
+      console.error("start_or_resume_mock_test RPC error:", error);
+      showPreTestError("Something went wrong starting the test. Please try again.");
+      return;
+    }
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.session_id) {
+      if (result && result.access_reason === "NO_CREDITS") {
+        showPreTestError('You need an active eligible Pass or at least 1 Credit to take this test. <a href="subscriptions.html">View Passes &amp; Credits</a>.');
+      } else if (result && result.access_reason === "NO_ELIGIBLE_MOCK") {
+        showPreTestError("No mock tests are available in this category right now. Please check back later.");
+      } else {
+        showPreTestError("Could not start the test. Please try again.");
+      }
+      return;
+    }
+
+    // A resumed session that never actually had ITS OWN page-load
+    // event fire (page_opened false — e.g. an earlier attempt's tab
+    // closed mid-redirect) looks, from the student's own point of
+    // view, exactly like starting fresh — skip the modal in that
+    // case and just proceed to load+start it below, same as a brand
+    // new session would. Only a session the student has genuinely
+    // seen before shows "Test Not Started".
+    if (result.is_resumed && result.page_opened) {
+      const proceed = await showUnfinishedTestModal({
+        mockTitle: result.mock_title,
+        category: result.mock_category,
+        duration: result.mock_duration,
+        startedAt: result.session_started_at,
+        title: "Test Not Started",
+        subtitle: "You exited before starting.<br>Your unfinished mock is still active.",
+        cancelLabel: "Back"
+      });
+      if (!proceed) return; // Back — stay right here on the selection screen, nothing changed
+      // Continue Test — fall through and load+start this exact resumed session below
+    }
+
+    const loaded = await loadSessionIntoSetupScreen(result.session_id, String(result.mock_duration || ptsSelectedDuration));
+    if (!loaded) return; // error already shown by loadSessionIntoSetupScreen
+
+    // loadSessionIntoSetupScreen() always shows #setupCard (correct
+    // for the ?session= entry path, which genuinely pauses there for
+    // a manual click) — immediately hidden again here since this
+    // path's own click already happened, on the pre-test screen, and
+    // should transition straight through to fullscreen with nothing
+    // shown in between. Done before handleStartClick()'s own awaits
+    // below so the browser never gets a chance to paint the
+    // intermediate state.
+    document.getElementById("setupCard").style.display = "none";
+    document.getElementById("preTestCard").style.display = "none";
+
+    // This click IS the genuine user gesture full-screen needs — the
+    // awaits above (the RPC call, the follow-up mock/passage fetch)
+    // happen within the same click handler's still-active user-
+    // activation window, unlike a full page navigation (confirmed
+    // directly, more than once, that THAT loses it entirely). Calling
+    // the exact same function the setup screen's own Start button
+    // uses, not a parallel path, so every safety check inside it
+    // (checkSingleActiveSession, mark_test_started) still runs
+    // identically to a manual click there.
+    wireTestInputHandlers();
+    await handleStartClick();
+  } catch (err) {
+    console.error("start_or_resume_mock_test failed:", err);
+    showPreTestError("Something went wrong starting the test. Please try again.");
+  } finally {
+    // Only reached on an error/denial path above — a successful
+    // hand-off to handleStartClick() doesn't come back through here.
+    if (document.getElementById("preTestCard").style.display !== "none") {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
+
+/* ---------------- Loading a session into the setup screen ---------------- */
+
+// Shared by both entry paths: the normal ?session=... page load, and
+// handleNewMockStart() right after a new/resumed session id comes
+// back from the RPC. Populates the module-level currentSession/
+// mockTest/selectedPassage/selectedDurationMinutes and the #setupCard
+// UI (title, duration picker) identically either way — returns true
+// on success, false if it showed an error and the caller should stop.
+async function loadSessionIntoSetupScreen(sessionId, requestedDurationParam) {
   // RLS already scopes this to the caller's own session rows — no
   // separate ownership check needed beyond .eq("user_id", ...), which
   // is here for defense-in-depth/clarity, not as the real security
@@ -76,20 +229,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     .maybeSingle();
 
   if (sessionError || !sessionRow) {
+    document.getElementById("setupCard").style.display = "block";
     document.getElementById("setupInfo").innerHTML =
       '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session could not be found. ' +
-      '<a href="dashboard.html?startTest=1">Start a new mock test</a>.</div>';
-    return;
+      '<a href="mock-test-attempt.html">Start a new mock test</a>.</div>';
+    return false;
   }
 
   if (sessionRow.status !== "in_progress") {
     // Already completed or expired (e.g. a stale bookmark/back-button
     // to a session that finished or timed out in another tab) — never
     // let a non-in_progress session re-enter the live test screen.
+    document.getElementById("setupCard").style.display = "block";
     document.getElementById("setupInfo").innerHTML =
       '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session is no longer active. ' +
-      '<a href="dashboard.html?startTest=1">Start a new mock test</a>.</div>';
-    return;
+      '<a href="mock-test-attempt.html">Start a new mock test</a>.</div>';
+    return false;
   }
 
   currentSession = sessionRow;
@@ -102,9 +257,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     .maybeSingle();
 
   if (error || !data || !data.passages) {
+    document.getElementById("setupCard").style.display = "block";
     document.getElementById("setupInfo").textContent =
       "This mock test could not be loaded. It may be inactive or no longer exist.";
-    return;
+    return false;
   }
 
   mockTest = data;
@@ -112,15 +268,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Marks that this session's page genuinely opened and loaded the
   // test — distinct from mark_test_started() later, which only fires
-  // on the Start click itself. A session can exist (created on the
-  // dashboard, before any navigation) without this ever being set —
-  // e.g. the tab closed mid-redirect — and such a session should
-  // never be shown elsewhere as "you have an unfinished test", even
-  // though it's still the one safely resumed (never duplicated, never
-  // double-charged) if the student tries again. Fire-and-forget: a
-  // transient failure here just means the next page that checks this
-  // session treats it as not-yet-opened, which is the safe default
-  // anyway, not a broken test.
+  // on the Start click itself. A session can exist (created via the
+  // pre-test screen's RPC call, or on a previous visit) without this
+  // ever being set — e.g. the tab closed mid-redirect — and such a
+  // session should never be shown elsewhere as "you have an
+  // unfinished test", even though it's still the one safely resumed
+  // (never duplicated, never double-charged) if the student tries
+  // again. Fire-and-forget: a transient failure here just means the
+  // next page that checks this session treats it as not-yet-opened,
+  // which is the safe default anyway, not a broken test.
   supabaseClient.rpc("mark_page_opened", { p_session_id: sessionRow.id })
     .then(({ error }) => { if (error) console.error("mark_page_opened RPC error:", error); });
 
@@ -136,11 +292,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // reads when saving the result — a URL parameter alone was never
   // trustworthy, since a student could edit ?duration=10 into
   // ?duration=5 (or vice-versa) without that ever reaching the
-  // database. The URL value below is kept only as a same-tab UI
+  // database. requestedDurationParam is kept only as a same-tab UI
   // convenience so the picker can render pre-selected without a
   // flash of the wrong value while sessionRow was still loading —
   // sessionRow.duration, when present, always wins over it.
-  const requestedDuration = Number(params.get("duration"));
+  const requestedDuration = Number(requestedDurationParam);
   if (requestedDuration === 5 || requestedDuration === 10) {
     selectedDurationMinutes = requestedDuration;
   }
@@ -155,6 +311,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     : sessionRow.access_method === "pass" ? "PASS INCLUDED"
     : "1 CREDIT";
 
+  document.getElementById("setupCard").style.display = "block";
   document.getElementById("setupInfo").innerHTML =
     '<div class="mock-test-title">' + escapeHtml(mockTest.title) + (sessionRow.is_reattempt ? ' <span class="pill">Re-attempt</span>' : '') + '</div>' +
     '<div class="mock-test-meta">' + accessLabel + '</div>' +
@@ -190,40 +347,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   refreshDurationButtons();
 
-  const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "inline-flex";
-  startBtn.addEventListener("click", handleStartClick);
+  return true;
+}
 
-  // Deliberately NOT auto-starting anymore (a previous version did):
-  // confirmed directly, more than once, that a browser will not grant
-  // full-screen to a page-load-triggered request with no genuine user
-  // gesture on this exact page — not even immediately after full-
-  // screen was genuinely entered via a real click on the page before
-  // this one, since full-screen state does not survive a navigation
-  // at all. Skipping this screen only ever produced an immediate
-  // "click again to actually go full-screen" fallback anyway — this
-  // setup screen's own Start button IS that one genuine click,
-  // reliably entering full-screen every time with nothing left over
-  // to fall back to. The mock/passage/duration are already decided
-  // before this page loads either way; this screen just confirms them
-  // and provides the one click full-screen actually needs.
+// Wired once per page load is all that's ever needed (both entry
+// paths call loadSessionIntoSetupScreen at most once), but guarded
+// anyway since handleNewMockStart() calls this itself right before
+// handing off to handleStartClick(), separately from the ?session=
+// path's own call right after DOMContentLoaded's loadSessionIntoSetupScreen.
+let testInputHandlersWired = false;
+function wireTestInputHandlers() {
+  if (testInputHandlersWired) return;
+  testInputHandlersWired = true;
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
   input.addEventListener("paste", e => e.preventDefault());
   input.addEventListener("drop", e => e.preventDefault());
 
-  // Backspace is now allowed WITHIN the current (uncommitted) word
-  // only — never back into an already-committed word, since the
-  // word-level cursor has already moved forward past those. Checked
-  // directly against selectionStart/selectionEnd rather than trusted
-  // implicitly, so this stays correct even if the browser's own
-  // selection ends up somewhere unexpected (e.g. the user clicks
-  // into earlier text). Enter is intercepted so it never inserts a
-  // literal newline into the buffer — it commits the current word
-  // (same evaluation path Space uses) and advances, without needing
-  // a natural space character for the existing 'input'-event scanner
-  // in onTypingInput() to detect.
   input.addEventListener("keydown", e => {
     if (!testScreenOpen) return;
 
@@ -279,7 +420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-});
+}
 
 /* ---------------- Starting the test ---------------- */
 
@@ -302,7 +443,7 @@ async function handleStartClick() {
 
   // Marks the moment the student actually pressed Start (entering the
   // test screen), distinct from when the session itself was created
-  // (on the dashboard's own Step 1/Step 2 flow, or mock-history.js's
+  // (this page's own pre-test selection screen, or mock-history.js's
   // Re-attempt, when the mock was assigned and any credit consumed).
   // Purely informational (when did typing actually begin) — no
   // banner or access decision depends on it.

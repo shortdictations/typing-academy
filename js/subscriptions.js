@@ -145,12 +145,13 @@ function featuresListHtml(features) {
 }
 
 // The student no longer picks a specific mock from a list — every
-// pass type (SSC, Legal, or Combo covering both) now goes through the
-// same dashboard Step 1/Step 2 flow, which lets them pick a category
-// there in one click. mock-test-list.html has been removed entirely
-// as a student-facing page, so nothing here should link to it anymore.
+// pass type (SSC, Legal, or Combo covering both) now goes straight to
+// mock-test-attempt.html's own pre-test selection screen, which lets
+// them pick a category there in one click. mock-test-list.html has
+// been removed entirely as a student-facing page, so nothing here
+// should link to it anymore.
 function viewTestsHref(passType) {
-  return "dashboard.html?startTest=1";
+  return "mock-test-attempt.html";
 }
 
 // Builds the unified grid: every active PASS product (admin config

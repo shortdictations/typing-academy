@@ -6,12 +6,12 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="shortcut icon" href="/favicon.ico">
-<title>Help & Support — TypeShala</title>
+<title>Mock Test — TypeShala</title>
 <script src="js/theme-init.js"></script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="app-shell.css">
 </head>
-<body class="app-shell help-page">
+<body class="app-shell mock-test-page">
 
 <header class="letterhead">
   <div class="letterhead-inner">
@@ -23,10 +23,6 @@
       </span>
     </a>
     <nav class="nav-links">
-      <a href="mock-test-attempt.html">Mock Tests</a>
-      <a href="mock-history.html">Mock History</a>
-      <a href="subscriptions.html">Subscribe</a>
-      <a href="subscriptions.html">Credits</a>
       <a href="subscriptions.html" class="credit-badge">&#129689; <span id="creditBadgeNum">—</span></a>
       <div class="user-menu">
         <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
@@ -42,7 +38,6 @@
     </nav>
   </div>
 </header>
-
 <div class="app-body">
 
   <aside class="app-sidebar" id="appSidebar">
@@ -54,7 +49,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
       <span class="app-nav-link-label">Dashboard</span>
     </a>
-    <a class="app-nav-link" href="mock-test-attempt.html" title="Start Test">
+    <a class="app-nav-link active" href="mock-test.html" title="Start Test">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
       <span class="app-nav-link-label">Start Test</span>
     </a>
@@ -70,7 +65,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a1 1 0 0 1 1 1v18l-3-2-2 2-2-2-2 2-2-2-3 2V3a1 1 0 0 1 1-1Z"/><path d="M9 8h6M9 12h6"/></svg>
       <span class="app-nav-link-label">Purchase History</span>
     </a>
-    <a class="app-nav-link active" href="help-support.html" title="Help & Support">
+    <a class="app-nav-link" href="help-support.html" title="Help & Support">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg>
       <span class="app-nav-link-label">Help &amp; Support</span>
     </a>
@@ -83,127 +78,36 @@
   <div class="app-content">
     <main class="page">
 
-      <h1 class="dashboard-h1">Help &amp; Support</h1>
-      <p class="lede" style="max-width:none;">We're here to help. Find answers or reach out to us.</p>
+  <p class="eyebrow">Exam Simulation</p>
+  <h1>Mock Test</h1>
+  <p class="lede">Choose a category — we'll assign you a mock test automatically.</p>
 
-      <!-- Search filters the real FAQ entries below as you type —
-           not a fake search box, see wireHelpSearch() in
-           js/help-support.js. -->
-      <div class="card help-search-card">
-        <div class="help-search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="helpSearchInput" placeholder="Search for help articles...">
-        </div>
-      </div>
+  <!-- Shown only when an in_progress session already exists (spec:
+       an unfinished test always takes priority). Hidden by default;
+       populated by js/mock-test.js on load. Clicking Continue Test
+       goes straight to the SAME session/mock — never a new one. -->
+  <div class="card unfinished-test-card" id="unfinishedTestCard" style="display:none;">
+    <div class="card-label">Unfinished Mock Test</div>
+    <p class="lede" style="max-width:none;">Your unfinished mock is still active. Continue this test to complete it — same passage, but the typing area starts fresh.</p>
+    <a class="btn" id="continueTestBtn" href="#">Continue Test</a>
+  </div>
 
-      <!-- Each "View Articles" link jumps to and expands the
-           matching FAQ group further down the page — real content,
-           not a dead link (there's no separate articles system in
-           this project). -->
-      <div class="card help-topics-card">
-        <h2>Quick Help Topics</h2>
-        <div class="help-topics-grid">
-          <div class="help-topic-card" id="helpCard-getting-started">
-            <span class="help-topic-icon dash-tile-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
-            <h3>Getting Started</h3>
-            <p>Learn the basics and get started with TypeShala.</p>
-            <button type="button" class="help-topic-link" data-article="getting-started">View Articles <span aria-hidden="true">&rarr;</span></button>
-          </div>
-          <div class="help-topic-card" id="helpCard-mock-tests">
-            <span class="help-topic-icon dash-tile-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
-            <h3>Mock Tests</h3>
-            <p>How to attempt tests, view results and history.</p>
-            <button type="button" class="help-topic-link" data-article="mock-tests">View Articles <span aria-hidden="true">&rarr;</span></button>
-          </div>
-          <div class="help-topic-card" id="helpCard-pass-credits">
-            <span class="help-topic-icon dash-tile-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>
-            <h3>Pass &amp; Credits</h3>
-            <p>Understand passes, credits, validity and usage.</p>
-            <button type="button" class="help-topic-link" data-article="pass-credits">View Articles <span aria-hidden="true">&rarr;</span></button>
-          </div>
-          <div class="help-topic-card" id="helpCard-account-profile">
-            <span class="help-topic-icon dash-tile-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span>
-            <h3>Account &amp; Profile</h3>
-            <p>Manage your account, profile and personal details.</p>
-            <button type="button" class="help-topic-link" data-article="account-profile">View Articles <span aria-hidden="true">&rarr;</span></button>
-          </div>
-        </div>
-      </div>
+  <div class="feature-grid" id="categoryCardsGrid">
+    <div class="feature">
+      <div class="num">LEGAL MOCK</div>
+      <h3>Court &amp; Legal Typing Mock Tests</h3>
+      <p>Simulated tests modeled on court and legal typing exams. Unlocked by an eligible Pass, or by Credits.</p>
+      <button type="button" class="btn" id="startLegalBtn" data-category="legal">Start Mock Test</button>
+    </div>
+    <div class="feature">
+      <div class="num">SSC MOCK</div>
+      <h3>SSC Typing / DEST Mock Tests</h3>
+      <p>Simulated tests modeled on SSC typing and DEST exams. Unlocked by an eligible Pass, or by Credits.</p>
+      <button type="button" class="btn" id="startSscBtn" data-category="ssc">Start Mock Test</button>
+    </div>
+  </div>
 
-      <!-- Article panel — built and populated entirely by
-           js/help-support.js from the HELP_ARTICLES data (real
-           content grounded in this project's actual features, not
-           placeholder text). Hidden until a "View Articles" link or
-           a search match opens one. -->
-      <div class="card help-article-card" id="helpArticlePanel" style="display:none;"></div>
-
-      <!-- Real FAQ content grounded in this app's actual features —
-           opens via native <details>/<summary> (no JS needed for
-           expand/collapse), filtered live by the search box above. -->
-      <div class="card help-faq-card">
-        <h2>Frequently Asked Questions</h2>
-        <p class="help-faq-empty" id="helpFaqEmpty" style="display:none;">No articles match your search.</p>
-
-        <div class="help-faq-group" id="faq-getting-started">
-          <h3>Getting Started</h3>
-          <details class="help-faq-item"><summary>How do I create an account?</summary><p>Register with your name, email, and password from the Register page. New accounts get 3 free credits automatically, usable on any SSC or Legal mock test.</p></details>
-          <details class="help-faq-item"><summary>What's the difference between SSC, Legal, and Combo?</summary><p>SSC and Legal/Court are separate typing categories, each with their own passages and mock tests. A Combo Pass unlocks both categories with a single pass.</p></details>
-          <details class="help-faq-item"><summary>How is my typing speed measured?</summary><p>Every test reports Gross WPM, Net WPM, and Accuracy for a fixed test duration, shown on your results and tracked on your Dashboard over time.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-mock-tests">
-          <h3>Mock Tests</h3>
-          <details class="help-faq-item"><summary>How do I start a mock test?</summary><p>Go to Start Test, choose a category and passage, then begin — tests run full-screen and timed, with your score shown immediately after.</p></details>
-          <details class="help-faq-item"><summary>Where can I see my past results?</summary><p>My Tests (Mock History) lists every attempt you've made, with WPM, Accuracy, and date. Your Dashboard also shows your 5 most recent tests.</p></details>
-          <details class="help-faq-item"><summary>What unlocks a mock test?</summary><p>An eligible Pass for that category, or Credits. An eligible active Pass is always used first — Credits are only spent when you don't have one, so they're never used unnecessarily.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-pass-credits">
-          <h3>Pass &amp; Credits</h3>
-          <details class="help-faq-item"><summary>What's the difference between a Pass and Credits?</summary><p>A Pass gives unlimited tests in a category for its validity period. Credits are single-use — one credit unlocks one test attempt on any SSC or Legal test.</p></details>
-          <details class="help-faq-item"><summary>How long do Passes and Credits last?</summary><p>Each has its own validity period, shown on your Pass &amp; Credits page and on your Dashboard's Active Pass and Remaining Credits cards.</p></details>
-          <details class="help-faq-item"><summary>How do I buy more?</summary><p>Visit Pass &amp; Credits to purchase an SSC, Legal, or Combo Pass, or top up Credits — payments are processed securely through Razorpay.</p></details>
-        </div>
-
-        <div class="help-faq-group" id="faq-account-profile">
-          <h3>Account &amp; Profile</h3>
-          <details class="help-faq-item"><summary>How do I update my name or mobile number?</summary><p>Go to Settings → Account, and use the Change button next to Full Name or Mobile Number.</p></details>
-          <details class="help-faq-item"><summary>How do I change my password?</summary><p>Go to Settings → Security → Change Password.</p></details>
-          <details class="help-faq-item"><summary>How do I switch between light and dark mode?</summary><p>Go to Settings → Appearance → Theme, and choose Light, System, or Dark. Your choice is remembered across the app.</p></details>
-        </div>
-      </div>
-
-      <div class="card help-contact-card">
-        <h2>Still need help?</h2>
-        <p class="lede" style="max-width:none;">Send us a message and we'll get back to you as soon as possible.</p>
-
-        <div class="help-sender-row">
-          <span class="help-sender-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
-          <div>
-            <div class="help-sender-label">Message will be sent from:</div>
-            <div class="help-sender-email"><span id="helpSenderEmail">—</span> <span class="settings-verified-pill" id="helpVerifiedPill"></span></div>
-          </div>
-        </div>
-
-        <div id="helpError" class="error-msg"></div>
-        <form id="helpForm">
-          <div class="help-field">
-            <label for="helpSubject">Subject</label>
-            <input type="text" id="helpSubject" placeholder="Enter a short subject" required>
-          </div>
-          <div class="help-field">
-            <label for="helpMessage">Describe Your Issue</label>
-            <textarea id="helpMessage" rows="6" placeholder="Please describe your issue in detail..." required></textarea>
-          </div>
-          <button type="submit" class="btn dash-btn-primary help-send-btn" id="helpSendBtn">
-            Send Message
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-          </button>
-          <p class="help-send-note">Opens your email app with this message pre-filled, addressed to shortdictations@gmail.com.</p>
-        </form>
-      </div>
-
-    </main>
+</main>
   </div>
 </div>
 
@@ -213,7 +117,7 @@
       <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5Z"/></svg></span>
       Dashboard
     </a>
-    <a class="app-bottom-nav-link" href="mock-test-attempt.html">
+    <a class="app-bottom-nav-link" href="mock-test.html">
       <span class="app-bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg></span>
       Start Test
     </a>
@@ -235,7 +139,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/help-support.js"></script>
+<script src="js/mock-test.js"></script>
 
 <!-- Mobile Profile drawer — opened by the Profile bottom-nav button
      (mobile only; the button that triggers this doesn't exist on
