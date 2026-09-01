@@ -357,7 +357,7 @@ function enterFullscreen() {
     // Browser doesn't support the Fullscreen API at all — let the
     // student continue normally, just show the manual button in case
     // a later interaction lets them trigger it themselves.
-    document.getElementById("fsRetryBtn").style.display = "inline-block";
+    showFullscreenFallback();
     return;
   }
 
@@ -365,17 +365,43 @@ function enterFullscreen() {
     const result = req.call(el);
     if (result && typeof result.catch === "function") {
       result
-        .then(() => { document.getElementById("fsRetryBtn").style.display = "none"; })
-        .catch(() => {
-          // Automatic full-screen was blocked — show a clear manual button instead.
-          document.getElementById("fsRetryBtn").style.display = "inline-block";
-        });
+        .then(hideFullscreenFallback)
+        .catch(showFullscreenFallback); // most common path: autostart calling this with no direct user gesture on THIS page — browsers require one, unavoidably (confirmed directly: even fullscreen entered via a genuine click on the PREVIOUS page does not carry over across a navigation)
     } else {
-      document.getElementById("fsRetryBtn").style.display = "none";
+      hideFullscreenFallback();
     }
   } catch (err) {
-    document.getElementById("fsRetryBtn").style.display = "inline-block";
+    showFullscreenFallback();
   }
+}
+
+// One click on this button IS a direct user gesture on this exact
+// page/document, so it reliably succeeds even when the automatic
+// attempt above couldn't (confirmed directly, including specifically
+// after an autostart redirect) — this is the actual, working recovery
+// path, not just a dead-end message. Focused so Enter/Space works
+// immediately without the student needing to move the mouse first.
+function showFullscreenFallback() {
+  const btn = document.getElementById("fsRetryBtn");
+  btn.style.display = "inline-block";
+  document.getElementById("fsRetryNote").style.display = "block";
+  // Disabling the typing input isn't just what makes btn.focus() below
+  // actually stick (refocusTypingInput()'s own blur handler already
+  // skips a disabled input, confirmed directly — a plain focus() call
+  // was otherwise losing a real, repeating race against it) — it also
+  // closes a genuine gap: without this, a student could start typing
+  // (and the timer would start) while never having entered full-screen
+  // at all, simply by ignoring this button and typing directly into
+  // the still-enabled, still-visible input.
+  const input = document.getElementById("typeInput");
+  if (input) input.disabled = true;
+  btn.focus();
+}
+function hideFullscreenFallback() {
+  document.getElementById("fsRetryBtn").style.display = "none";
+  document.getElementById("fsRetryNote").style.display = "none";
+  const input = document.getElementById("typeInput");
+  if (input && testScreenOpen) input.disabled = false;
 }
 
 function exitFullscreen() {
@@ -390,7 +416,7 @@ function exitFullscreen() {
 function handleFullscreenChange() {
   const isFs = document.fullscreenElement || document.webkitFullscreenElement;
   if (isFs) {
-    document.getElementById("fsRetryBtn").style.display = "none";
+    hideFullscreenFallback();
   } else if (testActive) {
     // Student left full-screen mid-test — end the test, same as an
     // invigilated exam would, and explain why on the result page.
@@ -919,7 +945,7 @@ async function endMockTest(reason) {
 
   // Requirement 1: exit full-screen once the mock test ends
   exitFullscreen();
-  document.getElementById("fsRetryBtn").style.display = "none";
+  hideFullscreenFallback();
 
   const result = {
     testDurationMinutes: selectedDurationMinutes,
