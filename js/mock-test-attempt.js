@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (sessionError || !sessionRow) {
     document.getElementById("setupInfo").innerHTML =
       '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session could not be found. ' +
-      '<a href="mock-test.html">Start a new mock test</a>.</div>';
+      '<a href="dashboard.html?startTest=1">Start a new mock test</a>.</div>';
     return;
   }
 
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // let a non-in_progress session re-enter the live test screen.
     document.getElementById("setupInfo").innerHTML =
       '<div style="color:var(--ink-soft); font-size:0.9rem;">This test session is no longer active. ' +
-      '<a href="mock-test.html">Start a new mock test</a>.</div>';
+      '<a href="dashboard.html?startTest=1">Start a new mock test</a>.</div>';
     return;
   }
 
@@ -111,34 +111,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectedPassage = data.passages;
 
   // Defaults to whichever of 5/10 the mock test's own configured
-  // duration is closest to, but the picker below lets the student
-  // change it before starting — selectedDurationMinutes (not
-  // mockTest.duration) drives the timer/pass-check once the test is
-  // running.
+  // duration is closest to — only ever used as a last-resort fallback
+  // now, for the small number of historical sessions that predate the
+  // session's own duration column below.
   selectedDurationMinutes = mockTest.duration <= 7 ? 5 : 10;
 
-  // Dashboard's Step 1/Step 2 selection flow (js/dashboard.js) already
-  // collected both category and duration before ever navigating here
-  // — ?duration= carries that choice over so this page's own duration
-  // picker starts pre-selected on what was already chosen, rather
-  // than the student needing to pick it again. Only ever overrides
-  // the DEFAULT above — never touches mockTest.duration itself.
-  //
-  // Deliberately NOT auto-triggering Start anymore (a previous
-  // version did, via a now-removed ?autostart=1 flag): confirmed
-  // directly, twice, with two different approaches, that a browser
-  // will not grant fullscreen to a page-load-triggered request with
-  // no genuine user gesture on THAT SPECIFIC page — not even
-  // immediately after fullscreen was genuinely entered via a real
-  // click on the page before this one, since fullscreen state does
-  // not survive a navigation at all. Autostarting here only ever
-  // produced a same, confusing "click again to actually go
-  // fullscreen" fallback screen — worse than just showing the
-  // ordinary Start button, which reliably enters fullscreen in one
-  // click since it's a genuine gesture on this exact page.
+  // Server-authoritative duration (Part 16): sessionRow.duration is
+  // set once, at session creation (start_or_resume_mock_test /
+  // start_reattempt), and is what complete_mock_session() actually
+  // reads when saving the result — a URL parameter alone was never
+  // trustworthy, since a student could edit ?duration=10 into
+  // ?duration=5 (or vice-versa) without that ever reaching the
+  // database. The URL value below is kept only as a same-tab UI
+  // convenience so the picker can render pre-selected without a
+  // flash of the wrong value while sessionRow was still loading —
+  // sessionRow.duration, when present, always wins over it.
   const requestedDuration = Number(params.get("duration"));
   if (requestedDuration === 5 || requestedDuration === 10) {
     selectedDurationMinutes = requestedDuration;
+  }
+  if (sessionRow.duration === 5 || sessionRow.duration === 10) {
+    selectedDurationMinutes = sessionRow.duration;
   }
 
   // Access/payment is already settled — this label reflects HOW this
@@ -169,6 +162,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.addEventListener("click", () => {
       selectedDurationMinutes = Number(btn.dataset.duration);
       refreshDurationButtons();
+      // Keeps the session's own stored duration in sync with whatever
+      // the student actually picked here — complete_mock_session()
+      // reads the session's column directly, never anything the
+      // client sends at save time, so this call is what makes a
+      // changed choice here actually count as the real, authoritative
+      // duration rather than only a display value in this tab. Fire-
+      // and-forget: a transient failure here just means the OLD
+      // stored duration is used at save time, not a broken test.
+      supabaseClient.rpc("update_session_duration", { p_session_id: currentSession.id, p_duration: selectedDurationMinutes })
+        .then(({ error }) => { if (error) console.error("update_session_duration RPC error:", error); });
     });
   });
   refreshDurationButtons();
@@ -839,7 +842,7 @@ function showTestNotStartedModal(customMessage) {
   if (!modal || !overlay) return;
   if (msgEl) {
     msgEl.textContent = customMessage ||
-      "You exited before starting. Your test is still saved — you can continue it anytime from the Mock Test page, at no additional cost.";
+      "You exited before starting. Your unfinished mock is still active — continue it anytime from the Mock Test page, at no additional cost. The typing area will start fresh.";
   }
   overlay.hidden = false;
   modal.hidden = false;
@@ -1197,16 +1200,17 @@ async function saveMockResult(r) {
   // Calls complete_mock_session() instead of inserting into
   // mock_test_results directly — this is what atomically marks the
   // SESSION completed (linking result_id back to it) in the same
-  // operation as saving the result, which is what makes re-attempt
-  // counting and "Tests Completed" both derive from one consistent
-  // source of truth. Exact same result fields as the old direct
-  // insert — no new value invented, exam_name still left null since
-  // the old insert never set it either.
+  // operation as saving the result. p_duration is deliberately NOT
+  // sent anymore: the RPC now reads the session's own stored
+  // duration directly (Part 16) rather than trusting whatever this
+  // client sends — r.testDurationMinutes still drives the on-screen
+  // timer/WPM math here, but was never what got saved once this
+  // change landed, only what a malicious client COULD have tried to
+  // override before it.
   const { error } = await supabaseClient.rpc("complete_mock_session", {
     p_session_id: currentSession.id,
     p_exam_name: null,
     p_passage_title: selectedPassage.title,
-    p_duration: r.testDurationMinutes,
     p_gross_wpm: r.grossWpm,
     p_net_wpm: r.netWpm,
     p_accuracy: r.accuracy,

@@ -660,7 +660,7 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   // mock-test.html has no self-link to itself).
   const menuEntries = [
     { href: "dashboard.html", icon: "&#128202;", tint: "tile-purple", title: "Dashboard", sub: "Overview & stats" },
-    { href: "mock-test.html", icon: "&#128203;", tint: "tile-orange", title: "Mock Test", sub: "Take a new mock test" },
+    { href: "dashboard.html?startTest=1", icon: "&#128203;", tint: "tile-orange", title: "Mock Test", sub: "Take a new mock test" },
     { href: "mock-history.html", icon: "&#128200;", tint: "tile-purple", title: "Mock History", sub: "View your mock test history" },
     { href: "subscriptions.html", icon: "&#128081;", tint: "tile-blue", title: "Subscribe", sub: "View plans & credits" }
   ];
@@ -678,7 +678,7 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   // Fixed priority order for the always-present three; any other
   // real page-specific link (Credits, admin pages, etc.) keeps its
   // natural position after them.
-  const MENU_PRIORITY = ["dashboard.html", "mock-test.html", "mock-history.html"];
+  const MENU_PRIORITY = ["dashboard.html", "dashboard.html?startTest=1", "mock-history.html"];
   menuEntries.sort((a, b) => {
     const ai = MENU_PRIORITY.indexOf(a.href);
     const bi = MENU_PRIORITY.indexOf(b.href);
@@ -825,15 +825,26 @@ function wireBottomNavActiveState() {
   const links = document.querySelectorAll(".app-bottom-nav-link");
   if (links.length === 0) return;
 
-  let currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
-  // mock-test-list.html (choosing a category/specific mock) is part
-  // of the same "Start Test" flow as mock-test.html, not its own
-  // bottom-nav destination.
-  if (currentPage === "mock-test-list.html") currentPage = "mock-test.html";
+  const currentSearch = window.location.search;
+  const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
 
   links.forEach(link => {
-    const linkPage = (link.getAttribute("href") || "").split("?")[0];
-    link.classList.toggle("active", linkPage === currentPage);
+    const href = link.getAttribute("href") || "";
+    const linkPage = href.split("?")[0];
+    if (href.includes("startTest=1")) {
+      // Both this link and the plain "Dashboard" one resolve to the
+      // same page (dashboard.html) once query strings are stripped —
+      // comparing bare page names for THIS one specifically would
+      // wrongly light up both of them together whenever the student
+      // is on dashboard.html at all, Start Test flow or not. Only
+      // active when the URL that's actually loaded right now still
+      // carries the flag (i.e. immediately after clicking this exact
+      // link, before dashboard.js's own history.replaceState clears
+      // it).
+      link.classList.toggle("active", currentSearch.includes("startTest=1"));
+    } else {
+      link.classList.toggle("active", linkPage === currentPage);
+    }
   });
 }
 

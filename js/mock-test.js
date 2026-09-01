@@ -4,20 +4,31 @@
    Runs the Mock Test HUB page (mock-test.html) — the SSC/Legal
    category cards.
 
-   REWRITTEN as part of the automatic-mock-selection system:
-   category buttons no longer link to a list of individual mocks to
-   choose from (mock-test-list.html) — they call
-   start_or_resume_mock_test(category) directly, a single
-   SECURITY DEFINER RPC that atomically checks for an unfinished
-   session first (never creates a second one), then checks access
-   (pass, then credit), selects ONE eligible mock server-side
-   (preferring one never attempted), and creates the session — all
-   before this page ever redirects anywhere. Nothing about
-   access/credit logic lives in this file; it only calls the RPC and
+   This page is being migrated away from as the primary entry point
+   (the dashboard's own Step 1/Step 2 flow is now preferred), but is
+   kept working rather than deleted outright until every remaining
+   link to it has been moved. It has no duration picker of its own,
+   so it always requests the 10-minute ("Full Practice") duration —
+   the student can still change this on mock-test-attempt.html's own
+   setup screen afterward, which keeps the session's stored duration
+   in sync via update_session_duration() when they do.
+
+   category buttons call start_or_resume_mock_test(category, duration)
+   directly, a single SECURITY DEFINER RPC that atomically checks for
+   an unfinished session first (never creates a second one), then
+   checks access (pass, then credit), selects ONE eligible mock
+   server-side (preferring one never attempted, unlimited repeats
+   allowed after that), and creates the session — all before this
+   page ever redirects anywhere. Nothing about access/credit/re-
+   attempt-limit logic lives in this file; it only calls the RPC and
    reacts to its result.
    ============================================================ */
 
 let currentUser = null;
+
+// This page offers no duration choice of its own — see the file
+// comment above for why 10 was chosen as the default.
+const DEFAULT_DURATION_MINUTES = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -30,28 +41,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Read-only check so the page can show "Continue Test" immediately on
-// load, before the student even clicks a category — matches spec
-// §27's example UI. The RLS policy on mock_test_sessions already
-// scopes this to the caller's own rows; nothing here can see another
-// student's session.
+// load, before the student even clicks a category. The RLS policy on
+// mock_test_sessions already scopes this to the caller's own rows;
+// nothing here can see another student's session.
 //
-// Only shows the banner if the student actually pressed Start Mock
-// Test on the attempt page (test_started_at is set there, via
-// mark_test_started() — see mock-test-attempt.js) — NOT merely
-// because a session row exists. A session is created as soon as this
-// page's own Start Mock Test button is clicked (mock assigned, any
-// credit already consumed); if the student then navigates away from
-// the attempt page's setup screen without ever pressing ITS Start
-// button, that session is still technically in_progress, but showing
-// "Continue Test" for it would be misleading — the student never
-// actually began that test.
+// Shows the banner for ANY in_progress session, full stop — status
+// alone is the authoritative signal for "does an active session
+// exist" (a previous version additionally required test_started_at
+// to be set, to avoid the banner appearing for a session the student
+// had technically created but never actually pressed Start on; that
+// extra condition has been removed, since the server-side start
+// flow itself never used it for the equivalent access-blocking
+// decision either — status = 'in_progress' was always the sole
+// authoritative signal there, and the two are now consistent).
 async function checkForUnfinishedSession() {
   const { data, error } = await supabaseClient
     .from("mock_test_sessions")
     .select("id")
     .eq("user_id", currentUser.id)
     .eq("status", "in_progress")
-    .not("test_started_at", "is", null)
     .maybeSingle();
 
   if (error) {
@@ -73,7 +81,7 @@ async function handleStartClick(category) {
   btn.textContent = "Please wait...";
 
   try {
-    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: category });
+    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: category, p_duration: DEFAULT_DURATION_MINUTES });
 
     if (error) {
       console.error("start_or_resume_mock_test RPC error:", error);
@@ -95,19 +103,19 @@ async function handleStartClick(category) {
     }
 
     // A resumed session may belong to a DIFFERENT category than the
-    // one just clicked — "one active session per user" (spec §9)
-    // applies across categories, not per-category, so clicking Legal
-    // while an unfinished SSC session still exists correctly resumes
-    // the SSC one rather than starting a new Legal one. Silently
-    // redirecting in that case looks exactly like "the wrong category
-    // got assigned" from the student's point of view — this makes
-    // clear what's actually happening before navigating away, without
+    // one just clicked — one active session per user is GLOBAL across
+    // SSC and Legal, not per-category, so clicking Legal while an
+    // unfinished SSC session still exists correctly resumes the SSC
+    // one rather than starting a new Legal one. Silently redirecting
+    // in that case looks exactly like "the wrong category got
+    // assigned" from the student's point of view — this makes clear
+    // what's actually happening before navigating away, without
     // changing which session gets resumed at all.
     if (result.is_resumed) {
-      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before starting a different mock.");
+      alert("You have an unfinished mock test in progress.\n\nContinuing that one — finish it before starting a different mock.");
     }
 
-    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id);
+    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + DEFAULT_DURATION_MINUTES;
   } catch (err) {
     console.error("start_or_resume_mock_test failed:", err);
     showStartError("Something went wrong starting the test. Please try again.");

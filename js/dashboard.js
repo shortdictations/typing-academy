@@ -19,6 +19,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   wireMockTestSelectionFlow();
 
+  // A "Start Test" link on any OTHER page (sidebar/bottom nav, "Back
+  // to Mock Tests", "Take Another Mock Test") now routes here with
+  // ?startTest=1 rather than to the old mock-test.html hub directly —
+  // opening Step 1 immediately keeps that one-click "start a test"
+  // feel from anywhere in the app, without duplicating the modal
+  // itself onto every page. Cleans the param out of the URL right
+  // after so a refresh/bookmark of this exact page doesn't reopen it
+  // unexpectedly.
+  if (new URLSearchParams(window.location.search).get("startTest") === "1") {
+    openMockTestStep1();
+    history.replaceState(null, "", window.location.pathname);
+  }
+
   // Carousel removed per spec — mobile now uses a static 2x2 grid
   // (see app-shell.css), so there's no scroll position to track.
 
@@ -1014,7 +1027,10 @@ async function handleMockTestStart() {
     // second access/credit/session-selection system. Checks for an
     // existing in_progress session first (never creates a second
     // one), then pass, then credit, exactly as documented there.
-    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: mtsSelectedType });
+    // p_duration is now REQUIRED and stored on the session itself —
+    // server-authoritative from the moment of creation onward, not
+    // just a value this page happens to remember.
+    const { data, error } = await supabaseClient.rpc("start_or_resume_mock_test", { p_category: mtsSelectedType, p_duration: mtsSelectedDuration });
 
     if (error) {
       console.error("start_or_resume_mock_test RPC error:", error);
@@ -1037,26 +1053,15 @@ async function handleMockTestStart() {
     }
 
     if (result.is_resumed) {
-      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before starting a different mock.");
+      alert("You have an unfinished mock test in progress.\n\nContinuing that one — finish it before starting a different mock.");
     }
 
-    // duration is carried over so mock-test-attempt.js's own duration
-    // picker starts pre-selected on what was already chosen here,
-    // rather than the student needing to pick it again — the ONLY
-    // thing carried over now. This used to also pass &autostart=1 to
-    // skip straight into the test/fullscreen automatically, but that
-    // was removed: confirmed directly (twice, with two different
-    // approaches) that browsers will never grant fullscreen to a
-    // page-load-triggered request with no genuine user gesture on
-    // that specific page — not even immediately after fullscreen was
-    // genuinely entered via a real click on THIS page moments earlier,
-    // since fullscreen state does not survive a navigation at all.
-    // Autostarting there only produced an immediate "click again to
-    // actually go fullscreen" fallback — letting the student's own
-    // click on mock-test-attempt.html's ordinary Start button be that
-    // gesture instead is what makes fullscreen reliably work in one
-    // click, exactly as it already does when a mock is started from
-    // its own list page.
+    // duration is still passed along too, purely as a same-tab UI
+    // convenience so mock-test-attempt.js's own picker can render
+    // pre-selected without a flash of the wrong value while the
+    // session itself is being fetched — the session's own stored
+    // duration (set just above) is what's actually authoritative from
+    // here on, never this URL value.
     window.location.href =
       "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) +
       "&duration=" + encodeURIComponent(mtsSelectedDuration);

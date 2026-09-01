@@ -5,14 +5,17 @@
    completely separate from typing_results (regular practice
    history on dashboard.html).
 
-   Re-attempt button added: shown only for a result that (a) went
-   through the new session system (session_id is not null — the 42
-   historical rows that predate it are left alone, since they have no
-   session to count against the 2-attempt cap) and (b) is still the
-   ONLY completed session for that mock (no re-attempt used yet).
-   Clicking it calls start_reattempt() directly — the same RPC-driven
-   flow as starting a fresh mock from mock-test.html, just targeting
-   one specific mock instead of letting the server pick.
+   Re-attempt button: shown for any completed result that went
+   through the new session system (session_id is not null — the
+   handful of historical rows that predate it are left alone, since
+   they have no session to re-attempt against at all). Unlimited
+   re-attempts are allowed — this file never counts or limits how
+   many times a mock has already been completed; it only decides
+   whether to show the button at all, never whether clicking it is
+   ALLOWED. Access (Pass = unlimited, no Pass = 1 credit per
+   re-attempt, and the "one active session, checked first" rule) is
+   fully re-checked server-side by start_reattempt() every time the
+   button is actually clicked.
    ============================================================ */
 
 let currentUser = null;
@@ -34,28 +37,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Completed-session counts per mock — the SAME thing
-  // get_mock_access()/start_reattempt() check server-side, fetched
-  // here only to decide whether to SHOW the button (never to decide
-  // access itself — that's still fully re-checked server-side when
-  // the button is actually clicked).
-  const { data: sessions, error: sessionsError } = await supabaseClient
-    .from("mock_test_sessions")
-    .select("mock_test_id, status")
-    .eq("user_id", currentUser.id)
-    .eq("status", "completed");
-
-  const completedCountByMock = {};
-  if (!sessionsError) {
-    (sessions || []).forEach(s => {
-      completedCountByMock[s.mock_test_id] = (completedCountByMock[s.mock_test_id] || 0) + 1;
-    });
-  }
-
-  renderHistory(results, completedCountByMock);
+  renderHistory(results);
 });
 
-function renderHistory(results, completedCountByMock) {
+function renderHistory(results) {
   const container = document.getElementById("historyBody");
 
   if (results.length === 0) {
@@ -71,9 +56,14 @@ function renderHistory(results, completedCountByMock) {
     const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     const rowId = "mockrow-" + i;
 
-    const canReattempt = r.session_id && r.mock_test_id && completedCountByMock[r.mock_test_id] === 1;
+    // Duration passed through so a re-attempt defaults to the same
+    // length as this original attempt — purely a starting suggestion,
+    // not authoritative; the student can still change it on
+    // mock-test-attempt.html's own picker, which keeps the session's
+    // actually-stored duration in sync when they do.
+    const canReattempt = r.session_id && r.mock_test_id;
     const reattemptHtml = canReattempt
-      ? `<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;margin-left:6px;" onclick="handleReattemptClick('${r.mock_test_id}', this)">Re-attempt</button>`
+      ? `<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;margin-left:6px;" onclick="handleReattemptClick('${r.mock_test_id}', ${r.duration === 5 ? 5 : 10}, this)">Re-attempt</button>`
       : "";
 
     rows += `
@@ -120,13 +110,13 @@ function renderHistory(results, completedCountByMock) {
     </div>`;
 }
 
-async function handleReattemptClick(mockTestId, btn) {
+async function handleReattemptClick(mockTestId, duration, btn) {
   const originalText = btn.textContent;
   btn.disabled = true;
   btn.textContent = "Please wait...";
 
   try {
-    const { data, error } = await supabaseClient.rpc("start_reattempt", { p_mock_test_id: mockTestId });
+    const { data, error } = await supabaseClient.rpc("start_reattempt", { p_mock_test_id: mockTestId, p_duration: duration });
 
     if (error) {
       console.error("start_reattempt RPC error:", error);
@@ -139,7 +129,6 @@ async function handleReattemptClick(mockTestId, btn) {
     if (!result || !result.session_id) {
       const reasonMessages = {
         NOT_YET_ATTEMPTED: "This mock hasn't been completed yet, so there's nothing to re-attempt.",
-        REATTEMPT_ALREADY_USED: "You've already used your one re-attempt for this mock test.",
         NO_CREDITS: "You need an active eligible Pass or at least 1 Credit to re-attempt this test.",
         LOCKED: "This mock test is no longer available."
       };
@@ -148,17 +137,17 @@ async function handleReattemptClick(mockTestId, btn) {
     }
 
     // A resumed session may point to a COMPLETELY DIFFERENT mock than
-    // the one Re-attempt was clicked on (spec §21/25: an existing
-    // in_progress session always takes priority and blocks a new
-    // re-attempt from being created). Silently redirecting in that
-    // case would look like a broken/wrong-mock bug rather than the
-    // intended "finish your current test first" behavior — same fix
-    // already applied to mock-test.js's category buttons.
+    // the one Re-attempt was clicked on — one active session per user
+    // is checked FIRST and always takes priority, blocking a new
+    // re-attempt from being created while one is still unfinished.
+    // Silently redirecting in that case would look like a broken/
+    // wrong-mock bug rather than the intended "finish your current
+    // test first" behavior.
     if (result.is_resumed) {
-      alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before re-attempting a different mock.");
+      alert("You have an unfinished mock test in progress.\n\nContinuing that one — finish it before starting a different mock.");
     }
 
-    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id);
+    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + duration;
   } catch (err) {
     console.error("start_reattempt failed:", err);
     alert("Something went wrong starting the re-attempt. Please try again.");
