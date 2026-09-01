@@ -431,10 +431,13 @@ function handleFullscreenChange() {
   if (isFs) {
     hideFullscreenFallback();
   } else if (testActive) {
-    // Student left full-screen mid-test — end the test, same as an
-    // invigilated exam would, and explain why on the result page.
-    showWarningBanner("This mock test was submitted early because full-screen mode was exited.");
-    endMockTest("fullscreen_exit");
+    // Student left full-screen mid-test — the required duration was
+    // NOT completed, so this must never become a scored result (spec:
+    // exit ≠ fail). The session stays exactly as it already is in the
+    // database — status = in_progress, nothing to update — since it
+    // was never marked anything else to begin with; only the local,
+    // in-memory test state needs cleaning up here.
+    abandonMockTest();
   } else if (testScreenOpen) {
     // Left full-screen (ESC or otherwise) before typing anything —
     // the test was never started, so this must never be treated as a
@@ -864,6 +867,53 @@ function showTestNotStartedModal(customMessage) {
 }
 
 /* ---------------- Ending the test ---------------- */
+
+// Called when the student exits full-screen mid-test (typing had
+// already started, so this is NOT cancelUnstartedTest()'s territory)
+// — the required duration was not completed, so this is deliberately
+// NOT a variant of endMockTest(): it never scores anything, never
+// calls complete_mock_session(), and never touches mock_test_sessions
+// at all. The session's own status is already 'in_progress' from
+// when it was created and simply stays that way — there is nothing
+// here to save or update, only local test state to clean up and the
+// student to inform. Guarded by the same testResultSaved flag
+// endMockTest() uses, since the two are mutually exclusive: whichever
+// reaches its guard first is the test's one and only ending.
+function abandonMockTest() {
+  if (testResultSaved) return;
+  testResultSaved = true;
+
+  if (testTimer) clearInterval(testTimer);
+  testActive = false;
+  testScreenOpen = false;
+  document.body.classList.remove("mock-test-active");
+  window.removeEventListener("beforeunload", beforeUnloadHandler);
+
+  const input = document.getElementById("typeInput");
+  if (input) input.disabled = true;
+
+  document.getElementById("testCard").style.display = "none";
+  document.getElementById("resultCard").style.display = "none";
+  document.getElementById("setupCard").style.display = "block";
+
+  showUnfinishedTestModal({
+    mockTitle: mockTest ? mockTest.title : null,
+    category: mockTest ? mockTest.category : null,
+    duration: selectedDurationMinutes,
+    startedAt: currentSession ? (currentSession.test_started_at || currentSession.started_at) : null
+  }).then(proceed => {
+    if (proceed) {
+      // Same session, same passage, fresh typing area, full timer —
+      // reloading this exact URL re-runs the page's own setup flow
+      // from scratch, which already achieves all of that on its own
+      // (nothing about the session changed, so it resumes exactly
+      // where a fresh load of it always would).
+      window.location.reload();
+    } else {
+      window.location.href = "dashboard.html";
+    }
+  });
+}
 
 async function endMockTest(reason) {
   if (testResultSaved) return;
