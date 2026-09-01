@@ -142,9 +142,16 @@ async function handleReattemptClick(mockTestId, duration, btn) {
     // re-attempt from being created while one is still unfinished.
     // Silently redirecting in that case would look like a broken/
     // wrong-mock bug rather than the intended "finish your current
-    // test first" behavior.
+    // test first" behavior. Cancel means the student stays right
+    // here, on Mock History, with nothing navigated.
     if (result.is_resumed) {
-      alert("You have an unfinished mock test in progress.\n\nContinuing that one — finish it before starting a different mock.");
+      const proceed = await showUnfinishedTestModal({
+        mockTitle: result.mock_title,
+        category: result.mock_category,
+        duration: result.mock_duration,
+        startedAt: result.session_started_at
+      });
+      if (!proceed) return;
     }
 
     window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + duration;

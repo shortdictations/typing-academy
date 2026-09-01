@@ -1053,7 +1053,20 @@ async function handleMockTestStart() {
     }
 
     if (result.is_resumed) {
-      alert("You have an unfinished mock test in progress.\n\nContinuing that one — finish it before starting a different mock.");
+      // Shown in place of the Step 1/Step 2 modal, not on top of it —
+      // closeMockTestModals() hides the selection flow first so only
+      // one modal is ever visible at once. Cancel means the student
+      // stays right here, on the dashboard, with nothing navigated —
+      // the redirect below only runs if they explicitly chose to
+      // continue the existing unfinished test.
+      closeMockTestModals();
+      const proceed = await showUnfinishedTestModal({
+        mockTitle: result.mock_title,
+        category: result.mock_category,
+        duration: result.mock_duration,
+        startedAt: result.session_started_at
+      });
+      if (!proceed) return;
     }
 
     // duration is still passed along too, purely as a same-tab UI
