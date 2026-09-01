@@ -180,25 +180,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
 
-  // Skips this setup screen entirely and goes straight into the test
-  // — access, mock assignment, and duration are all already decided
-  // before this page ever loads (dashboard's Step 1/Step 2, or
-  // mock-history's Re-attempt), so there is nothing left here for the
-  // student to actually decide before starting. Hidden immediately,
-  // synchronously, so it never has a chance to flash into view first.
-  //
-  // The one thing this can't guarantee is automatic full-screen:
-  // browsers only grant that to a request made from a genuine,
-  // synchronous user gesture on THIS exact page, which a
-  // programmatic call like this one is not (confirmed directly, more
-  // than once) — startMockTest()'s own showFullscreenFallback() path
-  // already handles that gracefully with a clear one-click recovery
-  // button, so this still reaches a working test screen either way,
-  // just occasionally with that one extra click for full-screen
-  // specifically, never for anything else.
-  document.getElementById("setupCard").style.display = "none";
-  handleStartClick();
-
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
   input.addEventListener("paste", e => e.preventDefault());
@@ -301,10 +282,14 @@ async function handleStartClick() {
 
   // Marks the moment the student actually pressed Start (entering the
   // test screen), distinct from when the session itself was created
-  // (on the dashboard's own Step 1/Step 2 flow, or mock-history.js's
-  // Re-attempt, when the mock was assigned and any credit consumed).
-  // Purely informational (when did typing actually begin) — no
-  // banner or access decision depends on it.
+  // (back on mock-test.html/mock-history.html, when the mock was
+  // assigned and any credit consumed). This is what mock-test.html's
+  // "Continue Test" banner checks for — a session that was created
+  // but never actually started here must not show as resumable,
+  // since the student never got past the setup screen for it. A
+  // failure here is logged but never blocks starting the test itself
+  // — this flag is purely informational for the hub page's banner,
+  // not part of access control.
   if (currentSession) {
     const { error } = await supabaseClient.rpc("mark_test_started", { p_session_id: currentSession.id });
     if (error) console.error("mark_test_started RPC error:", error);
