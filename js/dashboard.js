@@ -1040,15 +1040,26 @@ async function handleMockTestStart() {
       alert("You have an unfinished mock test in progress. Continuing that one — finish or exit it before starting a different mock.");
     }
 
-    // duration+autostart tell mock-test-attempt.js to skip its own
-    // duration picker and go straight to the fullscreen test with the
-    // duration already chosen here — see the small, additive
-    // autostart check added to that file's DOMContentLoaded. Nothing
-    // about the test engine itself changes.
+    // duration is carried over so mock-test-attempt.js's own duration
+    // picker starts pre-selected on what was already chosen here,
+    // rather than the student needing to pick it again — the ONLY
+    // thing carried over now. This used to also pass &autostart=1 to
+    // skip straight into the test/fullscreen automatically, but that
+    // was removed: confirmed directly (twice, with two different
+    // approaches) that browsers will never grant fullscreen to a
+    // page-load-triggered request with no genuine user gesture on
+    // that specific page — not even immediately after fullscreen was
+    // genuinely entered via a real click on THIS page moments earlier,
+    // since fullscreen state does not survive a navigation at all.
+    // Autostarting there only produced an immediate "click again to
+    // actually go fullscreen" fallback — letting the student's own
+    // click on mock-test-attempt.html's ordinary Start button be that
+    // gesture instead is what makes fullscreen reliably work in one
+    // click, exactly as it already does when a mock is started from
+    // its own list page.
     window.location.href =
       "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) +
-      "&duration=" + encodeURIComponent(mtsSelectedDuration) +
-      "&autostart=1";
+      "&duration=" + encodeURIComponent(mtsSelectedDuration);
   } catch (err) {
     console.error("start_or_resume_mock_test failed:", err);
     alert("Something went wrong starting the test. Please try again.");
