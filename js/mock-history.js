@@ -28,24 +28,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
   if (!currentUser) return;
 
-  const { data: results, error } = await supabaseClient
+  // Do NOT use a nested Supabase/PostgREST relation here.
+  // In the current session architecture, mock_test_sessions.result_id
+  // points back to mock_test_results.id (the session is the child row),
+  // so embedding mock_test_sessions from mock_test_results is not a
+  // reliable relation in this project and can make the entire history
+  // query fail. Load the two tables separately and join them in memory.
+  const { data: results, error: resultsError } = await supabaseClient
     .from("mock_test_results")
-    .select("*, mock_test_sessions(reattempt_window_expires_at)")
+    .select("*")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
+  if (resultsError) {
+    console.error("Could not load mock test results:", resultsError);
     document.getElementById("historyBody").innerHTML =
       '<div class="empty-state">Could not load your mock test history. Please refresh the page.</div>';
     return;
   }
 
-  renderHistory(results);
+  const safeResults = results || [];
+  const resultIds = safeResults.map(r => r.id).filter(Boolean);
+  const sessionByResultId = new Map();
+
+  if (resultIds.length) {
+    const { data: sessions, error: sessionsError } = await supabaseClient
+      .from("mock_test_sessions")
+      .select("result_id, reattempt_window_expires_at")
+      .in("result_id", resultIds);
+
+    if (sessionsError) {
+      // History itself should still load if the optional re-attempt-window
+      // lookup fails. Older result rows also legitimately have no session.
+      console.error("Could not load re-attempt windows:", sessionsError);
+    } else {
+      (sessions || []).forEach(session => {
+        if (session.result_id) sessionByResultId.set(session.result_id, session);
+      });
+    }
+  }
+
+  renderHistory(safeResults, sessionByResultId);
   startCountdownTicker();
 });
 
-function renderHistory(results) {
+function renderHistory(results, sessionByResultId = new Map()) {
   const container = document.getElementById("historyBody");
 
   if (results.length === 0) {
@@ -61,13 +88,11 @@ function renderHistory(results) {
     const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     const rowId = "mockrow-" + i;
 
-    // The join comes back as a single related object (session_id is
-    // a one-to-one FK on this row), not an array — mock_test_sessions
-    // is null/absent entirely for the handful of historical rows that
-    // predate the session system, which correctly never get a
-    // Re-attempt button at all (no window was ever established for
-    // them).
-    const expiresAt = r.mock_test_sessions ? r.mock_test_sessions.reattempt_window_expires_at : null;
+    // Sessions are loaded separately because the current schema links
+    // mock_test_sessions.result_id -> mock_test_results.id.
+    // Historical rows without a linked session simply have no window.
+    const sessionForResult = sessionByResultId.get(r.id);
+    const expiresAt = sessionForResult ? sessionForResult.reattempt_window_expires_at : null;
     const windowStillOpen = expiresAt && new Date(expiresAt).getTime() > Date.now();
 
     // Duration passed through so a re-attempt defaults to the same
