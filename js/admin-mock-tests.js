@@ -172,7 +172,6 @@ function renderList(mocks) {
         <td>${escapeHtml(m.title)}</td>
         <td><span class="pill">${escapeHtml(m.category.toUpperCase())}</span></td>
         <td>${escapeHtml(passageTitle)}</td>
-        <td>${m.duration} min</td>
         <td>${escapeHtml(costCell)}</td>
         <td>${m.display_order}</td>
         <td>${m.active ? "Active" : "Inactive"}</td>
@@ -191,7 +190,6 @@ function renderList(mocks) {
           <th>Title</th>
           <th>Category</th>
           <th>Passage</th>
-          <th>Duration</th>
           <th>Access / Cost</th>
           <th>Display Order</th>
           <th>Status</th>
@@ -223,7 +221,10 @@ async function handleSubmit(e) {
     category: category,
     access_type: accessType,
     passage_id: document.getElementById("mPassage").value,
-    duration: parseInt(document.getElementById("mDuration").value, 10),
+    // Duration is intentionally not selected by the admin.
+    // Keep the legacy DB column populated on new rows for schema compatibility;
+    // the student selects 5 or 10 minutes when starting the mock.
+    duration: 10,
     display_order: parseInt(document.getElementById("mOrder").value, 10) || 0,
     active: document.getElementById("mActive").value === "true"
   };
@@ -285,7 +286,6 @@ function startEdit(id) {
   // Now that the passage list matches this row's category, select it
   document.getElementById("mPassage").value = m.passage_id;
 
-  document.getElementById("mDuration").value = String(m.duration);
   document.getElementById("mOrder").value = m.display_order;
   document.getElementById("mActive").value = m.active ? "true" : "false";
 

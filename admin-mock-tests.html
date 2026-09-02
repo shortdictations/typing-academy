@@ -79,7 +79,7 @@
 
   <p class="eyebrow">Admin Only</p>
   <h1>Manage Mock Tests</h1>
-  <p class="lede">Create the individual mock tests students pick from, linked to one existing passage. Every non-free test resolves the same way for students: an eligible Pass for the matching category is used first, and only falls back to 1 Credit when there's no eligible Pass.</p>
+  <p class="lede">Create and manage mock tests for students, linked to one existing passage.</p>
 
   <!-- ADD / EDIT FORM -->
   <div class="card">
@@ -119,28 +119,25 @@
 
       <div class="setup-grid">
         <div class="field">
-          <label for="mDuration">Duration</label>
-          <select id="mDuration">
-            <option value="10">10 minutes</option>
-            <option value="15">15 minutes</option>
-            <option value="20">20 minutes</option>
-          </select>
-        </div>
-        <div class="field">
           <label for="mOrder">Display Order</label>
           <input type="number" id="mOrder" value="0" min="0" step="1">
+          <p class="test-rules-note" style="margin-top:6px;">Lower numbers appear first.</p>
+        </div>
+        <div class="field">
+          <label for="mActive">Status</label>
+          <select id="mActive">
+            <option value="true" selected>Active (visible to students)</option>
+            <option value="false">Inactive (hidden)</option>
+          </select>
         </div>
       </div>
 
-      <div class="field">
-        <label for="mActive">Status</label>
-        <select id="mActive">
-          <option value="true" selected>Active (visible to students)</option>
-          <option value="false">Inactive (hidden)</option>
-        </select>
+      <div class="mock-duration-note">
+        <span class="mock-duration-note-icon">i</span>
+        <span>Students can choose <strong>5 or 10 minutes</strong> when starting the mock test.</span>
       </div>
 
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:10px; align-items:center;">
         <button type="submit" class="btn" id="submitBtn">Add Mock Test</button>
         <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
       </div>
