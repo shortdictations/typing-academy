@@ -159,8 +159,11 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   };
 
   continueBtn.onclick = async () => {
+    // Keep the action label visible while the existing session is being
+    // resumed. Do not replace it with "Please wait..." — the user should
+    // always see the intended action.
     continueBtn.disabled = true;
-    continueBtn.textContent = "Please wait...";
+    continueBtn.innerHTML = "Continue Test <span aria-hidden=\"true\">→</span>";
     try {
       // The currentSession is the exact existing row. No new session,
       // passage, credit, or re-attempt is created here.
