@@ -2892,3 +2892,7 @@ body.app-shell .pts-start-row .mock-start-button{ width: auto; padding: 0 28px; 
   body.app-shell .pts-card{ padding: 22px; }
   body.app-shell .pts-option-grid{ grid-template-columns: 1fr; }
 }
+
+/* ---------- Mock History: re-attempt window countdown ---------- */
+body.app-shell .mh-reattempt-wrap{ display: inline-flex; align-items: center; gap: 6px; }
+body.app-shell .mh-reattempt-countdown{ font-size: 0.72rem; color: var(--ts-muted); white-space: nowrap; }
