@@ -60,11 +60,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sessionId = params.get("session");
 
   if (!sessionId) {
-    // Normal "Start Test" entry point — no session exists yet.
-    // Selecting a category/duration here creates nothing at all;
-    // only clicking Start Mock Test does (see handleNewMockStart()).
+    // Normal "Start Test" entry point — no ?session= means we don't
+    // yet know whether this student even has an unfinished test.
+    // Checked BEFORE the selection UI is shown at all (spec: this
+    // check must happen before displaying the normal test-selection
+    // UI) — selecting a category/duration still creates nothing
+    // either way; only clicking Start Mock Test does.
     document.getElementById("setupCard").style.display = "none";
-    initPreTestSelection();
+    await checkForExistingSessionBeforeSelection();
     return;
   }
 
@@ -82,6 +85,65 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 let ptsSelectedType = "ssc";
 let ptsSelectedDuration = 5;
+
+// Runs once, immediately, before the selection UI ever appears —
+// this is what makes "you have an unfinished test" show up right
+// away instead of only after the student picks a category/duration
+// and clicks Start Mock Test. Deliberately a plain read query, not
+// the start_or_resume_mock_test RPC: nothing should be created or
+// claimed just from opening this page, only from Start Mock Test.
+async function checkForExistingSessionBeforeSelection() {
+  const { data: existing, error } = await supabaseClient
+    .from("mock_test_sessions")
+    .select("id, category, duration, test_started_at, started_at, page_opened_at, mock_tests(title)")
+    .eq("user_id", currentUser.id)
+    .eq("status", "in_progress")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Could not check for an existing session:", error);
+    initPreTestSelection(); // fail open to the normal selection screen rather than block the student entirely
+    return;
+  }
+
+  if (!existing) {
+    initPreTestSelection();
+    return;
+  }
+
+  if (!existing.page_opened_at) {
+    // A session row exists but its own page never actually loaded
+    // before (e.g. the tab closed mid-redirect on an earlier visit)
+    // — from the student's own point of view this looks exactly like
+    // starting fresh, so redirect straight to it rather than show a
+    // confusing "unfinished test" message for something they never
+    // saw. Still the SAME session either way — never duplicated,
+    // never a second credit charge.
+    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
+    return;
+  }
+
+  // A session the student has genuinely seen before — "Test Not
+  // Started" shows immediately, before the selection UI ever
+  // appears, exactly as specified.
+  const proceed = await showUnfinishedTestModal({
+    mockTitle: existing.mock_tests ? existing.mock_tests.title : null,
+    category: existing.category,
+    duration: existing.duration,
+    startedAt: existing.test_started_at || existing.started_at,
+    title: "Test Not Started",
+    subtitle: "You exited before starting.<br>Your unfinished mock is still active.",
+    cancelLabel: "Back"
+  });
+
+  if (proceed) {
+    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
+  } else {
+    // Back — the modal simply closes, leaving the student on this
+    // same Start Test page; the normal inline selection UI shows now.
+    initPreTestSelection();
+  }
+}
 
 function initPreTestSelection() {
   document.getElementById("preTestCard").style.display = "block";
