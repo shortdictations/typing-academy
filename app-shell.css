@@ -2292,13 +2292,7 @@ body.mock-test-active #appSidebar{ display: none; }
 body.mock-test-active .user-menu,
 body.mock-test-active .nav-links > .credit-badge{ display: none; }
 
-/* ---------- "Test Not Started" popup ----------
-   Removed: cancelUnstartedTest() now shows the shared
-   showUnfinishedTestModal() (js/auth.js, .utc-* styles) instead of
-   this bespoke modal, so the "same session/mock/duration everywhere"
-   card design is consistent across every place a student can run
-   into an existing in_progress session, rather than a separate,
-   differently-styled one-off just for this specific exit path. */
+/* ---------- Test entry / unfinished-session states ---------- */
 body.test-mode .test-mode-main{
   max-width: 1200px;
   width: calc(100% - 48px);
@@ -2665,137 +2659,6 @@ html[data-theme="dark"] body.app-shell .dash-progress-track{ background: #2A3346
 html[data-theme="dark"] body.app-shell .dash-change-link{ color: #7C9CFF; }
 
 /* ============================================================
-   Unfinished Mock Test modal ("utc-*")
-   ------------------------------------------------------------
-   Shown whenever start_or_resume_mock_test()/start_reattempt()
-   return is_resumed=true — replaces a bare alert() with the actual
-   unfinished mock's details (title, duration, when it started) and
-   an explicit Continue/Cancel choice, matching the supplied reference
-   design. Deliberately NOT scoped to body.dashboard-page like the
-   Step 1/Step 2 mts-* modal, since this one also needs to work on
-   mock-test.html and mock-history.html — same dark-glassmorphic
-   visual language (colors/radius/blur lifted directly from the mts-*
-   rules above) but usable on any page. Injected into the DOM once,
-   on first use, by js/auth.js's showUnfinishedTestModal().
-   ============================================================ */
-#utcModal{
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(0,0,0,0.80);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-#utcModal[hidden]{ display: none; }
-#utcModal.utc-anim-in-active{ opacity: 1; }
-
-#utcModal .utc-card{
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
-  background: rgba(17,24,39,0.90);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px;
-  padding: 32px;
-  color: #F3F4F6;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-  text-align: center;
-  transform: scale(0.95);
-  transition: transform 0.2s ease;
-}
-#utcModal.utc-anim-in-active .utc-card{ transform: scale(1); }
-
-#utcModal .utc-icon-wrap{
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(124,58,237,0.25) 0%, rgba(124,58,237,0.08) 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  color: #A78BFA;
-}
-#utcModal .utc-icon-wrap svg{ width: 32px; height: 32px; }
-
-#utcModal .utc-title{ font-family: inherit; font-size: 24px; font-weight: 700; color: #fff !important; margin: 0 0 12px; }
-#utcModal .utc-subtitle{ font-size: 14px; color: #9CA3AF; line-height: 1.6; margin: 0 0 24px; }
-
-#utcModal .utc-info-card{
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-align: left;
-  background: rgba(31,41,55,0.6);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 24px;
-}
-#utcModal .utc-info-icon{
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(99,102,241,0.15);
-  border: 1px solid rgba(99,102,241,0.25);
-  color: #818CF8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#utcModal .utc-info-icon svg{ width: 22px; height: 22px; }
-#utcModal .utc-info-title{ font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 4px; }
-#utcModal .utc-info-meta{ font-size: 13px; color: #9CA3AF; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-#utcModal .utc-info-meta span{ display: inline-flex; align-items: center; gap: 4px; }
-#utcModal .utc-info-meta svg{ width: 14px; height: 14px; }
-#utcModal .utc-info-sep{ opacity: 0.5; }
-
-#utcModal .utc-actions{ display: flex; gap: 12px; }
-#utcModal .utc-btn{
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 13px 20px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-}
-#utcModal .utc-btn svg{ width: 16px; height: 16px; }
-#utcModal .utc-btn-cancel{
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #E5E7EB;
-}
-#utcModal .utc-btn-cancel:hover{ background: rgba(255,255,255,0.05); }
-#utcModal .utc-btn-continue{
-  background: linear-gradient(135deg, #6366F1 0%, #7C3AED 100%);
-  color: #fff;
-  box-shadow: 0 8px 20px -6px rgba(99,102,241,0.5);
-}
-#utcModal .utc-btn-continue:hover{ filter: brightness(1.08); }
-
-@media (max-width: 480px){
-  #utcModal .utc-card{ padding: 24px 20px; }
-  #utcModal .utc-actions{ flex-direction: column-reverse; }
-}
-
-/* ============================================================
    Pre-Test Selection screen ("pts-*") — mock-test-attempt.html
    ------------------------------------------------------------
    Replaces the dashboard's old Step 1/Step 2 modal flow: category
@@ -2807,6 +2670,81 @@ html[data-theme="dark"] body.app-shell .dash-change-link{ color: #7C9CFF; }
    overlay. Selecting an option here never creates anything; only
    #ptsStartBtn's click does (see js/mock-test-attempt.js).
    ============================================================ */
+/* ---------- Inline unfinished mock state ---------- */
+body.app-shell .unfinished-session-card{
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 34px;
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  border: 1px solid var(--ts-border);
+  border-radius: 18px;
+  background: var(--paper);
+  color: var(--ts-text);
+  box-shadow: 0 10px 28px rgba(15,23,42,0.07);
+}
+body.app-shell .unfinished-session-icon{
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(99,102,241,0.10);
+  border: 1px solid rgba(99,102,241,0.18);
+  color: #6366F1;
+}
+body.app-shell .unfinished-session-icon svg{ width: 28px; height: 28px; }
+body.app-shell .unfinished-session-content{ min-width: 0; flex: 1; }
+body.app-shell .unfinished-session-content .card-label{ margin-bottom: 7px; }
+body.app-shell .unfinished-session-content h2{
+  margin: 0 0 7px;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--ts-text);
+}
+body.app-shell .unfinished-session-content p{
+  margin: 0;
+  color: var(--ts-muted);
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+body.app-shell .unfinished-session-meta{
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--paper-dark);
+  border: 1px solid var(--ts-border);
+  color: var(--ts-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+body.app-shell .unfinished-session-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+body.app-shell .unfinished-session-actions .btn{ min-width: 130px; }
+html[data-theme="dark"] body.app-shell .unfinished-session-card{
+  background: var(--ts-surface);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+html[data-theme="dark"] body.app-shell .unfinished-session-icon{
+  background: rgba(129,140,248,0.12);
+  border-color: rgba(129,140,248,0.22);
+  color: #A78BFA;
+}
+@media (max-width: 600px){
+  body.app-shell .unfinished-session-card{ padding: 24px 20px; gap: 14px; }
+  body.app-shell .unfinished-session-icon{ width: 46px; height: 46px; flex-basis: 46px; }
+  body.app-shell .unfinished-session-content h2{ font-size: 1.25rem; }
+  body.app-shell .unfinished-session-actions{ flex-direction: column-reverse; }
+  body.app-shell .unfinished-session-actions .btn{ width: 100%; }
+}
+
 body.app-shell .pts-card{
   max-width: 720px;
   margin: 0 auto;

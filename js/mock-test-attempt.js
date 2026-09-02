@@ -60,25 +60,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sessionId = params.get("session");
 
   if (!sessionId) {
-    // Normal "Start Test" entry point — no ?session= means we don't
-    // yet know whether this student even has an unfinished test.
-    // Checked BEFORE the selection UI is shown at all (spec: this
-    // check must happen before displaying the normal test-selection
-    // UI) — selecting a category/duration still creates nothing
-    // either way; only clicking Start Mock Test does.
+    // Normal Start Test entry point. Check for an active session before
+    // showing the category/duration picker. An active session is shown
+    // as an INLINE page state — never as a modal.
     document.getElementById("setupCard").style.display = "none";
     await checkForExistingSessionBeforeSelection();
     return;
   }
 
   const loaded = await loadSessionIntoSetupScreen(sessionId, params.get("duration"));
-  if (!loaded) return; // error already shown by loadSessionIntoSetupScreen
+  if (!loaded) return;
+
+  wireTestInputHandlers();
+
+  // ?resume=1 is used only when another page discovered an existing
+  // in-progress session. Show the inline resume state immediately.
+  // A normal new/re-attempt session still uses the regular setup card.
+  if (params.get("resume") === "1") {
+    showInlineUnfinishedSession(currentSession, mockTest);
+    return;
+  }
 
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "inline-flex";
   startBtn.addEventListener("click", handleStartClick);
-
-  wireTestInputHandlers();
 });
 
 /* ---------------- Pre-test selection (no session yet) ---------------- */
@@ -111,38 +116,64 @@ async function checkForExistingSessionBeforeSelection() {
     return;
   }
 
-  if (!existing.page_opened_at) {
-    // A session row exists but its own page never actually loaded
-    // before (e.g. the tab closed mid-redirect on an earlier visit)
-    // — from the student's own point of view this looks exactly like
-    // starting fresh, so redirect straight to it rather than show a
-    // confusing "unfinished test" message for something they never
-    // saw. Still the SAME session either way — never duplicated,
-    // never a second credit charge.
-    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
-    return;
-  }
+  // Load the exact active session and show the inline resume state.
+  // This happens before the category/duration picker is initialized,
+  // so the student can never start a second SSC/Legal session.
+  const loaded = await loadSessionIntoSetupScreen(existing.id, existing.duration || 10);
+  if (!loaded) return;
 
-  // A session the student has genuinely seen before — "Test Not
-  // Started" shows immediately, before the selection UI ever
-  // appears, exactly as specified.
-  const proceed = await showUnfinishedTestModal({
-    mockTitle: existing.mock_tests ? existing.mock_tests.title : null,
-    category: existing.category,
-    duration: existing.duration,
-    startedAt: existing.test_started_at || existing.started_at,
-    title: "Test Not Started",
-    subtitle: "You exited before starting.<br>Your unfinished mock is still active.",
-    cancelLabel: "Back"
-  });
+  wireTestInputHandlers();
+  showInlineUnfinishedSession(currentSession, mockTest);
+}
 
-  if (proceed) {
-    window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(existing.id) + "&duration=" + encodeURIComponent(existing.duration || 10);
-  } else {
-    // Back — the modal simply closes, leaving the student on this
-    // same Start Test page; the normal inline selection UI shows now.
+function showInlineUnfinishedSession(sessionRow, mockRow) {
+  const card = document.getElementById("unfinishedSessionCard");
+  if (!card) return;
+
+  document.getElementById("preTestCard").style.display = "none";
+  document.getElementById("setupCard").style.display = "none";
+  document.getElementById("testCard").style.display = "none";
+  document.getElementById("resultCard").style.display = "none";
+  card.style.display = "flex";
+
+  const category = (sessionRow?.category || mockRow?.category || "ssc").toLowerCase();
+  const title = mockRow?.title || (category === "legal" ? "Legal Typing Test" : "SSC Typing Test");
+  const duration = sessionRow?.duration || selectedDurationMinutes || 5;
+
+  document.getElementById("unfinishedSessionTitle").textContent = "Test Not Started";
+  document.getElementById("unfinishedSessionMessage").textContent =
+    "You exited before starting. Your unfinished mock is still active.";
+  document.getElementById("unfinishedSessionMeta").textContent =
+    title + "  ·  " + duration + " Minutes";
+
+  const backBtn = document.getElementById("unfinishedBackBtn");
+  const continueBtn = document.getElementById("unfinishedContinueBtn");
+
+  // Replace handlers cleanly when this state is shown more than once
+  // on the same page (for example after an unstarted-test exit).
+  backBtn.onclick = () => {
+    card.style.display = "none";
+    document.getElementById("setupCard").style.display = "none";
+    document.getElementById("preTestCard").style.display = "block";
     initPreTestSelection();
-  }
+  };
+
+  continueBtn.onclick = async () => {
+    continueBtn.disabled = true;
+    continueBtn.textContent = "Please wait...";
+    try {
+      // The currentSession is the exact existing row. No new session,
+      // passage, credit, or re-attempt is created here.
+      card.style.display = "none";
+      await handleStartClick();
+    } finally {
+      if (!document.body.classList.contains("mock-test-active")) {
+        continueBtn.disabled = false;
+        continueBtn.innerHTML = "Continue Test <span aria-hidden=\"true\">→</span>";
+        card.style.display = "flex";
+      }
+    }
+  };
 }
 
 function initPreTestSelection() {
@@ -211,50 +242,20 @@ async function handleNewMockStart() {
       return;
     }
 
-    // A resumed session that never actually had ITS OWN page-load
-    // event fire (page_opened false — e.g. an earlier attempt's tab
-    // closed mid-redirect) looks, from the student's own point of
-    // view, exactly like starting fresh — skip the modal in that
-    // case and just proceed to load+start it below, same as a brand
-    // new session would. Only a session the student has genuinely
-    // seen before shows "Test Not Started".
-    if (result.is_resumed && result.page_opened) {
-      const proceed = await showUnfinishedTestModal({
-        mockTitle: result.mock_title,
-        category: result.mock_category,
-        duration: result.mock_duration,
-        startedAt: result.session_started_at,
-        title: "Test Not Started",
-        subtitle: "You exited before starting.<br>Your unfinished mock is still active.",
-        cancelLabel: "Back"
-      });
-      if (!proceed) return; // Back — stay right here on the selection screen, nothing changed
-      // Continue Test — fall through and load+start this exact resumed session below
+    // A resumed session is NEVER shown in a popup. Send it to the
+    // same Start Test page with an explicit resume flag; that page
+    // renders the inline unfinished-session state immediately.
+    if (result.is_resumed) {
+      window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + encodeURIComponent(result.mock_duration || ptsSelectedDuration) + "&resume=1";
+      return;
     }
 
     const loaded = await loadSessionIntoSetupScreen(result.session_id, String(result.mock_duration || ptsSelectedDuration));
-    if (!loaded) return; // error already shown by loadSessionIntoSetupScreen
+    if (!loaded) return;
 
-    // loadSessionIntoSetupScreen() always shows #setupCard (correct
-    // for the ?session= entry path, which genuinely pauses there for
-    // a manual click) — immediately hidden again here since this
-    // path's own click already happened, on the pre-test screen, and
-    // should transition straight through to fullscreen with nothing
-    // shown in between. Done before handleStartClick()'s own awaits
-    // below so the browser never gets a chance to paint the
-    // intermediate state.
     document.getElementById("setupCard").style.display = "none";
     document.getElementById("preTestCard").style.display = "none";
 
-    // This click IS the genuine user gesture full-screen needs — the
-    // awaits above (the RPC call, the follow-up mock/passage fetch)
-    // happen within the same click handler's still-active user-
-    // activation window, unlike a full page navigation (confirmed
-    // directly, more than once, that THAT loses it entirely). Calling
-    // the exact same function the setup screen's own Start button
-    // uses, not a parallel path, so every safety check inside it
-    // (checkSingleActiveSession, mark_test_started) still runs
-    // identically to a manual click there.
     wireTestInputHandlers();
     await handleStartClick();
   } catch (err) {
@@ -1052,30 +1053,14 @@ function cancelUnstartedTest(customMessage) {
 
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
-  document.getElementById("setupCard").style.display = "block";
 
-  // Same shared "Unfinished Mock Test" component used everywhere else
-  // a student can run into an existing in_progress session — "Test
-  // Not Started" wording specifically for this case (never typed
-  // anything), Back instead of Cancel since there's nowhere else on
-  // THIS page to stay on, and Continue Test reloads this exact page
-  // (same session, same passage, fresh timer) rather than navigating
-  // anywhere else.
-  showUnfinishedTestModal({
-    mockTitle: mockTest ? mockTest.title : null,
-    category: mockTest ? mockTest.category : null,
-    duration: selectedDurationMinutes,
-    startedAt: currentSession ? (currentSession.test_started_at || currentSession.started_at) : null,
-    title: "Test Not Started",
-    subtitle: customMessage || "You exited before starting.<br>Your unfinished mock is still active.",
-    cancelLabel: "Back"
-  }).then(proceed => {
-    if (proceed) {
-      window.location.reload();
-    } else {
-      window.location.href = "dashboard.html";
-    }
-  });
+  // Keep the exact same in-progress session and show its state inline.
+  // No result is saved, no score is produced, and no new session is
+  // created. The typing area will be fresh when Continue Test is used.
+  showInlineUnfinishedSession(currentSession, mockTest);
+  if (customMessage) {
+    document.getElementById("unfinishedSessionMessage").textContent = customMessage.replace(/<br\s*\/?>/gi, " ");
+  }
 }
 
 /* ---------------- Ending the test ---------------- */
@@ -1106,25 +1091,10 @@ function abandonMockTest() {
 
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
-  document.getElementById("setupCard").style.display = "block";
 
-  showUnfinishedTestModal({
-    mockTitle: mockTest ? mockTest.title : null,
-    category: mockTest ? mockTest.category : null,
-    duration: selectedDurationMinutes,
-    startedAt: currentSession ? (currentSession.test_started_at || currentSession.started_at) : null
-  }).then(proceed => {
-    if (proceed) {
-      // Same session, same passage, fresh typing area, full timer —
-      // reloading this exact URL re-runs the page's own setup flow
-      // from scratch, which already achieves all of that on its own
-      // (nothing about the session changed, so it resumes exactly
-      // where a fresh load of it always would).
-      window.location.reload();
-    } else {
-      window.location.href = "dashboard.html";
-    }
-  });
+  // Exiting an in-progress test leaves the database session untouched.
+  // Show the inline resume state instead of opening a modal.
+  showInlineUnfinishedSession(currentSession, mockTest);
 }
 
 async function endMockTest(reason) {

@@ -118,14 +118,9 @@ async function handleStartClick(category) {
     // happening before navigating away, without changing which
     // session gets resumed at all. Cancel means the student stays
     // right here, on this page, with nothing navigated.
-    if (result.is_resumed && result.page_opened) {
-      const proceed = await showUnfinishedTestModal({
-        mockTitle: result.mock_title,
-        category: result.mock_category,
-        duration: result.mock_duration,
-        startedAt: result.session_started_at
-      });
-      if (!proceed) return;
+    if (result.is_resumed) {
+      window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + encodeURIComponent(result.mock_duration || DEFAULT_DURATION_MINUTES) + "&resume=1";
+      return;
     }
 
     window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + DEFAULT_DURATION_MINUTES;

@@ -243,17 +243,9 @@ async function handleReattemptClick(mockTestId, duration, btn) {
     // the intended "finish your current test first" behavior. Cancel
     // means the student stays right here, on Mock History, with
     // nothing navigated.
-    if (result.is_resumed && result.page_opened) {
-      const proceed = await showUnfinishedTestModal({
-        mockTitle: result.mock_title,
-        category: result.mock_category,
-        duration: result.mock_duration,
-        startedAt: result.session_started_at,
-        title: "Test Not Started",
-        subtitle: "You exited before starting.<br>Your unfinished mock is still active.",
-        cancelLabel: "Back"
-      });
-      if (!proceed) return;
+    if (result.is_resumed) {
+      window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + encodeURIComponent(duration) + "&resume=1";
+      return;
     }
 
     window.location.href = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + duration;
