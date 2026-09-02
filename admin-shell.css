@@ -230,3 +230,37 @@ body.app-shell.admin-page .app-bottom-nav-icon{ width: 28px; }
   body.app-shell.admin-page .admin-analytics-head{ flex-direction: column; align-items: stretch; }
   body.app-shell.admin-page .admin-analytics-controls{ justify-content: space-between; }
 }
+
+
+/* ---------- Passage form layout ---------- */
+body.app-shell.admin-page .admin-passage-meta-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+body.app-shell.admin-page .admin-passage-duration-note{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:2px 0 18px;
+  padding:12px 14px;
+  border-radius:var(--ts-radius-md);
+  background:var(--ts-blue-tint);
+  color:var(--ts-muted);
+  font-size:.82rem;
+  line-height:1.45;
+}
+body.app-shell.admin-page .admin-passage-duration-note svg{
+  width:17px;
+  height:17px;
+  flex:none;
+  color:var(--ts-blue);
+}
+body.app-shell.admin-page #pContent{
+  min-height:170px;
+  resize:vertical;
+  box-sizing:border-box;
+}
+@media (max-width:640px){
+  body.app-shell.admin-page .admin-passage-meta-grid{grid-template-columns:1fr;gap:0;}
+}

@@ -97,23 +97,15 @@
         <textarea id="pContent" rows="6" required style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-mono);font-size:0.95rem;"></textarea>
       </div>
 
-      <div class="field">
-        <label for="pCategory">Category</label>
-        <select id="pCategory">
-          <option value="SSC">SSC</option>
-          <option value="Legal">Legal</option>
-        </select>
-      </div>
-
-      <div class="setup-grid">
+      <div class="admin-passage-meta-grid">
         <div class="field">
-          <label for="pDuration">Duration</label>
-          <select id="pDuration">
-            <option value="10" selected>10 minutes</option>
-            <option value="15">15 minutes</option>
-            <option value="20">20 minutes</option>
+          <label for="pCategory">Category</label>
+          <select id="pCategory">
+            <option value="SSC">SSC</option>
+            <option value="Legal">Legal</option>
           </select>
         </div>
+
         <div class="field">
           <label for="pActive">Status</label>
           <select id="pActive">
@@ -121,6 +113,11 @@
             <option value="false">Inactive (hidden)</option>
           </select>
         </div>
+      </div>
+
+      <div class="admin-passage-duration-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 10v6"></path><path d="M12 7h.01"></path></svg>
+        <span>Test duration is selected by the student when starting a mock test.</span>
       </div>
 
       <div style="display:flex; gap:10px;">

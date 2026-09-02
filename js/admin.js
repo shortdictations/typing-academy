@@ -139,7 +139,10 @@ async function handleSubmit(e) {
     title: document.getElementById("pTitle").value.trim(),
     content: document.getElementById("pContent").value.trim(),
     category: document.getElementById("pCategory").value,
-    duration: parseInt(document.getElementById("pDuration").value, 10),
+    // Duration is selected by the student at test start.
+    // Keep the legacy database column populated for compatibility; it is
+    // no longer used by the admin form or the mock-test duration logic.
+    duration: 10,
     active: document.getElementById("pActive").value === "true"
     // No difficulty, no exam_name — removed from this form entirely.
     // Existing values for those columns (if any) are left untouched
@@ -180,7 +183,6 @@ function startEdit(id) {
   document.getElementById("pTitle").value = p.title;
   document.getElementById("pContent").value = p.content;
   document.getElementById("pCategory").value = p.category;
-  document.getElementById("pDuration").value = String(p.duration);
   document.getElementById("pActive").value = p.active ? "true" : "false";
 
   document.getElementById("formLabel").textContent = "Editing: " + p.title;
