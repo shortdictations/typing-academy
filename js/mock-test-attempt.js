@@ -388,8 +388,48 @@ async function loadSessionIntoSetupScreen(sessionId, requestedDurationParam) {
   document.getElementById("setupCard").style.display = "block";
   document.getElementById("setupInfo").innerHTML =
     '<div class="mock-test-title">' + escapeHtml(mockTest.title) + (sessionRow.is_reattempt ? ' <span class="pill">Re-attempt</span>' : '') + '</div>' +
-    '<div class="mock-test-meta">' + accessLabel + ' &middot; ' + selectedDurationMinutes + ' Minutes</div>' +
+    '<div class="mock-test-meta">' + accessLabel + '</div>' +
+    '<div class="mock-duration-picker" id="durationPicker" role="radiogroup" aria-label="Test duration">' +
+      '<button type="button" class="mock-duration-btn" data-duration="5">5 Minutes</button>' +
+      '<button type="button" class="mock-duration-btn" data-duration="10">10 Minutes</button>' +
+    '</div>' +
     '<div class="mock-test-message">Your mock is ready. Click Start Mock Test to enter full-screen mode.</div>';
+
+  // Lets the student change duration here — most relevant for
+  // Re-attempt, which otherwise always reused the original attempt's
+  // exact duration with no way to switch it. Reaches this screen
+  // (rather than skipping straight to the live test) specifically
+  // because it's a fresh ?session= load with no &resume=1: a brand
+  // new test never pauses here at all (handleNewMockStart() goes
+  // straight through), and Continue Test on a genuinely unfinished
+  // session is a resume, not a new choice, so it also skips this
+  // screen — this picker only ever surfaces for a freshly created or
+  // re-attempted session waiting on the student's manual Start click.
+  const durationButtons = document.querySelectorAll("#durationPicker .mock-duration-btn");
+  function refreshDurationButtons() {
+    durationButtons.forEach(btn => {
+      const isActive = Number(btn.dataset.duration) === selectedDurationMinutes;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
+  durationButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedDurationMinutes = Number(btn.dataset.duration);
+      refreshDurationButtons();
+      // Keeps the session's own stored duration in sync with whatever
+      // the student actually picked here — complete_mock_session()
+      // reads the session's column directly, never anything the
+      // client sends at save time, so this call is what makes a
+      // changed choice here actually count as the real, authoritative
+      // duration rather than only a display value in this tab. Fire-
+      // and-forget: a transient failure here just means the OLD
+      // stored duration is used at save time, not a broken test.
+      supabaseClient.rpc("update_session_duration", { p_session_id: currentSession.id, p_duration: selectedDurationMinutes })
+        .then(({ error }) => { if (error) console.error("update_session_duration RPC error:", error); });
+    });
+  });
+  refreshDurationButtons();
 
   return true;
 }
