@@ -95,7 +95,6 @@ function renderList(passages) {
       <tr>
         <td>${escapeHtml(p.title)}</td>
         <td><span class="pill">${escapeHtml(p.category)}</span></td>
-        <td>${p.duration} min</td>
         <td>${p.active ? "Active" : "Inactive"}</td>
         <td style="white-space:nowrap;">
           <button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="startEdit('${p.id}')">Edit</button>
@@ -112,7 +111,6 @@ function renderList(passages) {
         <tr>
           <th>Title</th>
           <th>Category</th>
-          <th>Duration</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
