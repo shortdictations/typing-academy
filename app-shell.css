@@ -2674,83 +2674,84 @@ html[data-theme="dark"] body.app-shell .dash-change-link{ color: #7C9CFF; }
 body.app-shell .unfinished-session-card{
   max-width: 920px;
   margin: 34px auto;
-  padding: 40px 44px;
+  padding: 32px 36px;
   display: flex;
-  align-items: flex-start;
-  gap: 28px;
-  border: 1px solid #e4e9f1;
-  border-radius: 20px;
-  background: #ffffff;
-  color: #0f1f3d;
-  box-shadow: 0 12px 32px rgba(15, 31, 61, 0.07);
+  align-items: center;
+  gap: 22px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface, #FFFFFF);
+  color: var(--ts-text);
+  box-shadow: 0 8px 24px rgba(16,24,40,0.05);
 }
 body.app-shell .unfinished-session-icon{
-  width: 64px;
-  height: 64px;
-  flex: 0 0 64px;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 18px;
-  background: #eef4ff;
-  border: 1px solid #dce8ff;
-  color: #2563eb;
+  border-radius: var(--ts-radius-md);
+  background: var(--ts-blue-tint);
+  border: 1px solid rgba(47,95,236,.16);
+  color: var(--ts-blue);
 }
-body.app-shell .unfinished-session-icon svg{ width: 30px; height: 30px; }
+body.app-shell .unfinished-session-icon svg{ width: 27px; height: 27px; }
 body.app-shell .unfinished-session-content{ min-width: 0; flex: 1; }
 body.app-shell .unfinished-session-content .card-label{
-  margin: 2px 0 8px;
-  color: #2563eb;
-  font-size: 0.75rem;
-  font-weight: 700;
+  margin: 0 0 7px;
+  color: var(--ts-blue);
+  font-size: 0.7rem;
+  font-weight: 800;
   letter-spacing: .08em;
 }
 body.app-shell .unfinished-session-content h2{
-  margin: 0 0 8px;
-  font-size: 1.55rem;
+  margin: 0 0 6px;
+  font-size: 1.35rem;
   line-height: 1.2;
-  color: #0f1f3d;
+  color: var(--ts-text);
 }
 body.app-shell .unfinished-session-content p{
   margin: 0;
-  color: #60708f;
-  font-size: 0.98rem;
-  line-height: 1.55;
+  color: var(--ts-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 body.app-shell .unfinished-session-meta{
-  margin-top: 20px;
-  padding: 14px 18px;
-  border-radius: 12px;
-  background: #f2f6fd;
-  border: 1px solid #e5ecf8;
-  color: #0f1f3d;
-  font-size: 0.94rem;
+  margin-top: 13px;
+  padding: 10px 14px;
+  border-radius: var(--ts-radius-sm);
+  background: var(--ts-background);
+  border: 1px solid var(--ts-border);
+  color: var(--ts-text);
+  font-size: 0.86rem;
   font-weight: 700;
 }
 body.app-shell .unfinished-session-actions{
   display: flex;
-  justify-content: flex-end;
-  gap: 14px;
-  margin-top: 24px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
 }
 body.app-shell .unfinished-session-actions .btn{
-  min-width: 150px;
-  min-height: 48px;
+  min-width: 126px;
+  min-height: 44px;
 }
 body.app-shell .unfinished-session-actions .btn-ghost{
-  background: #ffffff;
-  color: #0f1f3d;
-  border: 1px solid #d8e0ec;
+  background: transparent;
+  color: var(--ts-text);
+  border: 1px solid var(--ts-border);
 }
 body.app-shell .unfinished-session-actions #unfinishedContinueBtn{
-  background: #2563eb;
-  color: #ffffff;
-  border: 1px solid #2563eb;
-  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.18);
+  background: var(--ts-navy);
+  color: #FFFFFF;
+  border: 1px solid var(--ts-navy);
+  box-shadow: 0 4px 10px rgba(11,28,63,.12);
 }
 body.app-shell .unfinished-session-actions #unfinishedContinueBtn:hover{
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #132957;
+  border-color: #132957;
 }
 body.app-shell .unfinished-session-actions #unfinishedContinueBtn:disabled{
   opacity: .75;
@@ -2758,31 +2759,34 @@ body.app-shell .unfinished-session-actions #unfinishedContinueBtn:disabled{
 }
 
 html[data-theme="dark"] body.app-shell .unfinished-session-card{
-  background: var(--ts-surface);
-  border-color: rgba(148,163,184,.16);
-  color: var(--ts-text);
-  box-shadow: 0 12px 30px rgba(0,0,0,.22);
+  background: #171F2E;
+  border-color: var(--ts-border);
+  box-shadow: 0 10px 28px rgba(0,0,0,.20);
 }
 html[data-theme="dark"] body.app-shell .unfinished-session-icon{
-  background: rgba(59,130,246,.12);
-  border-color: rgba(59,130,246,.22);
-  color: #60a5fa;
+  background: rgba(47,95,236,.12);
+  border-color: rgba(124,156,255,.18);
+  color: #7C9CFF;
 }
-html[data-theme="dark"] body.app-shell .unfinished-session-content h2{
-  color: var(--ts-text);
-}
-html[data-theme="dark"] body.app-shell .unfinished-session-content p{
-  color: var(--ts-muted);
-}
+html[data-theme="dark"] body.app-shell .unfinished-session-content h2{ color: var(--ts-text); }
+html[data-theme="dark"] body.app-shell .unfinished-session-content p{ color: var(--ts-muted); }
 html[data-theme="dark"] body.app-shell .unfinished-session-meta{
-  background: rgba(59,130,246,.08);
-  border-color: rgba(59,130,246,.16);
+  background: #131A28;
+  border-color: var(--ts-border);
   color: var(--ts-text);
 }
 html[data-theme="dark"] body.app-shell .unfinished-session-actions .btn-ghost{
   background: transparent;
   color: var(--ts-text);
-  border-color: rgba(148,163,184,.24);
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .unfinished-session-actions #unfinishedContinueBtn{
+  background: var(--ts-blue);
+  border-color: var(--ts-blue);
+}
+html[data-theme="dark"] body.app-shell .unfinished-session-actions #unfinishedContinueBtn:hover{
+  background: var(--ts-blue-dark);
+  border-color: var(--ts-blue-dark);
 }
 
 @media (max-width: 700px){
