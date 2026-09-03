@@ -87,9 +87,9 @@ function renderHistory() {
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M11 9h.01M15 9h.01M19 9h.01M7 13h.01M11 13h.01M15 13h.01M19 13h.01M9 17h6"/></svg>';
 
     const reattemptHtml = windowStillOpen
-      ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}">` +
-          `<button type="button" class="mh-action mh-action-reattempt" onclick="handleReattemptClick('${escapeHtml(r.mock_test_id)}', ${r.duration === 5 ? 5 : 10}, this)">` +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2 5"/><path d="M20 4v7h-7"/></svg>' +
+      ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}" data-mock-id="${escapeHtml(r.mock_test_id)}">` +
+          `<button type="button" class="mh-action mh-action-reattempt" onclick="showReattemptDurationPicker(this)">` +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2 5"/><path d="M20 4v7h-7"/></svg>' +
             '<span>Re-attempt</span>' +
           '</button>' +
           '<span class="mh-reattempt-countdown"></span>' +
@@ -214,10 +214,39 @@ function startCountdownTicker() {
   countdownTimerId = setInterval(updateAllCountdowns, 1000);
 }
 
-async function handleReattemptClick(mockTestId, duration, btn) {
+function showReattemptDurationPicker(btn) {
+  const wrap = btn.closest(".mh-reattempt-wrap");
+  if (!wrap) return;
+  const mockTestId = wrap.dataset.mockId;
+  const countdownText = wrap.querySelector(".mh-reattempt-countdown")?.textContent || "";
+
+  wrap.innerHTML = `
+    <span class="mh-reattempt-picker" aria-label="Choose re-attempt duration">
+      <button type="button" class="mh-duration-choice mh-duration-choice-selected" data-duration="5" onclick="selectReattemptDuration(this, 5)">5 min</button>
+      <button type="button" class="mh-duration-choice" data-duration="10" onclick="selectReattemptDuration(this, 10)">10 min</button>
+      <button type="button" class="mh-action mh-action-reattempt mh-reattempt-start" onclick="handleReattemptClick('${escapeHtml(mockTestId)}', this)">Start</button>
+    </span>
+    <span class="mh-reattempt-countdown">${escapeHtml(countdownText)}</span>`;
+  wrap.dataset.selectedDuration = "5";
+}
+
+function selectReattemptDuration(btn, duration) {
+  const wrap = btn.closest(".mh-reattempt-wrap");
+  if (!wrap) return;
+  wrap.dataset.selectedDuration = String(duration);
+  wrap.querySelectorAll(".mh-duration-choice").forEach(choice => {
+    choice.classList.toggle("mh-duration-choice-selected", Number(choice.dataset.duration) === duration);
+  });
+}
+
+async function handleReattemptClick(mockTestId, btn) {
+  const wrap = btn.closest(".mh-reattempt-wrap");
+  const duration = Number(wrap?.dataset.selectedDuration);
+  if (duration !== 5 && duration !== 10) return;
+
   const originalText = btn.innerHTML;
   btn.disabled = true;
-  btn.querySelector("span")?.replaceChildren(document.createTextNode("Please wait..."));
+  btn.textContent = "Please wait...";
 
   try {
     const { data, error } = await supabaseClient.rpc("start_reattempt", {
@@ -232,7 +261,6 @@ async function handleReattemptClick(mockTestId, duration, btn) {
     }
 
     const result = Array.isArray(data) ? data[0] : data;
-
     if (!result || !result.session_id) {
       const reasonMessages = {
         NOT_YET_ATTEMPTED: "This mock hasn't been completed yet, so there's nothing to re-attempt.",
@@ -240,9 +268,7 @@ async function handleReattemptClick(mockTestId, duration, btn) {
         LOCKED: "This mock test is no longer available."
       };
       alert((result && reasonMessages[result.access_reason]) || "Could not start the re-attempt. Please try again.");
-      if (result && result.access_reason === "REATTEMPT_WINDOW_EXPIRED") {
-        btn.closest(".mh-reattempt-wrap")?.remove();
-      }
+      if (result && result.access_reason === "REATTEMPT_WINDOW_EXPIRED") wrap?.remove();
       return;
     }
 

@@ -140,33 +140,51 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   const title = mockRow?.title || (category === "legal" ? "Legal Typing Test" : "SSC Typing Test");
   const duration = sessionRow?.duration || selectedDurationMinutes || 5;
 
-  document.getElementById("unfinishedSessionTitle").textContent = "Test Not Started";
+  document.getElementById("unfinishedSessionTitle").textContent = "Test Not Completed";
   document.getElementById("unfinishedSessionMessage").textContent =
-    "You exited before starting. Your unfinished mock is still active.";
+    "Your unfinished mock is still active.";
   document.getElementById("unfinishedSessionMeta").textContent =
     title + "  ·  " + duration + " Minutes";
 
-  const backBtn = document.getElementById("unfinishedBackBtn");
+  const fiveOption = document.getElementById("unfinishedFiveOption");
+  const tenOption = document.getElementById("unfinishedTenOption");
   const continueBtn = document.getElementById("unfinishedContinueBtn");
 
-  // Replace handlers cleanly when this state is shown more than once
-  // on the same page (for example after an unstarted-test exit).
-  backBtn.onclick = () => {
-    card.style.display = "none";
-    document.getElementById("setupCard").style.display = "none";
-    document.getElementById("preTestCard").style.display = "block";
-    initPreTestSelection();
+  // The unfinished session keeps the same assigned mock/passage/session,
+  // but the actual typing attempt is fresh. Duration is therefore chosen
+  // again here and saved server-side before the live test starts.
+  const setResumeDuration = duration => {
+    selectedDurationMinutes = duration;
+    fiveOption?.classList.toggle("pts-selected", duration === 5);
+    fiveOption?.setAttribute("aria-pressed", duration === 5 ? "true" : "false");
+    tenOption?.classList.toggle("pts-selected", duration === 10);
+    tenOption?.setAttribute("aria-pressed", duration === 10 ? "true" : "false");
+    document.getElementById("unfinishedSessionMeta").textContent =
+      title + "  ·  " + duration + " Minutes";
   };
 
+  fiveOption?.addEventListener("click", () => setResumeDuration(5));
+  tenOption?.addEventListener("click", () => setResumeDuration(10));
+  setResumeDuration(selectedDurationMinutes === 5 ? 5 : 10);
+
   continueBtn.onclick = async () => {
-    // Keep the action label visible while the existing session is being
-    // resumed. Do not replace it with "Please wait..." — the user should
-    // always see the intended action.
     continueBtn.disabled = true;
-    continueBtn.innerHTML = "Continue Test <span aria-hidden=\"true\">→</span>";
+    continueBtn.innerHTML = "Please wait...";
     try {
-      // The currentSession is the exact existing row. No new session,
-      // passage, credit, or re-attempt is created here.
+      // Reuse the exact existing session. Only its selected duration is
+      // updated; no new session, passage, credit, or re-attempt is created.
+      const { error } = await supabaseClient.rpc("update_session_duration", {
+        p_session_id: currentSession.id,
+        p_duration: selectedDurationMinutes
+      });
+
+      if (error) {
+        console.error("update_session_duration RPC error:", error);
+        alert("Could not set the selected duration. Please try again.");
+        return;
+      }
+
+      currentSession.duration = selectedDurationMinutes;
       card.style.display = "none";
       await handleStartClick();
     } finally {

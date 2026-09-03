@@ -3094,3 +3094,26 @@ html[data-theme="dark"] body.app-shell.mock-history-page .mh-page-number.active{
   body.app-shell.mock-history-page .mh-actions{ justify-content:flex-end; flex-wrap:wrap; }
   body.app-shell.mock-history-page .mh-detail-inner{ flex-direction:column; gap:7px; }
 }
+
+/* Re-attempt duration selector */
+body.app-shell.mock-history-page .mh-reattempt-picker{display:inline-flex;align-items:center;gap:4px;}
+body.app-shell.mock-history-page .mh-duration-choice{border:1px solid var(--ts-border);background:var(--ts-surface);color:var(--ts-text);border-radius:7px;padding:5px 7px;font-size:.68rem;font-weight:700;cursor:pointer;line-height:1;}
+body.app-shell.mock-history-page .mh-duration-choice-selected{background:#EAF2FF;border-color:#9CB9E8;color:#214F91;}
+body.app-shell.mock-history-page .mh-reattempt-start{padding:6px 8px;}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-duration-choice-selected{background:rgba(74,126,209,.18);border-color:#496A9C;color:#BBD4FF;}
+
+/* Resume an unfinished mock: same clean TypeShala option cards, with no Back action. */
+body.app-shell .unfinished-duration-section{margin:22px 0 4px;}
+body.app-shell .unfinished-duration-section .pts-option-grid{margin-top:9px;}
+body.app-shell .unfinished-session-actions{margin-top:18px;}
+
+
+/* Re-attempt duration selector */
+body.app-shell.mock-history-page .mh-reattempt-picker{display:inline-flex;align-items:center;gap:4px;}
+body.app-shell.mock-history-page .mh-duration-choice{border:1px solid var(--ts-border);background:var(--ts-surface);color:var(--ts-text);border-radius:7px;padding:5px 7px;font-size:.68rem;font-weight:700;cursor:pointer;line-height:1;}
+body.app-shell.mock-history-page .mh-duration-choice-selected{background:#EAF2FF;border-color:#9CB9E8;color:#214F91;}
+body.app-shell.mock-history-page .mh-reattempt-start{padding:6px 8px;}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-duration-choice-selected{background:rgba(74,126,209,.18);border-color:#496A9C;color:#BBD4FF;}
+body.app-shell .unfinished-duration-section{margin:22px 0 4px;}
+body.app-shell .unfinished-duration-section .pts-option-grid{margin-top:9px;}
+body.app-shell .unfinished-session-actions{margin-top:18px;}

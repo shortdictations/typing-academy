@@ -165,12 +165,24 @@
       </svg>
     </div>
     <div class="unfinished-session-content">
-      <div class="card-label">TEST NOT STARTED</div>
-      <h2 id="unfinishedSessionTitle">Test Not Started</h2>
-      <p id="unfinishedSessionMessage">You exited before starting. Your unfinished mock is still active.</p>
+      <div class="card-label">TEST NOT COMPLETED</div>
+      <h2 id="unfinishedSessionTitle">Test Not Completed</h2>
+      <p id="unfinishedSessionMessage">Your unfinished mock is still active.</p>
       <div class="unfinished-session-meta" id="unfinishedSessionMeta"></div>
+      <div class="unfinished-duration-section">
+        <div class="pts-section-label">Choose Duration</div>
+        <div class="pts-option-grid">
+          <button type="button" class="pts-option" id="unfinishedFiveOption" data-duration="5" aria-pressed="false">
+            <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="pts-option-text"><span class="pts-option-title">5 Minutes</span><span class="pts-option-desc">Short &amp; focused practice</span></span>
+          </button>
+          <button type="button" class="pts-option" id="unfinishedTenOption" data-duration="10" aria-pressed="false">
+            <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="pts-option-text"><span class="pts-option-title">10 Minutes</span><span class="pts-option-desc">Extended practice session</span></span>
+          </button>
+        </div>
+      </div>
       <div class="unfinished-session-actions">
-        <button type="button" class="btn btn-ghost" id="unfinishedBackBtn">Back</button>
         <button type="button" class="btn" id="unfinishedContinueBtn">Continue Test <span aria-hidden="true">→</span></button>
       </div>
     </div>
