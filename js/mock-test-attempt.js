@@ -4,7 +4,7 @@
    Loads ONE mock test attempt, identified by a session id
    (?session=...) rather than a mock id — the mock itself is
    assigned server-side by start_or_resume_mock_test()/
-   start_reattempt() (called from mock-history.js)
+   start_reattempt() (called from mock-test.html / mock-history.js)
    BEFORE this page ever loads. Access (pass or credit) is already
    resolved and, if a credit was needed, already spent by that point
    — this page never calls can_access_mock/start_mock_test/
@@ -218,14 +218,6 @@ function showPreTestError(html) {
 // or session-selection system.
 async function handleNewMockStart() {
   const btn = document.getElementById("ptsStartBtn");
-
-  // Fullscreen must be requested while this click still has the
-  // browser's transient user activation. The session RPC below is
-  // asynchronous; waiting for it first can cause browsers to reject
-  // requestFullscreen(). The page stays on this document while the
-  // server assigns the session, then the live test is rendered inside
-  // the already-entered fullscreen context.
-  enterFullscreen();
   const originalHtml = btn.innerHTML;
   btn.disabled = true;
   btn.textContent = "Please wait...";
@@ -393,18 +385,8 @@ async function loadSessionIntoSetupScreen(sessionId, requestedDurationParam) {
       '<button type="button" class="mock-duration-btn" data-duration="5">5 Minutes</button>' +
       '<button type="button" class="mock-duration-btn" data-duration="10">10 Minutes</button>' +
     '</div>' +
-    '<div class="mock-test-message">Your mock is ready. Click Start Mock Test to enter full-screen mode.</div>';
+    '<div class="mock-test-message">Your passage has already been assigned — it will appear the moment you click start.</div>';
 
-  // Lets the student change duration here — most relevant for
-  // Re-attempt, which otherwise always reused the original attempt's
-  // exact duration with no way to switch it. Reaches this screen
-  // (rather than skipping straight to the live test) specifically
-  // because it's a fresh ?session= load with no &resume=1: a brand
-  // new test never pauses here at all (handleNewMockStart() goes
-  // straight through), and Continue Test on a genuinely unfinished
-  // session is a resume, not a new choice, so it also skips this
-  // screen — this picker only ever surfaces for a freshly created or
-  // re-attempted session waiting on the student's manual Start click.
   const durationButtons = document.querySelectorAll("#durationPicker .mock-duration-btn");
   function refreshDurationButtons() {
     durationButtons.forEach(btn => {
@@ -510,15 +492,10 @@ function wireTestInputHandlers() {
 
 // Runs when the student presses "Start Mock Test". Unlike the old
 // flow, this click no longer touches access/credit logic AT ALL —
-// the session already exists and was already fully resolved (pass or
-// credit) by the start/re-attempt RPC before this page begins the live test. This
+// the session already exists and was already fully paid for (pass or
+// credit) back on mock-test.html, before this page even loaded. This
 // click's only job is to show the test screen/fullscreen.
 async function handleStartClick() {
-
-  // This function is also reached by the Continue/Start button on a
-  // session URL. Request fullscreen BEFORE any awaited Supabase call
-  // so the browser still recognizes this as a direct user gesture.
-  enterFullscreen();
 
   // Before starting the test (and before any pass/credit consumption
   // later, at first keystroke), re-verify this browser's session is
@@ -588,8 +565,8 @@ function startMockTest() {
 
   window.addEventListener("beforeunload", beforeUnloadHandler);
 
-  // Fullscreen was requested by the originating user click before the
-  // asynchronous session checks. Do not request it again here.
+  // Requirement 1: enter full-screen when the mock test starts
+  enterFullscreen();
 }
 
 /* ---------------- Full-screen handling ---------------- */
@@ -916,7 +893,7 @@ function onTypingInput(e) {
     testTimer = setInterval(tickTimer, 1000);
     // Access/credit consumption already happened before this page
     // loaded (start_or_resume_mock_test/start_reattempt, called from
-    // this page/mock-history.js) — nothing to consume here
+    // mock-test.html/mock-history.js) — nothing to consume here
     // anymore. The timer still only starts on the first real
     // keystroke, same as before, purely for a responsive/expected
     // typing-test feel — it no longer has anything to do with
