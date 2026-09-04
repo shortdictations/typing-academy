@@ -3311,6 +3311,11 @@ body.app-shell.mock-attempt-page #preTestError{ margin-top: 10px; }
 
 /* Unfinished state */
 /* Final unfinished-state alignment: the illustration belongs above the content on every viewport. */
+body.app-shell.mock-attempt-page.unfinished-session-active #setupCard,
+body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~ #setupCard{
+  display: none !important;
+}
+
 body.app-shell.mock-attempt-page .unfinished-session-card{
   display: flex !important;
   flex-direction: column !important;

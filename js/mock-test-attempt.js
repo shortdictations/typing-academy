@@ -129,9 +129,16 @@ async function checkForExistingSessionBeforeSelection() {
 function showInlineUnfinishedSession(sessionRow, mockRow) {
   const card = document.getElementById("unfinishedSessionCard");
   if (!card) return;
+  document.body.classList.add("unfinished-session-active");
 
   document.getElementById("preTestCard").style.display = "none";
-  document.getElementById("setupCard").style.display = "none";
+  // The unfinished state is the complete page state. Do not leave the
+  // generic setup/loading card mounted underneath it.
+  const setupCard = document.getElementById("setupCard");
+  if (setupCard) {
+    setupCard.style.display = "none";
+    setupCard.hidden = true;
+  }
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
   card.style.display = "flex";
@@ -166,9 +173,19 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
 
   fiveOption?.addEventListener("click", () => setResumeDuration(5));
   tenOption?.addEventListener("click", () => setResumeDuration(10));
-  setResumeDuration(selectedDurationMinutes === 5 ? 5 : 10);
+  // The displayed session duration is only the initial selection. The
+  // student is explicitly allowed to choose a fresh 5/10-minute duration.
+  setResumeDuration(duration === 5 ? 5 : 10);
 
   continueBtn.onclick = async () => {
+    // Read the active option at the moment of the click so the selected
+    // 5/10-minute choice is never replaced by the old session duration.
+    const activeDurationOption = card.querySelector(".pts-duration-option.pts-selected");
+    const chosenDuration = Number(activeDurationOption?.dataset.duration);
+    if (chosenDuration === 5 || chosenDuration === 10) {
+      selectedDurationMinutes = chosenDuration;
+    }
+
     continueBtn.disabled = true;
     continueBtn.innerHTML = "Please wait...";
     try {
@@ -186,6 +203,10 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
       }
 
       currentSession.duration = selectedDurationMinutes;
+      if (document.getElementById("setupCard")) {
+        document.getElementById("setupCard").style.display = "none";
+        document.getElementById("setupCard").hidden = true;
+      }
       card.style.display = "none";
       await handleStartClick();
     } finally {
@@ -525,6 +546,7 @@ async function handleStartClick() {
 
 
 function startMockTest() {
+  document.body.classList.remove("unfinished-session-active");
   testResultSaved = false;
   passageChars = selectedPassage.content.split("");
   wordRanges = computeWordRanges(selectedPassage.content);
