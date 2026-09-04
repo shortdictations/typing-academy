@@ -91,101 +91,103 @@
 <div class="test-mode-main">
   <main class="page">
 
-  <!-- START TEST SELECTION -->
+  <!-- START TEST SELECTION — shown only when there is no active session.
+       Selecting SSC/Legal or 5/10 minutes is client-side only; the
+       server creates the session only after Start Mock Test is clicked.
+       If an active session exists, this entire selection card is
+       skipped and the inline unfinished-session card is shown instead. -->
   <div class="card pts-card" id="preTestCard" style="display:none;">
     <div class="pts-header">
       <h1 class="pts-title">Mock Settings</h1>
       <p class="pts-subtitle">Choose passage type and duration</p>
     </div>
 
-    <div class="pts-section pts-type-section">
-      <div class="pts-option-grid pts-type-grid">
-        <button type="button" class="pts-option pts-type-option pts-selected" id="ptsLegalOption" data-type="legal" aria-pressed="true">
-          <span class="pts-option-icon pts-type-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M32 9v43M20 53h24M13 18h38M13 18l-8 16a9 9 0 0 0 16 0l-8-16ZM51 18l-8 16a9 9 0 0 0 16 0l-8-16Z"/>
-              <path d="M22 9h20"/>
-            </svg>
-          </span>
-          <span class="pts-option-text">
-            <span class="pts-option-title">LEGAL</span>
-            <span class="pts-option-desc">Passage from Judgement</span>
-          </span>
-        </button>
-        <button type="button" class="pts-option pts-type-option" id="ptsSscOption" data-type="ssc" aria-pressed="false">
-          <span class="pts-option-icon pts-type-icon pts-ssc-icon" aria-hidden="true"><img src="assets/ssc-logo.png" alt="SSC"></span>
+    <div class="pts-section">
+      <div class="pts-section-label visually-hidden">Choose Test Type</div>
+      <div class="pts-option-grid">
+        <button type="button" class="pts-option pts-selected" id="ptsSscOption" data-type="ssc" aria-pressed="true">
+          <span class="pts-option-icon pts-ssc-logo" aria-hidden="true"><img src="assets/ssc-logo.png" alt=""></span>
           <span class="pts-option-text">
             <span class="pts-option-title">SSC</span>
             <span class="pts-option-desc">Passage from Journal</span>
           </span>
         </button>
+        <button type="button" class="pts-option" id="ptsLegalOption" data-type="legal" aria-pressed="false">
+          <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7l-3 6a3 3 0 0 0 6 0l-3-6Zm14 0-3 6a3 3 0 0 0 6 0l-3-6ZM5 7h14M8 21h8"/></svg></span>
+          <span class="pts-option-text">
+            <span class="pts-option-title">LEGAL</span>
+            <span class="pts-option-desc">Passage from Judgement</span>
+          </span>
+        </button>
       </div>
     </div>
 
-    <div class="pts-section pts-duration-section">
+    <div class="pts-section">
       <div class="pts-section-label">Select Duration:</div>
-      <div class="pts-duration-grid">
-        <button type="button" class="pts-duration-option pts-selected" id="ptsFiveOption" data-duration="5" aria-pressed="true">
-          <span>5 Minutes</span>
-          <small>Quick typing session</small>
+      <div class="pts-option-grid">
+        <button type="button" class="pts-option pts-selected" id="ptsFiveOption" data-duration="5" aria-pressed="true">
+          <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <span class="pts-option-text">
+            <span class="pts-option-title">5 Minutes</span>
+            <span class="pts-option-desc">Quick typing session</span>
+          </span>
         </button>
-        <button type="button" class="pts-duration-option" id="ptsTenOption" data-duration="10" aria-pressed="false">
-          <span>10 Minutes</span>
-          <small>Standard typing session</small>
+        <button type="button" class="pts-option" id="ptsTenOption" data-duration="10" aria-pressed="false">
+          <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <span class="pts-option-text">
+            <span class="pts-option-title">10 Minutes</span>
+            <span class="pts-option-desc">Standard typing session</span>
+          </span>
         </button>
       </div>
+    </div>
+
+    <div class="pts-info-note pts-info-note-hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+      Your passage will be assigned automatically when you start the test.
     </div>
 
     <div id="preTestError"></div>
 
     <div class="pts-start-row">
-      <button type="button" class="mock-start-button" id="ptsStartBtn">START TEST <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;vertical-align:-3px;margin-left:4px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <button type="button" class="mock-start-button" id="ptsStartBtn">Start Test <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-2px;margin-left:4px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
+  <div class="pts-page-footer">Your Practice. A Brighter Future.</div>
 
   <!-- INLINE UNFINISHED SESSION STATE — never a modal -->
   <div class="card unfinished-session-card" id="unfinishedSessionCard" style="display:none;">
-    <div class="unfinished-session-hero" aria-hidden="true">
-      <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="18" y="14" width="60" height="68" rx="8"></rect>
-        <path d="M31 30h25M31 41h19M31 52h12"></path>
-        <path d="M62 13v12H50"></path>
-        <circle cx="65" cy="65" r="16"></circle>
-        <path d="M65 57v8l6 4"></path>
+    <div class="unfinished-session-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+        <path d="M8 8h8M8 12h5M8 16h3"></path>
+        <circle cx="17" cy="16" r="3"></circle>
+        <path d="M17 14.8V16l.8.8"></path>
       </svg>
     </div>
     <div class="unfinished-session-content">
-      <div class="card-label">TEST NOT COMPLETED</div>
       <h2 id="unfinishedSessionTitle">Test Not Completed</h2>
       <p id="unfinishedSessionMessage">Your unfinished mock is still active.</p>
-
       <div class="unfinished-session-meta" id="unfinishedSessionMeta">
-        <div><span>Passage Type</span><strong id="unfinishedPassageType">Legal</strong></div>
-        <div><span>Duration</span><strong id="unfinishedDurationValue">5 Minutes</strong></div>
-        <div><span>Status</span><strong>In Progress</strong></div>
+        <div class="unfinished-meta-item"><span>Passage Type</span><strong id="unfinishedCategoryValue">Legal</strong></div>
+        <div class="unfinished-meta-item"><span>Duration</span><strong id="unfinishedDurationValue">5 Minutes</strong></div>
+        <div class="unfinished-meta-item"><span>Status</span><strong>In Progress</strong></div>
       </div>
-
       <div class="unfinished-duration-section">
-        <div class="pts-section-label">Choose Duration:</div>
-        <div class="pts-duration-grid">
-          <button type="button" class="pts-duration-option pts-selected" id="unfinishedFiveOption" data-duration="5" aria-pressed="true">
-            <span>5 Minutes</span>
-            <small>Quick typing session</small>
+        <div class="pts-section-label">Choose Duration</div>
+        <div class="pts-option-grid">
+          <button type="button" class="pts-option" id="unfinishedFiveOption" data-duration="5" aria-pressed="false">
+            <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="pts-option-text"><span class="pts-option-title">5 Minutes</span><span class="pts-option-desc">Short &amp; focused practice</span></span>
           </button>
-          <button type="button" class="pts-duration-option" id="unfinishedTenOption" data-duration="10" aria-pressed="false">
-            <span>10 Minutes</span>
-            <small>Standard typing session</small>
+          <button type="button" class="pts-option" id="unfinishedTenOption" data-duration="10" aria-pressed="false">
+            <span class="pts-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="pts-option-text"><span class="pts-option-title">10 Minutes</span><span class="pts-option-desc">Extended practice session</span></span>
           </button>
         </div>
       </div>
-
       <div class="unfinished-session-actions">
-        <button type="button" class="btn" id="unfinishedContinueBtn">Resume Test <span aria-hidden="true">→</span></button>
-      </div>
-
-      <div class="unfinished-progress-note">
-        <span aria-hidden="true">💡</span>
-        <span>Your progress has been saved. Continue your test to complete it.</span>
+        <button type="button" class="btn" id="unfinishedContinueBtn">Continue Test <span aria-hidden="true">→</span></button>
       </div>
     </div>
   </div>
