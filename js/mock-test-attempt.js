@@ -156,66 +156,26 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   if (passageTypeEl) passageTypeEl.textContent = category === "legal" ? "Legal" : "SSC";
   if (durationValueEl) durationValueEl.textContent = duration + " Minutes";
 
-  const fiveOption = document.getElementById("unfinishedFiveOption");
-  const tenOption = document.getElementById("unfinishedTenOption");
+  // The unfinished session keeps its original server-side duration.
+  // No duration selector is shown here because the duration was already
+  // selected when this mock session was created.
+  selectedDurationMinutes = (duration === 5 || duration === 10) ? duration : 5;
+
   const continueBtn = document.getElementById("unfinishedContinueBtn");
-
-  // The unfinished session keeps the same assigned mock/passage/session,
-  // but the actual typing attempt is fresh. Duration is therefore chosen
-  // again here and saved server-side before the live test starts.
-  const setResumeDuration = duration => {
-    selectedDurationMinutes = duration;
-    fiveOption?.classList.toggle("pts-selected", duration === 5);
-    fiveOption?.setAttribute("aria-pressed", duration === 5 ? "true" : "false");
-    tenOption?.classList.toggle("pts-selected", duration === 10);
-    tenOption?.setAttribute("aria-pressed", duration === 10 ? "true" : "false");
-    if (durationValueEl) durationValueEl.textContent = duration + " Minutes";
-  };
-
-  if (fiveOption) fiveOption.onclick = () => setResumeDuration(5);
-  if (tenOption) tenOption.onclick = () => setResumeDuration(10);
-  // The displayed session duration is only the initial selection. The
-  // student is explicitly allowed to choose a fresh 5/10-minute duration.
-  setResumeDuration(duration === 5 ? 5 : 10);
+  if (!continueBtn) return;
 
   continueBtn.onclick = async () => {
-    // Read the active option at the moment of the click so the selected
-    // 5/10-minute choice is never replaced by the old session duration.
-    const activeDurationOption = card.querySelector(".pts-duration-option.pts-selected");
-    const chosenDuration = Number(activeDurationOption?.dataset.duration);
-    if (chosenDuration === 5 || chosenDuration === 10) {
-      selectedDurationMinutes = chosenDuration;
-    }
-
     continueBtn.disabled = true;
     continueBtn.innerHTML = "Please wait...";
     try {
-      // Reuse the exact existing session. Only its selected duration is
-      // updated; no new session, passage, credit, or re-attempt is created.
-      const { error } = await supabaseClient.rpc("update_session_duration", {
-        p_session_id: currentSession.id,
-        p_duration: selectedDurationMinutes
-      });
-
-      if (error) {
-        console.error("update_session_duration RPC error:", error);
-        alert("Could not set the selected duration. Please try again.");
-        return;
-      }
-
-      currentSession.duration = selectedDurationMinutes;
-      const durationValue = document.getElementById("unfinishedDurationValue");
-      if (durationValue) durationValue.textContent = selectedDurationMinutes + " Minutes";
-      if (document.getElementById("setupCard")) {
-        document.getElementById("setupCard").style.display = "none";
-        document.getElementById("setupCard").hidden = true;
-      }
+      // Reuse the exact existing session and its server-authoritative
+      // duration. No new session, passage, credit, or re-attempt is created.
       card.style.display = "none";
       await handleStartClick();
     } finally {
       if (!document.body.classList.contains("mock-test-active")) {
         continueBtn.disabled = false;
-        continueBtn.innerHTML = "Continue Test <span aria-hidden=\"true\">→</span>";
+        continueBtn.innerHTML = "Resume Test <span aria-hidden=\"true\">→</span>";
         card.style.display = "flex";
       }
     }
