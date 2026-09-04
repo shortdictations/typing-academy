@@ -84,7 +84,7 @@ function renderHistory() {
     const accuracyClass = accuracy >= 90 ? "mh-accuracy-good" : accuracy < 70 ? "mh-accuracy-low" : "";
     const icon = isLegal
       ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7Zm10 0-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M11 9h.01M15 9h.01M19 9h.01M7 13h.01M11 13h.01M15 13h.01M19 13h.01M9 17h6"/></svg>';
+      : '<img src="assets/ssc-logo.png" alt="SSC" class="mh-ssc-logo">';
 
     const reattemptHtml = windowStillOpen
       ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}" data-mock-id="${escapeHtml(r.mock_test_id)}">` +
