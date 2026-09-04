@@ -3310,6 +3310,30 @@ body.app-shell.mock-attempt-page .pts-start-row .mock-start-button:hover{
 body.app-shell.mock-attempt-page #preTestError{ margin-top: 10px; }
 
 /* Unfinished state */
+/* Final unfinished-state alignment: the illustration belongs above the content on every viewport. */
+body.app-shell.mock-attempt-page .unfinished-session-card{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+}
+body.app-shell.mock-attempt-page .unfinished-session-hero{
+  order: 0;
+  flex: 0 0 auto;
+}
+body.app-shell.mock-attempt-page .unfinished-session-content{
+  order: 1;
+  width: 100%;
+  flex: 0 0 auto;
+}
+body.app-shell.mock-attempt-page .unfinished-session-meta,
+body.app-shell.mock-attempt-page .unfinished-duration-section,
+body.app-shell.mock-attempt-page .unfinished-session-actions,
+body.app-shell.mock-attempt-page .unfinished-progress-note{
+  width: 100%;
+  box-sizing: border-box;
+}
+
 body.app-shell.mock-attempt-page .unfinished-session-card{
   max-width: 650px;
   margin: 0 auto;
@@ -3466,4 +3490,18 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-met
   body.app-shell.mock-attempt-page .unfinished-session-meta span{ font-size:.57rem; }
   body.app-shell.mock-attempt-page .unfinished-session-meta strong{ font-size:.67rem; }
   body.app-shell.mock-attempt-page .unfinished-progress-note{ font-size:.62rem; }
+}
+
+@media (max-width: 700px){
+  body.app-shell.mock-attempt-page .unfinished-session-card{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+    padding:22px 16px 18px;
+  }
+  body.app-shell.mock-attempt-page .unfinished-session-hero{ margin:0 auto 8px; }
+  body.app-shell.mock-attempt-page .unfinished-session-content{ width:100%; }
+  body.app-shell.mock-attempt-page .unfinished-session-content h2{ text-align:center; }
+  body.app-shell.mock-attempt-page .unfinished-session-content p{ text-align:center; }
 }
