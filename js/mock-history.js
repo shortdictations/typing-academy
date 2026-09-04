@@ -88,7 +88,7 @@ function renderHistory() {
       : '<span class="mh-category-logo mh-category-logo-ssc"><img src="assets/ssc-logo.png" alt="SSC"></span>';
 
     const reattemptHtml = windowStillOpen
-      ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}" data-mock-id="${escapeHtml(r.mock_test_id)}">` +
+      ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}" data-result-id="${escapeHtml(r.id)}">` +
           `<button type="button" class="mh-action mh-action-reattempt" onclick="showReattemptDurationPicker(this)">` +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2 5"/><path d="M20 4v7h-7"/></svg>' +
             '<span>Re-attempt</span>' +
@@ -241,70 +241,9 @@ function startCountdownTicker() {
 function showReattemptDurationPicker(btn) {
   const wrap = btn.closest(".mh-reattempt-wrap");
   if (!wrap) return;
-  const mockTestId = wrap.dataset.mockId;
-  const countdownText = wrap.querySelector(".mh-reattempt-countdown")?.textContent || "";
-
-  wrap.innerHTML = `
-    <span class="mh-reattempt-picker" aria-label="Choose re-attempt duration">
-      <button type="button" class="mh-duration-choice mh-duration-choice-selected" data-duration="5" onclick="selectReattemptDuration(this, 5)">5 min</button>
-      <button type="button" class="mh-duration-choice" data-duration="10" onclick="selectReattemptDuration(this, 10)">10 min</button>
-      <button type="button" class="mh-action mh-action-reattempt mh-reattempt-start" onclick="handleReattemptClick('${escapeHtml(mockTestId)}', this)">Start</button>
-    </span>
-    <span class="mh-reattempt-countdown">${escapeHtml(countdownText)}</span>`;
-  wrap.dataset.selectedDuration = "5";
-}
-
-function selectReattemptDuration(btn, duration) {
-  const wrap = btn.closest(".mh-reattempt-wrap");
-  if (!wrap) return;
-  wrap.dataset.selectedDuration = String(duration);
-  wrap.querySelectorAll(".mh-duration-choice").forEach(choice => {
-    choice.classList.toggle("mh-duration-choice-selected", Number(choice.dataset.duration) === duration);
-  });
-}
-
-async function handleReattemptClick(mockTestId, btn) {
-  const wrap = btn.closest(".mh-reattempt-wrap");
-  const duration = Number(wrap?.dataset.selectedDuration);
-  if (duration !== 5 && duration !== 10) return;
-
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.textContent = "Please wait...";
-
-  try {
-    const { data, error } = await supabaseClient.rpc("start_reattempt", {
-      p_mock_test_id: mockTestId,
-      p_duration: duration
-    });
-
-    if (error) {
-      console.error("start_reattempt RPC error:", error);
-      alert("Something went wrong starting the re-attempt. Please try again.");
-      return;
-    }
-
-    const result = Array.isArray(data) ? data[0] : data;
-    if (!result || !result.session_id) {
-      const reasonMessages = {
-        NOT_YET_ATTEMPTED: "This mock hasn't been completed yet, so there's nothing to re-attempt.",
-        REATTEMPT_WINDOW_EXPIRED: "The re-attempt window for this test has expired.",
-        LOCKED: "This mock test is no longer available."
-      };
-      alert((result && reasonMessages[result.access_reason]) || "Could not start the re-attempt. Please try again.");
-      if (result && result.access_reason === "REATTEMPT_WINDOW_EXPIRED") wrap?.remove();
-      return;
-    }
-
-    const target = "mock-test-attempt.html?session=" + encodeURIComponent(result.session_id) + "&duration=" + encodeURIComponent(duration) + (result.is_resumed ? "&resume=1" : "");
-    window.location.href = target;
-  } catch (err) {
-    console.error("start_reattempt failed:", err);
-    alert("Something went wrong starting the re-attempt. Please try again.");
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  }
+  const resultId = wrap.dataset.resultId;
+  if (!resultId) return;
+  window.location.href = "reattempt-test.html?result=" + encodeURIComponent(resultId);
 }
 
 function toggleDetail(rowId) {
