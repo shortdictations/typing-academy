@@ -130,9 +130,7 @@ function renderHistory() {
         <td colspan="11">
           <div class="mh-detail-inner">
             <span><strong>Mock</strong>${escapeHtml(r.mock_name || "-")}</span>
-            <span><strong>Passage</strong>${escapeHtml(r.passage_title || "-")}</span>
             <span><strong>Duration</strong>${escapeHtml(String(r.duration ?? "-"))} min</span>
-            <span><strong>Words Typed</strong>${escapeHtml(String(r.total_words ?? "-"))}</span>
           </div>
         </td>
       </tr>`;
