@@ -11,7 +11,7 @@ let countdownTimerId = null;
 let allHistoryResults = [];
 let sessionByResultId = new Map();
 let currentHistoryPage = 1;
-const HISTORY_PAGE_SIZE = 10;
+const HISTORY_PAGE_SIZE = 5;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -70,10 +70,10 @@ function renderHistory() {
 
   const rows = pageResults.map((r, pageIndex) => {
     const absoluteIndex = start + pageIndex;
-    const rowId = "mockrow-" + absoluteIndex;
     const date = new Date(r.created_at);
     const dateStr = date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+    const rowId = "mockrow-" + absoluteIndex;
     const category = (r.category || "").toLowerCase();
     const isLegal = category === "legal";
     const categoryLabel = (r.category || "-").toUpperCase();
@@ -82,10 +82,9 @@ function renderHistory() {
     const windowStillOpen = expiresAt && new Date(expiresAt).getTime() > Date.now();
     const accuracy = Number(r.accuracy || 0);
     const accuracyClass = accuracy >= 90 ? "mh-accuracy-good" : accuracy < 70 ? "mh-accuracy-low" : "";
-
-    const categoryIcon = isLegal
-      ? '<span class="mh-category-logo mh-category-logo-legal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7Zm10 0-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8"/></svg></span>'
-      : '<span class="mh-category-logo mh-category-logo-ssc"><img src="assets/ssc-logo.png" alt="SSC"></span>';
+    const icon = isLegal
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7Zm10 0-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8"/></svg>'
+      : '<img src="assets/ssc-logo.png" alt="SSC" class="mh-ssc-logo">';
 
     const reattemptHtml = windowStillOpen
       ? `<span class="mh-reattempt-wrap" data-expires-at="${escapeHtml(expiresAt)}" data-mock-id="${escapeHtml(r.mock_test_id)}">` +
@@ -95,41 +94,35 @@ function renderHistory() {
           '</button>' +
           '<span class="mh-reattempt-countdown"></span>' +
         '</span>'
-      : `<span class="mh-action mh-action-unavailable" aria-label="Not available">` +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 8.5 7 7"/></svg>' +
-          '<span>Not available</span>' +
-        '</span>';
+      : "";
 
     return `
       <tr>
-        <td class="mh-row-number">${absoluteIndex + 1}</td>
-        <td data-label="Category">
-          <span class="mh-category ${isLegal ? "mh-category-legal" : "mh-category-ssc"}">${categoryIcon}<span>${escapeHtml(categoryLabel)}</span></span>
+        <td data-label="Mock Name">
+          <div class="mh-test-name">
+            <span class="mh-test-icon ${isLegal ? "mh-test-icon-legal" : "mh-test-icon-ssc"}">${icon}</span>
+            <span>${escapeHtml(r.mock_name || "-")}</span>
+          </div>
         </td>
-        <td data-label="Date & Time">
-          <span class="mh-date-main">${dateStr}</span>
-          <span class="mh-date-time">${timeStr}</span>
-        </td>
+        <td data-label="Category"><span class="mh-category ${isLegal ? "mh-category-legal" : "mh-category-ssc"}">${escapeHtml(categoryLabel)}</span></td>
+        <td data-label="Date"><span class="mh-date-main">${dateStr}</span><span class="mh-date-time">${timeStr}</span></td>
         <td data-label="Gross WPM" class="mh-number">${escapeHtml(String(r.gross_wpm ?? "-"))}</td>
         <td data-label="Net WPM" class="mh-number">${escapeHtml(String(r.net_wpm ?? "-"))}</td>
         <td data-label="Accuracy" class="mh-number ${accuracyClass}">${escapeHtml(String(r.accuracy ?? 0))}%</td>
         <td data-label="Errors" class="mh-number">${escapeHtml(String(r.errors ?? 0))}</td>
-        <td data-label="Words Typed" class="mh-number">${escapeHtml(String(r.words_typed ?? r.total_words ?? 0))}</td>
-        <td data-label="Status">
-          <span class="mh-pass-status ${r.is_passed ? "mh-pass" : "mh-not-passed"}">${r.is_passed ? "Passed" : "Not Passed"}</span>
+        <td data-label="Result">
+          <div class="mh-actions">
+            <button type="button" class="mh-action mh-action-result" onclick="toggleDetail('${rowId}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+              <span>View Result</span>
+            </button>
+            ${reattemptHtml}
+          </div>
         </td>
-        <td data-label="Actions">
-          <button type="button" class="mh-action mh-action-result" onclick="toggleDetail('${rowId}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-            <span>View Result</span>
-          </button>
-        </td>
-        <td data-label="Re-attempt">${reattemptHtml}</td>
       </tr>
       <tr id="${rowId}" class="history-detail-row" style="display:none;">
-        <td colspan="11">
+        <td colspan="8">
           <div class="mh-detail-inner">
-            <span><strong>Mock</strong>${escapeHtml(r.mock_name || "-")}</span>
             <span><strong>Passage</strong>${escapeHtml(r.passage_title || "-")}</span>
             <span><strong>Duration</strong>${escapeHtml(String(r.duration ?? "-"))} min</span>
             <span><strong>Words Typed</strong>${escapeHtml(String(r.total_words ?? "-"))}</span>
@@ -143,41 +136,22 @@ function renderHistory() {
       <table class="mh-history-table">
         <thead>
           <tr>
-            <th>#</th>
+            <th>Mock Name</th>
             <th>Category</th>
-            <th>Date &amp; Time <span class="mh-sort-arrow">↓</span></th>
+            <th>Date <span class="mh-sort-arrow">↓</span></th>
             <th>Gross WPM</th>
             <th>Net WPM</th>
             <th>Accuracy</th>
             <th>Errors</th>
-            <th>Words Typed</th>
-            <th>Status</th>
-            <th>Actions</th>
-            <th>Re-attempt</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    ${renderHistoryFooter(totalPages, start, pageResults.length)}`;
+    ${renderPagination(totalPages)}`;
 
   updateAllCountdowns();
-}
-
-function renderHistoryFooter(totalPages, startIndex, visibleCount) {
-  const firstShown = allHistoryResults.length ? startIndex + 1 : 0;
-  const lastShown = startIndex + visibleCount;
-  return `<div class="mh-history-footer">
-    <div class="mh-entry-summary">
-      <span>Show</span>
-      <span class="mh-entry-select">10 <span aria-hidden="true">⌄</span></span>
-      <span>entries per page</span>
-    </div>
-    <div class="mh-footer-right">
-      <span class="mh-showing-count">Showing ${firstShown}–${lastShown} of ${allHistoryResults.length} tests</span>
-      ${renderPagination(totalPages)}
-    </div>
-  </div>`;
 }
 
 function renderPagination(totalPages) {
