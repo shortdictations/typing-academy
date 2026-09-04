@@ -170,8 +170,31 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
     try {
       // Reuse the exact existing session and its server-authoritative
       // duration. No new session, passage, credit, or re-attempt is created.
+      // Start the live test directly after the session validation. The
+      // informational mark_test_started RPC must never block the actual
+      // test from opening if that RPC is slow or unavailable.
       card.style.display = "none";
-      await handleStartClick();
+
+      enterFullscreen();
+
+      const sessionOk = await checkSingleActiveSession();
+      if (!sessionOk) return;
+
+      if (currentSession) {
+        supabaseClient.rpc("mark_test_started", { p_session_id: currentSession.id })
+          .then(({ error }) => {
+            if (error) console.error("mark_test_started RPC error:", error);
+          });
+      }
+
+      if (!currentSession || !mockTest || !selectedPassage) {
+        throw new Error("The unfinished test could not be loaded completely. Please refresh and try again.");
+      }
+
+      startMockTest();
+    } catch (err) {
+      console.error("Could not resume unfinished mock:", err);
+      alert("Could not start the unfinished test. Please refresh the page and try again.");
     } finally {
       if (!document.body.classList.contains("mock-test-active")) {
         continueBtn.disabled = false;
