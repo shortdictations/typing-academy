@@ -2293,6 +2293,32 @@ body.app-shell .result-history-btn:hover{ background: var(--ts-blue); color: #ff
    setup/result screens → visible again). display:none (not
    visibility/opacity) so no empty clickable area is left behind. */
 body.mock-test-active #appSidebar{ display: none; }
+/* Live typing interface: hide the global sidebar toggle and center the
+   test card in the full viewport once the sidebar is removed. */
+body.app-shell.mock-attempt-page.mock-test-active .app-header-sidebar-toggle{ display: none !important; }
+body.app-shell.mock-attempt-page.mock-test-active .app-content{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+body.app-shell.mock-attempt-page.mock-test-active .test-mode-main{
+  width: min(1200px, calc(100% - 48px));
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body.app-shell.mock-attempt-page.mock-test-active .test-mode-main .page{
+  width: 100%;
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 480px){
+  body.app-shell.mock-attempt-page.mock-test-active .test-mode-main{
+    width: calc(100% - 24px);
+  }
+}
+
 body.mock-test-active .user-menu,
 body.mock-test-active .nav-links > .credit-badge{ display: none; }
 
