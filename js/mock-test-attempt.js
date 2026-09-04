@@ -138,6 +138,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   if (setupCard) {
     setupCard.style.display = "none";
     setupCard.hidden = true;
+    setupCard.setAttribute("aria-hidden", "true");
   }
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
@@ -171,8 +172,8 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
     if (durationValueEl) durationValueEl.textContent = duration + " Minutes";
   };
 
-  fiveOption?.addEventListener("click", () => setResumeDuration(5));
-  tenOption?.addEventListener("click", () => setResumeDuration(10));
+  if (fiveOption) fiveOption.onclick = () => setResumeDuration(5);
+  if (tenOption) tenOption.onclick = () => setResumeDuration(10);
   // The displayed session duration is only the initial selection. The
   // student is explicitly allowed to choose a fresh 5/10-minute duration.
   setResumeDuration(duration === 5 ? 5 : 10);
@@ -203,6 +204,8 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
       }
 
       currentSession.duration = selectedDurationMinutes;
+      const durationValue = document.getElementById("unfinishedDurationValue");
+      if (durationValue) durationValue.textContent = selectedDurationMinutes + " Minutes";
       if (document.getElementById("setupCard")) {
         document.getElementById("setupCard").style.display = "none";
         document.getElementById("setupCard").hidden = true;
@@ -554,7 +557,12 @@ function startMockTest() {
   wordStartPos = 0;
   wordResults = [];
 
-  document.getElementById("setupCard").style.display = "none";
+  const setupCard = document.getElementById("setupCard");
+  if (setupCard) {
+    setupCard.style.display = "none";
+    setupCard.hidden = true;
+    setupCard.setAttribute("aria-hidden", "true");
+  }
   document.getElementById("resultCard").style.display = "none";
   document.getElementById("testCard").style.display = "block";
   hideWarningBanner();

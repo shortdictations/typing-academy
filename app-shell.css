@@ -3510,3 +3510,26 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-met
   body.app-shell.mock-attempt-page .unfinished-session-content h2{ text-align:center; }
   body.app-shell.mock-attempt-page .unfinished-session-content p{ text-align:center; }
 }
+
+
+/* Mock attempt: unfinished state has no secondary loading/setup card. */
+body.app-shell.mock-attempt-page.unfinished-session-active #setupCard,
+body.app-shell.mock-attempt-page #setupCard[aria-hidden="true"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Unfinished mock duration choices remain fully clickable. */
+body.app-shell.mock-attempt-page .unfinished-duration-section .pts-duration-option {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
