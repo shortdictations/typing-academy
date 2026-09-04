@@ -279,7 +279,7 @@ async function handleNewMockStart() {
     document.getElementById("preTestCard").style.display = "none";
 
     wireTestInputHandlers();
-    await handleStartClick();
+    await handleStartClick({ fullscreenAlreadyRequested: true });
   } catch (err) {
     console.error("start_or_resume_mock_test failed:", err);
     showPreTestError("Something went wrong starting the test. Please try again.");
@@ -484,12 +484,17 @@ function wireTestInputHandlers() {
 // the session already exists and was already fully resolved (pass or
 // credit) by the start/re-attempt RPC before this page begins the live test. This
 // click's only job is to show the test screen/fullscreen.
-async function handleStartClick() {
+async function handleStartClick(options = {}) {
 
-  // This function is also reached by the Continue/Start button on a
-  // session URL. Request fullscreen BEFORE any awaited Supabase call
-  // so the browser still recognizes this as a direct user gesture.
-  enterFullscreen();
+  // For direct Start/Resume button clicks, request fullscreen before
+  // any awaited Supabase call so the browser still recognizes the
+  // gesture. The new-test flow has already made this request at the
+  // very first line of handleNewMockStart(); do not request it a second
+  // time after the session RPC returns, because that second request is
+  // no longer user-activated and can incorrectly trigger the fallback.
+  if (!options.fullscreenAlreadyRequested) {
+    enterFullscreen();
+  }
 
   // Before starting the test (and before any pass/credit consumption
   // later, at first keystroke), re-verify this browser's session is
