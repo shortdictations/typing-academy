@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ---------------- Pre-test selection (no session yet) ---------------- */
 
-let ptsSelectedType = "ssc";
+let ptsSelectedType = "legal";
 let ptsSelectedDuration = 5;
 
 // Runs once, immediately, before the selection UI ever appears —
@@ -143,8 +143,10 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   document.getElementById("unfinishedSessionTitle").textContent = "Test Not Completed";
   document.getElementById("unfinishedSessionMessage").textContent =
     "Your unfinished mock is still active.";
-  document.getElementById("unfinishedSessionMeta").textContent =
-    title + "  ·  " + duration + " Minutes";
+  const passageTypeEl = document.getElementById("unfinishedPassageType");
+  const durationValueEl = document.getElementById("unfinishedDurationValue");
+  if (passageTypeEl) passageTypeEl.textContent = category === "legal" ? "Legal" : "SSC";
+  if (durationValueEl) durationValueEl.textContent = duration + " Minutes";
 
   const fiveOption = document.getElementById("unfinishedFiveOption");
   const tenOption = document.getElementById("unfinishedTenOption");
@@ -159,8 +161,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
     fiveOption?.setAttribute("aria-pressed", duration === 5 ? "true" : "false");
     tenOption?.classList.toggle("pts-selected", duration === 10);
     tenOption?.setAttribute("aria-pressed", duration === 10 ? "true" : "false");
-    document.getElementById("unfinishedSessionMeta").textContent =
-      title + "  ·  " + duration + " Minutes";
+    if (durationValueEl) durationValueEl.textContent = duration + " Minutes";
   };
 
   fiveOption?.addEventListener("click", () => setResumeDuration(5));
