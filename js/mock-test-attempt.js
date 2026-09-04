@@ -172,6 +172,12 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   const continueBtn = document.getElementById("unfinishedContinueBtn");
   if (!continueBtn) return;
 
+  // This card can be shown again after a student exits a resumed test.
+  // Reset the button state so a previous in-flight click cannot leave
+  // the page showing "Please wait..." when the unfinished state returns.
+  continueBtn.disabled = false;
+  continueBtn.innerHTML = "Resume Test <span aria-hidden=\"true\">→</span>";
+
   continueBtn.onclick = async () => {
     continueBtn.disabled = true;
     continueBtn.innerHTML = "Please wait...";
