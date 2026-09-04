@@ -9,7 +9,7 @@
 <title>Mock Test History — TypeShala</title>
 <script src="js/theme-init.js"></script>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="app-shell.css">
+<link rel="stylesheet" href="app-shell.css?v=20260904mh">
 </head>
 <body class="app-shell mock-history-page">
 
@@ -85,7 +85,10 @@
           <path d="M15 7h4v4"/>
         </svg>
       </span>
-      <span>Recent Test History</span>
+      <div class="mh-history-heading-text">
+        <span>Recent Test History</span>
+        <small>Your latest mock test attempts. Keep practicing to improve!</small>
+      </div>
     </div>
     <div id="historyBody">
       <div class="loading-strip">Loading your mock test history...</div>
@@ -124,7 +127,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/mock-history.js"></script>
+<script src="js/mock-history.js?v=20260904mh"></script>
 
 <!-- Mobile Profile drawer — opened by the Profile bottom-nav button
      (mobile only; the button that triggers this doesn't exist on
