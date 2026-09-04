@@ -142,7 +142,15 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   }
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
-  card.style.display = "flex";
+  // app-shell.css forces this card to `display: flex !important` on
+  // this page (its layout rule has no visibility condition of its
+  // own — see the CSS comment there) — a plain style.display from JS
+  // can never win against a stylesheet !important, so this and every
+  // other toggle of this card below uses setProperty's own "important"
+  // priority instead, which can. Confirmed directly: without this,
+  // the card stayed visibly stacked on top of the live test after
+  // Resume Test, even though the test itself had genuinely started.
+  card.style.setProperty("display", "flex", "important");
 
   const category = (sessionRow?.category || mockRow?.category || "ssc").toLowerCase();
   const title = mockRow?.title || (category === "legal" ? "Legal Typing Test" : "SSC Typing Test");
@@ -170,36 +178,13 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
     try {
       // Reuse the exact existing session and its server-authoritative
       // duration. No new session, passage, credit, or re-attempt is created.
-      // Start the live test directly after the session validation. The
-      // informational mark_test_started RPC must never block the actual
-      // test from opening if that RPC is slow or unavailable.
-      card.style.display = "none";
-
-      enterFullscreen();
-
-      const sessionOk = await checkSingleActiveSession();
-      if (!sessionOk) return;
-
-      if (currentSession) {
-        supabaseClient.rpc("mark_test_started", { p_session_id: currentSession.id })
-          .then(({ error }) => {
-            if (error) console.error("mark_test_started RPC error:", error);
-          });
-      }
-
-      if (!currentSession || !mockTest || !selectedPassage) {
-        throw new Error("The unfinished test could not be loaded completely. Please refresh and try again.");
-      }
-
-      startMockTest();
-    } catch (err) {
-      console.error("Could not resume unfinished mock:", err);
-      alert("Could not start the unfinished test. Please refresh the page and try again.");
+      card.style.setProperty("display", "none", "important");
+      await handleStartClick();
     } finally {
       if (!document.body.classList.contains("mock-test-active")) {
         continueBtn.disabled = false;
         continueBtn.innerHTML = "Resume Test <span aria-hidden=\"true\">→</span>";
-        card.style.display = "flex";
+        card.style.setProperty("display", "flex", "important");
       }
     }
   };

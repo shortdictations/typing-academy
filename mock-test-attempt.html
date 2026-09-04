@@ -176,6 +176,23 @@
     </div>
   </div>
 
+  <!-- LOADING / SETUP CONFIRMATION — populated by
+       loadSessionIntoSetupScreen() in js/mock-test-attempt.js for a
+       freshly created/re-attempted session waiting on the student's
+       manual Start click (see that function's own comments for
+       exactly which entry paths reach this vs. skip straight past
+       it). Removing this element while the JS still targets its id
+       breaks page load entirely for any student with an existing
+       session — the unfinished-session card above depends on this
+       same code path succeeding first. -->
+  <div class="card" id="setupCard">
+    <div class="card-label">Mock Test</div>
+    <div id="setupInfo" class="loading-strip mock-test-setup-info">Loading your mock test...</div>
+    <div class="mock-test-actions">
+      <button class="mock-start-button" id="startBtn" style="display:none;">Start Mock Test</button>
+    </div>
+  </div>
+
   <!-- LIVE TEST -->
   <div class="card" id="testCard" style="display:none;">
     <div class="test-warning-banner" id="testWarningBanner"></div>
@@ -376,11 +393,6 @@
   </div>
 </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/mock-history.js"></script>
-
 <!-- Mobile Profile drawer — opened by the Profile bottom-nav button
      (mobile only; the button that triggers this doesn't exist on
      desktop). Links to the SAME Help & Support / Settings pages and
@@ -465,7 +477,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/mock-test-attempt.js?v=20260904c"></script>
+<script src="js/mock-test-attempt.js?v=20260904d"></script>
 
 </body>
 </html>

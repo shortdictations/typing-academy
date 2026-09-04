@@ -3316,7 +3316,7 @@ body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~
   display: none !important;
 }
 
-body.app-shell.mock-attempt-page .unfinished-session-card{
+body.app-shell.mock-attempt-page.unfinished-session-active .unfinished-session-card{
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
