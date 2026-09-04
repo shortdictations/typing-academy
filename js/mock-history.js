@@ -11,7 +11,7 @@ let countdownTimerId = null;
 let allHistoryResults = [];
 let sessionByResultId = new Map();
 let currentHistoryPage = 1;
-const HISTORY_PAGE_SIZE = 5;
+const HISTORY_PAGE_SIZE = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -110,6 +110,10 @@ function renderHistory() {
         <td data-label="Net WPM" class="mh-number">${escapeHtml(String(r.net_wpm ?? "-"))}</td>
         <td data-label="Accuracy" class="mh-number ${accuracyClass}">${escapeHtml(String(r.accuracy ?? 0))}%</td>
         <td data-label="Errors" class="mh-number">${escapeHtml(String(r.errors ?? 0))}</td>
+        <td data-label="Words Typed" class="mh-number">${escapeHtml(String(r.words_typed ?? r.total_words ?? 0))}</td>
+        <td data-label="Status">
+          <span class="mh-pass-status ${r.is_passed ? "mh-pass" : "mh-not-passed"}">${r.is_passed ? "Passed" : "Not Passed"}</span>
+        </td>
         <td data-label="Result">
           <div class="mh-actions">
             <button type="button" class="mh-action mh-action-result" onclick="toggleDetail('${rowId}')">
@@ -121,7 +125,7 @@ function renderHistory() {
         </td>
       </tr>
       <tr id="${rowId}" class="history-detail-row" style="display:none;">
-        <td colspan="8">
+        <td colspan="10">
           <div class="mh-detail-inner">
             <span><strong>Passage</strong>${escapeHtml(r.passage_title || "-")}</span>
             <span><strong>Duration</strong>${escapeHtml(String(r.duration ?? "-"))} min</span>
@@ -143,6 +147,8 @@ function renderHistory() {
             <th>Net WPM</th>
             <th>Accuracy</th>
             <th>Errors</th>
+            <th>Words Typed</th>
+            <th>Status</th>
             <th>Result</th>
           </tr>
         </thead>
