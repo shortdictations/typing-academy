@@ -51,7 +51,27 @@ body.app-shell{ overflow-x: hidden; }
 
 /* ---------- Header ---------- */
 body.app-shell .letterhead{ background: var(--ts-navy); border-bottom: none; }
-body.app-shell .letterhead-inner{ max-width: none; padding: 12px 24px; }
+body.app-shell .letterhead-inner{ max-width: none; padding: 12px 24px; justify-content: flex-start; }
+body.app-shell .nav-links{ margin-left: auto; }
+
+/* Desktop sidebar collapse control lives in the global header.
+   The sidebar itself contains no separate hamburger button. */
+body.app-shell .app-header-sidebar-toggle{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  margin-right: 14px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  color: #FFFFFF;
+  border-radius: 10px;
+  cursor: pointer;
+  flex: none;
+}
+body.app-shell .app-header-sidebar-toggle:hover{ background: rgba(255,255,255,0.14); }
+body.app-shell .app-header-sidebar-toggle svg{ width: 19px; height: 19px; }
 body.app-shell .brand{ gap: 12px; }
 body.app-shell .seal{
   width: 38px; height: 38px;
@@ -237,22 +257,6 @@ body.app-shell .app-sidebar{
    freed space — nothing else needed there, confirmed by not having
    to touch .app-content at all for this. */
 body.app-shell .app-sidebar.collapsed{ flex: 0 0 76px; width: 76px; padding-left: 10px; padding-right: 10px; }
-body.app-shell .app-sidebar-toggle{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px; height: 36px;
-  border: none;
-  background: var(--ts-background);
-  color: var(--ts-muted);
-  border-radius: 10px;
-  cursor: pointer;
-  margin-bottom: 12px;
-  flex: none;
-}
-body.app-shell .app-sidebar-toggle:hover{ background: var(--ts-border); color: var(--ts-text); }
-body.app-shell .app-sidebar-toggle svg{ width: 18px; height: 18px; }
-body.app-shell .app-sidebar.collapsed .app-sidebar-toggle{ margin-left: auto; margin-right: auto; }
 /* Text hidden, icon centered — the icon itself is completely
    untouched (same <svg>, same viewBox, same paths); only its
    surrounding link layout changes. The native title="" attribute
@@ -2361,6 +2365,7 @@ body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 6
   body.app-shell .app-sidebar{ flex: 0 0 200px; width: 200px; }
 }
 @media (max-width: 700px){
+  body.app-shell .app-header-sidebar-toggle{ display: none; }
   body.app-shell .app-sidebar{ display: none; }
   body.app-shell .app-bottom-nav{ display: block; }
   body.app-shell .app-content .page{ padding-bottom: 90px; }
