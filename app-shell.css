@@ -3119,418 +3119,324 @@ body.app-shell .unfinished-duration-section .pts-option-grid{margin-top:9px;}
 body.app-shell .unfinished-session-actions{margin-top:18px;}
 
 /* ============================================================
-   Mock Test entry screens — visual match to supplied reference
-   ------------------------------------------------------------
-   IMPORTANT: scoped only to .mock-attempt-page content. Header,
-   desktop sidebar and mobile navigation are intentionally untouched.
+   Mock Test entry screens — reference-inspired layout
+   Scoped only to mock-test-attempt.html. Header, desktop sidebar,
+   mobile navigation and all shared shell elements remain unchanged.
    ============================================================ */
-body.app-shell.mock-attempt-page .test-mode-main{
-  max-width: 1200px;
-  width: calc(100% - 48px);
-  margin: 28px auto 0;
+body.app-shell.mock-attempt-page .app-content .page{
+  max-width: 1080px;
+  padding-top: 14px;
 }
 
-/* ---------- Fresh Mock Settings ---------- */
 body.app-shell.mock-attempt-page .pts-card{
-  width: 556px;
-  max-width: 100%;
-  box-sizing: border-box;
+  max-width: 650px;
   margin: 0 auto;
-  padding: 26px 38px 20px;
+  padding: 18px 38px 20px;
   border-radius: 18px;
-  border: 1px solid #edf1f7;
-  background: #fff;
-  box-shadow: 0 8px 28px rgba(15,33,64,.07);
+  background: var(--ts-surface, #fff);
+  border: 1px solid rgba(31,64,120,.06);
+  box-shadow: 0 8px 26px rgba(18,43,83,.06);
 }
 body.app-shell.mock-attempt-page .pts-header{
   text-align: center;
-  margin-bottom: 17px;
+  margin-bottom: 16px;
 }
 body.app-shell.mock-attempt-page .pts-title{
-  font-size: 1.72rem;
-  line-height: 1.15;
+  margin: 0 0 3px;
+  font-size: 1.65rem;
+  line-height: 1.18;
   font-weight: 800;
-  color: #0b1c3f;
-  margin: 0 0 6px;
+  color: var(--ts-text);
 }
 body.app-shell.mock-attempt-page .pts-subtitle{
-  font-size: .95rem;
-  color: #30486d;
   margin: 0;
+  font-size: .92rem;
+  color: var(--ts-muted);
 }
-body.app-shell.mock-attempt-page .pts-section{
-  margin-bottom: 17px;
-}
-body.app-shell.mock-attempt-page .pts-section-label{
-  font-size: .88rem;
-  font-weight: 800;
-  color: #0b1c3f;
-  margin-bottom: 7px;
-}
-body.app-shell.mock-attempt-page .pts-option-grid{
-  display: grid;
+body.app-shell.mock-attempt-page .pts-type-section{ margin-bottom: 16px; }
+body.app-shell.mock-attempt-page .pts-type-grid{
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
-body.app-shell.mock-attempt-page .pts-option{
-  box-sizing: border-box;
-  min-height: 78px;
-  padding: 9px 10px 8px;
-  border: 1px solid #dce5f2;
-  border-radius: 10px;
-  background: #fff;
-  display: flex;
+body.app-shell.mock-attempt-page .pts-type-option{
+  min-height: 150px;
+  padding: 16px 14px 13px;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
   text-align: center;
-  transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  gap: 8px;
+  border: 1.5px solid var(--ts-border);
+  border-radius: 11px;
+  background: var(--ts-surface, #fff);
 }
-body.app-shell.mock-attempt-page .pts-option:hover{
-  border-color: #b9ccec;
+body.app-shell.mock-attempt-page .pts-type-option:hover{
+  border-color: #9DBDFF;
+  background: #F8FBFF;
 }
-body.app-shell.mock-attempt-page .pts-option.pts-selected{
-  border: 2px solid #2f7bf6;
-  background: #f4f8ff;
-  box-shadow: 0 1px 4px rgba(47,123,246,.06);
+body.app-shell.mock-attempt-page .pts-type-option.pts-selected{
+  border-color: var(--ts-blue);
+  background: #EEF6FF;
+  box-shadow: inset 0 0 0 1px rgba(47,95,236,.12);
 }
-body.app-shell.mock-attempt-page .pts-option-icon{
-  width: 42px;
-  height: 42px;
-  margin: 0 auto 3px;
+body.app-shell.mock-attempt-page .pts-type-icon{
+  width: 58px;
+  height: 58px;
   border-radius: 0;
+  background: transparent;
+  color: var(--ts-blue);
+}
+body.app-shell.mock-attempt-page .pts-type-icon svg{ width: 56px; height: 56px; }
+body.app-shell.mock-attempt-page .pts-type-option:not(.pts-selected) .pts-type-icon{
+  background: transparent;
+  color: #315A95;
+}
+body.app-shell.mock-attempt-page .pts-ssc-icon{
   background: transparent !important;
-  color: #0067d9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
+  color: inherit !important;
 }
-body.app-shell.mock-attempt-page .pts-option-icon svg{
-  width: 38px;
-  height: 38px;
-  stroke-width: 1.7;
-}
-body.app-shell.mock-attempt-page .pts-ssc-logo img{
-  width: 45px;
-  height: 45px;
+body.app-shell.mock-attempt-page .pts-ssc-icon img{
+  width: 56px;
+  height: 56px;
   object-fit: contain;
 }
 body.app-shell.mock-attempt-page .pts-option-text{
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
-}
-body.app-shell.mock-attempt-page .pts-option-title{
-  font-size: 1.02rem;
-  line-height: 1.1;
-  font-weight: 800;
-  color: #0b1c3f;
-}
-body.app-shell.mock-attempt-page .pts-option-desc{
-  font-size: .78rem;
-  line-height: 1.2;
-  color: #30486d;
-}
-/* The two passage choices are icon-above-label cards. */
-body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option{
-  min-height: 145px;
-  flex-direction: column;
-  padding: 10px 8px 12px;
-}
-body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option-text{
   gap: 3px;
 }
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2){
-  margin-top: 4px;
-  padding: 10px 10px 8px;
-  border-radius: 12px;
-  background: #f7faff;
+body.app-shell.mock-attempt-page .pts-option-title{
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: .01em;
 }
-/* Duration choices in the reference are deliberately slim: no clock icons. */
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option{
-  min-height: 40px;
-  padding: 7px 10px;
-  flex-direction: column;
+body.app-shell.mock-attempt-page .pts-option-desc{
+  font-size: .82rem;
+  color: var(--ts-muted);
 }
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-icon{
-  display: none;
-}
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-text{
-  gap: 2px;
-}
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-title{
-  font-size: .9rem;
-}
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-desc{
-  position: absolute;
-  transform: translateY(31px);
-  white-space: nowrap;
-  font-size: .73rem;
-}
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-grid{
-  margin-bottom: 14px;
-}
-body.app-shell.mock-attempt-page #ptsLegalOption{ order: -1; }
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option{ position:relative; overflow:visible; }
-body.app-shell.mock-attempt-page .pts-section:nth-of-type(2) .pts-option-desc{ bottom:-23px; left:50%; transform:translateX(-50%); }
 
-body.app-shell.mock-attempt-page .pts-info-note-hidden{
-  display: none !important;
+body.app-shell.mock-attempt-page .pts-duration-section{
+  margin: 0 0 16px;
+  padding: 12px 13px 11px;
+  border-radius: 12px;
+  background: #F8FAFD;
+  border: 1px solid #EDF1F7;
 }
-body.app-shell.mock-attempt-page .pts-start-row{
-  justify-content: center;
-  margin-top: 18px;
-}
-body.app-shell.mock-attempt-page .pts-start-row .mock-start-button{
-  min-width: 178px;
-  height: 48px;
-  padding: 0 26px;
-  border-radius: 10px;
-  background: #0b1c3f;
-  color: #fff;
+body.app-shell.mock-attempt-page .pts-section-label{
+  margin: 0 0 7px;
   font-size: .92rem;
   font-weight: 800;
-  box-shadow: 0 5px 12px rgba(11,28,63,.14);
 }
-body.app-shell.mock-attempt-page .pts-page-footer{
-  text-align: center;
-  color: #30486d;
-  font-size: .78rem;
-  margin: 10px auto 0;
+body.app-shell.mock-attempt-page .pts-duration-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-
-/* ---------- Test Not Completed ---------- */
-body.app-shell.mock-attempt-page .unfinished-session-card{
-  position: relative;
-  width: 695px;
-  max-width: 100%;
-  min-height: 404px;
-  box-sizing: border-box;
-  margin: 17px auto 0;
-  padding: 22px 40px 22px 155px;
-  display: block;
-  border: 0;
-  border-radius: 18px;
+body.app-shell.mock-attempt-page .pts-duration-option{
+  min-height: 42px;
+  padding: 7px 10px 6px;
+  border: 1.5px solid var(--ts-border);
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0 8px 28px rgba(15,33,64,.07);
-  color: #0b1c3f;
-}
-body.app-shell.mock-attempt-page .unfinished-session-icon{
-  position: absolute;
-  left: 40px;
-  top: 154px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #edf5ff;
-  border: 0;
-  color: #2f6ff2;
-}
-body.app-shell.mock-attempt-page .unfinished-session-icon svg{
-  width: 43px;
-  height: 43px;
-  stroke-width: 1.55;
-}
-body.app-shell.mock-attempt-page .unfinished-session-content{
-  width: 100%;
-  min-width: 0;
-}
-body.app-shell.mock-attempt-page .unfinished-session-content h2{
+  color: var(--ts-text);
+  font: inherit;
+  cursor: pointer;
   text-align: center;
-  margin: 0 0 5px;
-  color: #0b1c3f;
-  font-size: 1.55rem;
+  transition: .15s ease;
+}
+body.app-shell.mock-attempt-page .pts-duration-option > span{
+  display: block;
+  font-size: .88rem;
+  line-height: 1.2;
+  font-weight: 750;
+}
+body.app-shell.mock-attempt-page .pts-duration-option small{
+  display: block;
+  margin-top: 3px;
+  font-size: .69rem;
+  line-height: 1.2;
+  color: var(--ts-muted);
+}
+body.app-shell.mock-attempt-page .pts-duration-option:hover{ border-color: #A8C3F7; }
+body.app-shell.mock-attempt-page .pts-duration-option.pts-selected{
+  border-color: var(--ts-blue);
+  background: var(--ts-navy);
+  color: #fff;
+  box-shadow: 0 3px 9px rgba(11,43,91,.12);
+}
+body.app-shell.mock-attempt-page .pts-duration-option.pts-selected small{ color: rgba(255,255,255,.8); }
+body.app-shell.mock-attempt-page .pts-start-row{ margin-top: 2px; }
+body.app-shell.mock-attempt-page .pts-start-row .mock-start-button{
+  min-width: 178px;
+  height: 44px;
+  border-radius: 9px;
+  font-size: .84rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+  background: var(--ts-navy);
+  border-color: var(--ts-navy);
+  box-shadow: 0 5px 13px rgba(11,43,91,.14);
+}
+body.app-shell.mock-attempt-page .pts-start-row .mock-start-button:hover{
+  background: var(--ts-blue);
+  border-color: var(--ts-blue);
+}
+body.app-shell.mock-attempt-page #preTestError{ margin-top: 10px; }
+
+/* Unfinished state */
+body.app-shell.mock-attempt-page .unfinished-session-card{
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 18px 38px 20px;
+  display: block;
+  text-align: center;
+  border-radius: 18px;
+  background: var(--ts-surface, #fff);
+  border: 1px solid rgba(31,64,120,.06);
+  box-shadow: 0 8px 26px rgba(18,43,83,.06);
+}
+body.app-shell.mock-attempt-page .unfinished-session-hero{
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ts-blue);
+  background: #EEF6FF;
+  border-radius: 50%;
+}
+body.app-shell.mock-attempt-page .unfinished-session-hero svg{ width: 70px; height: 70px; }
+body.app-shell.mock-attempt-page .unfinished-session-content .card-label{ display:none; }
+body.app-shell.mock-attempt-page .unfinished-session-content h2{
+  margin: 0 0 4px;
+  font-size: 1.65rem;
   line-height: 1.18;
   font-weight: 800;
+  color: var(--ts-text);
 }
 body.app-shell.mock-attempt-page .unfinished-session-content p{
-  text-align: center;
-  margin: 0 0 17px;
-  color: #30486d;
-  font-size: .9rem;
+  margin: 0 0 14px;
+  font-size: .92rem;
+  color: var(--ts-muted);
 }
 body.app-shell.mock-attempt-page .unfinished-session-meta{
+  margin: 0 0 14px;
+  padding: 10px 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin: 0 0 17px;
-  padding: 0;
-  min-height: 64px;
-  background: #edf5ff;
+  grid-template-columns: repeat(3,1fr);
+  gap: 0;
+  text-align: left;
   border: 0;
   border-radius: 11px;
-  overflow: hidden;
+  background: #EEF6FF;
 }
-body.app-shell.mock-attempt-page .unfinished-meta-item{
-  position: relative;
+body.app-shell.mock-attempt-page .unfinished-session-meta > div{
+  min-width: 0;
+  padding: 0 14px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 8px 15px;
+  gap: 3px;
+  border-right: 1px solid #C9DCF5;
 }
-body.app-shell.mock-attempt-page .unfinished-meta-item + .unfinished-meta-item::before{
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 13px;
-  bottom: 13px;
-  width: 1px;
-  background: #c7dbf5;
+body.app-shell.mock-attempt-page .unfinished-session-meta > div:last-child{ border-right:0; }
+body.app-shell.mock-attempt-page .unfinished-session-meta span{
+  font-size: .69rem;
+  color: var(--ts-muted);
 }
-body.app-shell.mock-attempt-page .unfinished-meta-item span{
-  font-size: .7rem;
-  line-height: 1.1;
-  color: #577091;
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-body.app-shell.mock-attempt-page .unfinished-meta-item strong{
+body.app-shell.mock-attempt-page .unfinished-session-meta strong{
   font-size: .86rem;
-  line-height: 1.1;
-  color: #0b1c3f;
-  font-weight: 800;
+  color: var(--ts-text);
+  white-space: nowrap;
 }
 body.app-shell.mock-attempt-page .unfinished-duration-section{
-  margin: 0;
+  margin: 0 0 15px;
+  padding: 0;
+  text-align: left;
 }
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-section-label{
-  margin-bottom: 8px;
-  font-size: .9rem;
-}
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-option-grid{
-  gap: 12px;
-  margin-bottom: 0;
-}
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-option{
-  min-height: 51px;
-  padding: 7px 8px;
-  flex-direction: column;
-}
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-option-icon{
-  display: none;
-}
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-option-title{
-  font-size: .88rem;
-}
-body.app-shell.mock-attempt-page .unfinished-duration-section .pts-option-desc{
-  font-size: .7rem;
-}
+body.app-shell.mock-attempt-page .unfinished-duration-section .pts-section-label{ margin-bottom: 7px; }
 body.app-shell.mock-attempt-page .unfinished-session-actions{
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin: 0;
 }
 body.app-shell.mock-attempt-page .unfinished-session-actions #unfinishedContinueBtn{
-  min-width: 204px;
-  height: 47px;
-  border-radius: 10px;
-  background: #2f66e9;
-  border: 0;
-  color: #fff;
-  font-size: .92rem;
-  font-weight: 800;
-  box-shadow: 0 5px 12px rgba(47,102,233,.18);
+  min-width: 190px;
+  min-height: 44px;
+  border-radius: 9px;
+  background: var(--ts-blue);
+  border-color: var(--ts-blue);
+  box-shadow: 0 5px 13px rgba(47,95,236,.16);
 }
-body.app-shell.mock-attempt-page .unfinished-session-actions #unfinishedContinueBtn:hover{
-  background: #285bd3;
+body.app-shell.mock-attempt-page .unfinished-progress-note{
+  margin-top: 13px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: left;
+  border-radius: 9px;
+  background: #EEF6FF;
+  color: var(--ts-muted);
+  font-size: .74rem;
 }
-body.app-shell.mock-attempt-page .unfinished-session-card::after{
-  content: "💡    Your progress has been saved. Continue your test to complete it.";
-  display: block;
-  margin-top: 14px;
-  min-height: 45px;
-  box-sizing: border-box;
-  padding: 0 14px;
-  border-radius: 10px;
-  background: #edf5ff;
-  color: #577091;
-  font-size: .73rem;
-  line-height: 45px;
-  text-align: center;
-  white-space: nowrap;
-}
+body.app-shell.mock-attempt-page .unfinished-progress-note span:first-child{ font-size: 1rem; }
 
-/* Only this page's entry card is restyled in dark mode; shell/header/sidebar
-   remain governed by the project's existing theme rules. */
 html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-card,
 html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-card{
-  background: #0d1b30;
-  border-color: #1d3150;
-  box-shadow: 0 8px 28px rgba(0,0,0,.2);
+  background: #0F1B2E;
+  border-color: #263A59;
+  box-shadow: 0 10px 28px rgba(0,0,0,.2);
 }
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-title,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-section-label,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option-title,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-content h2,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-meta-item strong{ color:#fff; }
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-subtitle,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option-desc,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-page-footer,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-content p{ color:#b6c6df; }
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option{
-  background:#12233c;
-  border-color:#29415f;
-}
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option.pts-selected{
-  background:#102b53;
-  border-color:#2384ff;
-}
-html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-section:nth-of-type(2){ background:#102039; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option{ background:#152238; border-color:#31435F; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option:hover{ background:#192943; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option.pts-selected{ background:#102E58; border-color:var(--ts-blue); }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-section{ background:#131F31; border-color:#263A59; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option{ background:#17263B; border-color:#334760; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option.pts-selected{ background:var(--ts-blue); border-color:var(--ts-blue); }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-hero{ background:rgba(47,95,236,.14); }
 html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-meta,
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-card::after{ background:#102744; }
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-meta-item + .unfinished-meta-item::before{ background:#294c75; }
-html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-meta-item span{ color:#9fb4d3; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-progress-note{ background:#162A46; }
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-meta > div{ border-color:#304A6D; }
 
-@media (max-width:700px){
-  body.app-shell.mock-attempt-page .test-mode-main{
-    width: calc(100% - 24px);
-    margin-top: 16px;
+@media (max-width: 700px){
+  body.app-shell.mock-attempt-page .app-content .page{ padding-top: 8px; }
+  body.app-shell.mock-attempt-page .pts-card,
+  body.app-shell.mock-attempt-page .unfinished-session-card{
+    max-width: 100%;
+    margin-left: 8px;
+    margin-right: 8px;
+    padding: 18px 14px 16px;
+    border-radius: 14px;
   }
-  body.app-shell.mock-attempt-page .pts-card{
-    width: 100%;
-    padding: 21px 16px 18px;
-  }
-  body.app-shell.mock-attempt-page .pts-title{ font-size: 1.35rem; }
-  body.app-shell.mock-attempt-page .pts-subtitle{ font-size: .78rem; }
-  body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option{
-    min-height: 76px;
+  body.app-shell.mock-attempt-page .pts-title,
+  body.app-shell.mock-attempt-page .unfinished-session-content h2{ font-size: 1.28rem; }
+  body.app-shell.mock-attempt-page .pts-subtitle,
+  body.app-shell.mock-attempt-page .unfinished-session-content p{ font-size: .78rem; }
+  body.app-shell.mock-attempt-page .pts-type-grid{ grid-template-columns: 1fr; gap: 8px; }
+  body.app-shell.mock-attempt-page .pts-type-option{
+    min-height: 58px;
+    padding: 8px 12px;
     flex-direction: row;
     justify-content: flex-start;
-    gap: 10px;
     text-align: left;
-    padding: 8px 10px;
+    gap: 11px;
   }
-  body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option-text{ align-items:flex-start; }
-  body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option-icon{
-    width: 40px; height: 40px; margin: 0;
-  }
-  body.app-shell.mock-attempt-page .pts-section:first-of-type .pts-option-icon svg{ width:34px; height:34px; }
-  body.app-shell.mock-attempt-page .pts-ssc-logo img{ width:38px; height:38px; }
-  body.app-shell.mock-attempt-page .unfinished-session-card{
-    width:100%;
-    min-height:0;
-    padding: 22px 16px 16px;
-    margin-top: 16px;
-  }
-  body.app-shell.mock-attempt-page .unfinished-session-icon{
-    position: static;
-    margin: 0 auto 10px;
-  }
-  body.app-shell.mock-attempt-page .unfinished-session-meta{
-    margin-bottom: 16px;
-  }
-  body.app-shell.mock-attempt-page .unfinished-meta-item{ padding: 8px 7px; text-align:center; }
-  body.app-shell.mock-attempt-page .unfinished-meta-item span{ font-size:.62rem; }
-  body.app-shell.mock-attempt-page .unfinished-meta-item strong{ font-size:.72rem; }
-  body.app-shell.mock-attempt-page .unfinished-session-actions #unfinishedContinueBtn{ width:100%; }
-  body.app-shell.mock-attempt-page .unfinished-session-card::after{
-    white-space: normal;
-    line-height: 1.35;
-    padding: 10px 12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
+  body.app-shell.mock-attempt-page .pts-type-icon,
+  body.app-shell.mock-attempt-page .pts-type-icon svg,
+  body.app-shell.mock-attempt-page .pts-ssc-icon img{ width: 40px; height: 40px; }
+  body.app-shell.mock-attempt-page .pts-option-text{ align-items:flex-start; }
+  body.app-shell.mock-attempt-page .pts-option-title{ font-size:.9rem; }
+  body.app-shell.mock-attempt-page .pts-option-desc{ font-size:.7rem; }
+  body.app-shell.mock-attempt-page .pts-duration-grid{ gap:7px; }
+  body.app-shell.mock-attempt-page .pts-duration-option{ min-height:40px; padding:6px 4px; }
+  body.app-shell.mock-attempt-page .pts-duration-option > span{ font-size:.77rem; }
+  body.app-shell.mock-attempt-page .pts-duration-option small{ font-size:.58rem; }
+  body.app-shell.mock-attempt-page .unfinished-session-hero{ width:66px; height:66px; }
+  body.app-shell.mock-attempt-page .unfinished-session-hero svg{ width:56px; height:56px; }
+  body.app-shell.mock-attempt-page .unfinished-session-meta{ padding:9px 5px; }
+  body.app-shell.mock-attempt-page .unfinished-session-meta > div{ padding:0 7px; }
+  body.app-shell.mock-attempt-page .unfinished-session-meta span{ font-size:.57rem; }
+  body.app-shell.mock-attempt-page .unfinished-session-meta strong{ font-size:.67rem; }
+  body.app-shell.mock-attempt-page .unfinished-progress-note{ font-size:.62rem; }
 }
