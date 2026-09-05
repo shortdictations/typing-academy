@@ -78,15 +78,18 @@ function renderHistory() {
     const isLegal = category === "legal";
     const categoryLabel = (r.category || "-").toUpperCase();
     const sessionForResult = sessionByResultId.get(r.id);
-    // The re-attempt window is six hours from the completed attempt.
-    // Prefer the server-stored expiry when available, but fall back to the
-    // result timestamp so older completed attempts still show the correct
-    // re-attempt state when their session row has no expiry value.
-    const storedExpiresAt = sessionForResult?.reattempt_window_expires_at || null;
-    const fallbackExpiresAt = r.created_at
-      ? new Date(new Date(r.created_at).getTime() + (6 * 60 * 60 * 1000)).toISOString()
-      : null;
-    const expiresAt = storedExpiresAt || fallbackExpiresAt;
+    // The re-attempt window is authoritative on the server
+    // (start_reattempt() treats a null/missing expiry as always
+    // expired, with no fallback calculation of its own — confirmed
+    // directly against the live RPC). A client-side fallback here
+    // that invents its own 6-hour window from the result's timestamp
+    // would show "Re-attempt available" for rows the server will
+    // then reject outright — confirmed this exact mismatch happens
+    // for a real, non-zero number of existing completed attempts,
+    // whose session rows predate this column and have no expiry
+    // stored at all. No expiry stored means no re-attempt shown, full
+    // stop, matching the server's own rule exactly.
+    const expiresAt = sessionForResult?.reattempt_window_expires_at || null;
     const windowStillOpen = !!expiresAt && new Date(expiresAt).getTime() > Date.now() && !!r.mock_test_id;
     const accuracy = Number(r.accuracy || 0);
     const accuracyClass = accuracy >= 90 ? "mh-accuracy-good" : accuracy < 70 ? "mh-accuracy-low" : "";
