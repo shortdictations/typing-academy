@@ -87,3 +87,25 @@ body.auth-shell{
   .auth-socials{grid-template-columns:1fr}
   .auth-name-grid{grid-template-columns:1fr 1fr}
 }
+
+/* Cursor-style password recovery: same minimal authentication shell,
+   adapted to TypeShala's colours and branding. */
+.auth-simple-page .auth-brand{top:22px;left:24px}
+.auth-simple-main{padding-top:62px;padding-bottom:58px}
+.auth-simple-panel{width:min(100%,390px)}
+.auth-simple-panel .auth-heading{margin-bottom:28px;text-align:left}
+.auth-simple-panel .auth-heading h1{font-size:21px}
+.auth-simple-panel .auth-heading p{font-size:13px}
+.auth-simple-panel .auth-field{margin-bottom:15px}
+.auth-simple-panel .auth-input{height:42px}
+.auth-simple-submit{margin-top:4px;box-shadow:none}
+.auth-simple-submit:hover{box-shadow:none;transform:none}
+.auth-simple-back{margin-top:18px}
+.auth-back-inline{color:var(--auth-muted);font-size:11px;font-weight:600;text-decoration:none}
+.auth-back-inline:hover{color:var(--auth-text)}
+.auth-simple-page .auth-footer{padding-bottom:18px}
+@media(max-width:520px){
+  .auth-simple-page .auth-brand{top:18px;left:18px}
+  .auth-simple-main{padding-top:105px}
+  .auth-simple-panel .auth-heading{text-align:left}
+}
