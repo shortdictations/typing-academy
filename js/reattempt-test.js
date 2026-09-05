@@ -12,10 +12,11 @@ function escapeHtml(value) {
 
 function formatLastAttempt(value) {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  const datePart = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const timePart = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  return `${datePart}, ${timePart}`;
+  if (Number.isNaN(date.getTime())) return { date: '—', time: '—' };
+  return {
+    date: date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+    time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  };
 }
 
 function selectDuration(duration) {
@@ -58,8 +59,11 @@ async function loadReattempt() {
   }
 
   rtResult = data[0];
-  $('rtCategory').textContent = String(rtResult.category || '—').toUpperCase();
-  $('rtLastAttempt').textContent = formatLastAttempt(rtResult.created_at);
+  const category = String(rtResult.category || '—').toUpperCase();
+  $('rtCategory').textContent = category;
+  const attemptTime = formatLastAttempt(rtResult.created_at);
+  $('rtLastAttemptDate').textContent = attemptTime.date;
+  $('rtLastAttemptTime').textContent = attemptTime.time;
 
   const passed = !!rtResult.is_passed;
   $('rtResult').textContent = passed ? 'Passed' : 'Not Passed';
