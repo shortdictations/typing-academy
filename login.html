@@ -117,298 +117,226 @@
 <script src="js/auth.js"></script>
 <script src="js/landing-products.js?v=3"></script>
 <script>
-if (window.lucide) lucide.createIcons();
-const $ = (id) => document.getElementById(id);
-const panel = $('authPanel');
-const flow = $('authFlow');
-const email = $('loginEmail');
-const loginPassword = $('loginPassword');
-const signupPassword = $('regPassword');
+(() => {
+  const $ = id => document.getElementById(id);
+  const panel = $('authPanel');
+  const flow = $('authFlow');
+  const email = $('loginEmail');
+  const loginPassword = $('loginPassword');
+  const signupPassword = $('regPassword');
+  const signupFields = $('signupFields');
+  const passwordStep = $('passwordStep');
+  const socials = $('authSocials');
+  const primary = $('continueEmailBtn');
+  const signinPasswordField = $('signinPasswordField');
+  const signupPasswordField = $('signupPasswordField');
+  const stepBack = $('authStepBack');
 
-let authMode = 'signin';       // signin | signup
-let authStep = 'email';        // email | password
-let signupData = { firstName:'', lastName:'', email:'' };
-let lastRegisteredEmail = null;
-let resendInterval = null;
+  let authMode = 'signin';
+  let authStep = 'email';
+  let signupData = { firstName:'', lastName:'', email:'' };
+  let lastRegisteredEmail = null;
+  let resendInterval = null;
+  let animating = false;
 
-const showErr = (id, text) => {
-  const el = $(id);
-  if (!el) return;
-  el.textContent = text || '';
-  el.style.display = text ? 'block' : 'none';
-};
-const clearErrs = () => ['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id => {
-  const el = $(id);
-  if (el) { el.textContent=''; el.style.display='none'; }
-});
+  const showErr = (id, text) => {
+    const el=$(id); if(!el) return;
+    el.textContent=text||''; el.style.display=text?'block':'none';
+  };
+  const clearErrs = () => ['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id=>{
+    const el=$(id); if(el){el.textContent='';el.style.display='none';}
+  });
+  const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-// Stable nodes are FLIP-animated. Dynamic fields use CSS height/opacity
-// transitions so hidden elements never participate in a zero-size FLIP.
-function captureRects() { return null; }
+  function focusLater(el){ if(!el)return; setTimeout(()=>{try{el.focus({preventScroll:true})}catch{el.focus()}},320); }
 
-// Layout itself is animated with CSS height/max-height transitions. We intentionally
-// do not FLIP individual controls: transforming independent form controls can make
-// them fly sideways when their display state changes. Cursor's effect is a vertical
-// reflow/morph, so the DOM remains in normal flow and only the layout height changes.
-function animateFLIP() {
-  // Force one layout pass so the browser commits the new state before painting.
-  flow.getBoundingClientRect();
-}
-
-function focusLater(el) {
-  if (!el) return;
-  setTimeout(() => { try { el.focus({preventScroll:true}); } catch { el.focus(); } }, 360);
-}
-
-function setModeUI(mode) {
-  authMode = mode;
-  panel.classList.toggle('is-signup', mode === 'signup');
-  $('signupFields').classList.toggle('is-expanded', mode === 'signup' && authStep === 'email');
-  $('signupFields').setAttribute('aria-hidden', String(!(mode === 'signup' && authStep === 'email')));
-  $('signinModePrompt').hidden = mode === 'signup';
-  $('signupModePrompt').hidden = mode !== 'signup';
-  $('authSubtitle').textContent = mode === 'signup'
-    ? 'The easiest way to practise and improve.'
-    : 'Your practice. Your progress. Your success.';
-}
-
-function goEmailMode(mode, {focus=true, updateUrl=true}={}) {
-  clearErrs();
-    authStep = 'email';
-  $('passwordStep').classList.remove('is-visible');
-  $('passwordStep').setAttribute('aria-hidden','true');
-  $('signinPasswordField').classList.remove('is-active');
-  $('signupPasswordField').classList.remove('is-active');
-  $('continueEmailBtn').style.display='flex';
-  $('continueEmailBtn').querySelector('span').textContent='Continue';
-  $('loginBtn').style.display='none';
-  $('registerBtn').style.display='none';
-  $('authStepBack').style.display='none';
-  $('authModeBottom').style.display='block';
-  $('authSocials').style.display='grid';
-  $('authSocials').classList.remove('is-collapsing');
-  $('authSocials').style.pointerEvents='';
-  email.readOnly=false;
-  panel.classList.remove('is-signup-password');
-  setModeUI(mode);
-  animateFLIP();
-  if (updateUrl) history.replaceState(null,'',`login.html${mode==='signup'?'?mode=signup':''}`);
-  focusLater(mode==='signup' ? $('regFirstName') : email);
-}
-
-function goPasswordStep(type) {
-  clearErrs();
-    authStep = 'password';
-  $('authSocials').classList.add('is-collapsing');
-  $('authSocials').style.pointerEvents='none';
-  $('passwordStep').classList.add('is-visible');
-  $('passwordStep').setAttribute('aria-hidden','false');
-  $('continueEmailBtn').style.display='flex';
-  $('authStepBack').style.display='block';
-  $('authModeBottom').style.display='none';
-  email.readOnly=true;
-
-  if (type === 'signup') {
-    $('signinPasswordField').classList.remove('is-active');
-    $('signupPasswordField').classList.add('is-active');
-    $('resetPasswordLink').style.display='none';
-    $('registerBtn').style.display='none';
-    $('loginBtn').style.display='none';
-    panel.classList.add('is-signup-password');
-    $('continueEmailBtn').querySelector('span').textContent='Continue';
-    $('signupFields').classList.remove('is-expanded');
-    $('signupFields').setAttribute('aria-hidden','true');
-    email.value = signupData.email;
-  } else {
-    $('signinPasswordField').classList.add('is-active');
-    $('signupPasswordField').classList.remove('is-active');
-    $('resetPasswordLink').style.display='inline';
-    $('registerBtn').style.display='none';
-    $('loginBtn').style.display='none';
-    panel.classList.remove('is-signup-password');
-    $('continueEmailBtn').querySelector('span').textContent='Sign in';
+  function setModeLabels(){
+    $('signinModePrompt').hidden = authMode==='signup';
+    $('signupModePrompt').hidden = authMode!=='signup';
+    $('authSubtitle').textContent = authMode==='signup'
+      ? 'The easiest way to practise and improve.'
+      : 'Your practice. Your progress. Your success.';
   }
 
-  animateFLIP();
-  setTimeout(() => {
-    $('authSocials').style.display='none';
-    $('authSocials').classList.remove('is-collapsing');
-    $('authSocials').style.pointerEvents='';
-  }, 380);
-  focusLater(type==='signup' ? signupPassword : loginPassword);
-}
+  function setFinalState(mode, step){
+    authMode=mode; authStep=step;
+    panel.classList.toggle('is-signup', mode==='signup' && step==='email');
+    panel.classList.toggle('is-password', step==='password');
+    panel.classList.toggle('is-signup-password', mode==='signup' && step==='password');
 
-function backFromPassword() {
-    const mode = authMode;
-  authStep='email';
-  $('passwordStep').classList.remove('is-visible');
-  $('passwordStep').setAttribute('aria-hidden','true');
-  $('signinPasswordField').classList.remove('is-active');
-  $('signupPasswordField').classList.remove('is-active');
-  $('continueEmailBtn').style.display='flex';
-  $('continueEmailBtn').querySelector('span').textContent='Continue';
-  $('loginBtn').style.display='none';
-  $('registerBtn').style.display='none';
-  $('authStepBack').style.display='none';
-  $('authModeBottom').style.display='block';
-  $('authSocials').style.display='grid';
-  $('authSocials').classList.remove('is-collapsing');
-  $('authSocials').style.pointerEvents='';
-  email.readOnly=false;
-  panel.classList.remove('is-signup-password');
-  setModeUI(mode);
-  animateFLIP();
-  focusLater(mode==='signup' ? $('regFirstName') : email);
-}
+    const signupEmailStep = mode==='signup' && step==='email';
+    signupFields.classList.toggle('is-expanded', signupEmailStep);
+    signupFields.setAttribute('aria-hidden', String(!signupEmailStep));
 
-function validateSignupDetails() {
-  const f=$('regFirstName'), l=$('regLastName');
-  if (!f.value.trim()) { f.focus(); return false; }
-  if (!l.value.trim()) { l.focus(); return false; }
-  if (!email.value.trim() || !email.checkValidity()) { email.reportValidity(); return false; }
-  signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:email.value.trim()};
-  return true;
-}
+    const passwordActive = step==='password';
+    passwordStep.classList.toggle('is-visible', passwordActive);
+    passwordStep.setAttribute('aria-hidden', String(!passwordActive));
+    signinPasswordField.classList.toggle('is-active', passwordActive && mode==='signin');
+    signupPasswordField.classList.toggle('is-active', passwordActive && mode==='signup');
 
-function bindAuthEvents() {
-  // Event delegation prevents dynamic mode changes from losing the Sign in/Sign up handler.
-  $('authModeBottom').addEventListener('click', e => {
-    const btn=e.target.closest('button');
-    if (!btn) return;
-    e.preventDefault();
-    if (btn.id==='openSignupBtn') goEmailMode('signup');
-    if (btn.id==='openSigninBtn') goEmailMode('signin');
-  });
+    socials.classList.toggle('is-collapsed', passwordActive);
+    socials.style.pointerEvents = passwordActive ? 'none' : '';
+    email.readOnly = passwordActive;
+    $('resetPasswordLink').style.display = (passwordActive && mode==='signin') ? 'inline' : 'none';
 
-  $('continueEmailBtn').addEventListener('click', async () => {
+    primary.style.display='flex';
+    primary.disabled=false;
+    primary.querySelector('span').textContent = passwordActive ? 'Continue' : 'Continue';
+    $('authModeBottom').style.display = passwordActive ? 'none' : 'block';
+    stepBack.style.display = passwordActive ? 'block' : 'none';
+    setModeLabels();
+  }
+
+  function rect(el){ const r=el.getBoundingClientRect(); return {x:r.left,y:r.top,w:r.width,h:r.height}; }
+
+  // Animate only vertical displacement of stable elements. No element is ever
+  // translated horizontally, so the form cannot jump left/right during morphs.
+  function animateVerticalFLIP(before, elements, duration=340){
+    const animations=[];
+    for(const el of elements){
+      if(!el || !before.has(el)) continue;
+      const b=before.get(el), a=rect(el);
+      const dy=b.y-a.y;
+      if(Math.abs(dy)<0.5) continue;
+      el.style.transform=`translate3d(0,${dy}px,0)`;
+      const anim=el.animate([
+        {transform:`translate3d(0,${dy}px,0)`},
+        {transform:'translate3d(0,0,0)'}
+      ],{duration,easing:'cubic-bezier(.22,.61,.36,1)',fill:'both'});
+      animations.push(anim.finished.catch(()=>{}).then(()=>{el.style.transform='';}));
+    }
+    return Promise.all(animations);
+  }
+
+  async function transitionTo(mode, step, opts={}){
+    if(animating) return;
+    animating=true;
     clearErrs();
 
-    // One stable primary button is used for every step. This is important for
-    // the Cursor-style morph: the button never disappears/reappears, so it
-    // cannot jump sideways or lose its layout position during reflow.
-    if (authStep === 'email') {
-      if (authMode==='signup') {
-        if (validateSignupDetails()) goPasswordStep('signup');
-        return;
-      }
-      if (!email.value.trim() || !email.checkValidity()) { email.reportValidity(); return; }
-      goPasswordStep('signin');
-      return;
-    }
+    const moving=[$('authHeading'),email,primary];
+    const before=new Map(moving.map(el=>[el,rect(el)]));
 
-    const btn=$('continueEmailBtn');
-    if (authMode==='signup') {
-      if(!signupPassword.value || signupPassword.value.length<6){
-        showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');
-        signupPassword.focus();
-        return;
-      }
-      btn.disabled=true; btn.querySelector('span').textContent='Creating account...';
-      try {
+    // Make the new layout state visible to layout, then invert stable elements.
+    setFinalState(mode,step);
+    if(mode==='signup' && step==='password') email.value=signupData.email;
+    flow.getBoundingClientRect();
+    await animateVerticalFLIP(before,moving,340);
+
+    if(opts.updateUrl!==false){
+      history.replaceState(null,'',`login.html${mode==='signup'?'?mode=signup':''}`);
+    }
+    animating=false;
+    if(opts.focus!==false){
+      focusLater(step==='password' ? (mode==='signup'?signupPassword:loginPassword) : (mode==='signup'?$('regFirstName'):email));
+    }
+  }
+
+  async function goEmailMode(mode,{focus=true,updateUrl=true}={}){
+    // Capture current values before switching mode.
+    await transitionTo(mode,'email',{focus,updateUrl});
+  }
+
+  async function goPasswordStep(type){
+    if(type==='signup'){
+      const f=$('regFirstName'), l=$('regLastName');
+      if(!f.value.trim()){f.focus();return;}
+      if(!l.value.trim()){l.focus();return;}
+      if(!email.value.trim() || !email.checkValidity()){email.reportValidity();return;}
+      signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:email.value.trim()};
+    } else {
+      if(!email.value.trim() || !email.checkValidity()){email.reportValidity();return;}
+    }
+    await transitionTo(type,'password',{focus:true,updateUrl:true});
+  }
+
+  async function backFromPassword(){
+    await transitionTo(authMode,'email',{focus:true,updateUrl:true});
+  }
+
+  function validatePasswordSignup(){
+    if(!signupPassword.value || signupPassword.value.length<6){
+      showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');
+      signupPassword.focus(); return false;
+    }
+    return true;
+  }
+
+  async function submitCurrent(){
+    clearErrs();
+    if(authStep!=='password') return goPasswordStep(authMode);
+    if(authMode==='signup'){
+      if(!validatePasswordSignup())return;
+      primary.disabled=true; primary.querySelector('span').textContent='Creating account...';
+      try{
         const result=await registerStudent(`${signupData.firstName} ${signupData.lastName}`,signupData.email,signupPassword.value);
         if(result.alreadyExists){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
-        lastRegisteredEmail=signupData.email; $('verifySuccessEmail').textContent=signupData.email;
-        $('authFlow').style.display='none'; $('verificationSuccessView').style.display='block';
-      } catch(err) {
+        lastRegisteredEmail=signupData.email;
+        $('verifySuccessEmail').textContent=signupData.email;
+        $('authFlow').style.display='none';$('verificationSuccessView').style.display='block';
+      }catch(err){
         const msg=(err?.message||'').toLowerCase();
-        if(msg.includes('already registered')||msg.includes('already exists')){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
+        if(msg.includes('already registered')||msg.includes('already exists')){
+          $('authFlow').style.display='none';$('accountExistsView').style.display='block';return;
+        }
         showErr('signupPasswordErrorMsg',err?.message||'Registration failed. Please try again.');
-        btn.disabled=false; btn.querySelector('span').textContent='Continue';
+        primary.disabled=false;primary.querySelector('span').textContent='Continue';
       }
       return;
     }
-
     if(!loginPassword.value){loginPassword.focus();return;}
-    btn.disabled=true; btn.querySelector('span').textContent='Signing in...';
-    try {
-      await loginStudent(email.value.trim(),loginPassword.value); location.href='dashboard.html';
-    } catch(err){
-      showErr('errorMsg',err?.message||'Sign in failed. Please check your details.');
-      btn.disabled=false; btn.querySelector('span').textContent='Sign in';
-    }
-  });
+    primary.disabled=true;primary.querySelector('span').textContent='Signing in...';
+    try{await loginStudent(email.value.trim(),loginPassword.value);location.href='dashboard.html';}
+    catch(err){showErr('errorMsg',err?.message||'Sign in failed. Please check your details.');primary.disabled=false;primary.querySelector('span').textContent='Continue';}
+  }
 
-  $('changeStepBtn').addEventListener('click', () => backFromPassword());
-  email.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click();} });
+  function bind(){
+    $('authModeBottom').addEventListener('click',e=>{
+      const btn=e.target.closest('button'); if(!btn)return; e.preventDefault();
+      if(btn.id==='openSignupBtn') goEmailMode('signup');
+      if(btn.id==='openSigninBtn') goEmailMode('signin');
+    });
+    primary.addEventListener('click',submitCurrent);
+    stepBack.addEventListener('click',backFromPassword);
+    email.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCurrent();}});
+    loginPassword.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCurrent();}});
+    signupPassword.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCurrent();}});
+    $('togglePassword').addEventListener('click',()=>{
+      const text=loginPassword.type==='text';loginPassword.type=text?'password':'text';
+      $('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');if(window.lucide)lucide.createIcons();
+    });
+    $('toggleRegPassword').addEventListener('click',()=>{
+      const text=signupPassword.type==='text';signupPassword.type=text?'password':'text';
+      $('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');if(window.lucide)lucide.createIcons();
+    });
+    $('googleLoginBtn').addEventListener('click',async()=>{
+      clearErrs();const btn=$('googleLoginBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';
+      const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});
+      if(error){showErr('errorMsg',error.message||'Could not start Google sign in. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google';}
+    });
+    $('resendEmailBtn').addEventListener('click',async()=>{
+      const btn=$('resendEmailBtn'),status=$('resendStatus');if(!lastRegisteredEmail)return;
+      btn.disabled=true;status.textContent='';status.className='auth-resend-status';
+      try{const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail});if(error)throw error;status.textContent='Verification email sent!';status.classList.add('is-success');let s=60;btn.textContent=`Resend email (${s}s)`;clearInterval(resendInterval);resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email';}else btn.textContent=`Resend email (${s}s)`},1000)}catch(err){status.textContent=err?.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false}
+    });
+  }
 
-  $('togglePassword').addEventListener('click', () => {
-    const text=loginPassword.type==='text'; loginPassword.type=text?'password':'text';
-    $('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');
-    $('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');
-    if(window.lucide) lucide.createIcons();
-  });
-  $('toggleRegPassword').addEventListener('click', () => {
-    const text=signupPassword.type==='text'; signupPassword.type=text?'password':'text';
-    $('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');
-    $('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');
-    if(window.lucide) lucide.createIcons();
-  });
+  bind();
+  setFinalState('signin','email');
+  $('freeCreditsNote').style.display='none';
+  if(window.lucide)lucide.createIcons();
 
-  loginPassword.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click();}});
-  signupPassword.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click();}});
+  (async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex';}catch(e){console.warn('free credit copy unavailable',e)}})();
 
-  $('loginBtn').addEventListener('click',async()=>{
-    clearErrs(); const btn=$('loginBtn');
-    if(!loginPassword.value){loginPassword.focus();return;}
-    btn.disabled=true; btn.querySelector('span').textContent='Signing in...';
-    try { await loginStudent(email.value.trim(),loginPassword.value); location.href='dashboard.html'; }
-    catch(err){ showErr('errorMsg',err?.message||'Sign in failed. Please check your details.'); btn.disabled=false; btn.querySelector('span').textContent='Sign in'; }
-  });
-
-  $('registerBtn').addEventListener('click',async()=>{
-    clearErrs(); const btn=$('registerBtn');
-    if(!signupPassword.value || signupPassword.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');signupPassword.focus();return;}
-    btn.disabled=true; btn.querySelector('span').textContent='Creating account...';
-    try {
-      const result=await registerStudent(`${signupData.firstName} ${signupData.lastName}`,signupData.email,signupPassword.value);
-      if(result.alreadyExists){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
-      lastRegisteredEmail=signupData.email; $('verifySuccessEmail').textContent=signupData.email;
-      $('authFlow').style.display='none'; $('verificationSuccessView').style.display='block';
-    } catch(err) {
-      const msg=(err?.message||'').toLowerCase();
-      if(msg.includes('already registered')||msg.includes('already exists')){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
-      showErr('signupPasswordErrorMsg',err?.message||'Registration failed. Please try again.');
-      btn.disabled=false; btn.querySelector('span').textContent='Continue';
-    }
-  });
-
-  $('googleLoginBtn').addEventListener('click',async()=>{
-    clearErrs(); const btn=$('googleLoginBtn'); btn.disabled=true; btn.querySelector('span').textContent='Redirecting...';
-    const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});
-    if(error){showErr('errorMsg',error.message||'Could not start Google sign in. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google';}
-  });
-
-  $('resendEmailBtn').addEventListener('click',async()=>{
-    const btn=$('resendEmailBtn'),status=$('resendStatus'); if(!lastRegisteredEmail)return;
-    btn.disabled=true; status.textContent=''; status.className='auth-resend-status';
-    try { const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail}); if(error)throw error;
-      status.textContent='Verification email sent!'; status.classList.add('is-success'); let s=60; btn.textContent=`Resend email (${s}s)`;
-      clearInterval(resendInterval); resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email';}else btn.textContent=`Resend email (${s}s)`;},1000);
-    } catch(err){status.textContent=err?.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false;}
-  });
-}
-
-// Initialize once. No dynamic innerHTML is used for auth controls, so handlers survive every morph.
-bindAuthEvents();
-setModeUI('signin');
-$('authSocials').style.display='grid';
-$('passwordStep').classList.remove('is-visible');
-$('signupFields').classList.remove('is-expanded');
-$('freeCreditsNote').style.display='none';
-if(window.lucide) lucide.createIcons();
-
-(async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex';}catch(e){console.warn('free credit copy unavailable',e);}})();
-
-const params=new URLSearchParams(location.search);
-if(params.get('mode')==='signup') {
-  // Initial deep link to register uses the same single auth page.
-  goEmailMode('signup',{focus:false,updateUrl:false});
-} else {
-  let invalidated=false;
-  const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
-  if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
-  (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html';})();
-}
+  const params=new URLSearchParams(location.search);
+  if(params.get('mode')==='signup'){
+    setFinalState('signup','email');
+    focusLater($('regFirstName'));
+  }else{
+    let invalidated=false;const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
+    if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
+    (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html'})();
+  }
+})();
 </script>
 </body>
 </html>

@@ -1,334 +1,48 @@
-/* TypeShala authentication — Cursor-inspired progressive flow.
-   Layout is intentionally minimal; colours come from the TypeShala theme. */
+/* TypeShala authentication shell — clean single-page Cursor-style flow. */
 body.auth-shell{
-  --auth-bg:#f7f9fc;
-  --auth-text:var(--ink,#10203a);
-  --auth-muted:var(--muted,#64748b);
-  --auth-border:var(--line,#e5eaf1);
-  --auth-primary:var(--blue,#2563eb);
-  --auth-primary-hover:#1d4ed8;
-  --auth-accent:var(--gold,#e8aa00);
-  margin:0;
-  min-height:100vh;
-  background:var(--auth-bg);
-  color:var(--auth-text);
-  font-family:inherit;
+  --auth-bg:#f7f9fc;--auth-text:var(--ink,#10203a);--auth-muted:var(--muted,#64748b);
+  --auth-border:var(--line,#e5eaf1);--auth-primary:var(--blue,#2563eb);--auth-primary-hover:#1d4ed8;
+  --auth-accent:var(--gold,#e8aa00);margin:0;min-height:100vh;background:var(--auth-bg);color:var(--auth-text);font-family:inherit;
 }
 .auth-page{min-height:100vh;display:flex;flex-direction:column;position:relative}
-.auth-brand{position:absolute;left:28px;top:24px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--auth-text);z-index:2}
-.auth-brand-mark{width:34px;height:34px;border-radius:9px;background:var(--navy,#0b1f47);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:900;letter-spacing:-.5px;box-shadow:0 5px 14px rgba(11,31,71,.12)}
+.auth-brand{position:absolute;left:28px;top:24px;display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--auth-text);z-index:2}
+.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none}
 .auth-brand-copy strong{display:block;font-size:17px;line-height:1;color:var(--navy,#0b1f47);letter-spacing:-.5px}
 .auth-brand-copy small{display:block;margin-top:3px;color:var(--auth-accent);font-size:7px;font-weight:800;letter-spacing:1.25px;line-height:1}
-.auth-main{flex:1;display:flex;align-items:center;justify-content:center;padding:76px 20px 54px}
-.auth-panel{width:min(100%,390px)}
+.auth-main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:31vh 20px 54px}
+.auth-panel{width:min(100%,390px);overflow:visible}
+.auth-flow{overflow:visible}
 .auth-heading{text-align:center;margin:0 0 28px}
 .auth-heading h1{margin:0 0 5px;color:var(--auth-text);font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.55px}
 .auth-heading p{margin:0;color:var(--auth-muted);font-size:13px;line-height:1.45}
-.auth-socials{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:12px}
-.auth-social-btn{height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);display:flex;align-items:center;justify-content:center;gap:9px;font:600 13px/1 inherit;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
-.auth-social-btn:hover{border-color:#cbd5e1;background:#fbfcfe}
-.auth-social-btn:active{transform:translateY(1px)}
-.auth-social-btn:disabled{opacity:.6;cursor:not-allowed}
-.auth-social-btn svg{width:16px;height:16px;flex:none}
-.auth-field{margin:0 0 14px}
-.auth-field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.auth-field label{display:block;margin:0 0 6px;color:var(--auth-muted);font-size:11px;font-weight:650;letter-spacing:.01em}
-.auth-field-row label{margin:0}
-.auth-field-row a{color:var(--auth-muted);font-size:11px;font-weight:600;text-decoration:none}
-.auth-field-row a:hover{color:var(--auth-primary)}
+.auth-socials{display:grid;grid-template-columns:1fr;gap:9px;margin:0 0 12px;overflow:hidden;max-height:60px;opacity:1;transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .20s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-socials.is-collapsed{max-height:0;opacity:0;margin-bottom:0;pointer-events:none}
+.auth-social-btn{height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);display:flex;align-items:center;justify-content:center;gap:9px;font:600 13px/1 inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.auth-social-btn:hover{border-color:#cbd5e1;background:#fbfcfe}.auth-social-btn:disabled{opacity:.6;cursor:not-allowed}.auth-social-btn svg{width:16px;height:16px;flex:none}
+.auth-field{margin:0 0 14px}.auth-field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.auth-field label{display:block;margin:0 0 6px;color:var(--auth-muted);font-size:11px;font-weight:650}.auth-field-row label{margin:0}
+.auth-field-row a{color:var(--auth-muted);font-size:11px;font-weight:600;text-decoration:none}.auth-field-row a:hover{color:var(--auth-primary)}
 .auth-input{width:100%;height:42px;box-sizing:border-box;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);padding:0 12px;font:400 13px/42px inherit;outline:0;transition:border-color .15s,box-shadow .15s}
-.auth-input::placeholder{color:#9aa6b5}
-.auth-input:focus{border-color:var(--auth-accent);box-shadow:0 0 0 2px rgba(232,170,0,.12)}
-.auth-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.auth-password-wrap{position:relative}
-.auth-password-wrap .auth-input{padding-right:42px}
-.auth-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--auth-muted);width:30px;height:30px;display:grid;place-items:center;border-radius:6px;cursor:pointer}
-.auth-toggle:hover{background:#f3f6fa;color:var(--auth-text)}
-.auth-toggle svg{width:16px;height:16px}
-.auth-primary{width:100%;height:42px;border:0;border-radius:8px;background:var(--auth-primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font:650 13px/1 inherit;cursor:pointer;transition:background .15s,transform .15s,box-shadow .15s;margin-top:5px;box-shadow:0 6px 16px rgba(37,99,235,.14)}
-.auth-primary:hover{background:var(--auth-primary-hover);transform:translateY(-1px);box-shadow:0 8px 18px rgba(37,99,235,.18)}
-.auth-primary:active{transform:translateY(0)}
-.auth-primary:disabled{opacity:.62;cursor:not-allowed;transform:none;box-shadow:none}
-.auth-primary svg{width:15px;height:15px}
-.auth-secondary{width:100%;height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);display:flex;align-items:center;justify-content:center;gap:7px;font:650 13px/1 inherit;cursor:pointer}
-.auth-secondary:hover{border-color:#cbd5e1;background:#fbfcfe}
-.auth-step-link{border:0;background:none;padding:0;color:var(--auth-muted);font:600 11px/1.3 inherit;cursor:pointer}
-.auth-step-link:hover{color:var(--auth-text)}
-.auth-bottom{text-align:center;margin:18px 0 0;color:var(--auth-muted);font-size:12px}
-.auth-bottom a{color:var(--auth-text);font-weight:700;text-decoration:none}
-.auth-bottom a:hover{color:var(--auth-primary)}
-.auth-back{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:0;margin:0 0 19px;color:var(--auth-muted);font:600 11px/1 inherit;cursor:pointer}
-.auth-back:hover{color:var(--auth-text)}
-.auth-back svg{width:13px;height:13px}
-.auth-divider{display:flex;align-items:center;gap:11px;margin:17px 0;color:#9aa6b5;font-size:10px}
-.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--auth-border)}
-.auth-error-msg,.auth-success-msg{display:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:0 0 14px}
-.auth-error-msg{background:#fff2f2;color:#b3261e;border:1px solid #f2cccc}
-.auth-success-msg{background:#eefaf4;color:#138a54;border:1px solid #c8ead8}
-.auth-free-credits{display:flex;align-items:center;justify-content:center;gap:6px;margin:19px 0 0;color:var(--auth-muted);font-size:11px;text-align:center}
-.auth-free-credits svg{width:14px;height:14px;color:var(--auth-accent);flex:none}
-.auth-footer{padding:20px 20px 22px;text-align:center;color:#94a0af;font-size:10px;line-height:1.5}
-.auth-footer a{color:inherit;text-decoration:none}.auth-footer a:hover{color:var(--auth-text)}
-.auth-view{animation:auth-fade .16s ease both}
-@keyframes auth-fade{from{opacity:.25;transform:translateY(3px)}to{opacity:1;transform:none}}
-.auth-verify{text-align:center}
-.auth-verify-icon{width:44px;height:44px;border-radius:50%;margin:0 auto 15px;background:#eefaf4;color:#138a54;display:grid;place-items:center;font-size:20px;font-weight:800}
-.auth-verify h2{margin:0 0 7px;color:var(--auth-text);font-size:19px;letter-spacing:-.35px}
-.auth-verify p{margin:0;color:var(--auth-muted);font-size:12px;line-height:1.55}
-.auth-verify-email{margin:8px 0 14px;color:var(--auth-text);font-size:13px;font-weight:700;word-break:break-word}
-.auth-resend{margin-top:16px}
-.auth-resend-status{min-height:16px;margin:8px 0 0!important;font-size:11px!important}
-.auth-resend-status.is-success{color:#138a54}.auth-resend-status.is-error{color:#b3261e}
-.auth-field-error{color:#b3261e;font-size:10px;margin-top:5px;display:none}
-@media(max-width:520px){
-  .auth-brand{left:18px;top:18px}
-  .auth-main{padding:76px 18px 35px;align-items:flex-start;padding-top:112px}
-  .auth-panel{max-width:390px}
-  .auth-socials{grid-template-columns:1fr}
-  .auth-name-grid{grid-template-columns:1fr 1fr}
-}
-
-/* Cursor-style password recovery: same minimal authentication shell,
-   adapted to TypeShala's colours and branding. */
-.auth-simple-page .auth-brand{top:22px;left:24px}
-.auth-simple-main{padding-top:62px;padding-bottom:58px}
-.auth-simple-panel{width:min(100%,390px)}
-.auth-simple-panel .auth-heading{margin-bottom:28px;text-align:left}
-.auth-simple-panel .auth-heading h1{font-size:21px}
-.auth-simple-panel .auth-heading p{font-size:13px}
-.auth-simple-panel .auth-field{margin-bottom:15px}
-.auth-simple-panel .auth-input{height:42px}
-.auth-simple-submit{margin-top:4px;box-shadow:none}
-.auth-simple-submit:hover{box-shadow:none;transform:none}
-.auth-simple-back{margin-top:18px}
-.auth-back-inline{color:var(--auth-muted);font-size:11px;font-weight:600;text-decoration:none}
-.auth-back-inline:hover{color:var(--auth-text)}
-.auth-simple-page .auth-footer{padding-bottom:18px}
-@media(max-width:520px){
-  .auth-simple-page .auth-brand{top:18px;left:18px}
-  .auth-simple-main{padding-top:105px}
-  .auth-simple-panel .auth-heading{text-align:left}
-}
-
-/* Same-page Cursor-style auth transitions */
-.auth-view-enter{animation:auth-view-enter .28s cubic-bezier(.22,.61,.36,1) both}
-@keyframes auth-view-enter{
-  from{opacity:0;transform:translateY(7px) scale(.995)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-.auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}
-.auth-signup-link:hover{color:var(--auth-primary)}
-.auth-view[style*="display: none"]{visibility:hidden}
-
-/* Refined Cursor-style same-page morphing: the auth canvas stays fixed while
-   the sign-up name row expands into the existing email form. */
-.auth-main{align-items:flex-start;padding-top:31vh}
-.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none}
-.auth-brand{gap:9px}
-.auth-signup-fields{
-  max-height:0;
-  opacity:0;
-  overflow:hidden;
-  transform:translateY(-8px);
-  margin:0;
-  pointer-events:none;
-  transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .22s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1);
-}
-.auth-panel.is-signup .auth-signup-fields{
-  max-height:78px;
-  opacity:1;
-  transform:translateY(0);
-  margin:0 0 1px;
-  pointer-events:auto;
-}
-.auth-signup-fields .auth-name-grid{padding-top:1px}
-.auth-signup-fields .auth-field{margin-bottom:13px}
-.auth-signup-fields .auth-field label{opacity:0;transform:translateY(3px);transition:opacity .18s ease .07s,transform .22s ease .07s}
-.auth-panel.is-signup .auth-signup-fields .auth-field label{opacity:1;transform:none}
-.auth-panel.is-signup .auth-heading p{animation:auth-subtitle-soft .28s ease both}
-@keyframes auth-subtitle-soft{from{opacity:.35}to{opacity:1}}
-@media(max-width:520px){
-  .auth-main{align-items:flex-start;padding-top:112px}
-  .auth-brand-logo{width:34px;height:34px}
-}
-@media(prefers-reduced-motion:reduce){
-  .auth-signup-fields,.auth-signup-fields .auth-field label{transition:none!important;animation:none!important}
-}
-
-/* True Cursor-style step morphing: stable email field stays in the DOM while
-   the password area grows underneath it. Signup details collapse out at the
-   same time, so the email naturally glides upward instead of the page changing. */
-.auth-password-step{
-  display:grid;
-  grid-template-rows:0fr;
-  opacity:0;
-  overflow:hidden;
-  transform:translateY(-7px);
-  max-height:0;
-  margin:0;
-  transition:grid-template-rows .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1);
-}
-.auth-password-step.is-visible{
-  grid-template-rows:1fr;
-  max-height:82px;
-  opacity:1;
-  transform:none;
-  margin:0 0 1px;
-}
-.auth-password-step > .auth-field{min-height:0;overflow:hidden;margin:0;opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .3s cubic-bezier(.22,.61,.36,1)}
-.auth-password-step > .auth-field.is-active{opacity:1;transform:none}
-.auth-signup-fields{transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .2s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1)}
-.auth-signup-fields.is-expanded{max-height:78px;opacity:1;transform:translateY(0);margin:0 0 1px;pointer-events:auto}
-.auth-signup-fields:not(.is-expanded){max-height:0;opacity:0;transform:translateY(-7px);margin:0;pointer-events:none}
-.auth-panel.is-signup-password .auth-password-step{max-height:82px}
-.auth-step-back{text-align:center;margin-top:17px;animation:auth-back-soft .25s ease both}
-@keyframes auth-back-soft{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
-.auth-created-password{display:none}
-@media(prefers-reduced-motion:reduce){
-  .auth-password-step,.auth-password-step > .auth-field,.auth-signup-fields{transition:none!important;animation:none!important}
-}
-/* During signup -> password, the name row collapses and the shared email field
-   glides upward while the password field rises into the space it vacates. */
-.auth-panel.is-signup-password .auth-signup-fields{max-height:0!important;opacity:0!important;transform:translateY(-7px)!important;margin:0!important;pointer-events:none!important}
-.auth-panel.is-signup-password .auth-email-field,
-.auth-panel.is-signup-password .auth-password-step{
-  transform:translateY(-64px);
-}
-.auth-panel.is-signup-password .auth-password-step.is-visible{
-  margin-bottom:-63px;
-}
-.auth-panel.is-signup-password .auth-password-step > .auth-field.is-active{
-  transform:translateY(0);
-}
-.auth-panel.is-signup-password .auth-error-msg,
-.auth-panel.is-signup-password .auth-success-msg,
-.auth-panel.is-signup-password .auth-primary,
-.auth-panel.is-signup-password .auth-step-back{
-  /* The controls below the morph follow the new compact layout naturally. */
-}
-
-/* Final Cursor-like morph refinement: let the document reflow naturally while
-   stable controls are FLIP-animated and newly revealed controls fade/slide in. */
-.auth-socials{max-height:60px;overflow:hidden;opacity:1;transform:none;transition:max-height .30s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .30s cubic-bezier(.22,.61,.36,1),transform .30s cubic-bezier(.22,.61,.36,1)}
-.auth-socials.is-collapsing{max-height:0;opacity:0;transform:translateY(-5px);margin-bottom:0}
-.auth-password-step{will-change:max-height,opacity,transform}
-.auth-password-step.is-visible{max-height:82px}
-.auth-password-step > .auth-field.is-active{animation:auth-password-reveal .30s cubic-bezier(.22,.61,.36,1) both}
-@keyframes auth-password-reveal{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
-/* The name row is allowed to collapse in its own space; no manual -64px
-   translation is used, so the email field follows the real layout movement. */
-.auth-panel.is-signup-password .auth-email-field,
-.auth-panel.is-signup-password .auth-password-step{transform:none}
-.auth-panel.is-signup-password .auth-password-step.is-visible{margin-bottom:1px}
-.auth-panel.is-signup-password .auth-signup-fields{max-height:0!important;opacity:0!important;transform:translateY(-7px)!important;margin:0!important;pointer-events:none!important}
-@media(prefers-reduced-motion:reduce){
-  .auth-socials,.auth-password-step{transition:none!important}
-  .auth-password-step > .auth-field.is-active{animation:none!important}
-}
-
-/* ================================================================
-   AUTH FLOW — FINAL STABLE MORPH SYSTEM
-   One DOM, one page, no form replacement. State changes are layout
-   transitions; FLIP in login.html handles the stable elements.
-   ================================================================ */
-.auth-panel{overflow:visible}
-.auth-flow{overflow:visible}
-.auth-bottom span[hidden]{display:none!important}
-
-/* Sign-up details: collapse/expand their real layout height. */
-.auth-signup-fields{
-  display:block;
-  height:auto;
-  max-height:0!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:hidden!important;
-  opacity:0;
-  transform:translateY(-8px);
-  pointer-events:none;
-  transition:
-    max-height 360ms cubic-bezier(.22,.61,.36,1),
-    opacity 180ms ease,
-    transform 360ms cubic-bezier(.22,.61,.36,1),
-    margin 360ms cubic-bezier(.22,.61,.36,1);
-}
-.auth-signup-fields.is-expanded{
-  max-height:76px!important;
-  margin:0 0 1px!important;
-  opacity:1;
-  transform:none;
-  pointer-events:auto;
-}
-.auth-signup-fields .auth-name-grid{padding:0}
-.auth-signup-fields .auth-field{margin-bottom:13px}
-
-/* Password step: the wrapper itself grows, then the active password field
-   fades/rises inside it. It never uses display:none during the transition. */
-.auth-password-step{
-  display:grid!important;
-  grid-template-rows:0fr;
-  max-height:0!important;
-  margin:0!important;
-  overflow:hidden!important;
-  opacity:0;
-  transform:translateY(-7px);
-  transition:
-    grid-template-rows 360ms cubic-bezier(.22,.61,.36,1),
-    max-height 360ms cubic-bezier(.22,.61,.36,1),
-    opacity 180ms ease,
-    transform 360ms cubic-bezier(.22,.61,.36,1),
-    margin 360ms cubic-bezier(.22,.61,.36,1);
-}
-.auth-password-step.is-visible{
-  grid-template-rows:1fr;
-  max-height:82px!important;
-  margin:0 0 1px!important;
-  opacity:1;
-  transform:none;
-}
-.auth-password-step>.auth-field{
-  min-height:0;
-  overflow:hidden;
-  margin:0!important;
-  opacity:0;
-  transform:translateY(8px);
-  transition:opacity 180ms ease,transform 300ms cubic-bezier(.22,.61,.36,1);
-}
-.auth-password-step>.auth-field.is-active{
-  opacity:1;
-  transform:none;
-}
-
-/* The shared email field is intentionally NOT absolutely positioned. When
-   signup details collapse, normal document reflow moves the email upward;
-   FLIP then makes that movement smooth instead of teleporting it. */
-.auth-panel.is-signup-password .auth-signup-fields{
-  max-height:0!important;
-  margin:0!important;
-  opacity:0!important;
-  transform:translateY(-8px)!important;
-  pointer-events:none!important;
-}
-.auth-panel.is-signup-password .auth-email-field{transform:none}
-.auth-panel.is-signup-password .auth-password-step{transform:none}
-
-/* Social provider participates in the same collapse. */
-.auth-socials{
-  overflow:hidden;
-  max-height:60px;
-  opacity:1;
-  transform:none;
-  transition:max-height 300ms cubic-bezier(.22,.61,.36,1),opacity 180ms ease,margin 300ms cubic-bezier(.22,.61,.36,1),transform 300ms cubic-bezier(.22,.61,.36,1);
-}
-.auth-socials.is-collapsing{
-  max-height:0!important;
-  opacity:0;
-  transform:translateY(-5px);
-  margin-bottom:0!important;
-}
-
-.auth-step-back{margin-top:17px}
-
-@media(prefers-reduced-motion:reduce){
-  .auth-signup-fields,.auth-password-step,.auth-password-step>.auth-field,.auth-socials{transition:none!important;animation:none!important}
-}
+.auth-input::placeholder{color:#9aa6b5}.auth-input:focus{border-color:var(--auth-accent);box-shadow:0 0 0 2px rgba(232,170,0,.12)}
+.auth-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-password-wrap{position:relative}.auth-password-wrap .auth-input{padding-right:42px}
+.auth-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--auth-muted);width:30px;height:30px;display:grid;place-items:center;border-radius:6px;cursor:pointer}.auth-toggle:hover{background:#f3f6fa;color:var(--auth-text)}.auth-toggle svg{width:16px;height:16px}
+.auth-primary{width:100%;height:42px;border:0;border-radius:8px;background:var(--auth-primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font:650 13px/1 inherit;cursor:pointer;transition:background .15s,box-shadow .15s;margin-top:5px;box-shadow:0 6px 16px rgba(37,99,235,.14)}
+.auth-primary:hover{background:var(--auth-primary-hover);box-shadow:0 8px 18px rgba(37,99,235,.18)}.auth-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none}.auth-primary svg{width:15px;height:15px}
+.auth-step-link{border:0;background:none;padding:0;color:var(--auth-muted);font:600 11px/1.3 inherit;cursor:pointer}.auth-step-link:hover{color:var(--auth-text)}
+.auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}.auth-bottom{text-align:center;margin:18px 0 0;color:var(--auth-muted);font-size:12px}.auth-bottom a{color:var(--auth-text);font-weight:700;text-decoration:none}
+.auth-step-back{text-align:center;margin-top:17px}.auth-error-msg,.auth-success-msg{display:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:0 0 14px}.auth-error-msg{background:#fff2f2;color:#b3261e;border:1px solid #f2cccc}.auth-success-msg{background:#eefaf4;color:#138a54;border:1px solid #c8ead8}
+.auth-footer{padding:20px 20px 22px;text-align:center;color:#94a0af;font-size:10px;line-height:1.5}.auth-footer a{color:inherit;text-decoration:none}
+/* Signup details: real height in normal flow. JS handles the stable vertical morph. */
+.auth-signup-fields{height:0;max-height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;padding:0;transition:height .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-signup-fields.is-expanded{height:76px;max-height:76px;opacity:1;margin:0 0 1px;pointer-events:auto}.auth-signup-fields .auth-name-grid{padding:0}.auth-signup-fields .auth-field{margin-bottom:13px}
+/* Password wrapper is in normal flow; its active field is the only revealed child. */
+.auth-password-step{display:grid;grid-template-rows:0fr;max-height:0;opacity:0;overflow:hidden;margin:0;transition:grid-template-rows .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-password-step.is-visible{grid-template-rows:1fr;max-height:82px;opacity:1;margin:0 0 1px}
+.auth-password-step>.auth-field{min-height:0;overflow:hidden;margin:0!important;opacity:0;transform:translateY(7px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
+.auth-password-step>.auth-field.is-active{opacity:1;transform:none}
+.auth-special-view{text-align:center}.auth-verify-icon{width:44px;height:44px;border-radius:50%;margin:0 auto 15px;background:#eefaf4;color:#138a54;display:grid;place-items:center;font-size:20px;font-weight:800}.auth-verify h2{margin:0 0 7px;font-size:19px}.auth-verify p{margin:0;color:var(--auth-muted);font-size:12px;line-height:1.55}.auth-verify-email{margin:8px 0 14px;font-size:13px;font-weight:700;word-break:break-word}.auth-secondary{width:100%;height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);font:650 13px/1 inherit}.auth-resend{margin-top:16px}.auth-resend-status{min-height:16px;margin:8px 0 0!important;font-size:11px!important}.auth-resend-status.is-success{color:#138a54}.auth-resend-status.is-error{color:#b3261e}
+.auth-free-credits{display:flex;align-items:center;justify-content:center;gap:6px;margin:19px 0 0;color:var(--auth-muted);font-size:11px;text-align:center}.auth-free-credits svg{width:14px;height:14px;color:var(--auth-accent)}
+@media(max-width:520px){.auth-brand{left:18px;top:18px}.auth-main{padding:112px 18px 35px}.auth-panel{max-width:390px}.auth-name-grid{grid-template-columns:1fr 1fr}.auth-brand-logo{width:34px;height:34px}}
+@media(prefers-reduced-motion:reduce){.auth-socials,.auth-signup-fields,.auth-password-step,.auth-password-step>.auth-field{transition:none!important}.auth-heading,.auth-panel *{animation:none!important}}
+.auth-step-back{opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
+.auth-panel.is-password .auth-step-back{opacity:1;transform:none}
