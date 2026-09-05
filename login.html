@@ -41,7 +41,7 @@
         <div class="auth-success-msg" id="successMsg"></div>
         <button type="button" class="auth-primary" id="continueEmailBtn">Continue</button>
 
-        <p class="auth-bottom">Don't have an account? <a href="register.html">Sign up</a></p>
+        <p class="auth-bottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
       </div>
 
       <div class="auth-view" id="signUpDetailsView" style="display:none">
@@ -136,7 +136,15 @@ const $=id=>document.getElementById(id);
 const views=['signInEmailView','signInPasswordView','signUpDetailsView','signUpPasswordView','verificationSuccessView','accountExistsView'];
 const hideAll=()=>views.forEach(id=>$(id).style.display='none');
 const hide=(id)=>$(id).style.display='none';
-const show=(id)=>{hideAll();$(id).style.display='block';if(window.lucide)lucide.createIcons();};
+const show=(id)=>{
+  hideAll();
+  const el=$(id);
+  el.style.display='block';
+  el.classList.remove('auth-view-enter');
+  void el.offsetWidth;
+  el.classList.add('auth-view-enter');
+  if(window.lucide)lucide.createIcons();
+};
 const showErr=(id,text)=>{const el=$(id);el.textContent=text;el.style.display='block';};
 const clearErrs=()=>['errorMsg','successMsg','signupErrorMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id))$(id).style.display='none'});
 let signupData={firstName:'',lastName:'',email:''};
@@ -144,6 +152,14 @@ let lastRegisteredEmail=null; let resendInterval=null;
 
 function setupLogin(){
   const email=$('loginEmail'), pass=$('loginPassword');
+  $('openSignupBtn').onclick=()=>{
+    clearErrs();
+    const currentEmail=email.value.trim();
+    if(currentEmail && $('regEmail')) $('regEmail').value=currentEmail;
+    show('signUpDetailsView');
+    const first=$('regFirstName');
+    setTimeout(()=>first.focus(),80);
+  };
   $('continueEmailBtn').onclick=()=>{clearErrs();if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return;}show('signInPasswordView');pass.focus();};
   email.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click()}};
   $('backToEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');email.focus()};
@@ -169,7 +185,10 @@ setupLogin();setupSignup();
 (async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex'}catch(e){}})();
 
 const params=new URLSearchParams(location.search);
-if(params.get('mode')==='signup'){show('signUpDetailsView')}else{
+if(params.get('mode')==='signup'){
+  show('signUpDetailsView');
+}else{
+
   let invalidated=false;const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
   (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html'})();
 }

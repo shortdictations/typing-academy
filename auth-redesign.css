@@ -109,3 +109,13 @@ body.auth-shell{
   .auth-simple-main{padding-top:105px}
   .auth-simple-panel .auth-heading{text-align:left}
 }
+
+/* Same-page Cursor-style auth transitions */
+.auth-view-enter{animation:auth-view-enter .28s cubic-bezier(.22,.61,.36,1) both}
+@keyframes auth-view-enter{
+  from{opacity:0;transform:translateY(7px) scale(.995)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}
+.auth-signup-link:hover{color:var(--auth-primary)}
+.auth-view[style*="display: none"]{visibility:hidden}
