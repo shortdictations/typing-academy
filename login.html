@@ -14,7 +14,7 @@
 <body class="auth-shell">
 <div class="auth-page">
   <a class="auth-brand" href="index.html" aria-label="TypeShala home">
-    <span class="auth-brand-mark">TS</span>
+    <img class="auth-brand-logo" src="favicon.png" alt="TypeShala">
     <span class="auth-brand-copy"><strong>TypeShala</strong><small>TYPING PRACTICE CENTRE</small></span>
   </a>
 
@@ -33,6 +33,13 @@
           </button>
         </div>
 
+        <div class="auth-signup-fields" id="signupFields" aria-hidden="true">
+          <div class="auth-name-grid">
+            <div class="auth-field"><label for="regFirstName">First name</label><input class="auth-input" type="text" id="regFirstName" placeholder="Your first name" autocomplete="given-name"></div>
+            <div class="auth-field"><label for="regLastName">Last name</label><input class="auth-input" type="text" id="regLastName" placeholder="Your last name" autocomplete="family-name"></div>
+          </div>
+        </div>
+
         <div class="auth-field">
           <label for="loginEmail">Email</label>
           <input class="auth-input" type="email" id="loginEmail" placeholder="Your email address" autocomplete="email" required>
@@ -41,32 +48,12 @@
         <div class="auth-success-msg" id="successMsg"></div>
         <button type="button" class="auth-primary" id="continueEmailBtn">Continue</button>
 
-        <p class="auth-bottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
-      </div>
-
-      <div class="auth-view" id="signUpDetailsView" style="display:none">
-        <div class="auth-heading">
-          <h1>Welcome to TypeShala</h1>
-          <p>Create your account to start practising.</p>
-        </div>
-        <div class="auth-socials" style="grid-template-columns:1fr">
-          <button type="button" class="auth-social-btn" id="googleSignupBtn" aria-label="Continue with Google">
-            <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
-            <span>Continue with Google</span>
-          </button>
-        </div>
-        <div class="auth-error-msg" id="signupErrorMsg"></div>
-        <div class="auth-name-grid">
-          <div class="auth-field"><label for="regFirstName">First name</label><input class="auth-input" type="text" id="regFirstName" placeholder="Your first name" autocomplete="given-name" required></div>
-          <div class="auth-field"><label for="regLastName">Last name</label><input class="auth-input" type="text" id="regLastName" placeholder="Your last name" autocomplete="family-name" required></div>
-        </div>
-        <div class="auth-field"><label for="regEmail">Email</label><input class="auth-input" type="email" id="regEmail" placeholder="Your email address" autocomplete="email" required></div>
-        <button type="button" class="auth-primary" id="continueSignupBtn">Continue</button>
-        <p class="auth-bottom">Already have an account? <a href="login.html">Sign in</a></p>
+        <p class="auth-bottom" id="authModeBottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
       </div>
 
       <div class="auth-view" id="signUpPasswordView" style="display:none">
         <button type="button" class="auth-back" id="backToSignupDetailsBtn"><i data-lucide="arrow-left"></i> Back</button>
+        <input type="hidden" id="regEmail" value="">
         <div class="auth-heading" style="margin-bottom:24px">
           <h1>Create your password</h1>
           <p>Choose a password for your TypeShala account.</p>
@@ -133,62 +120,88 @@
 <script>
 if (window.lucide) lucide.createIcons();
 const $=id=>document.getElementById(id);
-const views=['signInEmailView','signInPasswordView','signUpDetailsView','signUpPasswordView','verificationSuccessView','accountExistsView'];
+const views=['signInEmailView','signInPasswordView','signUpPasswordView','verificationSuccessView','accountExistsView'];
 const hideAll=()=>views.forEach(id=>$(id).style.display='none');
-const hide=(id)=>$(id).style.display='none';
 const show=(id)=>{
   hideAll();
-  const el=$(id);
-  el.style.display='block';
-  el.classList.remove('auth-view-enter');
-  void el.offsetWidth;
-  el.classList.add('auth-view-enter');
-  if(window.lucide)lucide.createIcons();
+  const el=$(id); el.style.display='block';
+  el.classList.remove('auth-view-enter'); void el.offsetWidth; el.classList.add('auth-view-enter');
+  if(window.lucide) lucide.createIcons();
 };
 const showErr=(id,text)=>{const el=$(id);el.textContent=text;el.style.display='block';};
-const clearErrs=()=>['errorMsg','successMsg','signupErrorMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id))$(id).style.display='none'});
+const clearErrs=()=>['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id))$(id).style.display='none'});
 let signupData={firstName:'',lastName:'',email:''};
 let lastRegisteredEmail=null; let resendInterval=null;
+let authMode='signin';
+
+function setAuthMode(mode, focus=true){
+  authMode=mode;
+  const panel=document.querySelector('.auth-panel');
+  const fields=$('signupFields');
+  const email=$('loginEmail');
+  const bottom=$('authModeBottom');
+  const headingSub=document.querySelector('#signInEmailView .auth-heading p');
+  const social=$('googleLoginBtn');
+  panel.classList.toggle('is-signup',mode==='signup');
+  fields.setAttribute('aria-hidden',mode!=='signup');
+  if(mode==='signup'){
+    headingSub.textContent='The easiest way to practise and improve.';
+    bottom.innerHTML='Already have an account? <button type="button" class="auth-step-link" id="openSigninBtn">Sign in</button>';
+    $('openSigninBtn').onclick=()=>setAuthMode('signin');
+    if(email.value.trim()) $('regEmail').value=email.value.trim();
+    if(focus) setTimeout(()=>$('regFirstName').focus(),220);
+  }else{
+    headingSub.textContent='Your practice. Your progress. Your success.';
+    bottom.innerHTML="Don't have an account? <button type=\"button\" class=\"auth-step-link auth-signup-link\" id=\"openSignupBtn\">Sign up</button>";
+    $('openSignupBtn').onclick=()=>setAuthMode('signup');
+    if(focus) setTimeout(()=>email.focus(),180);
+  }
+}
 
 function setupLogin(){
   const email=$('loginEmail'), pass=$('loginPassword');
-  $('openSignupBtn').onclick=()=>{
+  $('openSignupBtn').onclick=()=>setAuthMode('signup');
+  $('continueEmailBtn').onclick=()=>{
     clearErrs();
-    const currentEmail=email.value.trim();
-    if(currentEmail && $('regEmail')) $('regEmail').value=currentEmail;
-    show('signUpDetailsView');
-    const first=$('regFirstName');
-    setTimeout(()=>first.focus(),80);
+    if(authMode==='signup'){ setupSignupDetails(); return; }
+    if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return;}
+    show('signInPasswordView'); pass.focus();
   };
-  $('continueEmailBtn').onclick=()=>{clearErrs();if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return;}show('signInPasswordView');pass.focus();};
   email.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click()}};
-  $('backToEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');email.focus()};
-  $('changeEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');email.focus()};
+  $('backToEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signin',false);email.focus()};
+  $('changeEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signin',false);email.focus()};
   $('togglePassword').onclick=()=>{const text=pass.type==='text';pass.type=text?'password':'text';$('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
   $('loginBtn').onclick=async()=>{clearErrs();const btn=$('loginBtn');btn.disabled=true;btn.querySelector('span').textContent='Signing in...';try{await loginStudent(email.value.trim(),pass.value);location.href='dashboard.html'}catch(err){showErr('errorMsg',err.message||'Sign in failed. Please check your details.');btn.disabled=false;btn.querySelector('span').textContent='Sign in'}};
   pass.onkeydown=e=>{if(e.key==='Enter')$('loginBtn').click()};
   $('googleLoginBtn').onclick=async()=>{clearErrs();const btn=$('googleLoginBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr('errorMsg',error.message||'Could not start Google sign in. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google'}};
 }
 
+function setupSignupDetails(){
+  const f=$('regFirstName'),l=$('regLastName'),e=$('loginEmail');
+  if(!f.value.trim()){f.focus();return;}
+  if(!l.value.trim()){l.focus();return;}
+  if(!e.value.trim()||!e.checkValidity()){e.reportValidity();return;}
+  signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:e.value.trim()};
+  $('regEmail').value=signupData.email;
+  show('signUpPasswordView'); $('regPassword').focus();
+}
+
 function setupSignup(){
-  $('continueSignupBtn').onclick=()=>{clearErrs();const f=$('regFirstName'),l=$('regLastName'),e=$('regEmail');if(!f.value.trim()||!l.value.trim()||!e.value.trim()||!e.checkValidity()){[f,l,e].find(x=>!x.value.trim()||!x.checkValidity())?.focus();return;}signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:e.value.trim()};show('signUpPasswordView');$('regPassword').focus()};
-  $('backToSignupDetailsBtn').onclick=()=>{clearErrs();show('signUpDetailsView');$('regEmail').focus()};
-  $('changeSignupDetailsBtn').onclick=()=>{clearErrs();show('signUpDetailsView');$('regEmail').focus()};
+  $('backToSignupDetailsBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signup',false);$('regFirstName').focus()};
+  $('changeSignupDetailsBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signup',false);$('regEmail').focus()};
   $('toggleRegPassword').onclick=()=>{const p=$('regPassword'),text=p.type==='text';p.type=text?'password':'text';$('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
-  $('googleSignupBtn').onclick=async()=>{clearErrs();const btn=$('googleSignupBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr('signupErrorMsg',error.message||'Could not start Google sign up. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google'}};
+  $('googleSignupBtn').onclick=async()=>{clearErrs();const btn=$('googleSignupBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr('signupPasswordErrorMsg',error.message||'Could not start Google sign up. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google'}};
   $('registerBtn').onclick=async()=>{clearErrs();const btn=$('registerBtn');const p=$('regPassword');if(p.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');p.focus();return;}btn.disabled=true;btn.querySelector('span').textContent='Creating account...';try{const result=await registerStudent(signupData.firstName+' '+signupData.lastName,signupData.email,p.value);if(result.alreadyExists){show('accountExistsView');return;}lastRegisteredEmail=signupData.email;$('verifySuccessEmail').textContent=signupData.email;show('verificationSuccessView');}catch(err){const msg=(err&&err.message?err.message:'').toLowerCase();if(msg.includes('already registered')||msg.includes('already exists')){show('accountExistsView');return;}showErr('signupPasswordErrorMsg',err.message||'Registration failed. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue'}};
   $('resendEmailBtn').onclick=async()=>{const btn=$('resendEmailBtn'),status=$('resendStatus');if(!lastRegisteredEmail)return;btn.disabled=true;status.textContent='';status.className='auth-resend-status';try{const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail});if(error)throw error;status.textContent='Verification email sent!';status.classList.add('is-success');let s=60;btn.textContent='Resend email ('+s+'s)';clearInterval(resendInterval);resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email'}else btn.textContent='Resend email ('+s+'s)'},1000)}catch(err){status.textContent=err.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false}};
 }
 
 setupLogin();setupSignup();
-
 (async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex'}catch(e){}})();
 
 const params=new URLSearchParams(location.search);
 if(params.get('mode')==='signup'){
-  show('signUpDetailsView');
+  show('signInEmailView'); setAuthMode('signup');
 }else{
-
   let invalidated=false;const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
   (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html'})();
 }

@@ -119,3 +119,38 @@ body.auth-shell{
 .auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}
 .auth-signup-link:hover{color:var(--auth-primary)}
 .auth-view[style*="display: none"]{visibility:hidden}
+
+/* Refined Cursor-style same-page morphing: the auth canvas stays fixed while
+   the sign-up name row expands into the existing email form. */
+.auth-main{align-items:flex-start;padding-top:31vh}
+.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none}
+.auth-brand{gap:9px}
+.auth-signup-fields{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transform:translateY(-8px);
+  margin:0;
+  pointer-events:none;
+  transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .22s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1);
+}
+.auth-panel.is-signup .auth-signup-fields{
+  max-height:78px;
+  opacity:1;
+  transform:translateY(0);
+  margin:0 0 1px;
+  pointer-events:auto;
+}
+.auth-signup-fields .auth-name-grid{padding-top:1px}
+.auth-signup-fields .auth-field{margin-bottom:13px}
+.auth-signup-fields .auth-field label{opacity:0;transform:translateY(3px);transition:opacity .18s ease .07s,transform .22s ease .07s}
+.auth-panel.is-signup .auth-signup-fields .auth-field label{opacity:1;transform:none}
+.auth-panel.is-signup .auth-heading p{animation:auth-subtitle-soft .28s ease both}
+@keyframes auth-subtitle-soft{from{opacity:.35}to{opacity:1}}
+@media(max-width:520px){
+  .auth-main{align-items:flex-start;padding-top:112px}
+  .auth-brand-logo{width:34px;height:34px}
+}
+@media(prefers-reduced-motion:reduce){
+  .auth-signup-fields,.auth-signup-fields .auth-field label{transition:none!important;animation:none!important}
+}
