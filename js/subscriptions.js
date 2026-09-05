@@ -74,7 +74,13 @@ async function loadProductCatalog(userId) {
   const creditGrid = document.getElementById("creditProductsGrid");
 
   const [{ data: products, error: productsError }, { data: passRows }, { data: creditRows }] = await Promise.all([
-    supabaseClient.from("products").select("*").eq("active", true).order("display_order", { ascending: true }),
+    // get_products_with_pricing() (not a plain products select) — the
+    // SAME function the payment edge function's pricing logic mirrors,
+    // so effective_price/discount_active shown here always match what
+    // Buy Now would actually charge. This is still display information
+    // only: the edge function recalculates independently from the
+    // database row at payment time, never trusting this response.
+    supabaseClient.rpc("get_products_with_pricing"),
     supabaseClient.from("user_passes").select("pass_type, status, starts_at, expires_at").eq("user_id", userId),
     supabaseClient.from("wallet_credits").select("credits_remaining, expires_at").eq("user_id", userId)
   ]);
@@ -167,10 +173,18 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
 
 function buildPassCardHtml(p, activeState) {
   const featured = p.best_value ? " featured" : "";
-  const bestValueBadge = p.best_value ? '<span class="best-value-badge">Best Value</span>' : "";
+  // best_value and discount_active are independent (spec: a pass may
+  // be discounted but not Featured, Featured but not discounted, both,
+  // or neither) — but there is only one badge_text field, so when
+  // either applies it shows the same admin-set text, falling back to
+  // a sensible default only when the admin left it blank.
+  const showBadge = p.best_value || p.discount_active;
+  const defaultBadgeText = p.best_value ? "Best Value" : discountBadgeFallback(p);
+  const bestValueBadge = showBadge ? '<span class="best-value-badge">' + escapeHtmlLocal(p.badge_text || defaultBadgeText) + '</span>' : "";
   const theme = (p.pass_type || "ssc").toLowerCase();
   const catClass = "plan-" + theme;
   const iconHtml = '<div class="plan-icon">' + planIconSvg(theme) + '</div>';
+  const priceHtml = priceDisplayHtml(p);
 
   if (activeState) {
     const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
@@ -198,12 +212,37 @@ function buildPassCardHtml(p, activeState) {
         <span class="pass-status-text-inactive">Not Active</span>
       </div>
       <div class="card-label">${escapeHtmlLocal(p.name)}</div>
-      <div class="pass-price">&#8377;${p.price}</div>
+      ${priceHtml}
       <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
       ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
       ${featuresListHtml(p.features)}
       <button class="btn btn-full buy-product-btn" data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">Buy Now <span aria-hidden="true">&rarr;</span></button>
     </div>`;
+}
+
+// Only ever used when the admin left badge_text blank AND there's no
+// Featured badge to fall back to instead — a plain, compact label so
+// the card is never left with an empty badge span when a discount is
+// active but unlabeled.
+function discountBadgeFallback(p) {
+  if (!p.discount_active) return "";
+  return p.discount_type === "PERCENTAGE" ? p.discount_value + "% OFF" : "\u20B9" + p.discount_value + " OFF";
+}
+
+// discount_active/effective_price come from get_products_with_pricing()
+// (server-computed, same function the payment edge function itself
+// uses) — never recalculated here. This is purely which of the two
+// numbers to show and how, not a pricing decision.
+function priceDisplayHtml(p) {
+  if (!p.discount_active) {
+    return '<div class="pass-price">&#8377;' + p.price + '</div>';
+  }
+  return (
+    '<div class="pass-price pass-price-discounted">' +
+      '<span class="pass-price-original">&#8377;' + p.price + '</span>' +
+      '<span class="pass-price-final">&#8377;' + p.effective_price + '</span>' +
+    '</div>'
+  );
 }
 
 // Deliberately minimal — no free-vs-purchased breakdown, just the
@@ -292,16 +331,23 @@ function renderCreditProducts(products, container) {
 }
 
 function creditPackChipHtml(p, isSelected) {
-  const badge = p.badge_text ? '<span class="credit-pack-badge">' + escapeHtmlLocal(p.badge_text) + "</span>" : "";
+  // badge_text shows whenever it's set OR a discount is active with no
+  // custom text — same fallback rule the pass cards use above, kept
+  // small here since this chip has far less room than a full card.
+  const badgeText = p.badge_text || (p.discount_active ? discountBadgeFallback(p) : "");
+  const badge = badgeText ? '<span class="credit-pack-badge">' + escapeHtmlLocal(badgeText) + "</span>" : "";
   // Selection is never color-only: aria-checked carries it for
   // assistive tech, and the checkmark carries it visually alongside
   // the border/weight change.
   const check = isSelected ? '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>' : "";
+  const priceHtml = p.discount_active
+    ? '<div class="credit-pack-price credit-pack-price-discounted"><span class="credit-pack-price-original">&#8377;' + p.price + '</span> &#8377;' + p.effective_price + '</div>'
+    : '<div class="credit-pack-price">&#8377;' + p.price + '</div>';
   return `
     <button type="button" class="credit-pack-chip${isSelected ? " selected" : ""}" data-product-id="${p.id}" role="radio" aria-checked="${isSelected}">
       ${badge}
       <div class="credit-pack-name">${check}${escapeHtmlLocal(p.name)}</div>
-      <div class="credit-pack-price">&#8377;${p.price}</div>
+      ${priceHtml}
     </button>`;
 }
 

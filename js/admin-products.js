@@ -27,6 +27,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("pType").addEventListener("change", updateTypeFields);
   updateTypeFields();
 
+  document.getElementById("pDiscountEnabled").addEventListener("change", updateDiscountFieldsVisibility);
+  ["pPrice", "pDiscountType", "pDiscountValue"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateDiscountPreview);
+  });
+  updateDiscountFieldsVisibility();
+
   document.getElementById("productForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
   document.getElementById("saveFreeCreditsBtn").addEventListener("click", saveFreeCredits);
@@ -92,6 +98,40 @@ function updateTypeFields() {
   // clearOtherBestValue, no longer scoped to product_type).
 }
 
+// Mirrors compute_effective_price() (the database function the
+// payment edge function and student pricing RPC both actually use)
+// purely for a live admin preview — this number is never sent
+// anywhere or trusted for anything; the server always recalculates
+// its own answer independently from the saved row.
+function updateDiscountFieldsVisibility() {
+  const enabled = document.getElementById("pDiscountEnabled").checked;
+  document.getElementById("discountFields").style.display = enabled ? "block" : "none";
+  updateDiscountPreview();
+}
+
+function updateDiscountPreview() {
+  const enabled = document.getElementById("pDiscountEnabled").checked;
+  const previewEl = document.getElementById("pDiscountPreview");
+  const price = parseFloat(document.getElementById("pPrice").value);
+
+  if (!enabled || isNaN(price)) {
+    previewEl.textContent = "—";
+    return;
+  }
+
+  const type = document.getElementById("pDiscountType").value;
+  const value = parseFloat(document.getElementById("pDiscountValue").value);
+  if (isNaN(value)) {
+    previewEl.textContent = "—";
+    return;
+  }
+
+  let final = type === "PERCENTAGE" ? price - (price * value / 100) : price - value;
+  if (final < 0) final = 0;
+  if (final > price) final = price;
+  previewEl.textContent = "\u20B9" + final.toFixed(2) + " (was \u20B9" + price.toFixed(2) + ")";
+}
+
 /* ---------------- Loading / rendering ---------------- */
 
 async function loadProducts() {
@@ -128,12 +168,14 @@ function renderList(products, container, emptyText) {
       ? '<td><span class="pill">&#9733; ' + escapeHtml(p.badge_text || "Featured") + '</span></td>'
       : '<td></td>';
     const featuredAction = '<button type="button" class="btn btn-ghost" style="padding:5px 10px;font-size:0.75rem;" onclick="toggleBestValue(\'' + p.id + '\')">' + (p.best_value ? "Remove Featured" : "Set Featured") + '</button>';
+    const discountCell = discountStatusCell(p);
     rows += `
       <tr>
         <td>${escapeHtml(p.name)}</td>
         <td><span class="pill">${escapeHtml(subLabel)}</span></td>
         <td>&#8377;${p.price}</td>
         <td>${p.validity_days} days</td>
+        ${discountCell}
         <td>${p.display_order}</td>
         <td>${p.active ? "Active" : "Inactive"}</td>
         ${featuredCell}
@@ -150,11 +192,28 @@ function renderList(products, container, emptyText) {
     <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
-        <tr><th>Name</th><th>Type</th><th>Price</th><th>Validity</th><th>Order</th><th>Status</th><th>Featured</th><th>Actions</th></tr>
+        <tr><th>Name</th><th>Type</th><th>Price</th><th>Validity</th><th>Discount</th><th>Order</th><th>Status</th><th>Featured</th><th>Actions</th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
     </div>`;
+}
+
+// Mirrors compute_effective_price()'s own active-window check
+// (enabled + type/value set + now() within start/end) purely for
+// this at-a-glance list column — never trusted as pricing authority,
+// same as the live form preview above.
+function discountStatusCell(p) {
+  if (!p.discount_enabled || !p.discount_type || p.discount_value == null) {
+    return "<td>&mdash;</td>";
+  }
+  const now = new Date();
+  const started = !p.discount_start_at || new Date(p.discount_start_at) <= now;
+  const ended = p.discount_end_at && new Date(p.discount_end_at) < now;
+  if (!started) return '<td><span class="pill">Scheduled</span></td>';
+  if (ended) return '<td><span class="pill">Expired</span></td>';
+  const label = p.discount_type === "PERCENTAGE" ? p.discount_value + "% off" : "\u20B9" + p.discount_value + " off";
+  return '<td><span class="pill">' + escapeHtml(label) + '</span></td>';
 }
 
 /* ---------------- Add / Edit ---------------- */
@@ -187,6 +246,51 @@ async function handleSubmit(e) {
     best_value: document.getElementById("pBestValue").checked,
     badge_text: document.getElementById("pBadgeText").value.trim() || null
   };
+
+  const discountEnabled = document.getElementById("pDiscountEnabled").checked;
+  payload.discount_enabled = discountEnabled;
+  if (discountEnabled) {
+    const discountType = document.getElementById("pDiscountType").value;
+    const discountValue = parseFloat(document.getElementById("pDiscountValue").value);
+    const startRaw = document.getElementById("pDiscountStart").value;
+    const endRaw = document.getElementById("pDiscountEnd").value;
+
+    // Mirrors the database's own check constraints — this catches an
+    // invalid configuration with a clear message before ever
+    // attempting the save, but the constraints themselves are what
+    // actually stop it from being persisted even if this check were
+    // somehow bypassed.
+    if (isNaN(discountValue)) {
+      showFormError("Please enter a discount value.");
+      submitBtn.disabled = false;
+      return;
+    }
+    if (discountType === "PERCENTAGE" && (discountValue < 0 || discountValue > 100)) {
+      showFormError("Percentage discount must be between 0 and 100.");
+      submitBtn.disabled = false;
+      return;
+    }
+    if (discountType === "FIXED" && (discountValue < 0 || discountValue > payload.price)) {
+      showFormError("Fixed discount cannot be negative or exceed the regular price.");
+      submitBtn.disabled = false;
+      return;
+    }
+    if (startRaw && endRaw && startRaw > endRaw) {
+      showFormError("Discount start date cannot be after the end date.");
+      submitBtn.disabled = false;
+      return;
+    }
+
+    payload.discount_type = discountType;
+    payload.discount_value = discountValue;
+    payload.discount_start_at = startRaw ? new Date(startRaw + "T00:00:00").toISOString() : null;
+    payload.discount_end_at = endRaw ? new Date(endRaw + "T23:59:59").toISOString() : null;
+  } else {
+    payload.discount_type = null;
+    payload.discount_value = null;
+    payload.discount_start_at = null;
+    payload.discount_end_at = null;
+  }
 
   // plan_code is only ever set on CREATION — the field is disabled during
   // edit and excluded from the payload entirely, so an existing product's
@@ -273,6 +377,11 @@ function startEdit(id) {
   if (p.product_type === "CREDIT") document.getElementById("pCredits").value = p.credits;
   document.getElementById("pBestValue").checked = !!p.best_value;
   document.getElementById("pBadgeText").value = p.badge_text || "";
+  document.getElementById("pDiscountEnabled").checked = !!p.discount_enabled;
+  document.getElementById("pDiscountType").value = p.discount_type || "PERCENTAGE";
+  document.getElementById("pDiscountValue").value = p.discount_value != null ? p.discount_value : "";
+  document.getElementById("pDiscountStart").value = p.discount_start_at ? p.discount_start_at.slice(0, 10) : "";
+  document.getElementById("pDiscountEnd").value = p.discount_end_at ? p.discount_end_at.slice(0, 10) : "";
   document.getElementById("pName").value = p.name;
   document.getElementById("pPrice").value = p.price;
   document.getElementById("pValidity").value = p.validity_days;
@@ -280,6 +389,7 @@ function startEdit(id) {
   document.getElementById("pFeatures").value = (p.features || []).join("\n");
   document.getElementById("pOrder").value = p.display_order;
   document.getElementById("pActive").value = p.active ? "true" : "false";
+  updateDiscountFieldsVisibility();
 
   document.getElementById("formLabel").textContent = "Editing: " + p.name;
   document.getElementById("submitBtn").textContent = "Update Product";
@@ -292,6 +402,7 @@ function exitEditMode() {
   document.getElementById("productForm").reset();
   document.getElementById("pPlanCode").disabled = false;
   updateTypeFields();
+  updateDiscountFieldsVisibility();
   document.getElementById("formLabel").textContent = "Add a New Product";
   document.getElementById("submitBtn").textContent = "Add Product";
   document.getElementById("cancelEditBtn").style.display = "none";

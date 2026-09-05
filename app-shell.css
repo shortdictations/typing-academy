@@ -1926,6 +1926,9 @@ body.app-shell .plan-credit .credits-summary-count{ color: var(--ts-gold-dark); 
 body.app-shell .plan-credit .credits-summary-note{ border-top-color: rgba(245,179,1,0.25); }
 
 body.app-shell .pass-price{ font-size: 1.6rem; font-weight: 800; margin-top: 6px; }
+body.app-shell .pass-price-discounted{ display: flex; align-items: baseline; gap: 8px; }
+body.app-shell .pass-price-original{ font-size: 1rem; font-weight: 600; color: var(--ts-muted); text-decoration: line-through; }
+body.app-shell .pass-price-final{ font-size: 1.6rem; font-weight: 800; color: var(--ts-blue); }
 body.app-shell .pass-duration-pill{
   display: inline-block;
   font-size: 0.76rem;
@@ -2027,6 +2030,8 @@ body.app-shell .credit-pack-badge{
 body.app-shell .credit-pack-name{ font-size: 0.85rem; font-weight: 600; color: var(--ts-text); display: flex; align-items: center; justify-content: center; gap: 4px; }
 body.app-shell .credit-pack-check{ color: var(--ts-gold-dark); font-weight: 800; }
 body.app-shell .credit-pack-price{ font-size: 1.15rem; font-weight: 800; color: var(--ts-gold-dark); margin-top: 4px; }
+body.app-shell .credit-pack-price-discounted{ display: flex; align-items: baseline; gap: 6px; justify-content: center; }
+body.app-shell .credit-pack-price-original{ font-size: 0.82rem; font-weight: 600; color: var(--ts-muted); text-decoration: line-through; }
 
 body.app-shell .credits-panel-buy-btn{
   flex: none;

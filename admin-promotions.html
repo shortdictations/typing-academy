@@ -6,7 +6,7 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="shortcut icon" href="/favicon.ico">
-<title>Manage Subscription &amp; Credit Products — TypeShala Admin</title>
+<title>Manage Promotions — TypeShala Admin</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="app-shell.css">
 <link rel="stylesheet" href="admin-shell.css">
@@ -61,7 +61,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h8"/></svg>
       <span class="app-nav-link-label">Mock Tests</span>
     </a>
-    <a class="app-nav-link active" href="admin-products.html" title="Pass">
+    <a class="app-nav-link" href="admin-products.html" title="Pass">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4V9Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
       <span class="app-nav-link-label">Pass</span>
     </a>
@@ -69,7 +69,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
       <span class="app-nav-link-label">Announcements</span>
     </a>
-    <a class="app-nav-link" href="admin-promotions.html" title="Promotions">
+    <a class="app-nav-link active" href="admin-promotions.html" title="Promotions">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z"/></svg>
       <span class="app-nav-link-label">Promotions</span>
     </a>
@@ -83,162 +83,74 @@
 <main class="page">
 
   <p class="eyebrow">Admin Only</p>
-  <h1>Subscription &amp; Credit Products</h1>
-  <p class="lede">Manage the Pass Plans and Credit Packages shown on the student Subscription page. This is the price list only — connecting real payments is a separate, later step.</p>
+  <h1>Promotions</h1>
+  <p class="lede">Grant free credits or a pass to students directly — for a launch bonus, a re-engagement campaign, or a one-off customer-support gesture. Every grant is recorded below, including any that failed, and duplicate grants for the same campaign are prevented automatically.</p>
 
-  <!-- FREE SIGNUP CREDITS SETTING -->
-  <div class="card" style="max-width:420px;">
-    <div class="card-label">New User Free Credits</div>
-    <div class="error-msg" id="settingsError"></div>
-    <div class="success-msg" id="settingsSuccess"></div>
-    <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:0;">Every new account automatically receives this many free credits, once.</p>
-    <div style="display:flex; gap:10px; align-items:flex-end;">
-      <div class="field" style="margin-bottom:0;">
-        <label for="freeCreditsInput">Free Credits</label>
-        <input type="number" id="freeCreditsInput" min="0" step="1" style="width:100px;">
-      </div>
-      <button type="button" class="btn" id="saveFreeCreditsBtn">Save</button>
-    </div>
-  </div>
-
-  <!-- ADD / EDIT FORM -->
+  <!-- CREATE CAMPAIGN -->
   <div class="card">
-    <div class="card-label" id="formLabel">Add a New Product</div>
+    <div class="card-label">Create a Promotional Campaign</div>
     <div class="error-msg" id="formError"></div>
     <div class="success-msg" id="formSuccess"></div>
 
-    <form id="productForm">
+    <form id="campaignForm">
       <div class="field">
-        <label for="pType">Product Type</label>
-        <select id="pType">
-          <option value="PASS">Pass Plan</option>
-          <option value="CREDIT">Credit Package</option>
-        </select>
-      </div>
-
-      <div class="field" id="passTypeWrap">
-        <label for="pPassType">Pass Type</label>
-        <select id="pPassType">
-          <option value="SSC">SSC</option>
-          <option value="LEGAL">Legal</option>
-          <option value="COMBO">Combo</option>
-        </select>
-      </div>
-
-      <div class="field" id="bestValueWrap">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-          <input type="checkbox" id="pBestValue" style="width:auto;">
-          Featured
-        </label>
-        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Only one product across the whole catalog (Pass Plans and Credit Packages together) can be Featured at a time — marking this one automatically removes it from whichever other product currently has it.</p>
-        <label for="pBadgeText" style="margin-top:10px; display:block;">Badge Text</label>
-        <input type="text" id="pBadgeText" maxlength="40" placeholder="e.g. Best Value, 20% OFF, Limited Offer">
-        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Shown on the landing page next to this product whenever Featured is checked and/or a discount below is active. Leave blank for no badge text.</p>
-      </div>
-
-      <div class="field" id="creditsWrap" style="display:none;">
-        <label for="pCredits">Number of Credits</label>
-        <input type="number" id="pCredits" min="1" step="1" placeholder="e.g. 10">
-      </div>
-
-      <div class="field">
-        <label for="pPlanCode">Plan Code (stable identifier — do not change after creation)</label>
-        <input type="text" id="pPlanCode" placeholder="e.g. ssc_pass, credit_10">
-      </div>
-
-      <div class="field">
-        <label for="pName">Product Name</label>
-        <input type="text" id="pName" placeholder="e.g. SSC Pass, or 10 Credits" required>
+        <label for="cName">Campaign Name</label>
+        <input type="text" id="cName" placeholder="e.g. Launch Week Bonus, Diwali Gift" required>
       </div>
 
       <div class="setup-grid">
         <div class="field">
-          <label for="pPrice">Price (INR)</label>
-          <input type="number" id="pPrice" min="0" step="1" placeholder="e.g. 99" required>
-        </div>
-        <div class="field">
-          <label for="pValidity">Validity (Days)</label>
-          <input type="number" id="pValidity" min="1" step="1" value="60" required>
-        </div>
-      </div>
-
-      <div class="field" id="discountWrap" style="background:var(--paper); border:1px solid var(--paper-line); border-radius:6px; padding:14px; margin-top:4px;">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:2px;">
-          <input type="checkbox" id="pDiscountEnabled" style="width:auto;">
-          Enable Discount
-        </label>
-        <div id="discountFields" style="display:none; margin-top:10px;">
-          <div class="setup-grid">
-            <div class="field">
-              <label for="pDiscountType">Discount Type</label>
-              <select id="pDiscountType">
-                <option value="PERCENTAGE">Percentage</option>
-                <option value="FIXED">Fixed Amount (INR)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="pDiscountValue">Discount Value</label>
-              <input type="number" id="pDiscountValue" min="0" step="0.01" placeholder="e.g. 20">
-            </div>
-          </div>
-          <div class="setup-grid">
-            <div class="field">
-              <label for="pDiscountStart">Start Date (optional)</label>
-              <input type="date" id="pDiscountStart">
-            </div>
-            <div class="field">
-              <label for="pDiscountEnd">End Date (optional)</label>
-              <input type="date" id="pDiscountEnd">
-            </div>
-          </div>
-          <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Leave a date blank for no limit on that side. The Badge Text field above (e.g. "20% OFF") shows next to the discounted price.</p>
-          <div style="font-size:0.9rem; font-weight:600; margin-top:10px;">Calculated Final Price: <span id="pDiscountPreview">—</span></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="pDescription">Description</label>
-        <input type="text" id="pDescription" placeholder="One short line shown on the card">
-      </div>
-
-      <div class="field">
-        <label for="pFeatures">Features (one per line)</label>
-        <textarea id="pFeatures" rows="4" placeholder="All SSC typing mocks
-Access throughout the validity period
-Non-recurring" style="width:100%;padding:10px 12px;border:1px solid var(--paper-line);border-radius:3px;font-family:var(--font-body);font-size:0.95rem;"></textarea>
-      </div>
-
-      <div class="setup-grid">
-        <div class="field">
-          <label for="pOrder">Display Order</label>
-          <input type="number" id="pOrder" value="0" min="0" step="1">
-        </div>
-        <div class="field">
-          <label for="pActive">Status</label>
-          <select id="pActive">
-            <option value="true" selected>Active (visible to students)</option>
-            <option value="false">Inactive (hidden)</option>
+          <label for="cBenefitType">Benefit</label>
+          <select id="cBenefitType">
+            <option value="CREDITS">Free Credits</option>
+            <option value="SSC">SSC Pass</option>
+            <option value="LEGAL">Legal Pass</option>
+            <option value="COMBO">Combo Pass</option>
           </select>
         </div>
+        <div class="field" id="cCreditsWrap">
+          <label for="cCredits">Number of Credits</label>
+          <input type="number" id="cCredits" min="1" step="1" placeholder="e.g. 5">
+        </div>
       </div>
 
-      <div style="display:flex; gap:10px;">
-        <button type="submit" class="btn" id="submitBtn">Add Product</button>
-        <button type="button" class="btn btn-ghost" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+      <div class="field">
+        <label for="cValidityDays">Validity (Days)</label>
+        <input type="number" id="cValidityDays" min="1" step="1" placeholder="e.g. 30" required>
+        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">For a Pass: added to (or extends) the student's existing pass of that type, same rule as a normal purchase. For Credits: how long the granted credits stay valid.</p>
       </div>
+
+      <div class="field">
+        <label for="cRecipientType">Recipients</label>
+        <select id="cRecipientType">
+          <option value="SPECIFIC">A Specific Student</option>
+          <option value="ALL_EXISTING">All Existing Students</option>
+          <option value="ALL_NEW">All New Signups (from now on)</option>
+        </select>
+      </div>
+
+      <div class="field" id="cSpecificWrap">
+        <label for="cUserSearch">Find Student (by email)</label>
+        <input type="text" id="cUserSearch" placeholder="Start typing an email address...">
+        <div id="cUserResults" style="margin-top:6px;"></div>
+        <input type="hidden" id="cSpecificUserId">
+        <div id="cSelectedUser" style="display:none; margin-top:8px; padding:8px 12px; background:var(--paper); border:1px solid var(--paper-line); border-radius:6px; font-size:0.9rem;"></div>
+      </div>
+
+      <div class="field" id="cAllExistingWarning" style="display:none; background:#fff8ec; border:1px solid #f0d99a; border-radius:6px; padding:12px;">
+        <strong>This grants the benefit to every existing student immediately.</strong> This cannot be undone from this page — review the details carefully before submitting.
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Create Campaign</button>
     </form>
   </div>
 
-  <!-- PASS PLANS LIST -->
+  <!-- HISTORY -->
   <div class="card">
-    <div class="card-label">Pass Plans</div>
-    <div id="passListBody"><div class="loading-strip">Loading...</div></div>
-  </div>
-
-  <!-- CREDIT PACKAGES LIST -->
-  <div class="card">
-    <div class="card-label">Credit Packages</div>
-    <div id="creditListBody"><div class="loading-strip">Loading...</div></div>
+    <div class="card-label">Campaign History</div>
+    <div id="campaignListBody">
+      <div class="loading-strip">Loading campaigns...</div>
+    </div>
   </div>
 
 </main>
@@ -247,7 +159,7 @@ Non-recurring" style="width:100%;padding:10px 12px;border:1px solid var(--paper-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/admin-products.js"></script>
+<script src="js/admin-promotions.js"></script>
 
 <nav class="app-bottom-nav">
   <div class="app-bottom-nav-inner">

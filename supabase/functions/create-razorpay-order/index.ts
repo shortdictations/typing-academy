@@ -68,9 +68,25 @@ Deno.serve(async (req: Request) => {
     }
 
     // Razorpay expects amounts in the smallest currency unit (paise
-    // for INR) — computed from the database price, never a browser
-    // value.
-    const amountInPaise = Math.round(Number(product.price) * 100);
+    // for INR) — computed from compute_effective_price(), the SAME
+    // function get_products_with_pricing() uses for student display,
+    // never a browser value. This is what actually enforces "never
+    // trust price/discount/final_price from the client": the browser
+    // sent nothing but product_id above, and everything else about
+    // the price — including whether a discount is even active right
+    // now — is decided here, from the database row, independently of
+    // whatever the student's screen happened to be showing.
+    const { data: effectivePrice, error: priceError } = await supabaseAdmin.rpc("compute_effective_price", {
+      p_price: product.price,
+      p_discount_enabled: product.discount_enabled,
+      p_discount_type: product.discount_type,
+      p_discount_value: product.discount_value,
+      p_discount_start_at: product.discount_start_at,
+      p_discount_end_at: product.discount_end_at,
+    });
+    if (priceError) throw priceError;
+
+    const amountInPaise = Math.round(Number(effectivePrice) * 100);
 
     const razorpayKeyId = Deno.env.get("RAZORPAY_KEY_ID")!;
     const razorpayKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET")!;
@@ -114,7 +130,7 @@ Deno.serve(async (req: Request) => {
       product_type: product.product_type,
       pass_type: product.pass_type,
       credits: product.credits,
-      amount: product.price,
+      amount: effectivePrice,
       currency: product.currency || "INR",
       validity_days: product.validity_days,
       status: "created",
