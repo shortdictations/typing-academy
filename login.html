@@ -19,96 +19,92 @@
   </a>
 
   <main class="auth-main">
-    <section class="auth-panel" aria-live="polite">
-      <div class="auth-view" id="signInEmailView">
-        <div class="auth-heading">
-          <h1>Welcome to TypeShala</h1>
-          <p>Your practice. Your progress. Your success.</p>
-        </div>
-
-        <div class="auth-socials" style="grid-template-columns:1fr">
-          <button type="button" class="auth-social-btn" id="googleLoginBtn" aria-label="Continue with Google">
-            <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
-            <span>Continue with Google</span>
-          </button>
-        </div>
-
-        <div class="auth-signup-fields" id="signupFields" aria-hidden="true">
-          <div class="auth-name-grid">
-            <div class="auth-field"><label for="regFirstName">First name</label><input class="auth-input" type="text" id="regFirstName" placeholder="Your first name" autocomplete="given-name"></div>
-            <div class="auth-field"><label for="regLastName">Last name</label><input class="auth-input" type="text" id="regLastName" placeholder="Your last name" autocomplete="family-name"></div>
-          </div>
-        </div>
-
-        <div class="auth-field">
-          <label for="loginEmail">Email</label>
-          <input class="auth-input" type="email" id="loginEmail" placeholder="Your email address" autocomplete="email" required>
-        </div>
-        <div class="auth-error-msg" id="errorMsg"></div>
-        <div class="auth-success-msg" id="successMsg"></div>
-        <button type="button" class="auth-primary" id="continueEmailBtn">Continue</button>
-
-        <p class="auth-bottom" id="authModeBottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
+  <section class="auth-panel" id="authPanel" aria-live="polite">
+    <div class="auth-flow" id="authFlow">
+      <div class="auth-heading" id="authHeading">
+        <h1>Welcome to TypeShala</h1>
+        <p id="authSubtitle">Your practice. Your progress. Your success.</p>
       </div>
 
-      <div class="auth-view" id="signUpPasswordView" style="display:none">
-        <button type="button" class="auth-back" id="backToSignupDetailsBtn"><i data-lucide="arrow-left"></i> Back</button>
-        <input type="hidden" id="regEmail" value="">
-        <div class="auth-heading" style="margin-bottom:24px">
-          <h1>Create your password</h1>
-          <p>Choose a password for your TypeShala account.</p>
-        </div>
-        <div class="auth-field"><label for="regPassword">Password</label><div class="auth-password-wrap"><input class="auth-input" type="password" id="regPassword" placeholder="Create a password" minlength="6" autocomplete="new-password" required><button type="button" class="auth-toggle" id="toggleRegPassword" aria-label="Show password"><i data-lucide="eye" id="regEyeIcon"></i></button></div></div>
-        <div class="auth-error-msg" id="signupPasswordErrorMsg"></div>
-        <button type="button" class="auth-primary" id="registerBtn"><span>Continue</span><i data-lucide="arrow-right"></i></button>
-        <p class="auth-bottom"><button type="button" class="auth-step-link" id="changeSignupDetailsBtn">Change email or name</button></p>
+      <div class="auth-socials" id="authSocials" style="grid-template-columns:1fr">
+        <button type="button" class="auth-social-btn" id="googleLoginBtn" aria-label="Continue with Google">
+          <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
+          <span>Continue with Google</span>
+        </button>
       </div>
 
-      <div class="auth-view" id="verificationSuccessView" style="display:none">
-        <div class="auth-verify">
-          <div class="auth-verify-icon">✓</div>
-          <h2>Check your email</h2>
-          <p>We've sent a verification link to</p>
-          <div class="auth-verify-email" id="verifySuccessEmail"></div>
-          <p>Open the email and verify your account to continue.</p>
-          <button type="button" class="auth-secondary auth-resend" id="resendEmailBtn">Resend email</button>
-          <p class="auth-resend-status" id="resendStatus"></p>
-          <p class="auth-bottom"><a href="login.html">Back to sign in</a></p>
+      <div class="auth-signup-fields" id="signupFields" aria-hidden="true">
+        <div class="auth-name-grid">
+          <div class="auth-field"><label for="regFirstName">First name</label><input class="auth-input" type="text" id="regFirstName" placeholder="Your first name" autocomplete="given-name"></div>
+          <div class="auth-field"><label for="regLastName">Last name</label><input class="auth-input" type="text" id="regLastName" placeholder="Your last name" autocomplete="family-name"></div>
         </div>
       </div>
 
-      <div class="auth-view" id="accountExistsView" style="display:none">
-        <div class="auth-verify">
-          <div class="auth-verify-icon" style="background:#fff7df;color:#b27a00">!</div>
-          <h2>Account already exists</h2>
-          <p>An account with this email already exists. Please sign in instead.</p>
-          <a class="auth-primary" href="login.html" style="text-decoration:none;margin-top:18px">Sign in</a>
-        </div>
+      <div class="auth-field auth-email-field" id="emailField">
+        <label for="loginEmail">Email</label>
+        <input class="auth-input" type="email" id="loginEmail" placeholder="Your email address" autocomplete="email" required>
       </div>
 
-      <div class="auth-view" id="signInPasswordView" style="display:none">
-        <button type="button" class="auth-back" id="backToEmailBtn"><i data-lucide="arrow-left"></i> Back</button>
-        <div class="auth-heading" style="margin-bottom:24px">
-          <h1>Welcome back</h1>
-          <p>Sign in to continue your practice.</p>
-        </div>
-        <div class="auth-field">
-          <div class="auth-field-row"><label for="loginPassword">Password</label><a href="forgot-password.html">Reset password</a></div>
+      <div class="auth-password-step" id="passwordStep" aria-hidden="true">
+        <div class="auth-field auth-password-field signin-password-field" data-morph id="signinPasswordField">
+          <div class="auth-field-row"><label for="loginPassword">Password</label><a href="forgot-password.html" id="resetPasswordLink">Reset password</a></div>
           <div class="auth-password-wrap">
-            <input class="auth-input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" required>
+            <input class="auth-input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password">
             <button type="button" class="auth-toggle" id="togglePassword" aria-label="Show password"><i data-lucide="eye" id="eyeIcon"></i></button>
           </div>
         </div>
-        <button type="button" class="auth-primary" id="loginBtn"><span>Sign in</span><i data-lucide="arrow-right"></i></button>
-        <p class="auth-bottom"><button type="button" class="auth-step-link" id="changeEmailBtn">Change email</button></p>
+        <div class="auth-field auth-password-field signup-password-field" data-morph id="signupPasswordField">
+          <label for="regPassword">Password</label>
+          <div class="auth-password-wrap">
+            <input class="auth-input" type="password" id="regPassword" placeholder="Create a password" minlength="6" autocomplete="new-password">
+            <button type="button" class="auth-toggle" id="toggleRegPassword" aria-label="Show password"><i data-lucide="eye" id="regEyeIcon"></i></button>
+          </div>
+        </div>
       </div>
 
-      <div class="auth-free-credits" id="freeCreditsNote" style="display:none">
-        <i data-lucide="sparkles"></i>
-        <span data-free-credits="New users get {n} free credits automatically upon signup!">New users get free credits automatically upon signup!</span>
+      <div class="auth-error-msg" id="errorMsg"></div>
+      <div class="auth-success-msg" id="successMsg"></div>
+      <div class="auth-error-msg" id="signupPasswordErrorMsg"></div>
+
+      <button type="button" class="auth-primary" id="continueEmailBtn"><span>Continue</span></button>
+      <button type="button" class="auth-primary auth-signin-submit" id="loginBtn" style="display:none"><span>Sign in</span></button>
+      <button type="button" class="auth-primary auth-signup-submit" id="registerBtn" style="display:none"><span>Continue</span></button>
+
+      <p class="auth-bottom" id="authModeBottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
+
+      <div class="auth-step-back" id="authStepBack" style="display:none">
+        <button type="button" class="auth-step-link" id="changeStepBtn">‹ Change email</button>
       </div>
-    </section>
-  </main>
+    </div>
+
+    <div class="auth-special-view" id="verificationSuccessView" style="display:none">
+      <div class="auth-verify">
+        <div class="auth-verify-icon">✓</div>
+        <h2>Check your email</h2>
+        <p>We've sent a verification link to</p>
+        <div class="auth-verify-email" id="verifySuccessEmail"></div>
+        <p>Open the email and verify your account to continue.</p>
+        <button type="button" class="auth-secondary auth-resend" id="resendEmailBtn">Resend email</button>
+        <p class="auth-resend-status" id="resendStatus"></p>
+        <p class="auth-bottom"><a href="login.html">Back to sign in</a></p>
+      </div>
+    </div>
+
+    <div class="auth-special-view" id="accountExistsView" style="display:none">
+      <div class="auth-verify">
+        <div class="auth-verify-icon" style="background:#fff7df;color:#b27a00">!</div>
+        <h2>Account already exists</h2>
+        <p>An account with this email already exists. Please sign in instead.</p>
+        <a class="auth-primary" href="login.html" style="text-decoration:none;margin-top:18px">Sign in</a>
+      </div>
+    </div>
+
+    <div class="auth-free-credits" id="freeCreditsNote" style="display:none">
+      <i data-lucide="sparkles"></i>
+      <span data-free-credits="New users get {n} free credits automatically upon signup!">New users get free credits automatically upon signup!</span>
+    </div>
+  </section>
+</main>
 
   <footer class="auth-footer">By continuing, you agree to TypeShala's <a href="index.html#terms">Terms and Conditions</a> and <a href="index.html#privacy">Privacy Policy</a>.</footer>
 </div>
@@ -120,56 +116,136 @@
 <script>
 if (window.lucide) lucide.createIcons();
 const $=id=>document.getElementById(id);
-const views=['signInEmailView','signInPasswordView','signUpPasswordView','verificationSuccessView','accountExistsView'];
-const hideAll=()=>views.forEach(id=>$(id).style.display='none');
-const show=(id)=>{
-  hideAll();
-  const el=$(id); el.style.display='block';
-  el.classList.remove('auth-view-enter'); void el.offsetWidth; el.classList.add('auth-view-enter');
-  if(window.lucide) lucide.createIcons();
-};
+const panel=$('authPanel'), flow=$('authFlow');
 const showErr=(id,text)=>{const el=$(id);el.textContent=text;el.style.display='block';};
-const clearErrs=()=>['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id))$(id).style.display='none'});
+const clearErrs=()=>['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id)){$(id).style.display='none';$(id).textContent=''}});
 let signupData={firstName:'',lastName:'',email:''};
 let lastRegisteredEmail=null; let resendInterval=null;
 let authMode='signin';
+let authStep='email';
 
-function setAuthMode(mode, focus=true){
+/* Cursor-style FLIP morph. The form never changes page or swaps the whole
+   authentication screen. We capture the current layout, change state, then
+   animate each stable element from its old geometry to its new geometry. */
+function morphState(mutator, focusEl){
+  const elements=[...flow.querySelectorAll('[data-morph]')];
+  const first=new Map();
+  elements.forEach(el=>first.set(el,el.getBoundingClientRect()));
+  mutator();
+  if(window.lucide) lucide.createIcons();
+  requestAnimationFrame(()=>{
+    elements.forEach(el=>{
+      const a=first.get(el), b=el.getBoundingClientRect();
+      if(!a || !b.width || !b.height) return;
+      const dx=a.left-b.left, dy=a.top-b.top, sx=a.width/b.width, sy=a.height/b.height;
+      const moved=Math.abs(dx)>0.5||Math.abs(dy)>0.5||Math.abs(sx-1)>.002||Math.abs(sy-1)>.002;
+      if(!moved) return;
+      el.animate([
+        {transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,transformOrigin:'top left'},
+        {transform:'none',transformOrigin:'top left'}
+      ],{duration:320,easing:'cubic-bezier(.22,.61,.36,1)'});
+    });
+    if(focusEl) setTimeout(()=>focusEl.focus(),250);
+  });
+}
+
+function setAuthMode(mode,focus=true){
   authMode=mode;
-  const panel=document.querySelector('.auth-panel');
-  const fields=$('signupFields');
-  const email=$('loginEmail');
-  const bottom=$('authModeBottom');
-  const headingSub=document.querySelector('#signInEmailView .auth-heading p');
-  const social=$('googleLoginBtn');
+  const fields=$('signupFields'), bottom=$('authModeBottom'), subtitle=$('authSubtitle');
   panel.classList.toggle('is-signup',mode==='signup');
   fields.setAttribute('aria-hidden',mode!=='signup');
   if(mode==='signup'){
-    headingSub.textContent='The easiest way to practise and improve.';
-    bottom.innerHTML='Already have an account? <button type="button" class="auth-step-link" id="openSigninBtn">Sign in</button>';
-    $('openSigninBtn').onclick=()=>setAuthMode('signin');
-    if(email.value.trim()) $('regEmail').value=email.value.trim();
-    if(focus) setTimeout(()=>$('regFirstName').focus(),220);
+    subtitle.textContent='The easiest way to practise and improve.';
+    bottom.innerHTML='Already have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSigninBtn">Sign in</button>';
+    $('openSigninBtn').onclick=()=>morphToEmailMode('signin');
+    if($('loginEmail').value.trim()) $('loginEmail').value=$('loginEmail').value.trim();
+    if(focus) setTimeout(()=>$('regFirstName').focus(),240);
   }else{
-    headingSub.textContent='Your practice. Your progress. Your success.';
+    subtitle.textContent='Your practice. Your progress. Your success.';
     bottom.innerHTML="Don't have an account? <button type=\"button\" class=\"auth-step-link auth-signup-link\" id=\"openSignupBtn\">Sign up</button>";
-    $('openSignupBtn').onclick=()=>setAuthMode('signup');
-    if(focus) setTimeout(()=>email.focus(),180);
+    $('openSignupBtn').onclick=()=>morphToEmailMode('signup');
+    if(focus) setTimeout(()=>$('loginEmail').focus(),240);
   }
+}
+
+function morphToEmailMode(mode){
+  const currentFocus=mode==='signup'?$('regFirstName'):$('loginEmail');
+  morphState(()=>{
+    authStep='email';
+    $('passwordStep').classList.remove('is-visible');
+    $('passwordStep').setAttribute('aria-hidden','true');
+    $('continueEmailBtn').style.display='flex';
+    $('loginBtn').style.display='none'; $('registerBtn').style.display='none';
+    $('authStepBack').style.display='none';
+    $('authSocials').style.display='grid';
+    setAuthMode(mode,false);
+  },currentFocus);
+}
+
+function morphToPasswordStep(type){
+  const focus=type==='signup'?$('regPassword'):$('loginPassword');
+  morphState(()=>{
+    authStep='password';
+    $('authSocials').style.display='none';
+    $('passwordStep').classList.add('is-visible');
+    $('passwordStep').setAttribute('aria-hidden','false');
+    $('continueEmailBtn').style.display='none';
+    $('authStepBack').style.display='block';
+    $('authModeBottom').style.display='none';
+    if(type==='signup'){
+      $('resetPasswordLink').style.display='none';
+      $('signinPasswordField').classList.remove('is-active');
+      $('signupPasswordField').classList.add('is-active');
+      $('registerBtn').style.display='flex';
+      $('loginBtn').style.display='none';
+      $('loginEmail').readOnly=true;
+      $('loginEmail').value=signupData.email;
+      panel.classList.add('is-signup-password');
+      $('signupFields').classList.remove('is-expanded');
+      $('signupFields').setAttribute('aria-hidden','true');
+    }else{
+      $('resetPasswordLink').style.display='inline';
+      $('signinPasswordField').classList.add('is-active');
+      $('signupPasswordField').classList.remove('is-active');
+      $('registerBtn').style.display='none'; $('loginBtn').style.display='flex';
+      $('loginEmail').readOnly=true;
+      panel.classList.remove('is-signup-password');
+    }
+  },focus);
+  $('passwordStep').classList.add('morph-password-arrive');
+  setTimeout(()=>$('passwordStep').classList.remove('morph-password-arrive'),380);
+}
+
+function backFromPassword(){
+  const mode=authMode;
+  morphState(()=>{
+    authStep='email';
+    $('passwordStep').classList.remove('is-visible');
+    $('passwordStep').setAttribute('aria-hidden','true');
+    $('continueEmailBtn').style.display='flex'; $('loginBtn').style.display='none'; $('registerBtn').style.display='none';
+    $('authStepBack').style.display='none'; $('authModeBottom').style.display='block';
+    $('authSocials').style.display='grid';
+    $('loginEmail').readOnly=false;
+    panel.classList.remove('is-signup-password');
+    if(mode==='signup'){
+      $('signupFields').classList.add('is-expanded');
+      $('signupFields').setAttribute('aria-hidden','false');
+      setAuthMode('signup',false);
+    }else setAuthMode('signin',false);
+  },mode==='signup'?$('regFirstName'):$('loginPassword'));
 }
 
 function setupLogin(){
   const email=$('loginEmail'), pass=$('loginPassword');
-  $('openSignupBtn').onclick=()=>setAuthMode('signup');
+  $('openSignupBtn').onclick=()=>morphToEmailMode('signup');
   $('continueEmailBtn').onclick=()=>{
     clearErrs();
-    if(authMode==='signup'){ setupSignupDetails(); return; }
+    if(authMode==='signup'){setupSignupDetails();return;}
     if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return;}
-    show('signInPasswordView'); pass.focus();
+    morphToPasswordStep('signin');
   };
   email.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click()}};
-  $('backToEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signin',false);email.focus()};
-  $('changeEmailBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signin',false);email.focus()};
+  $('changeStepBtn').onclick=()=>{clearErrs();backFromPassword()};
   $('togglePassword').onclick=()=>{const text=pass.type==='text';pass.type=text?'password':'text';$('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
   $('loginBtn').onclick=async()=>{clearErrs();const btn=$('loginBtn');btn.disabled=true;btn.querySelector('span').textContent='Signing in...';try{await loginStudent(email.value.trim(),pass.value);location.href='dashboard.html'}catch(err){showErr('errorMsg',err.message||'Sign in failed. Please check your details.');btn.disabled=false;btn.querySelector('span').textContent='Sign in'}};
   pass.onkeydown=e=>{if(e.key==='Enter')$('loginBtn').click()};
@@ -183,24 +259,25 @@ function setupSignupDetails(){
   if(!e.value.trim()||!e.checkValidity()){e.reportValidity();return;}
   signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:e.value.trim()};
   $('regEmail').value=signupData.email;
-  show('signUpPasswordView'); $('regPassword').focus();
+  morphToPasswordStep('signup');
 }
 
 function setupSignup(){
-  $('backToSignupDetailsBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signup',false);$('regFirstName').focus()};
-  $('changeSignupDetailsBtn').onclick=()=>{clearErrs();show('signInEmailView');setAuthMode('signup',false);$('regEmail').focus()};
   $('toggleRegPassword').onclick=()=>{const p=$('regPassword'),text=p.type==='text';p.type=text?'password':'text';$('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
-  $('googleSignupBtn').onclick=async()=>{clearErrs();const btn=$('googleSignupBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr('signupPasswordErrorMsg',error.message||'Could not start Google sign up. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google'}};
-  $('registerBtn').onclick=async()=>{clearErrs();const btn=$('registerBtn');const p=$('regPassword');if(p.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');p.focus();return;}btn.disabled=true;btn.querySelector('span').textContent='Creating account...';try{const result=await registerStudent(signupData.firstName+' '+signupData.lastName,signupData.email,p.value);if(result.alreadyExists){show('accountExistsView');return;}lastRegisteredEmail=signupData.email;$('verifySuccessEmail').textContent=signupData.email;show('verificationSuccessView');}catch(err){const msg=(err&&err.message?err.message:'').toLowerCase();if(msg.includes('already registered')||msg.includes('already exists')){show('accountExistsView');return;}showErr('signupPasswordErrorMsg',err.message||'Registration failed. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue'}};
+  $('regPassword').onkeydown=e=>{if(e.key==='Enter')$('registerBtn').click()};
+  $('registerBtn').onclick=async()=>{clearErrs();const btn=$('registerBtn');const p=$('regPassword');if(!p||p.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');p?.focus();return;}btn.disabled=true;btn.querySelector('span').textContent='Creating account...';try{const result=await registerStudent(signupData.firstName+' '+signupData.lastName,signupData.email,p.value);if(result.alreadyExists){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}lastRegisteredEmail=signupData.email;$('verifySuccessEmail').textContent=signupData.email;$('authFlow').style.display='none';$('verificationSuccessView').style.display='block';}catch(err){const msg=(err&&err.message?err.message:'').toLowerCase();if(msg.includes('already registered')||msg.includes('already exists')){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}showErr('signupPasswordErrorMsg',err.message||'Registration failed. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue'}};
   $('resendEmailBtn').onclick=async()=>{const btn=$('resendEmailBtn'),status=$('resendStatus');if(!lastRegisteredEmail)return;btn.disabled=true;status.textContent='';status.className='auth-resend-status';try{const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail});if(error)throw error;status.textContent='Verification email sent!';status.classList.add('is-success');let s=60;btn.textContent='Resend email ('+s+'s)';clearInterval(resendInterval);resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email'}else btn.textContent='Resend email ('+s+'s)'},1000)}catch(err){status.textContent=err.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false}};
 }
+
+// Mark stable elements for FLIP morphing.
+['authHeading','authSocials','signupFields','emailField','passwordStep','continueEmailBtn','loginBtn','registerBtn','authModeBottom','authStepBack'].forEach(id=>{const el=$(id);if(el)el.dataset.morph=''});
 
 setupLogin();setupSignup();
 (async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex'}catch(e){}})();
 
 const params=new URLSearchParams(location.search);
 if(params.get('mode')==='signup'){
-  show('signInEmailView'); setAuthMode('signup');
+  setAuthMode('signup');
 }else{
   let invalidated=false;const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
   (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html'})();

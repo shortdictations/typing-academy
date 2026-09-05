@@ -154,3 +154,55 @@ body.auth-shell{
 @media(prefers-reduced-motion:reduce){
   .auth-signup-fields,.auth-signup-fields .auth-field label{transition:none!important;animation:none!important}
 }
+
+/* True Cursor-style step morphing: stable email field stays in the DOM while
+   the password area grows underneath it. Signup details collapse out at the
+   same time, so the email naturally glides upward instead of the page changing. */
+.auth-password-step{
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  overflow:hidden;
+  transform:translateY(-7px);
+  max-height:0;
+  margin:0;
+  transition:grid-template-rows .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1);
+}
+.auth-password-step.is-visible{
+  grid-template-rows:1fr;
+  max-height:82px;
+  opacity:1;
+  transform:none;
+  margin:0 0 1px;
+}
+.auth-password-step > .auth-field{min-height:0;overflow:hidden;margin:0;opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .3s cubic-bezier(.22,.61,.36,1)}
+.auth-password-step > .auth-field.is-active{opacity:1;transform:none}
+.auth-signup-fields{transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .2s ease,transform .34s cubic-bezier(.22,.61,.36,1),margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-signup-fields.is-expanded{max-height:78px;opacity:1;transform:translateY(0);margin:0 0 1px;pointer-events:auto}
+.auth-signup-fields:not(.is-expanded){max-height:0;opacity:0;transform:translateY(-7px);margin:0;pointer-events:none}
+.auth-panel.is-signup-password .auth-password-step{max-height:82px}
+.auth-step-back{text-align:center;margin-top:17px;animation:auth-back-soft .25s ease both}
+@keyframes auth-back-soft{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.auth-created-password{display:none}
+@media(prefers-reduced-motion:reduce){
+  .auth-password-step,.auth-password-step > .auth-field,.auth-signup-fields{transition:none!important;animation:none!important}
+}
+/* During signup -> password, the name row collapses and the shared email field
+   glides upward while the password field rises into the space it vacates. */
+.auth-panel.is-signup-password .auth-signup-fields{max-height:0!important;opacity:0!important;transform:translateY(-7px)!important;margin:0!important;pointer-events:none!important}
+.auth-panel.is-signup-password .auth-email-field,
+.auth-panel.is-signup-password .auth-password-step{
+  transform:translateY(-64px);
+}
+.auth-panel.is-signup-password .auth-password-step.is-visible{
+  margin-bottom:-63px;
+}
+.auth-panel.is-signup-password .auth-password-step > .auth-field.is-active{
+  transform:translateY(0);
+}
+.auth-panel.is-signup-password .auth-error-msg,
+.auth-panel.is-signup-password .auth-success-msg,
+.auth-panel.is-signup-password .auth-primary,
+.auth-panel.is-signup-password .auth-step-back{
+  /* The controls below the morph follow the new compact layout naturally. */
+}
