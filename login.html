@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="landing-v3.css?v=2">
-<link rel="stylesheet" href="auth-redesign.css?v=3">
+<link rel="stylesheet" href="auth-redesign.css?v=4">
 </head>
 <body class="auth-shell">
 <div class="auth-page">
@@ -70,7 +70,10 @@
       <button type="button" class="auth-primary auth-signin-submit" id="loginBtn" style="display:none"><span>Sign in</span></button>
       <button type="button" class="auth-primary auth-signup-submit" id="registerBtn" style="display:none"><span>Continue</span></button>
 
-      <p class="auth-bottom" id="authModeBottom">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></p>
+      <p class="auth-bottom" id="authModeBottom">
+        <span id="signinModePrompt">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></span>
+        <span id="signupModePrompt" hidden>Already have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSigninBtn">Sign in</button></span>
+      </p>
 
       <div class="auth-step-back" id="authStepBack" style="display:none">
         <button type="button" class="auth-step-link" id="changeStepBtn">‹ Change email</button>
@@ -115,180 +118,277 @@
 <script src="js/landing-products.js?v=3"></script>
 <script>
 if (window.lucide) lucide.createIcons();
-const $=id=>document.getElementById(id);
-const panel=$('authPanel'), flow=$('authFlow');
-const showErr=(id,text)=>{const el=$(id);el.textContent=text;el.style.display='block';};
-const clearErrs=()=>['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id=>{if($(id)){$(id).style.display='none';$(id).textContent=''}});
-let signupData={firstName:'',lastName:'',email:''};
-let lastRegisteredEmail=null; let resendInterval=null;
-let authMode='signin';
-let authStep='email';
+const $ = (id) => document.getElementById(id);
+const panel = $('authPanel');
+const flow = $('authFlow');
+const email = $('loginEmail');
+const loginPassword = $('loginPassword');
+const signupPassword = $('regPassword');
 
-/* Cursor-style FLIP morph. The form never changes page or swaps the whole
-   authentication screen. We capture the current layout, change state, then
-   animate each stable element from its old geometry to its new geometry. */
-function morphState(mutator, focusEl){
-  const elements=[...flow.querySelectorAll('[data-morph]')];
-  const first=new Map();
-  elements.forEach(el=>first.set(el,el.getBoundingClientRect()));
-  mutator();
-  if(window.lucide) lucide.createIcons();
-  requestAnimationFrame(()=>{
-    elements.forEach(el=>{
-      const a=first.get(el), b=el.getBoundingClientRect();
-      if(!a || !b.width || !b.height) return;
-      const dx=a.left-b.left, dy=a.top-b.top, sx=a.width/b.width, sy=a.height/b.height;
-      const moved=Math.abs(dx)>0.5||Math.abs(dy)>0.5||Math.abs(sx-1)>.002||Math.abs(sy-1)>.002;
-      if(!moved) return;
-      el.animate([
-        {transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,transformOrigin:'top left'},
-        {transform:'none',transformOrigin:'top left'}
-      ],{duration:320,easing:'cubic-bezier(.22,.61,.36,1)'});
+let authMode = 'signin';       // signin | signup
+let authStep = 'email';        // email | password
+let signupData = { firstName:'', lastName:'', email:'' };
+let lastRegisteredEmail = null;
+let resendInterval = null;
+
+const showErr = (id, text) => {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.display = text ? 'block' : 'none';
+};
+const clearErrs = () => ['errorMsg','successMsg','signupPasswordErrorMsg'].forEach(id => {
+  const el = $(id);
+  if (el) { el.textContent=''; el.style.display='none'; }
+});
+
+// Stable nodes are FLIP-animated. Dynamic fields use CSS height/opacity
+// transitions so hidden elements never participate in a zero-size FLIP.
+const morphNodes = [
+  'authHeading','authSocials','signupFields','emailField','passwordStep',
+  'continueEmailBtn','loginBtn','registerBtn','authModeBottom','authStepBack'
+].map(id => $(id)).filter(Boolean);
+
+function captureRects() {
+  return new Map(morphNodes.map(el => [el, el.getBoundingClientRect()]));
+}
+
+function animateFLIP(firstRects) {
+  requestAnimationFrame(() => {
+    // Force layout after class changes have landed.
+    flow.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      morphNodes.forEach(el => {
+        const first = firstRects.get(el);
+        const last = el.getBoundingClientRect();
+        if (!first || !last.width || !last.height) return;
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        const sx = first.width / last.width;
+        const sy = first.height / last.height;
+        if (Math.abs(dx)<.5 && Math.abs(dy)<.5 && Math.abs(sx-1)<.002 && Math.abs(sy-1)<.002) return;
+        el.animate([
+          { transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`, transformOrigin:'top left' },
+          { transform:'none', transformOrigin:'top left' }
+        ], { duration:360, easing:'cubic-bezier(.22,.61,.36,1)' });
+      });
     });
-    if(focusEl) setTimeout(()=>focusEl.focus(),250);
   });
 }
 
-function setAuthMode(mode,focus=true){
-  authMode=mode;
-  const fields=$('signupFields'), bottom=$('authModeBottom'), subtitle=$('authSubtitle');
-  panel.classList.toggle('is-signup',mode==='signup');
-  fields.setAttribute('aria-hidden',mode!=='signup');
-  if(mode==='signup'){
-    subtitle.textContent='The easiest way to practise and improve.';
-    bottom.innerHTML='Already have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSigninBtn">Sign in</button>';
-    $('openSigninBtn').onclick=()=>morphToEmailMode('signin');
-    if($('loginEmail').value.trim()) $('loginEmail').value=$('loginEmail').value.trim();
-    if(focus) setTimeout(()=>$('regFirstName').focus(),240);
-  }else{
-    subtitle.textContent='Your practice. Your progress. Your success.';
-    bottom.innerHTML="Don't have an account? <button type=\"button\" class=\"auth-step-link auth-signup-link\" id=\"openSignupBtn\">Sign up</button>";
-    $('openSignupBtn').onclick=()=>morphToEmailMode('signup');
-    if(focus) setTimeout(()=>$('loginEmail').focus(),240);
+function focusLater(el) {
+  if (!el) return;
+  setTimeout(() => { try { el.focus({preventScroll:true}); } catch { el.focus(); } }, 360);
+}
+
+function setModeUI(mode) {
+  authMode = mode;
+  panel.classList.toggle('is-signup', mode === 'signup');
+  $('signupFields').classList.toggle('is-expanded', mode === 'signup' && authStep === 'email');
+  $('signupFields').setAttribute('aria-hidden', String(!(mode === 'signup' && authStep === 'email')));
+  $('signinModePrompt').hidden = mode === 'signup';
+  $('signupModePrompt').hidden = mode !== 'signup';
+  $('authSubtitle').textContent = mode === 'signup'
+    ? 'The easiest way to practise and improve.'
+    : 'Your practice. Your progress. Your success.';
+}
+
+function goEmailMode(mode, {focus=true, updateUrl=true}={}) {
+  clearErrs();
+  const first = captureRects();
+  authStep = 'email';
+  $('passwordStep').classList.remove('is-visible');
+  $('passwordStep').setAttribute('aria-hidden','true');
+  $('signinPasswordField').classList.remove('is-active');
+  $('signupPasswordField').classList.remove('is-active');
+  $('continueEmailBtn').style.display='flex';
+  $('loginBtn').style.display='none';
+  $('registerBtn').style.display='none';
+  $('authStepBack').style.display='none';
+  $('authModeBottom').style.display='block';
+  $('authSocials').style.display='grid';
+  $('authSocials').classList.remove('is-collapsing');
+  $('authSocials').style.pointerEvents='';
+  email.readOnly=false;
+  panel.classList.remove('is-signup-password');
+  setModeUI(mode);
+  animateFLIP(first);
+  if (updateUrl) history.replaceState(null,'',`login.html${mode==='signup'?'?mode=signup':''}`);
+  focusLater(mode==='signup' ? $('regFirstName') : email);
+}
+
+function goPasswordStep(type) {
+  clearErrs();
+  const first = captureRects();
+  authStep = 'password';
+  $('authSocials').classList.add('is-collapsing');
+  $('authSocials').style.pointerEvents='none';
+  $('passwordStep').classList.add('is-visible');
+  $('passwordStep').setAttribute('aria-hidden','false');
+  $('continueEmailBtn').style.display='none';
+  $('authStepBack').style.display='block';
+  $('authModeBottom').style.display='none';
+  email.readOnly=true;
+
+  if (type === 'signup') {
+    $('signinPasswordField').classList.remove('is-active');
+    $('signupPasswordField').classList.add('is-active');
+    $('resetPasswordLink').style.display='none';
+    $('registerBtn').style.display='flex';
+    $('loginBtn').style.display='none';
+    panel.classList.add('is-signup-password');
+    $('signupFields').classList.remove('is-expanded');
+    $('signupFields').setAttribute('aria-hidden','true');
+    email.value = signupData.email;
+  } else {
+    $('signinPasswordField').classList.add('is-active');
+    $('signupPasswordField').classList.remove('is-active');
+    $('resetPasswordLink').style.display='inline';
+    $('registerBtn').style.display='none';
+    $('loginBtn').style.display='flex';
+    panel.classList.remove('is-signup-password');
   }
-}
 
-function morphToEmailMode(mode){
-  const currentFocus=mode==='signup'?$('regFirstName'):$('loginEmail');
-  morphState(()=>{
-    authStep='email';
-    $('passwordStep').classList.remove('is-visible');
-    $('passwordStep').setAttribute('aria-hidden','true');
-    $('continueEmailBtn').style.display='flex';
-    $('loginBtn').style.display='none'; $('registerBtn').style.display='none';
-    $('authStepBack').style.display='none';
-    $('authSocials').style.display='grid';
-    setAuthMode(mode,false);
-  },currentFocus);
-}
-
-function morphToPasswordStep(type){
-  const focus=type==='signup'?$('regPassword'):$('loginPassword');
-  morphState(()=>{
-    authStep='password';
-    $('authSocials').classList.add('is-collapsing');
-    $('authSocials').style.pointerEvents='none';
-    $('passwordStep').classList.add('is-visible');
-    $('passwordStep').setAttribute('aria-hidden','false');
-    $('continueEmailBtn').style.display='none';
-    $('authStepBack').style.display='block';
-    $('authModeBottom').style.display='none';
-
-    if(type==='signup'){
-      $('resetPasswordLink').style.display='none';
-      $('signinPasswordField').classList.remove('is-active');
-      $('signupPasswordField').classList.add('is-active');
-      $('registerBtn').style.display='flex';
-      $('loginBtn').style.display='none';
-      $('loginEmail').readOnly=true;
-      $('loginEmail').value=signupData.email;
-      panel.classList.add('is-signup-password');
-      $('signupFields').classList.remove('is-expanded');
-      $('signupFields').setAttribute('aria-hidden','true');
-    }else{
-      $('resetPasswordLink').style.display='inline';
-      $('signinPasswordField').classList.add('is-active');
-      $('signupPasswordField').classList.remove('is-active');
-      $('registerBtn').style.display='none';
-      $('loginBtn').style.display='flex';
-      $('loginEmail').readOnly=true;
-      panel.classList.remove('is-signup-password');
-    }
-  },focus);
-
-  setTimeout(()=>{
+  animateFLIP(first);
+  setTimeout(() => {
     $('authSocials').style.display='none';
     $('authSocials').classList.remove('is-collapsing');
     $('authSocials').style.pointerEvents='';
-  },360);
+  }, 380);
+  focusLater(type==='signup' ? signupPassword : loginPassword);
 }
 
-function backFromPassword(){
-  const mode=authMode;
-  morphState(()=>{
-    authStep='email';
-    $('passwordStep').classList.remove('is-visible');
-    $('passwordStep').setAttribute('aria-hidden','true');
-    $('continueEmailBtn').style.display='flex'; $('loginBtn').style.display='none'; $('registerBtn').style.display='none';
-    $('authStepBack').style.display='none'; $('authModeBottom').style.display='block';
-    $('authSocials').style.display='grid';
-    $('authSocials').classList.remove('is-collapsing');
-    $('authSocials').style.pointerEvents='';
-    $('loginEmail').readOnly=false;
-    panel.classList.remove('is-signup-password');
-    if(mode==='signup'){
-      $('signupFields').classList.add('is-expanded');
-      $('signupFields').setAttribute('aria-hidden','false');
-      setAuthMode('signup',false);
-    }else setAuthMode('signin',false);
-  },mode==='signup'?$('regFirstName'):$('loginPassword'));
+function backFromPassword() {
+  const first = captureRects();
+  const mode = authMode;
+  authStep='email';
+  $('passwordStep').classList.remove('is-visible');
+  $('passwordStep').setAttribute('aria-hidden','true');
+  $('signinPasswordField').classList.remove('is-active');
+  $('signupPasswordField').classList.remove('is-active');
+  $('continueEmailBtn').style.display='flex';
+  $('loginBtn').style.display='none';
+  $('registerBtn').style.display='none';
+  $('authStepBack').style.display='none';
+  $('authModeBottom').style.display='block';
+  $('authSocials').style.display='grid';
+  $('authSocials').classList.remove('is-collapsing');
+  $('authSocials').style.pointerEvents='';
+  email.readOnly=false;
+  panel.classList.remove('is-signup-password');
+  setModeUI(mode);
+  animateFLIP(first);
+  focusLater(mode==='signup' ? $('regFirstName') : email);
 }
 
-function setupLogin(){
-  const email=$('loginEmail'), pass=$('loginPassword');
-  $('openSignupBtn').onclick=()=>morphToEmailMode('signup');
-  $('continueEmailBtn').onclick=()=>{
-    clearErrs();
-    if(authMode==='signup'){setupSignupDetails();return;}
-    if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return;}
-    morphToPasswordStep('signin');
-  };
-  email.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click()}};
-  $('changeStepBtn').onclick=()=>{clearErrs();backFromPassword()};
-  $('togglePassword').onclick=()=>{const text=pass.type==='text';pass.type=text?'password':'text';$('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
-  $('loginBtn').onclick=async()=>{clearErrs();const btn=$('loginBtn');btn.disabled=true;btn.querySelector('span').textContent='Signing in...';try{await loginStudent(email.value.trim(),pass.value);location.href='dashboard.html'}catch(err){showErr('errorMsg',err.message||'Sign in failed. Please check your details.');btn.disabled=false;btn.querySelector('span').textContent='Sign in'}};
-  pass.onkeydown=e=>{if(e.key==='Enter')$('loginBtn').click()};
-  $('googleLoginBtn').onclick=async()=>{clearErrs();const btn=$('googleLoginBtn');btn.disabled=true;btn.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr('errorMsg',error.message||'Could not start Google sign in. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google'}};
+function validateSignupDetails() {
+  const f=$('regFirstName'), l=$('regLastName');
+  if (!f.value.trim()) { f.focus(); return false; }
+  if (!l.value.trim()) { l.focus(); return false; }
+  if (!email.value.trim() || !email.checkValidity()) { email.reportValidity(); return false; }
+  signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:email.value.trim()};
+  return true;
 }
 
-function setupSignupDetails(){
-  const f=$('regFirstName'),l=$('regLastName'),e=$('loginEmail');
-  if(!f.value.trim()){f.focus();return;}
-  if(!l.value.trim()){l.focus();return;}
-  if(!e.value.trim()||!e.checkValidity()){e.reportValidity();return;}
-  signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:e.value.trim()};
-  morphToPasswordStep('signup');
+function bindAuthEvents() {
+  // Event delegation prevents dynamic mode changes from losing the Sign in/Sign up handler.
+  $('authModeBottom').addEventListener('click', e => {
+    const btn=e.target.closest('button');
+    if (!btn) return;
+    e.preventDefault();
+    if (btn.id==='openSignupBtn') goEmailMode('signup');
+    if (btn.id==='openSigninBtn') goEmailMode('signin');
+  });
+
+  $('continueEmailBtn').addEventListener('click', () => {
+    if (authMode==='signup') {
+      if (validateSignupDetails()) goPasswordStep('signup');
+      return;
+    }
+    if (!email.value.trim() || !email.checkValidity()) { email.reportValidity(); return; }
+    goPasswordStep('signin');
+  });
+
+  $('changeStepBtn').addEventListener('click', () => backFromPassword());
+  email.addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();$('continueEmailBtn').click();} });
+
+  $('togglePassword').addEventListener('click', () => {
+    const text=loginPassword.type==='text'; loginPassword.type=text?'password':'text';
+    $('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');
+    $('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');
+    if(window.lucide) lucide.createIcons();
+  });
+  $('toggleRegPassword').addEventListener('click', () => {
+    const text=signupPassword.type==='text'; signupPassword.type=text?'password':'text';
+    $('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');
+    $('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');
+    if(window.lucide) lucide.createIcons();
+  });
+
+  loginPassword.addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click();});
+  signupPassword.addEventListener('keydown',e=>{if(e.key==='Enter')$('registerBtn').click();});
+
+  $('loginBtn').addEventListener('click',async()=>{
+    clearErrs(); const btn=$('loginBtn');
+    if(!loginPassword.value){loginPassword.focus();return;}
+    btn.disabled=true; btn.querySelector('span').textContent='Signing in...';
+    try { await loginStudent(email.value.trim(),loginPassword.value); location.href='dashboard.html'; }
+    catch(err){ showErr('errorMsg',err?.message||'Sign in failed. Please check your details.'); btn.disabled=false; btn.querySelector('span').textContent='Sign in'; }
+  });
+
+  $('registerBtn').addEventListener('click',async()=>{
+    clearErrs(); const btn=$('registerBtn');
+    if(!signupPassword.value || signupPassword.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');signupPassword.focus();return;}
+    btn.disabled=true; btn.querySelector('span').textContent='Creating account...';
+    try {
+      const result=await registerStudent(`${signupData.firstName} ${signupData.lastName}`,signupData.email,signupPassword.value);
+      if(result.alreadyExists){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
+      lastRegisteredEmail=signupData.email; $('verifySuccessEmail').textContent=signupData.email;
+      $('authFlow').style.display='none'; $('verificationSuccessView').style.display='block';
+    } catch(err) {
+      const msg=(err?.message||'').toLowerCase();
+      if(msg.includes('already registered')||msg.includes('already exists')){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}
+      showErr('signupPasswordErrorMsg',err?.message||'Registration failed. Please try again.');
+      btn.disabled=false; btn.querySelector('span').textContent='Continue';
+    }
+  });
+
+  $('googleLoginBtn').addEventListener('click',async()=>{
+    clearErrs(); const btn=$('googleLoginBtn'); btn.disabled=true; btn.querySelector('span').textContent='Redirecting...';
+    const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});
+    if(error){showErr('errorMsg',error.message||'Could not start Google sign in. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue with Google';}
+  });
+
+  $('resendEmailBtn').addEventListener('click',async()=>{
+    const btn=$('resendEmailBtn'),status=$('resendStatus'); if(!lastRegisteredEmail)return;
+    btn.disabled=true; status.textContent=''; status.className='auth-resend-status';
+    try { const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail}); if(error)throw error;
+      status.textContent='Verification email sent!'; status.classList.add('is-success'); let s=60; btn.textContent=`Resend email (${s}s)`;
+      clearInterval(resendInterval); resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email';}else btn.textContent=`Resend email (${s}s)`;},1000);
+    } catch(err){status.textContent=err?.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false;}
+  });
 }
 
-function setupSignup(){
-  $('toggleRegPassword').onclick=()=>{const p=$('regPassword'),text=p.type==='text';p.type=text?'password':'text';$('regEyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('toggleRegPassword').setAttribute('aria-label',text?'Show password':'Hide password');lucide.createIcons()};
-  $('regPassword').onkeydown=e=>{if(e.key==='Enter')$('registerBtn').click()};
-  $('registerBtn').onclick=async()=>{clearErrs();const btn=$('registerBtn');const p=$('regPassword');if(!p||p.value.length<6){showErr('signupPasswordErrorMsg','Password must be at least 6 characters.');p?.focus();return;}btn.disabled=true;btn.querySelector('span').textContent='Creating account...';try{const result=await registerStudent(signupData.firstName+' '+signupData.lastName,signupData.email,p.value);if(result.alreadyExists){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}lastRegisteredEmail=signupData.email;$('verifySuccessEmail').textContent=signupData.email;$('authFlow').style.display='none';$('verificationSuccessView').style.display='block';}catch(err){const msg=(err&&err.message?err.message:'').toLowerCase();if(msg.includes('already registered')||msg.includes('already exists')){$('authFlow').style.display='none';$('accountExistsView').style.display='block';return;}showErr('signupPasswordErrorMsg',err.message||'Registration failed. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Continue'}};
-  $('resendEmailBtn').onclick=async()=>{const btn=$('resendEmailBtn'),status=$('resendStatus');if(!lastRegisteredEmail)return;btn.disabled=true;status.textContent='';status.className='auth-resend-status';try{const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail});if(error)throw error;status.textContent='Verification email sent!';status.classList.add('is-success');let s=60;btn.textContent='Resend email ('+s+'s)';clearInterval(resendInterval);resendInterval=setInterval(()=>{s--;if(s<=0){clearInterval(resendInterval);btn.disabled=false;btn.textContent='Resend email'}else btn.textContent='Resend email ('+s+'s)'},1000)}catch(err){status.textContent=err.message||'Could not resend. Please try again.';status.classList.add('is-error');btn.disabled=false}};
-}
+// Initialize once. No dynamic innerHTML is used for auth controls, so handlers survive every morph.
+bindAuthEvents();
+setModeUI('signin');
+$('authSocials').style.display='grid';
+$('passwordStep').classList.remove('is-visible');
+$('signupFields').classList.remove('is-expanded');
+$('freeCreditsNote').style.display='none';
+if(window.lucide) lucide.createIcons();
 
-// Mark stable elements for FLIP morphing.
-['authHeading','authSocials','signupFields','emailField','passwordStep','continueEmailBtn','loginBtn','registerBtn','authModeBottom','authStepBack'].forEach(id=>{const el=$(id);if(el)el.dataset.morph=''});
-
-setupLogin();setupSignup();
-(async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex'}catch(e){}})();
+(async()=>{try{await loadFreeCreditsCopy();const note=$('freeCreditsNote'),span=note.querySelector('[data-free-credits]');if(span&&!span.textContent.includes('{n}')&&!/\b0\b/.test(span.textContent))note.style.display='flex';}catch(e){console.warn('free credit copy unavailable',e);}})();
 
 const params=new URLSearchParams(location.search);
-if(params.get('mode')==='signup'){
-  setAuthMode('signup');
-}else{
-  let invalidated=false;const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
-  (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html'})();
+if(params.get('mode')==='signup') {
+  // Initial deep link to register uses the same single auth page.
+  goEmailMode('signup',{focus:false,updateUrl:false});
+} else {
+  let invalidated=false;
+  const msg=sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
+  if(msg){sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);showErr('errorMsg',msg);invalidated=true;}
+  (async()=>{if(invalidated)return;const user=await getCurrentUser();if(user)location.href='dashboard.html';})();
 }
 </script>
 </body>

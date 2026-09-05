@@ -225,3 +225,110 @@ body.auth-shell{
   .auth-socials,.auth-password-step{transition:none!important}
   .auth-password-step > .auth-field.is-active{animation:none!important}
 }
+
+/* ================================================================
+   AUTH FLOW — FINAL STABLE MORPH SYSTEM
+   One DOM, one page, no form replacement. State changes are layout
+   transitions; FLIP in login.html handles the stable elements.
+   ================================================================ */
+.auth-panel{overflow:visible}
+.auth-flow{overflow:visible}
+.auth-bottom span[hidden]{display:none!important}
+
+/* Sign-up details: collapse/expand their real layout height. */
+.auth-signup-fields{
+  display:block;
+  height:auto;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  opacity:0;
+  transform:translateY(-8px);
+  pointer-events:none;
+  transition:
+    max-height 360ms cubic-bezier(.22,.61,.36,1),
+    opacity 180ms ease,
+    transform 360ms cubic-bezier(.22,.61,.36,1),
+    margin 360ms cubic-bezier(.22,.61,.36,1);
+}
+.auth-signup-fields.is-expanded{
+  max-height:76px!important;
+  margin:0 0 1px!important;
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+}
+.auth-signup-fields .auth-name-grid{padding:0}
+.auth-signup-fields .auth-field{margin-bottom:13px}
+
+/* Password step: the wrapper itself grows, then the active password field
+   fades/rises inside it. It never uses display:none during the transition. */
+.auth-password-step{
+  display:grid!important;
+  grid-template-rows:0fr;
+  max-height:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  opacity:0;
+  transform:translateY(-7px);
+  transition:
+    grid-template-rows 360ms cubic-bezier(.22,.61,.36,1),
+    max-height 360ms cubic-bezier(.22,.61,.36,1),
+    opacity 180ms ease,
+    transform 360ms cubic-bezier(.22,.61,.36,1),
+    margin 360ms cubic-bezier(.22,.61,.36,1);
+}
+.auth-password-step.is-visible{
+  grid-template-rows:1fr;
+  max-height:82px!important;
+  margin:0 0 1px!important;
+  opacity:1;
+  transform:none;
+}
+.auth-password-step>.auth-field{
+  min-height:0;
+  overflow:hidden;
+  margin:0!important;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity 180ms ease,transform 300ms cubic-bezier(.22,.61,.36,1);
+}
+.auth-password-step>.auth-field.is-active{
+  opacity:1;
+  transform:none;
+}
+
+/* The shared email field is intentionally NOT absolutely positioned. When
+   signup details collapse, normal document reflow moves the email upward;
+   FLIP then makes that movement smooth instead of teleporting it. */
+.auth-panel.is-signup-password .auth-signup-fields{
+  max-height:0!important;
+  margin:0!important;
+  opacity:0!important;
+  transform:translateY(-8px)!important;
+  pointer-events:none!important;
+}
+.auth-panel.is-signup-password .auth-email-field{transform:none}
+.auth-panel.is-signup-password .auth-password-step{transform:none}
+
+/* Social provider participates in the same collapse. */
+.auth-socials{
+  overflow:hidden;
+  max-height:60px;
+  opacity:1;
+  transform:none;
+  transition:max-height 300ms cubic-bezier(.22,.61,.36,1),opacity 180ms ease,margin 300ms cubic-bezier(.22,.61,.36,1),transform 300ms cubic-bezier(.22,.61,.36,1);
+}
+.auth-socials.is-collapsing{
+  max-height:0!important;
+  opacity:0;
+  transform:translateY(-5px);
+  margin-bottom:0!important;
+}
+
+.auth-step-back{margin-top:17px}
+
+@media(prefers-reduced-motion:reduce){
+  .auth-signup-fields,.auth-password-step,.auth-password-step>.auth-field,.auth-socials{transition:none!important;animation:none!important}
+}
