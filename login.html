@@ -186,12 +186,14 @@ function morphToPasswordStep(type){
   const focus=type==='signup'?$('regPassword'):$('loginPassword');
   morphState(()=>{
     authStep='password';
-    $('authSocials').style.display='none';
+    $('authSocials').classList.add('is-collapsing');
+    $('authSocials').style.pointerEvents='none';
     $('passwordStep').classList.add('is-visible');
     $('passwordStep').setAttribute('aria-hidden','false');
     $('continueEmailBtn').style.display='none';
     $('authStepBack').style.display='block';
     $('authModeBottom').style.display='none';
+
     if(type==='signup'){
       $('resetPasswordLink').style.display='none';
       $('signinPasswordField').classList.remove('is-active');
@@ -207,13 +209,18 @@ function morphToPasswordStep(type){
       $('resetPasswordLink').style.display='inline';
       $('signinPasswordField').classList.add('is-active');
       $('signupPasswordField').classList.remove('is-active');
-      $('registerBtn').style.display='none'; $('loginBtn').style.display='flex';
+      $('registerBtn').style.display='none';
+      $('loginBtn').style.display='flex';
       $('loginEmail').readOnly=true;
       panel.classList.remove('is-signup-password');
     }
   },focus);
-  $('passwordStep').classList.add('morph-password-arrive');
-  setTimeout(()=>$('passwordStep').classList.remove('morph-password-arrive'),380);
+
+  setTimeout(()=>{
+    $('authSocials').style.display='none';
+    $('authSocials').classList.remove('is-collapsing');
+    $('authSocials').style.pointerEvents='';
+  },360);
 }
 
 function backFromPassword(){
@@ -225,6 +232,8 @@ function backFromPassword(){
     $('continueEmailBtn').style.display='flex'; $('loginBtn').style.display='none'; $('registerBtn').style.display='none';
     $('authStepBack').style.display='none'; $('authModeBottom').style.display='block';
     $('authSocials').style.display='grid';
+    $('authSocials').classList.remove('is-collapsing');
+    $('authSocials').style.pointerEvents='';
     $('loginEmail').readOnly=false;
     panel.classList.remove('is-signup-password');
     if(mode==='signup'){
@@ -258,7 +267,6 @@ function setupSignupDetails(){
   if(!l.value.trim()){l.focus();return;}
   if(!e.value.trim()||!e.checkValidity()){e.reportValidity();return;}
   signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:e.value.trim()};
-  $('regEmail').value=signupData.email;
   morphToPasswordStep('signup');
 }
 

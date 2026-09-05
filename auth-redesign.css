@@ -206,3 +206,22 @@ body.auth-shell{
 .auth-panel.is-signup-password .auth-step-back{
   /* The controls below the morph follow the new compact layout naturally. */
 }
+
+/* Final Cursor-like morph refinement: let the document reflow naturally while
+   stable controls are FLIP-animated and newly revealed controls fade/slide in. */
+.auth-socials{max-height:60px;overflow:hidden;opacity:1;transform:none;transition:max-height .30s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .30s cubic-bezier(.22,.61,.36,1),transform .30s cubic-bezier(.22,.61,.36,1)}
+.auth-socials.is-collapsing{max-height:0;opacity:0;transform:translateY(-5px);margin-bottom:0}
+.auth-password-step{will-change:max-height,opacity,transform}
+.auth-password-step.is-visible{max-height:82px}
+.auth-password-step > .auth-field.is-active{animation:auth-password-reveal .30s cubic-bezier(.22,.61,.36,1) both}
+@keyframes auth-password-reveal{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+/* The name row is allowed to collapse in its own space; no manual -64px
+   translation is used, so the email field follows the real layout movement. */
+.auth-panel.is-signup-password .auth-email-field,
+.auth-panel.is-signup-password .auth-password-step{transform:none}
+.auth-panel.is-signup-password .auth-password-step.is-visible{margin-bottom:1px}
+.auth-panel.is-signup-password .auth-signup-fields{max-height:0!important;opacity:0!important;transform:translateY(-7px)!important;margin:0!important;pointer-events:none!important}
+@media(prefers-reduced-motion:reduce){
+  .auth-socials,.auth-password-step{transition:none!important}
+  .auth-password-step > .auth-field.is-active{animation:none!important}
+}
