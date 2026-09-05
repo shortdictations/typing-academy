@@ -1,4 +1,4 @@
-/* TypeShala authentication shell — clean single-page Cursor-style flow. */
+/* TypeShala authentication — compact, stable, same-page morphing */
 body.auth-shell{
   --auth-bg:#f7f9fc;--auth-text:var(--ink,#10203a);--auth-muted:var(--muted,#64748b);
   --auth-border:var(--line,#e5eaf1);--auth-primary:var(--blue,#2563eb);--auth-primary-hover:#1d4ed8;
@@ -6,7 +6,7 @@ body.auth-shell{
 }
 .auth-page{min-height:100vh;display:flex;flex-direction:column;position:relative}
 .auth-brand{position:absolute;left:28px;top:24px;display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--auth-text);z-index:2}
-.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none}
+.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none;border-radius:50%}
 .auth-brand-copy strong{display:block;font-size:17px;line-height:1;color:var(--navy,#0b1f47);letter-spacing:-.5px}
 .auth-brand-copy small{display:block;margin-top:3px;color:var(--auth-accent);font-size:7px;font-weight:800;letter-spacing:1.25px;line-height:1}
 .auth-main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:31vh 20px 54px}
@@ -15,34 +15,37 @@ body.auth-shell{
 .auth-heading{text-align:center;margin:0 0 28px}
 .auth-heading h1{margin:0 0 5px;color:var(--auth-text);font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.55px}
 .auth-heading p{margin:0;color:var(--auth-muted);font-size:13px;line-height:1.45}
-.auth-socials{display:grid;grid-template-columns:1fr;gap:9px;margin:0 0 12px;overflow:hidden;max-height:60px;opacity:1;transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .20s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-socials{display:grid;grid-template-columns:1fr;gap:9px;margin:0 0 14px;overflow:hidden;max-height:60px;opacity:1;transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .20s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
 .auth-socials.is-collapsed{max-height:0;opacity:0;margin-bottom:0;pointer-events:none}
 .auth-social-btn{height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);display:flex;align-items:center;justify-content:center;gap:9px;font:600 13px/1 inherit;cursor:pointer;transition:border-color .15s,background .15s}
 .auth-social-btn:hover{border-color:#cbd5e1;background:#fbfcfe}.auth-social-btn:disabled{opacity:.6;cursor:not-allowed}.auth-social-btn svg{width:16px;height:16px;flex:none}
-.auth-field{margin:0 0 14px}.auth-field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.auth-field{margin:0 0 14px}
+.auth-field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .auth-field label{display:block;margin:0 0 6px;color:var(--auth-muted);font-size:11px;font-weight:650}.auth-field-row label{margin:0}
 .auth-field-row a{color:var(--auth-muted);font-size:11px;font-weight:600;text-decoration:none}.auth-field-row a:hover{color:var(--auth-primary)}
 .auth-input{width:100%;height:42px;box-sizing:border-box;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);padding:0 12px;font:400 13px/42px inherit;outline:0;transition:border-color .15s,box-shadow .15s}
 .auth-input::placeholder{color:#9aa6b5}.auth-input:focus{border-color:var(--auth-accent);box-shadow:0 0 0 2px rgba(232,170,0,.12)}
 .auth-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-password-wrap{position:relative}.auth-password-wrap .auth-input{padding-right:42px}
 .auth-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--auth-muted);width:30px;height:30px;display:grid;place-items:center;border-radius:6px;cursor:pointer}.auth-toggle:hover{background:#f3f6fa;color:var(--auth-text)}.auth-toggle svg{width:16px;height:16px}
-.auth-primary{width:100%;height:42px;border:0;border-radius:8px;background:var(--auth-primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font:650 13px/1 inherit;cursor:pointer;transition:background .15s,box-shadow .15s;margin-top:5px;box-shadow:0 6px 16px rgba(37,99,235,.14)}
+.auth-primary{width:100%;height:42px;border:0;border-radius:8px;background:var(--auth-primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font:650 13px/1 inherit;cursor:pointer;transition:background .15s,box-shadow .15s,transform .15s;margin:0;box-shadow:0 6px 16px rgba(37,99,235,.14);box-sizing:border-box}
 .auth-primary:hover{background:var(--auth-primary-hover);box-shadow:0 8px 18px rgba(37,99,235,.18)}.auth-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none}.auth-primary svg{width:15px;height:15px}
 .auth-step-link{border:0;background:none;padding:0;color:var(--auth-muted);font:600 11px/1.3 inherit;cursor:pointer}.auth-step-link:hover{color:var(--auth-text)}
 .auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}.auth-bottom{text-align:center;margin:18px 0 0;color:var(--auth-muted);font-size:12px}.auth-bottom a{color:var(--auth-text);font-weight:700;text-decoration:none}
-.auth-step-back{text-align:center;margin-top:17px}.auth-error-msg,.auth-success-msg{display:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:0 0 14px}.auth-error-msg{background:#fff2f2;color:#b3261e;border:1px solid #f2cccc}.auth-success-msg{background:#eefaf4;color:#138a54;border:1px solid #c8ead8}
-.auth-footer{padding:20px 20px 22px;text-align:center;color:#94a0af;font-size:10px;line-height:1.5}.auth-footer a{color:inherit;text-decoration:none}
-/* Signup details: real height in normal flow. JS handles the stable vertical morph. */
-.auth-signup-fields{height:0;max-height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;padding:0;transition:height .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
-.auth-signup-fields.is-expanded{height:76px;max-height:76px;opacity:1;margin:0 0 1px;pointer-events:auto}.auth-signup-fields .auth-name-grid{padding:0}.auth-signup-fields .auth-field{margin-bottom:13px}
-/* Password wrapper is in normal flow; its active field is the only revealed child. */
-.auth-password-step{display:grid;grid-template-rows:0fr;max-height:0;opacity:0;overflow:hidden;margin:0;transition:grid-template-rows .34s cubic-bezier(.22,.61,.36,1),max-height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
-.auth-password-step.is-visible{grid-template-rows:1fr;max-height:82px;opacity:1;margin:0 0 1px}
-.auth-password-step>.auth-field{min-height:0;overflow:hidden;margin:0!important;opacity:0;transform:translateY(7px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
-.auth-password-step>.auth-field.is-active{opacity:1;transform:none}
+.auth-step-back{text-align:center;margin-top:17px;opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
+.auth-panel.is-password .auth-step-back{opacity:1;transform:none}
+.auth-error-msg,.auth-success-msg{display:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:0 0 14px}.auth-error-msg{background:#fff2f2;color:#b3261e;border:1px solid #f2cccc}.auth-success-msg{background:#eefaf4;color:#138a54;border:1px solid #c8ead8}
+/* The wrappers animate their real measured height; children never use horizontal transforms. */
+.auth-signup-fields{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin-bottom .34s cubic-bezier(.22,.61,.36,1)}
+.auth-signup-fields.is-expanded{opacity:1;pointer-events:auto;margin-bottom:0}
+.auth-password-step{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin-bottom .34s cubic-bezier(.22,.61,.36,1)}
+.auth-password-step.is-visible{opacity:1;pointer-events:auto;margin-bottom:0}
+.auth-password-field{margin:0 0 14px}
+.auth-password-field .auth-field-row{margin-bottom:6px}
+.auth-password-field[hidden]{display:none}
 .auth-special-view{text-align:center}.auth-verify-icon{width:44px;height:44px;border-radius:50%;margin:0 auto 15px;background:#eefaf4;color:#138a54;display:grid;place-items:center;font-size:20px;font-weight:800}.auth-verify h2{margin:0 0 7px;font-size:19px}.auth-verify p{margin:0;color:var(--auth-muted);font-size:12px;line-height:1.55}.auth-verify-email{margin:8px 0 14px;font-size:13px;font-weight:700;word-break:break-word}.auth-secondary{width:100%;height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);font:650 13px/1 inherit}.auth-resend{margin-top:16px}.auth-resend-status{min-height:16px;margin:8px 0 0!important;font-size:11px!important}.auth-resend-status.is-success{color:#138a54}.auth-resend-status.is-error{color:#b3261e}
 .auth-free-credits{display:flex;align-items:center;justify-content:center;gap:6px;margin:19px 0 0;color:var(--auth-muted);font-size:11px;text-align:center}.auth-free-credits svg{width:14px;height:14px;color:var(--auth-accent)}
+.auth-simple-main{padding-top:31vh}.auth-simple-panel{max-width:390px}.auth-simple-submit{margin-top:0}.auth-simple-back{margin-top:18px}.auth-back-inline{color:var(--auth-muted)!important;font-weight:600!important}
+.auth-reset-form .auth-field{margin-bottom:14px}
+.auth-reset-actions{margin-top:0}
 @media(max-width:520px){.auth-brand{left:18px;top:18px}.auth-main{padding:112px 18px 35px}.auth-panel{max-width:390px}.auth-name-grid{grid-template-columns:1fr 1fr}.auth-brand-logo{width:34px;height:34px}}
-@media(prefers-reduced-motion:reduce){.auth-socials,.auth-signup-fields,.auth-password-step,.auth-password-step>.auth-field{transition:none!important}.auth-heading,.auth-panel *{animation:none!important}}
-.auth-step-back{opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
-.auth-panel.is-password .auth-step-back{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.auth-socials,.auth-signup-fields,.auth-password-step,.auth-step-back{transition:none!important}}
