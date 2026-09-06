@@ -81,3 +81,46 @@ body.auth-shell{
 @media(prefers-reduced-motion:reduce){
  ::view-transition-group(auth-email),::view-transition-group(auth-primary),::view-transition-group(auth-subtitle),::view-transition-group(auth-signup-fields),::view-transition-group(auth-password-step),::view-transition-group(auth-socials),::view-transition-group(auth-mode-bottom),::view-transition-group(auth-step-back){animation-duration:1ms}
 }
+
+/* v8: smooth cross-page auth navigation (login <-> forgot <-> reset). */
+@view-transition { navigation: auto; }
+
+.auth-page .auth-brand { view-transition-name: auth-brand; }
+.auth-page .auth-panel,
+.auth-simple-page .auth-simple-panel { view-transition-name: auth-panel; }
+.auth-page .auth-footer { view-transition-name: auth-footer; }
+
+::view-transition-group(auth-panel),
+::view-transition-group(auth-brand),
+::view-transition-group(auth-footer) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
+::view-transition-old(auth-panel),
+::view-transition-new(auth-panel) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
+::view-transition-old(auth-brand),
+::view-transition-new(auth-brand),
+::view-transition-old(auth-footer),
+::view-transition-new(auth-footer) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(auth-panel),
+  ::view-transition-group(auth-brand),
+  ::view-transition-group(auth-footer),
+  ::view-transition-old(auth-panel),
+  ::view-transition-new(auth-panel),
+  ::view-transition-old(auth-brand),
+  ::view-transition-new(auth-brand),
+  ::view-transition-old(auth-footer),
+  ::view-transition-new(auth-footer) {
+    animation-duration: 1ms !important;
+  }
+}
