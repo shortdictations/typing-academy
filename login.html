@@ -1,369 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="/favicon.png">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="shortcut icon" href="/favicon.ico">
-<title>Log In — TypeShala</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png"><link rel="icon" type="image/x-icon" href="favicon.ico">
+<title>Sign in — TypeShala</title>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="landing-v3.css?v=2">
-<link rel="stylesheet" href="landing.css?v=2">
-<link rel="stylesheet" href="auth-redesign.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="landing-v3.css?v=2"><link rel="stylesheet" href="auth-redesign.css?v=8">
 </head>
-<body class="landing-v2 auth-shell">
-
-<!-- Existing TypeShala landing-page header, unmodified except the
-     in-page anchor links (#platform etc.), which only make sense on
-     index.html itself — qualified here so they still work correctly
-     from this page instead of silently doing nothing. -->
-<header class="site-header">
-  <div class="container nav-wrap">
-    <a class="lp-brand" href="index.html" aria-label="TypeShala home">
-      <span class="lp-brand-mark">TS</span>
-      <span>
-        <strong>TypeShala</strong>
-        <small>TYPING PRACTICE CENTRE</small>
-      </span>
-    </a>
-
-    <!--<nav class="desktop-nav" aria-label="Main navigation">
-      <a href="index.html#platform">Platform</a>
-      <a href="index.html#analytics">Analytics</a>
-      <a href="index.html#pricing">Passes &amp; Credits</a>
-    </nav>-->
-
-    <div class="nav-actions">
-      <!--<a class="login-link" href="login.html">Log in</a>-->
-      <a class="lp-btn lp-btn-gold lp-btn-small" href="register.html">Sign up</a>
-    </div>
-
-    <button class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
-      <i data-lucide="menu"></i>
-    </button>
-  </div>
-
-  <div class="mobile-menu">
-    <a href="index.html#platform">Platform</a>
-    <a href="index.html#analytics">Analytics</a>
-    <a href="index.html#pricing">Passes &amp; Credits</a>
-    <a href="login.html">Log in</a>
-    <a class="lp-btn lp-btn-gold" href="register.html">Get Started</a>
-  </div>
-</header>
-
-<main class="ts-auth-main">
-  <div class="auth-card">
-
-    <div class="auth-error-msg" id="errorMsg"></div>
-    <div class="auth-success-msg" id="successMsg"></div>
-
-    <!-- STEP 1: CHOICE — default view, no fields at all -->
-    <div id="viewChoice">
-      <div class="auth-card-head">
-        <h1>Welcome back</h1>
-        <p>Log in to continue your exam-ready typing practice.</p>
-      </div>
-
-      <button type="button" class="auth-google-btn" id="googleLoginBtn" style="margin-bottom:12px;">
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:none;">
-          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/>
-          <path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/>
-          <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/>
-        </svg>
-        <span>Continue with Google</span>
-      </button>
-      <button type="button" class="auth-submit-btn" id="showEmailBtn" style="background:var(--navy); box-shadow:none;">
-        <i data-lucide="mail"></i>
-        <span>Continue with Email</span>
-      </button>
-    </div>
-
-    <!-- STEP 2: SIGN IN — reached via "Continue with Email" -->
-    <div id="viewSignIn" style="display:none;">
-      <button type="button" class="auth-back-link" id="backToChoiceBtn">
-        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back
-      </button>
-
-      <div class="auth-card-head" style="margin-bottom:22px;">
-        <h1>Sign in</h1>
-      </div>
-
-      <form id="loginForm">
-        <div class="auth-field">
-          <label for="loginEmail">Email Address</label>
-          <div class="auth-input-wrap">
-            <i data-lucide="mail"></i>
-            <input type="email" id="loginEmail" placeholder="candidate@example.com" required autocomplete="email">
-          </div>
-        </div>
-
-        <div class="auth-field">
-          <div class="auth-field-row">
-            <label for="loginPassword">Password</label>
-            <a href="forgot-password.html" class="auth-forgot-link">Forgot Password?</a>
-          </div>
-          <div class="auth-input-wrap">
-            <i data-lucide="lock"></i>
-            <input type="password" id="loginPassword" class="has-toggle" placeholder="Enter your password" required autocomplete="current-password">
-            <button type="button" class="auth-toggle-visibility" id="togglePassword" aria-label="Show password">
-              <i data-lucide="eye" id="eyeIcon"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="auth-submit-btn" id="loginBtn">
-          <span>Log In to Dashboard</span>
-          <i data-lucide="arrow-right"></i>
-        </button>
-      </form>
-
-      <p class="auth-foot-link">
-        New here? <a href="register.html">Sign up for free</a>
-      </p>
-    </div>
-
-    <!-- Dynamic — never hard-coded. Populated by js/landing-products.js
-         (loadFreeCreditsCopy), the same function and same
-         get_public_free_signup_credits() RPC the landing page uses —
-         one source of truth, no separate copy of this logic. Hidden
-         entirely (rather than left showing stale/wrong text) if the
-         setting can't be loaded or the offer is disabled. -->
-    <div class="auth-free-credits" id="freeCreditsNote" style="display:none;">
-      <i data-lucide="sparkles"></i>
-      <span data-free-credits="New users get {n} free credits automatically upon signup!">New users get free credits automatically upon signup!</span>
-    </div>
-
-  </div>
-</main>
-
-<footer class="site-foot">
-  <div class="site-foot-inner">
-    <div class="site-foot-social" aria-label="Follow TypeShala">
-      <a class="site-foot-social-link" href="https://indianshorthand.blogspot.com" target="_blank" rel="noopener noreferrer" aria-label="Blogger">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M14 8.5h1.5V6h-2A3 3 0 0 0 10.5 9v1.5H9V13h1.5v5H13v-5h1.8l.3-2.5H13V9c0-.3.2-.5.5-.5H14Z" fill="#fff"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://www.youtube.com/@shortdictations" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M16.5 9.3c-.1-.5-.5-.9-1-1-1-.2-3.5-.2-3.5-.2s-2.5 0-3.5.2c-.5.1-.9.5-1 1-.2 1-.2 2.7-.2 2.7s0 1.7.2 2.7c.1.5.5.9 1 1 1 .2 3.5.2 3.5.2s2.5 0 3.5-.2c.5-.1.9-.5 1-1 .2-1 .2-2.7.2-2.7s0-1.7-.2-2.7Z" stroke="#fff" stroke-width="0.5" fill="#fff" fill-opacity="0.15"/><path d="M10.8 10.2v3.6l3.1-1.8-3.1-1.8Z" fill="#fff"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://t.me/shorthandjournals" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M17.5 7.2 15.8 16c-.1.6-.5.7-1 .4l-2.7-2-1.3 1.3c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1l-6.1 3.9-2.6-.8c-.6-.2-.6-.6.1-.9l10.3-4c.5-.2.9.1.6.9Z" fill="#fff"/></svg>
-      </a>
-    </div>
-
-    <div class="site-foot-divider"></div>
-
-    <div class="site-foot-bottom">
-      <span class="site-foot-copyright">&copy; TypeShala 2026. All rights reserved.</span>
-      <div class="site-foot-links">
-        <button type="button" class="site-foot-link-btn" data-modal-open="privacyModal">Privacy Policy</button>
-        <span class="site-foot-sep">|</span>
-        <button type="button" class="site-foot-link-btn" data-modal-open="termsModal">Terms and Conditions</button>
-        <span class="site-foot-sep">|</span>
-        <button type="button" class="site-foot-link-btn" data-modal-open="aboutModal">About Us</button>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<div class="info-modal-overlay" id="infoModalOverlay" hidden></div>
-<div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" hidden>
-  <div class="info-modal-head">
-    <h2 id="infoModalTitle"></h2>
-    <button type="button" class="info-modal-close" id="infoModalCloseBtn" aria-label="Close">&times;</button>
-  </div>
-  <div class="info-modal-body" id="infoModalBody"></div>
+<body class="auth-shell">
+<div class="auth-page">
+<a class="auth-brand" href="index.html" aria-label="TypeShala home"><img class="auth-brand-logo" src="favicon.png" alt="TypeShala"><span class="auth-brand-copy"><strong>TypeShala</strong><small>TYPING PRACTICE CENTRE</small></span></a>
+<main class="auth-main"><section class="auth-panel" id="authPanel" aria-live="polite">
+<div class="auth-flow" id="authFlow">
+<div class="auth-heading"><h1>Welcome to TypeShala</h1><p id="authSubtitle">Your practice. Your progress. Your success.</p></div>
+<div class="auth-socials" id="authSocials"><button type="button" class="auth-social-btn" id="googleLoginBtn"><svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.87 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.17l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.95H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg><span>Continue with Google</span></button></div>
+<div class="auth-signup-fields" id="signupFields" aria-hidden="true"><div class="auth-name-grid"><div class="auth-field"><label for="regFirstName">First name</label><input class="auth-input" id="regFirstName" type="text" placeholder="Your first name" autocomplete="given-name"></div><div class="auth-field"><label for="regLastName">Last name</label><input class="auth-input" id="regLastName" type="text" placeholder="Your last name" autocomplete="family-name"></div></div></div>
+<div class="auth-field auth-email-field" id="emailField"><label for="loginEmail">Email</label><input class="auth-input" id="loginEmail" type="email" placeholder="Your email address" autocomplete="email" required></div>
+<div class="auth-password-step" id="passwordStep" aria-hidden="true"><div class="auth-field auth-password-field" id="passwordField"><div class="auth-field-row"><label for="authPassword" id="passwordLabel">Password</label><a href="forgot-password.html" id="resetPasswordLink">Reset password</a></div><div class="auth-password-wrap"><input class="auth-input" id="authPassword" type="password" placeholder="Your password" autocomplete="current-password"><button type="button" class="auth-toggle" id="togglePassword" aria-label="Show password"><i data-lucide="eye" id="eyeIcon"></i></button></div></div></div>
+<div class="auth-error-msg" id="errorMsg"></div><div class="auth-success-msg" id="successMsg"></div>
+<button type="button" class="auth-primary" id="primaryBtn"><span>Continue</span></button>
+<p class="auth-bottom" id="authModeBottom"><span id="signinModePrompt">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></span><span id="signupModePrompt" hidden>Already have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSigninBtn">Sign in</button></span></p>
+<div class="auth-step-back" id="authStepBack"><button type="button" class="auth-step-link" id="changeStepBtn">‹&nbsp; Change email</button></div>
 </div>
-
-<template id="privacyModalContent">
-  <p><strong>Last Updated:</strong> 24 August 2026</p>
-  <h3>1. Introduction</h3>
-  <p>Welcome to TypeShala.</p>
-  <p>TypeShala is an online typing practice and mock-test platform. We respect the privacy of our users and are committed to handling personal information responsibly.</p>
-  <p>This Privacy Policy explains what information may be collected when you use TypeShala, how that information may be used, and the choices available to you.</p>
-  <p>By using TypeShala, you acknowledge this Privacy Policy.</p>
-  <h3>2. Information We Collect</h3>
-  <p>Depending on how you use the platform, TypeShala may collect or process information such as:</p>
-  <p><strong>Account Information:</strong></p>
-  <ul><li>Name</li><li>Email address</li><li>Login and authentication information</li><li>Account-related information</li></ul>
-  <p><strong>Typing and Performance Information:</strong></p>
-  <ul><li>Typing speed</li><li>Accuracy</li><li>Gross WPM</li><li>Net WPM</li><li>Weak-key/error statistics</li><li>Test history and results</li></ul>
-  <p><strong>Payment Information:</strong></p>
-  <ul><li>Purchase records (passes/credits)</li><li>Transaction identifiers</li><li>Payment status (processed securely through Razorpay; TypeShala does not store your card or bank details)</li></ul>
-  <p><strong>Technical Information:</strong></p>
-  <ul><li>Device/browser type</li><li>General usage data</li><li>Session information</li></ul>
-  <h3>3. How We Use Information</h3>
-  <p>Information collected may be used to:</p>
-  <ul><li>Provide and operate the typing practice and mock-test platform</li><li>Track your performance and progress</li><li>Process purchases of passes/credits</li><li>Maintain account security and prevent misuse</li><li>Improve platform features and content</li><li>Respond to support requests</li></ul>
-  <h3>4. Data Sharing</h3>
-  <p>TypeShala does not sell personal information.</p>
-  <p>Information may be shared only with:</p>
-  <ul><li>Supabase (our authentication and database provider)</li><li>Razorpay (our payment processor)</li><li>As required by law</li></ul>
-  <h3>5. Data Security</h3>
-  <p>We apply reasonable technical and organizational measures to protect user data. However, no online platform can guarantee absolute security.</p>
-  <h3>6. Data Retention</h3>
-  <p>Account and performance data is retained as long as your account remains active, or as required for legitimate business/legal purposes.</p>
-  <h3>7. Your Choices</h3>
-  <p>You may:</p>
-  <ul><li>Request correction of your account information</li><li>Request account deletion</li><li>Contact us regarding your data</li></ul>
-  <h3>8. Children's Privacy</h3>
-  <p>TypeShala is intended for typing exam preparation and is not directed at young children. If you believe a child has provided personal information without appropriate consent, please contact us.</p>
-  <h3>9. Changes to this Policy</h3>
-  <p>This Privacy Policy may be updated from time to time. Continued use of TypeShala after changes indicates acceptance of the updated policy.</p>
-  <h3>10. Contact</h3>
-  <p>For questions regarding this Privacy Policy: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<template id="termsModalContent">
-  <p><strong>Last Updated:</strong> 24 August 2026</p>
-  <h3>1. Acceptance of Terms</h3>
-  <p>By accessing or using TypeShala, you agree to these Terms and Conditions. If you do not agree, please do not use the platform.</p>
-  <h3>2. Description of Service</h3>
-  <p>TypeShala provides typing practice, mock tests, and performance analytics for exam preparation (including SSC, Legal/Court, and related typing categories).</p>
-  <h3>3. Account Responsibilities</h3>
-  <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
-  <h3>4. Passes &amp; Credits</h3>
-  <ul><li>Passes and credits are non-transferable.</li><li>Passes provide access for their stated validity period only.</li><li>Credits are consumed per mock-test attempt as described on the platform.</li><li>Purchases are processed securely through Razorpay.</li></ul>
-  <h3>5. Refund Policy</h3>
-  <p>Purchases of digital passes/credits are generally non-refundable once activated, except where required by applicable law or at TypeShala's discretion in cases of genuine technical error.</p>
-  <h3>6. Acceptable Use</h3>
-  <p>You agree not to:</p>
-  <ul><li>Misuse, copy, or redistribute TypeShala's typing passages or mock-test content</li><li>Attempt to bypass exam timing, scoring, or evaluation mechanisms</li><li>Share your account with others</li><li>Use the platform for unlawful purposes</li></ul>
-  <h3>7. Intellectual Property</h3>
-  <p>TypeShala's original website design, software, branding, logos, typing passages, mock-test content, practice materials, graphics, text and analysis systems are protected by applicable intellectual-property laws.</p>
-  <h3>8. Service Availability</h3>
-  <p>TypeShala is provided on an "as available" basis. We do not guarantee uninterrupted or error-free access at all times.</p>
-  <h3>9. Limitation of Liability</h3>
-  <p>TypeShala is a practice and preparation tool. We do not guarantee specific exam results, scores, or outcomes in any official examination.</p>
-  <h3>10. Changes to Service or Terms</h3>
-  <p>TypeShala may update these Terms, pricing, or features at any time. Continued use after changes indicates acceptance.</p>
-  <h3>11. Governing Law</h3>
-  <p>These Terms are governed by applicable Indian law.</p>
-  <h3>12. Contact</h3>
-  <p>For questions about these Terms: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<template id="aboutModalContent">
-  <p><strong>About TypeShala</strong></p>
-  <p>TypeShala is an exam-focused typing practice platform built for SSC, Legal/Court, and related typing examinations.</p>
-  <h3>What We Offer</h3>
-  <ul><li>Timed mock tests matching real exam formats</li><li>Accurate Gross WPM / Net WPM / Accuracy scoring</li><li>Weak-key analysis to target specific practice areas</li><li>Category-specific passages (SSC, Legal/Court)</li><li>Progress tracking across attempts</li></ul>
-  <h3>Our Approach</h3>
-  <p>TypeShala focuses on realistic, exam-style conditions rather than generic typing games — the goal is genuine exam readiness, not just typing speed.</p>
-  <h3>Continuous Improvement</h3>
-  <p>TypeShala is continuously being developed and improved. New features, practice materials and improvements may be introduced from time to time.</p>
-  <h3>Contact</h3>
-  <p>For questions, suggestions or support: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/landing-v3.js?v=2"></script>
-<script src="js/landing-footer.js?v=2"></script>
-<script src="js/landing-products.js?v=2"></script>
+<div class="auth-special-view auth-forgot-view" id="forgotPasswordView" style="display:none">
+  <div class="auth-view">
+    <div class="auth-heading" id="forgotHeading"><h1>Reset your password</h1><p>Enter your email to receive reset instructions.</p></div>
+    <div class="auth-error-msg" id="forgotErrorMsg"></div><div class="auth-success-msg" id="forgotSuccessMsg"></div>
+    <form id="forgotInlineForm" novalidate>
+      <div class="auth-field" id="forgotEmailField"><label for="forgotInlineEmail">Email</label><input class="auth-input" type="email" id="forgotInlineEmail" placeholder="Your email address" autocomplete="email" required></div>
+      <button type="submit" class="auth-primary" id="forgotInlineBtn"><span>Send reset instructions</span></button>
+    </form>
+    <p class="auth-bottom auth-simple-back"><button type="button" class="auth-step-link auth-back-inline" id="forgotBackBtn">‹&nbsp; Back to sign in</button></p>
+  </div>
+</div>
+<div class="auth-special-view" id="verificationSuccessView" style="display:none"><div class="auth-verify"><div class="auth-verify-icon">✓</div><h2>Check your email</h2><p>We've sent a verification link to</p><div class="auth-verify-email" id="verifySuccessEmail"></div><p>Open the email and verify your account to continue.</p><button type="button" class="auth-secondary auth-resend" id="resendEmailBtn">Resend email</button><p class="auth-resend-status" id="resendStatus"></p><p class="auth-bottom"><a href="login.html">Back to sign in</a></p></div></div>
+<div class="auth-special-view" id="accountExistsView" style="display:none"><div class="auth-verify"><div class="auth-verify-icon" style="background:#fff7df;color:#b27a00">!</div><h2>Account already exists</h2><p>An account with this email already exists. Please sign in instead.</p><a class="auth-primary" href="login.html" style="text-decoration:none;margin-top:18px">Sign in</a></div></div>
+</section></main>
+<footer class="auth-footer">By continuing, you agree to TypeShala's <a href="index.html#terms">Terms and Conditions</a> and <a href="index.html#privacy">Privacy Policy</a>.</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-config.js"></script><script src="js/auth.js"></script>
 <script>
-if (window.lucide) lucide.createIcons();
+(()=>{
+ const $=id=>document.getElementById(id);
+ const panel=$('authPanel'), flow=$('authFlow'), socials=$('authSocials'), signupFields=$('signupFields'), forgotView=$('forgotPasswordView');
+ const email=$('loginEmail'), passwordStep=$('passwordStep'), password=$('authPassword');
+ const passwordLabel=$('passwordLabel'), resetLink=$('resetPasswordLink'), primary=$('primaryBtn'), bottom=$('authModeBottom'), stepBack=$('authStepBack');
+ let mode='signin', step='email', animating=false;
+ let signupData={firstName:'',lastName:'',email:''}, lastRegisteredEmail=null, resendInterval=null;
+ const showErr=text=>{const e=$('errorMsg');e.textContent=text||'';e.style.display=text?'block':'none'};
+ const clearMsgs=()=>['errorMsg','successMsg'].forEach(id=>{const e=$(id);if(e){e.textContent='';e.style.display='none'}});
+ const contentHeight=el=>{const old=el.style.height;el.style.height='auto';const h=el.scrollHeight;el.style.height=old;return h};
+ const setMeasuredHeight=(el,expanded)=>{el.style.height=expanded?contentHeight(el)+'px':'0px'};
 
-function hideMessages() {
-  document.getElementById('errorMsg').style.display = 'none';
-  document.getElementById('successMsg').style.display = 'none';
-}
-function showError(text) {
-  const el = document.getElementById('errorMsg');
-  el.textContent = text;
-  el.style.display = 'block';
-}
+ function setStaticState(newMode,newStep){
+   mode=newMode; step=newStep;
+   const signupEmail=newMode==='signup'&&newStep==='email', pass=newStep==='password';
+   panel.classList.toggle('is-password',pass);
+   $('signinModePrompt').hidden=newMode==='signup';
+   $('signupModePrompt').hidden=newMode!=='signup';
+   $('authSubtitle').textContent=newMode==='signup'?'The easiest way to practise and improve.':'Your practice. Your progress. Your success.';
 
-document.getElementById('showEmailBtn').addEventListener('click', () => {
-  hideMessages();
-  document.getElementById('viewChoice').style.display = 'none';
-  document.getElementById('viewSignIn').style.display = 'block';
-});
-document.getElementById('backToChoiceBtn').addEventListener('click', () => {
-  hideMessages();
-  document.getElementById('viewSignIn').style.display = 'none';
-  document.getElementById('viewChoice').style.display = 'block';
-});
+   socials.classList.toggle('is-collapsed',pass);
+   socials.setAttribute('aria-hidden',String(pass));
+   socials.style.pointerEvents=pass?'none':'';
+   if(pass) socials.style.height='0px'; else socials.style.height=contentHeight(socials)+'px';
 
-document.getElementById('togglePassword').addEventListener('click', () => {
-  const input = document.getElementById('loginPassword');
-  const icon = document.getElementById('eyeIcon');
-  const showing = input.type === 'text';
-  input.type = showing ? 'password' : 'text';
-  icon.setAttribute('data-lucide', showing ? 'eye' : 'eye-off');
-  document.getElementById('togglePassword').setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
-  if (window.lucide) lucide.createIcons();
-});
+   signupFields.classList.toggle('is-expanded',signupEmail);
+   signupFields.setAttribute('aria-hidden',String(!signupEmail));
+   setMeasuredHeight(signupFields,signupEmail);
 
-document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-  hideMessages();
-  const btn = document.getElementById('googleLoginBtn');
-  btn.disabled = true;
-  btn.querySelector('span:last-child').textContent = 'Redirecting to Google...';
+   passwordStep.classList.toggle('is-visible',pass);
+   passwordStep.setAttribute('aria-hidden',String(!pass));
+   setMeasuredHeight(passwordStep,pass);
 
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + '/dashboard.html' }
-  });
+   passwordLabel.textContent='Password';
+   resetLink.style.display=(pass&&newMode==='signin')?'inline':'none';
+   password.placeholder=newMode==='signup'?'Create a password':'Your password';
+   password.autocomplete=newMode==='signup'?'new-password':'current-password';
+   email.readOnly=pass;
+   primary.style.display='flex'; primary.disabled=false;
+   primary.querySelector('span').textContent=pass?(newMode==='signin'?'Sign in':'Continue'):'Continue';
+   bottom.style.display=pass?'none':'block';
+ }
 
-  if (error) {
-    showError(error.message || 'Could not start Google sign-in. Please try again.');
-    btn.disabled = false;
-    btn.querySelector('span:last-child').textContent = 'Continue with Google';
-  }
-});
+ function withMotionLock(fn){
+   flow.classList.add('auth-motion-lock');
+   try{return fn()}finally{setTimeout(()=>flow.classList.remove('auth-motion-lock'),360)}
+ }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  hideMessages();
-  const btn = document.getElementById('loginBtn');
-  btn.disabled = true;
-  btn.querySelector('span').textContent = 'Signing in...';
+ async function morphToForgot(){
+   if(animating) return;
+   animating=true; clearMsgs();
+   const currentEmail=email.value.trim();
+   const run=()=>{
+     flow.style.display='none';
+     forgotView.style.display='block';
+     const fe=$('forgotInlineEmail'); if(currentEmail) fe.value=currentEmail;
+   };
+   if(document.startViewTransition){ const t=document.startViewTransition(run); try{await t.finished}catch{} }
+   else { run(); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+   history.replaceState(null,'','login.html?mode=forgot');
+   animating=false;
+   requestAnimationFrame(()=>{try{$('forgotInlineEmail').focus({preventScroll:true})}catch{}});
+ }
+ async function morphForgotBack(){
+   if(animating) return;
+   animating=true;
+   const run=()=>{forgotView.style.display='none';flow.style.display='block';setStaticState('signin','password');};
+   if(document.startViewTransition){ const t=document.startViewTransition(run); try{await t.finished}catch{} }
+   else { run(); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+   history.replaceState(null,'','login.html');
+   animating=false;
+   requestAnimationFrame(()=>{try{email.focus({preventScroll:true})}catch{}});
+ }
 
-  try {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    await loginStudent(email, password);
-    window.location.href = 'dashboard.html';
-  } catch (err) {
-    showError(err.message || 'Login failed. Please check your details.');
-    btn.disabled = false;
-    btn.querySelector('span').textContent = 'Log In to Dashboard';
-  }
-});
+ async function morphTo(newMode,newStep,{focus=true,updateUrl=true}={}){
+   if(animating || (mode===newMode && step===newStep)) return;
+   animating=true; clearMsgs();
+   const run=()=>withMotionLock(()=>setStaticState(newMode,newStep));
+   let transition;
+   if(document.startViewTransition){
+     transition=document.startViewTransition(run);
+     try{await transition.finished}catch{}
+   }else{
+     run();
+     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+   }
+   if(updateUrl) history.replaceState(null,'',`login.html${newMode==='signup'?'?mode=signup':''}`);
+   animating=false;
+   if(focus){
+     requestAnimationFrame(()=>{
+       const target=newStep==='password'?password:(newMode==='signup'?$('regFirstName'):email);
+       try{target.focus({preventScroll:true})}catch{target.focus()}
+     });
+   }
+ }
 
-(async () => {
-  await loadFreeCreditsCopy();
-  const note = document.getElementById('freeCreditsNote');
-  const span = note.querySelector('[data-free-credits]');
-  if (span && !span.textContent.includes('{n}') && !/\bNew users get\s+0\b/i.test(span.textContent)) {
-    note.style.display = 'flex';
-  }
-})();
+ async function goPassword(){
+   if(mode==='signup'){
+     const f=$('regFirstName'),l=$('regLastName');
+     if(!f.value.trim()){f.focus();return}
+     if(!l.value.trim()){l.focus();return}
+     if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return}
+     signupData={firstName:f.value.trim(),lastName:l.value.trim(),email:email.value.trim()};
+   }else if(!email.value.trim()||!email.checkValidity()){email.reportValidity();return}
+   await morphTo(mode,'password');
+ }
+ async function submit(){
+   clearMsgs();
+   if(step==='email') return goPassword();
+   if(mode==='signup'){
+     if(password.value.length<6){showErr('Password must be at least 6 characters.');password.focus();return}
+     primary.disabled=true;primary.querySelector('span').textContent='Creating account...';
+     try{
+       const result=await registerStudent(`${signupData.firstName} ${signupData.lastName}`,signupData.email,password.value);
+       if(result.alreadyExists){flow.style.display='none';$('accountExistsView').style.display='block';return}
+       lastRegisteredEmail=signupData.email;$('verifySuccessEmail').textContent=signupData.email;flow.style.display='none';$('verificationSuccessView').style.display='block';
+     }catch(err){showErr(err?.message||'Registration failed. Please try again.');primary.disabled=false;primary.querySelector('span').textContent='Continue'}
+   }else{
+     if(!password.value){password.focus();return}
+     primary.disabled=true;primary.querySelector('span').textContent='Signing in...';
+     try{await loginStudent(email.value.trim(),password.value);location.href='dashboard.html'}
+     catch(err){showErr(err?.message||'Sign in failed. Please check your details.');primary.disabled=false;primary.querySelector('span').textContent='Sign in'}
+   }
+ }
 
-let tsHadSessionInvalidatedMessage = false;
-(() => {
-  const sessionMsg = sessionStorage.getItem(TS_SESSION_MESSAGE_KEY);
-  if (sessionMsg) {
-    sessionStorage.removeItem(TS_SESSION_MESSAGE_KEY);
-    showError(sessionMsg);
-    tsHadSessionInvalidatedMessage = true;
-  }
-})();
-
-(async () => {
-  if (tsHadSessionInvalidatedMessage) return;
-  const user = await getCurrentUser();
-  if (user) window.location.href = 'dashboard.html';
+ $('resetPasswordLink').addEventListener('click',e=>{e.preventDefault();morphToForgot();});
+ $('forgotBackBtn').addEventListener('click',()=>morphForgotBack());
+ $('forgotInlineForm').addEventListener('submit',async e=>{
+   e.preventDefault();
+   const fi=$('forgotInlineEmail'), b=$('forgotInlineBtn'), er=$('forgotErrorMsg'), ok=$('forgotSuccessMsg');
+   er.style.display='none'; ok.style.display='none';
+   if(!fi.value.trim()||!fi.checkValidity()){er.textContent='Please enter a valid email address.';er.style.display='block';fi.focus();return}
+   b.disabled=true;b.querySelector('span').textContent='Sending...';
+   try{const {error}=await supabaseClient.auth.resetPasswordForEmail(fi.value.trim(),{redirectTo:window.location.origin+'/reset-password.html'});if(error)throw error;ok.textContent='Reset instructions have been sent to your email.';ok.style.display='block';}
+   catch(err){er.textContent=err?.message||'Could not send the reset instructions. Please try again.';er.style.display='block';}
+   finally{b.disabled=false;b.querySelector('span').textContent='Send reset instructions';}
+ });
+ $('openSignupBtn').onclick=()=>morphTo('signup','email');
+ $('openSigninBtn').onclick=()=>morphTo('signin','email');
+ primary.onclick=submit;
+ $('changeStepBtn').onclick=()=>morphTo(mode,'email');
+ email.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submit()}};
+ password.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submit()}};
+ $('togglePassword').onclick=()=>{const text=password.type==='text';password.type=text?'password':'text';$('eyeIcon').setAttribute('data-lucide',text?'eye':'eye-off');$('togglePassword').setAttribute('aria-label',text?'Show password':'Hide password');if(window.lucide)lucide.createIcons()};
+ $('googleLoginBtn').onclick=async()=>{clearMsgs();const b=$('googleLoginBtn');b.disabled=true;b.querySelector('span').textContent='Redirecting...';const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error){showErr(error.message||'Could not start Google sign in. Please try again.');b.disabled=false;b.querySelector('span').textContent='Continue with Google'}};
+ $('resendEmailBtn').onclick=async()=>{const b=$('resendEmailBtn'),s=$('resendStatus');if(!lastRegisteredEmail)return;b.disabled=true;try{const {error}=await supabaseClient.auth.resend({type:'signup',email:lastRegisteredEmail});if(error)throw error;s.textContent='Verification email sent!';let n=60;b.textContent=`Resend email (${n}s)`;clearInterval(resendInterval);resendInterval=setInterval(()=>{n--;if(n<=0){clearInterval(resendInterval);b.disabled=false;b.textContent='Resend email'}else b.textContent=`Resend email (${n}s)`},1000)}catch(e){s.textContent=e?.message||'Could not resend. Please try again.';b.disabled=false}};
+ setStaticState('signin','email'); if(window.lucide)lucide.createIcons();
+ const params=new URLSearchParams(location.search);
+ if(params.get('mode')==='signup'){setStaticState('signup','email');setTimeout(()=>$('regFirstName').focus(),80)}
+ else if(params.get('mode')==='forgot'){morphToForgot()}
+ else{(async()=>{try{const user=await getCurrentUser();if(user)location.href='dashboard.html'}catch(e){}})()}
 })();
 </script>
-
-</body>
-</html>
+</body></html>
