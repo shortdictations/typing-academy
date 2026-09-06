@@ -49,3 +49,35 @@ body.auth-shell{
 .auth-reset-actions{margin-top:0}
 @media(max-width:520px){.auth-brand{left:18px;top:18px}.auth-main{padding:112px 18px 35px}.auth-panel{max-width:390px}.auth-name-grid{grid-template-columns:1fr 1fr}.auth-brand-logo{width:34px;height:34px}}
 @media(prefers-reduced-motion:reduce){.auth-socials,.auth-signup-fields,.auth-password-step,.auth-step-back{transition:none!important}}
+
+
+/* v7: native shared-layout morphing, used by Chromium View Transitions API. */
+.auth-motion-lock *{transition:none!important}
+.auth-flow{view-transition-name:none}
+#emailField{view-transition-name:auth-email}
+#primaryBtn{view-transition-name:auth-primary}
+#authSubtitle{view-transition-name:auth-subtitle}
+#signupFields{view-transition-name:auth-signup-fields}
+#passwordStep{view-transition-name:auth-password-step}
+#authSocials{view-transition-name:auth-socials}
+#authModeBottom{view-transition-name:auth-mode-bottom}
+#authStepBack{view-transition-name:auth-step-back}
+::view-transition-group(auth-email),
+::view-transition-group(auth-primary),
+::view-transition-group(auth-subtitle),
+::view-transition-group(auth-signup-fields),
+::view-transition-group(auth-password-step),
+::view-transition-group(auth-socials),
+::view-transition-group(auth-mode-bottom),
+::view-transition-group(auth-step-back){animation-duration:320ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+::view-transition-old(auth-email),::view-transition-new(auth-email),
+::view-transition-old(auth-primary),::view-transition-new(auth-primary),
+::view-transition-old(auth-subtitle),::view-transition-new(auth-subtitle){animation-duration:320ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+::view-transition-old(auth-signup-fields),::view-transition-new(auth-signup-fields),
+::view-transition-old(auth-password-step),::view-transition-new(auth-password-step),
+::view-transition-old(auth-socials),::view-transition-new(auth-socials){animation-duration:320ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+::view-transition-old(auth-mode-bottom),::view-transition-new(auth-mode-bottom),
+::view-transition-old(auth-step-back),::view-transition-new(auth-step-back){animation-duration:220ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+@media(prefers-reduced-motion:reduce){
+ ::view-transition-group(auth-email),::view-transition-group(auth-primary),::view-transition-group(auth-subtitle),::view-transition-group(auth-signup-fields),::view-transition-group(auth-password-step),::view-transition-group(auth-socials),::view-transition-group(auth-mode-bottom),::view-transition-group(auth-step-back){animation-duration:1ms}
+}
