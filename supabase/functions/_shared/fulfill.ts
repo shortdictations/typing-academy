@@ -13,6 +13,8 @@ interface FulfillResult {
   alreadyFulfilled: boolean;
   productType?: string;
   productName?: string;
+  passType?: string;
+  transactionType?: string;
 }
 
 export async function fulfillOrder(
@@ -62,6 +64,8 @@ export async function fulfillOrder(
         alreadyFulfilled: true,
         productType: current.product_type,
         productName: current.products ? current.products.name : undefined,
+        passType: current.pass_type || undefined,
+        transactionType: current.transaction_type || undefined,
       };
     }
 
@@ -188,6 +192,8 @@ export async function fulfillOrder(
     alreadyFulfilled: false,
     productType: claimed.product_type,
     productName: product ? product.name : undefined,
+    passType: claimed.pass_type || undefined,
+    transactionType: claimed.transaction_type || undefined,
   };
 }
 

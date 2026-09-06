@@ -161,6 +161,8 @@ Deno.serve(async (req: Request) => {
         already_fulfilled: result.alreadyFulfilled,
         product_type: result.productType,
         product_name: result.productName,
+        pass_type: result.passType,
+        transaction_type: result.transactionType,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

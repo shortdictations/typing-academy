@@ -40,8 +40,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         // both refreshes before showing the success message; the student
         // should never see "pass is active" while the card still says
         // "Not Active".
-        await loadProductCatalog(user.id);
+        // Do not show the final success message until the entitlement is
+        // actually visible in the user's current database state. Razorpay's
+        // browser callback and webhook can complete very close together, so
+        // a single immediate SELECT can still briefly see the pre-payment
+        // state. Poll for a short, bounded period instead of asking the
+        // student to reload the page.
+        const activated = await waitForPurchaseActivation(user.id, result);
         if (typeof initAuthHeader === "function") await initAuthHeader(user);
+
+        if (!activated) {
+          showPurchaseMessage(
+            result.product_type === "CREDIT"
+              ? "Payment received. Your credits are still being activated. Please wait a moment."
+              : "Payment received. Your pass is still being activated. Please wait a moment.",
+            false
+          );
+          return;
+        }
 
         const message = result.product_type === "CREDIT"
           ? "Payment successful. Your credits have been added."
@@ -72,6 +88,30 @@ function hidePurchaseMessage() {
 // pass/credit state, then renders both grids. The frontend never
 // assumes a fixed number or names of plans — it renders whatever
 // active PASS/CREDIT products exist, in display_order.
+async function waitForPurchaseActivation(userId, result) {
+  const expectedPassType = result?.product_type === "PASS"
+    ? (result.pass_type || (result.transaction_type === "UPGRADE" ? "COMBO" : null))
+    : null;
+
+  // Up to ~12 seconds, with the first refresh immediate. This handles the
+  // normal browser/webhook race without making the UI feel stuck forever.
+  for (let attempt = 0; attempt < 24; attempt++) {
+    const state = await loadProductCatalog(userId);
+
+    if (result?.product_type === "CREDIT") {
+      if (state && state.creditBalance > 0) return true;
+    } else if (expectedPassType && state?.activePassByType?.[expectedPassType]) {
+      return true;
+    }
+
+    if (attempt < 23) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+
+  return false;
+}
+
 async function loadProductCatalog(userId) {
   const passGrid = document.getElementById("passProductsGrid");
   const creditGrid = document.getElementById("creditProductsGrid");
@@ -100,6 +140,8 @@ async function loadProductCatalog(userId) {
 
   renderAccessGrid(products.filter(p => p.product_type === "PASS"), activePassByType, creditBalance, passGrid);
   renderCreditProducts(products.filter(p => p.product_type === "CREDIT"), creditGrid);
+
+  return { products, activePassByType, creditBalance };
 }
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()
