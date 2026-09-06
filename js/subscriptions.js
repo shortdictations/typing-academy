@@ -34,17 +34,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     startPurchase(btn.dataset.productId, {
       buttonEl: btn,
       isUpgrade: btn.dataset.isUpgrade === "true",
-      onSuccess: (result) => {
+      onSuccess: async (result) => {
+        // The payment verifier now waits until fulfillment has completed,
+        // so these reads should see the newly granted entitlement. Await
+        // both refreshes before showing the success message; the student
+        // should never see "pass is active" while the card still says
+        // "Not Active".
+        await loadProductCatalog(user.id);
+        if (typeof initAuthHeader === "function") await initAuthHeader(user);
+
         const message = result.product_type === "CREDIT"
           ? "Payment successful. Your credits have been added."
           : "Payment successful. Your pass is now active.";
         showPurchaseMessage(message, true);
-        // Refresh everything that could have changed — plan status,
-        // credit balance, catalog, and the header's avatar dropdown
-        // (plan/credits) — rather than trusting only the button's
-        // own local state.
-        loadProductCatalog(user.id);
-        if (typeof initAuthHeader === "function") initAuthHeader(user);
       },
       onFailure: (message) => {
         showPurchaseMessage(message, false);

@@ -509,17 +509,31 @@ async function fetchActivePasses(userId) {
   if (error || !data) return [];
 
   const now = new Date();
-  return data
+  const active = data
     .filter(p =>
       p.status !== "cancelled" &&
       new Date(p.starts_at) <= now &&
       new Date(p.expires_at) > now
     )
     .map(p => ({
+      passType: p.pass_type,
       label: passTypeLabel(p.pass_type),
       expiresAt: p.expires_at
-    }))
-    .sort((a, b) => new Date(a.expiresAt) - new Date(b.expiresAt));
+    }));
+
+  // COMBO is the strongest entitlement. If an old SSC/LEGAL row ever
+  // remains alongside a newly-created COMBO row, the dashboard/header
+  // must not accidentally display the weaker old plan just because it
+  // expires sooner. Normal upgrades convert the source row in place;
+  // this priority is a defensive display rule for any duplicate data.
+  active.sort((a, b) => {
+    const rank = { COMBO: 0, SSC: 1, LEGAL: 1 };
+    const rankDiff = (rank[a.passType] ?? 9) - (rank[b.passType] ?? 9);
+    if (rankDiff !== 0) return rankDiff;
+    return new Date(a.expiresAt) - new Date(b.expiresAt);
+  });
+
+  return active.map(({ label, expiresAt }) => ({ label, expiresAt }));
 }
 
 function passTypeLabel(passType) {

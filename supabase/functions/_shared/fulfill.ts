@@ -20,47 +20,67 @@ export async function fulfillOrder(
   orderId: string,
   paymentId: string
 ): Promise<FulfillResult> {
-  // Atomic claim: only the FIRST caller to reach this can ever get a
-  // row back, because the WHERE clause excludes rows already marked
-  // fulfilled. A second simultaneous call (verify + webhook racing,
-  // or verify called twice) matches zero rows and is treated as
-  // "already handled" below — this is what makes fulfillment
-  // idempotent, not any assumption about call order.
-  const { data: claimed, error: claimError } = await supabaseAdmin
-    .from("purchase_transactions")
-    .update({
-      status: "paid",
-      paid_at: new Date().toISOString(),
-      payment_gateway: "razorpay",
-      payment_gateway_id: paymentId,
-      fulfilled: true,
-    })
-    .eq("order_id", orderId)
-    .eq("fulfilled", false)
-    .select("*, products(*)")
-    .maybeSingle();
+  // Atomic claim: move the transaction from `created` to a transient
+  // `paid + fulfilled=false` state before granting anything. We use the
+  // existing `paid` status rather than introducing a new enum/value, while
+  // `fulfilled=false` tells us the entitlement is still being granted.
+  // This matters because Razorpay's browser callback and webhook can arrive
+  // at the same time: the second caller must wait for the first caller to
+  // finish granting the pass, rather than seeing `fulfilled=true` early and
+  // returning success while the entitlement is still being created.
+  let claimed: any = null;
 
-  if (claimError) throw claimError;
+  for (let attempt = 0; attempt < 25; attempt++) {
+    const { data: claim, error: claimError } = await supabaseAdmin
+      .from("purchase_transactions")
+      .update({ status: "paid" })
+      .eq("order_id", orderId)
+      .eq("status", "created")
+      .eq("fulfilled", false)
+      .select("*, products(*)")
+      .maybeSingle();
+
+    if (claimError) throw claimError;
+    if (claim) {
+      claimed = claim;
+      break;
+    }
+
+    // Another verifier/webhook is already processing this same payment.
+    // Wait for it to finish instead of returning a false-positive success.
+    const { data: current, error: currentError } = await supabaseAdmin
+      .from("purchase_transactions")
+      .select("fulfilled, status, product_type, transaction_type, products(*)")
+      .eq("order_id", orderId)
+      .maybeSingle();
+
+    if (currentError) throw currentError;
+    if (!current) return { alreadyFulfilled: true };
+
+    if (current.fulfilled === true && current.status === "paid") {
+      return {
+        alreadyFulfilled: true,
+        productType: current.product_type,
+        productName: current.products ? current.products.name : undefined,
+      };
+    }
+
+    // If the previous attempt reverted its claim after a grant failure,
+    // the row is back to `created`; the next loop iteration can safely
+    // claim it and retry the grant.
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
 
   if (!claimed) {
-    // Either this order was already fulfilled by the other caller,
-    // or the order_id doesn't exist. Either way: do NOT grant
-    // anything again.
-    return { alreadyFulfilled: true };
+    throw new Error(`Timed out waiting for payment fulfillment: ${orderId}`);
   }
 
   const product = claimed.products;
 
-  // The claim above is already atomic and prevents double-granting —
-  // but if granting itself fails AFTER that claim succeeds (a
-  // transient DB error, extend_or_create_pass rejecting an
-  // unexpected value, etc.), the row is already fulfilled=true and a
-  // retry from either caller would see alreadyFulfilled and never
-  // grant anything. Reverting the claim on any grant failure is what
-  // actually closes that gap: it puts the row back to fulfilled=false
-  // so the NEXT retry (webhook or browser callback) can re-enter the
-  // atomic claim above and try granting again, instead of the
-  // purchase being silently stuck as "paid" with nothing delivered.
+  // If granting fails after the claim, revert the row from the transient
+  // `paid + fulfilled=false` state back to `created`. That lets the other
+  // delivery path (or a later retry) safely claim it again instead of
+  // leaving a paid purchase with no entitlement.
   try {
     if (claimed.product_type === "PASS" && claimed.transaction_type === "UPGRADE") {
       // SSC/LEGAL -> COMBO upgrade: converts the existing pass row in
@@ -113,9 +133,10 @@ export async function fulfillOrder(
   } catch (grantError) {
     const { error: revertError } = await supabaseAdmin
       .from("purchase_transactions")
-      .update({ fulfilled: false })
+      .update({ status: "created", fulfilled: false })
       .eq("order_id", orderId)
-      .eq("fulfilled", true); // only reverts the row THIS call just claimed, never a row some other successful call already finished granting for
+      .eq("status", "paid")
+      .eq("fulfilled", false); // only reverts the row THIS call just claimed; a completed/paid row is never touched
 
     if (revertError) {
       // The double-failure case a single revert attempt can't fully
@@ -127,11 +148,40 @@ export async function fulfillOrder(
       // stack trace of an ordinary retryable failure.
       console.error(
         `fulfillOrder: grant failed AND revert failed for order ${orderId} (payment ${paymentId}) — ` +
-        `this purchase_transactions row is now stuck fulfilled=true with nothing granted. Manual fix required.`,
+        `this purchase_transactions row may be stuck in processing. Manual fix required.`,
         { grantError, revertError }
       );
     }
     throw grantError; // preserves the original failure for the caller's own error handling/logging — never masked by revert bookkeeping
+  }
+
+  // Only after the entitlement/credits have actually been granted do we
+  // mark the transaction fulfilled and record its final paid_at timestamp.
+  // This makes `fulfilled=true` a reliable signal that the user's access is
+  // already visible in the DB.
+  let completeError: any = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { error } = await supabaseAdmin
+      .from("purchase_transactions")
+      .update({
+        status: "paid",
+        paid_at: new Date().toISOString(),
+        fulfilled: true,
+      })
+      .eq("order_id", orderId)
+      .eq("status", "paid")
+      .eq("fulfilled", false);
+
+    completeError = error;
+    if (!error) break;
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+
+  if (completeError) {
+    // The entitlement itself has already been granted, so NEVER revert it
+    // here. This is an exceptional bookkeeping failure and is logged for
+    // manual inspection rather than risking a duplicate grant.
+    throw completeError;
   }
 
   return {

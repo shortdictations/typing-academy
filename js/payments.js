@@ -77,7 +77,7 @@ async function startPurchase(productId, options) {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_signature: response.razorpay_signature,
           });
-          if (options.onSuccess) options.onSuccess(result);
+          if (options.onSuccess) await options.onSuccess(result);
         } catch (err) {
           if (options.onFailure) options.onFailure(err.message || "Payment could not be verified. Please contact support if you were charged.");
         } finally {
