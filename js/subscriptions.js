@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     hidePurchaseMessage();
     startPurchase(btn.dataset.productId, {
       buttonEl: btn,
+      isUpgrade: btn.dataset.isUpgrade === "true",
       onSuccess: (result) => {
         const message = result.product_type === "CREDIT"
           ? "Payment successful. Your credits have been added."
@@ -164,11 +165,95 @@ function viewTestsHref(passType) {
 // + this user's own active/expiry state merged in), followed by one
 // simple Test Credits summary card — same grid, same card family,
 // no separate "current access" section anywhere else on the page.
+//
+// Entitlement rule (server-authoritative version lives in
+// resolve_pass_purchase(); this is the SAME rule, re-derived here
+// purely for which of four card states to show — never trusted for
+// price or for whether a purchase actually succeeds):
+//   - Combo active (or, from pre-upgrade-system data, both SSC AND
+//     LEGAL active at once — the same effective access): every pass
+//     card is hidden except the student's own Combo "Active" card.
+//   - Exactly one of SSC/LEGAL active: that one shows its own
+//     "Active" card; the OTHER of SSC/LEGAL is hidden entirely (never
+//     offered as an independent purchase); Combo shows an "Upgrade to
+//     Combo" card at upgrade_to_combo_price, not its own regular/offer
+//     price.
+//   - No active pass at all: every pass shows its normal Buy Now card
+//     at its own regular/offer price.
 function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
-  const passCardsHtml = passProducts.length > 0
-    ? passProducts.map(p => buildPassCardHtml(p, activePassByType[p.pass_type])).join("")
-    : '<div class="empty-state">No plans available right now.</div>';
-  grid.innerHTML = passCardsHtml + buildCreditsSummaryCardHtml(creditBalance);
+  const hasSSC = !!activePassByType.SSC;
+  const hasLegal = !!activePassByType.LEGAL;
+  const hasCombo = !!activePassByType.COMBO || (hasSSC && hasLegal);
+  const singlePassType = hasCombo ? null : (hasSSC ? "SSC" : (hasLegal ? "LEGAL" : null));
+  // The upgrade price lives on the student's CURRENT pass's own
+  // product row (upgrade_to_combo_price), never on Combo's — looked
+  // up once here so buildUpgradeCardHtml() reads the correct value
+  // instead of Combo's own (always-null) field.
+  const sourcePassProduct = singlePassType ? passProducts.find(pp => pp.pass_type === singlePassType) : null;
+
+  const passCardsHtml = passProducts.map(p => {
+    if (activePassByType[p.pass_type] && (p.pass_type === "COMBO" ? hasCombo : !hasCombo)) {
+      // This IS the student's own currently-active pass — including
+      // the case where they hold both SSC and LEGAL rows separately:
+      // each still renders its own "Active" card rather than being
+      // hidden, since both remain genuinely valid/expiring passes.
+      return buildPassCardHtml(p, activePassByType[p.pass_type]);
+    }
+    if (hasCombo) {
+      // Full access already held (real Combo, or SSC+LEGAL together)
+      // — no other pass is ever shown as purchasable or upgradeable.
+      return "";
+    }
+    if (singlePassType) {
+      if (p.pass_type === "COMBO") {
+        return buildUpgradeCardHtml(p, singlePassType, sourcePassProduct);
+      }
+      // The other of SSC/LEGAL, not the student's own — never an
+      // independent purchase while holding the other one.
+      return "";
+    }
+    // No active pass at all.
+    return buildPassCardHtml(p, null);
+  }).join("");
+
+  grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance);
+}
+
+// "Upgrade to Combo" card — shown only to a student with exactly one
+// of SSC/LEGAL active. Price is upgrade_to_combo_price from the
+// STUDENT'S CURRENT pass's own product row (sourcePassProduct, e.g.
+// the SSC row when currentPassType is "SSC") — never Combo's own
+// field (always null by design; see the products table comment) and
+// never Combo's regular/offer price (spec section 21's own edge case:
+// an active-SSC student must never see Combo's discounted full price
+// as an option, only the upgrade price). comboProduct is only used
+// here for its id, so the button still submits the correct product.
+function buildUpgradeCardHtml(comboProduct, currentPassType, sourcePassProduct) {
+  const theme = "combo";
+  const iconHtml = '<div class="plan-icon">' + planIconSvg(theme) + '</div>';
+  const unlocks = currentPassType === "SSC" ? "Legal" : "SSC";
+  const upgradePrice = sourcePassProduct ? sourcePassProduct.upgrade_to_combo_price : null;
+
+  if (upgradePrice == null) {
+    // Configuration gap (admin hasn't set an upgrade price for the
+    // student's current pass type) — shown as unavailable rather than
+    // a broken/zero-price button.
+    return `
+      <div class="card pass-card plan-combo">
+        ${iconHtml}
+        <div class="card-label">Combo Pass</div>
+        <p class="pass-card-description">Upgrade pricing is not available right now. Please check back later.</p>
+      </div>`;
+  }
+
+  return `
+    <div class="card pass-card plan-combo">
+      ${iconHtml}
+      <div class="card-label">Upgrade to Combo</div>
+      <div class="pass-price">&#8377;${upgradePrice}</div>
+      <p class="pass-card-description">Already have ${escapeHtmlLocal(currentPassType)} access — unlock ${escapeHtmlLocal(unlocks)} mocks too, on your current expiry date.</p>
+      <button class="btn btn-full buy-product-btn" data-product-id="${comboProduct.id}" data-is-upgrade="true" data-product-type="PASS" data-pass-type="COMBO">Upgrade to Combo <span aria-hidden="true">&rarr;</span></button>
+    </div>`;
 }
 
 function buildPassCardHtml(p, activeState) {

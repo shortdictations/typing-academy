@@ -40,7 +40,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { product_id } = await req.json();
+    const { product_id, is_upgrade } = await req.json();
     if (!product_id) {
       return new Response(JSON.stringify({ error: "product_id is required" }), {
         status: 400,
@@ -49,7 +49,12 @@ Deno.serve(async (req: Request) => {
     }
 
     // Service-role client — the ONLY thing trusted for price/credits/
-    // validity/pass_type. The browser sends nothing but product_id.
+    // validity/pass_type. The browser sends nothing but product_id
+    // (and, for a pass, is_upgrade — a ROUTING HINT ONLY, never
+    // trusted for pricing: resolve_pass_purchase() independently
+    // re-validates whether an upgrade is actually valid for this user
+    // and rejects outright if not, rather than silently reinterpreting
+    // it as a normal purchase or vice versa).
     const supabaseAdmin = getAdminClient();
 
     const { data: product, error: productError } = await supabaseAdmin
@@ -67,26 +72,49 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Razorpay expects amounts in the smallest currency unit (paise
-    // for INR) — computed from compute_effective_price(), the SAME
-    // function get_products_with_pricing() uses for student display,
-    // never a browser value. This is what actually enforces "never
-    // trust price/discount/final_price from the client": the browser
-    // sent nothing but product_id above, and everything else about
-    // the price — including whether a discount is even active right
-    // now — is decided here, from the database row, independently of
-    // whatever the student's screen happened to be showing.
-    const { data: effectivePrice, error: priceError } = await supabaseAdmin.rpc("compute_effective_price", {
-      p_price: product.price,
-      p_discount_enabled: product.discount_enabled,
-      p_discount_type: product.discount_type,
-      p_discount_value: product.discount_value,
-      p_discount_start_at: product.discount_start_at,
-      p_discount_end_at: product.discount_end_at,
-    });
-    if (priceError) throw priceError;
+    let effectivePrice: number;
+    let transactionType = "PURCHASE";
+    let upgradeFromPassId: string | null = null;
 
-    const amountInPaise = Math.round(Number(effectivePrice) * 100);
+    if (product.product_type === "PASS") {
+      // The single authoritative eligibility+pricing check for passes
+      // — current entitlement, purchase vs. upgrade eligibility, and
+      // the correct price (regular/offer for a purchase, or the
+      // source pass's own upgrade_to_combo_price for an upgrade) all
+      // decided here, from the database, independently of anything
+      // the client believes about its own state.
+      const { data: resolved, error: resolveError } = await supabaseAdmin
+        .rpc("resolve_pass_purchase", { p_product_id: product_id, p_is_upgrade: !!is_upgrade })
+        .single();
+      if (resolveError) throw resolveError;
+
+      if (!resolved.allowed) {
+        return new Response(JSON.stringify({ error: "Not eligible for this purchase", reason: resolved.reason }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      effectivePrice = Number(resolved.effective_price);
+      transactionType = resolved.transaction_type;
+      upgradeFromPassId = resolved.upgrade_from_pass_id;
+    } else {
+      // Non-pass products (credit packages) are unaffected by any of
+      // the upgrade/entitlement logic above — same pricing path as
+      // before this feature.
+      const { data: computed, error: priceError } = await supabaseAdmin.rpc("compute_effective_price", {
+        p_price: product.price,
+        p_discount_enabled: product.discount_enabled,
+        p_discount_type: product.discount_type,
+        p_discount_value: product.discount_value,
+        p_discount_start_at: product.discount_start_at,
+        p_discount_end_at: product.discount_end_at,
+      });
+      if (priceError) throw priceError;
+      effectivePrice = Number(computed);
+    }
+
+    const amountInPaise = Math.round(effectivePrice * 100);
 
     const razorpayKeyId = Deno.env.get("RAZORPAY_KEY_ID")!;
     const razorpayKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET")!;
@@ -121,7 +149,12 @@ Deno.serve(async (req: Request) => {
 
     // Record the transaction now, status 'created' — this is the row
     // verify-razorpay-payment / razorpay-webhook will later claim and
-    // mark 'paid', exactly once.
+    // mark 'paid', exactly once. transaction_type distinguishes an
+    // upgrade from a normal purchase for both fulfillment (which
+    // branch runs) and reporting (spec: never combine upgrade revenue
+    // with normal Combo purchase revenue). upgrade_from_pass_id is
+    // stored in metadata rather than a new dedicated column, since it
+    // is only ever meaningful for the one UPGRADE case.
     const { error: insertError } = await supabaseAdmin.from("purchase_transactions").insert({
       user_id: user.id,
       order_id: order.id,
@@ -134,6 +167,8 @@ Deno.serve(async (req: Request) => {
       currency: product.currency || "INR",
       validity_days: product.validity_days,
       status: "created",
+      transaction_type: transactionType,
+      metadata: upgradeFromPassId ? { upgrade_from_pass_id: upgradeFromPassId } : null,
     });
     if (insertError) throw insertError;
 

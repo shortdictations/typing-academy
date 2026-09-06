@@ -46,8 +46,12 @@ async function callEdgeFunction(name, body) {
   return json;
 }
 
-// Call this from a Buy button's click handler:
-//   startPurchase(productId, { onSuccess, onFailure, buttonEl })
+// Call this from a Buy/Upgrade button's click handler:
+//   startPurchase(productId, { onSuccess, onFailure, buttonEl, isUpgrade })
+// isUpgrade is a ROUTING HINT ONLY, same as everywhere else in this
+// system — create-razorpay-order independently re-validates whether
+// an upgrade is actually valid for the calling student before ever
+// deciding a price, it never just trusts this flag.
 async function startPurchase(productId, options) {
   options = options || {};
   const btn = options.buttonEl;
@@ -56,7 +60,7 @@ async function startPurchase(productId, options) {
   try {
     if (btn) { btn.disabled = true; btn.textContent = "Starting payment..."; }
 
-    const order = await callEdgeFunction("create-razorpay-order", { product_id: productId });
+    const order = await callEdgeFunction("create-razorpay-order", { product_id: productId, is_upgrade: !!options.isUpgrade });
     await loadRazorpayScript();
 
     const rzp = new Razorpay({

@@ -125,6 +125,12 @@
         </select>
       </div>
 
+      <div class="field" id="upgradePriceWrap" style="background:var(--paper); border:1px solid var(--paper-line); border-radius:6px; padding:14px;">
+        <label for="pUpgradePrice">Upgrade to Combo — Price (INR)</label>
+        <input type="number" id="pUpgradePrice" min="0" step="1" placeholder="e.g. 59">
+        <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">The price a student holding this pass pays to upgrade to Combo, keeping their current expiry date. Leave blank to disable upgrades from this pass. Set independently — never calculated from Combo's price minus this one.</p>
+      </div>
+
       <div class="field" id="bestValueWrap">
         <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
           <input type="checkbox" id="pBestValue" style="width:auto;">

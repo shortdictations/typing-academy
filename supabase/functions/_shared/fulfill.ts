@@ -62,7 +62,23 @@ export async function fulfillOrder(
   // atomic claim above and try granting again, instead of the
   // purchase being silently stuck as "paid" with nothing delivered.
   try {
-    if (claimed.product_type === "PASS") {
+    if (claimed.product_type === "PASS" && claimed.transaction_type === "UPGRADE") {
+      // SSC/LEGAL -> COMBO upgrade: converts the existing pass row in
+      // place, preserving its expiry — never extend_or_create_pass,
+      // which would treat this as a brand-new/renewed COMBO pass with
+      // its own fresh validity period. upgrade_from_pass_id was set
+      // at order-creation time by resolve_pass_purchase() (server-side,
+      // from the student's actual entitlement then) — never anything
+      // the client sent about which pass to convert.
+      const upgradeFromPassId = claimed.metadata?.upgrade_from_pass_id;
+      if (!upgradeFromPassId) {
+        throw new Error(`UPGRADE transaction ${orderId} is missing upgrade_from_pass_id in metadata`);
+      }
+      const { error: upgradeError } = await supabaseAdmin.rpc("upgrade_pass_to_combo", {
+        p_pass_id: upgradeFromPassId,
+      });
+      if (upgradeError) throw upgradeError;
+    } else if (claimed.product_type === "PASS") {
       // Reuses the EXISTING repurchase-extension function from Phase 1
       // (extend_or_create_pass) — same rule: extends from the current
       // expiry if a valid pass already exists, otherwise starts fresh.

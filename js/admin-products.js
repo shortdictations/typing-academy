@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (typeof initAuthHeader === "function") initAuthHeader(user);
 
   document.getElementById("pType").addEventListener("change", updateTypeFields);
+  document.getElementById("pPassType").addEventListener("change", updateTypeFields);
   updateTypeFields();
 
   document.getElementById("pDiscountEnabled").addEventListener("change", updateDiscountFieldsVisibility);
@@ -91,11 +92,18 @@ async function saveFreeCredits() {
 
 function updateTypeFields() {
   const type = document.getElementById("pType").value;
+  const passType = document.getElementById("pPassType").value;
   document.getElementById("passTypeWrap").style.display = type === "PASS" ? "block" : "none";
   document.getElementById("creditsWrap").style.display = type === "CREDIT" ? "block" : "none";
   // Featured/badge is now available for BOTH product types — only one
   // product across the whole catalog can hold it at a time (see
   // clearOtherBestValue, no longer scoped to product_type).
+
+  // Upgrade pricing only ever applies to SSC/LEGAL (the price to
+  // upgrade FROM this pass TO Combo) — never shown for Combo itself
+  // (nothing to upgrade to) or for Credit products.
+  document.getElementById("upgradePriceWrap").style.display =
+    (type === "PASS" && (passType === "SSC" || passType === "LEGAL")) ? "block" : "none";
 }
 
 // Mirrors compute_effective_price() (the database function the
@@ -292,6 +300,26 @@ async function handleSubmit(e) {
     payload.discount_end_at = null;
   }
 
+  // Only ever meaningful for SSC/LEGAL — left null for Combo (nothing
+  // to upgrade to) and for Credit products, regardless of whatever
+  // value the (hidden) input might still hold from a prior selection.
+  if (type === "PASS" && (payload.pass_type === "SSC" || payload.pass_type === "LEGAL")) {
+    const upgradeRaw = document.getElementById("pUpgradePrice").value.trim();
+    if (upgradeRaw === "") {
+      payload.upgrade_to_combo_price = null;
+    } else {
+      const upgradeValue = parseFloat(upgradeRaw);
+      if (isNaN(upgradeValue) || upgradeValue < 0) {
+        showFormError("Upgrade price must be a non-negative number, or left blank to disable upgrades.");
+        submitBtn.disabled = false;
+        return;
+      }
+      payload.upgrade_to_combo_price = upgradeValue;
+    }
+  } else {
+    payload.upgrade_to_combo_price = null;
+  }
+
   // plan_code is only ever set on CREATION — the field is disabled during
   // edit and excluded from the payload entirely, so an existing product's
   // stable identifier can never be silently changed and break the meaning
@@ -375,6 +403,12 @@ function startEdit(id) {
   document.getElementById("pPlanCode").disabled = true;
   if (p.product_type === "PASS") document.getElementById("pPassType").value = p.pass_type;
   if (p.product_type === "CREDIT") document.getElementById("pCredits").value = p.credits;
+  // updateTypeFields() above ran before pPassType's value was set, so
+  // the upgrade-price field's visibility (which depends on pPassType,
+  // not just pType) needs a second pass now that it reflects this
+  // product's actual pass_type.
+  updateTypeFields();
+  document.getElementById("pUpgradePrice").value = p.upgrade_to_combo_price != null ? p.upgrade_to_combo_price : "";
   document.getElementById("pBestValue").checked = !!p.best_value;
   document.getElementById("pBadgeText").value = p.badge_text || "";
   document.getElementById("pDiscountEnabled").checked = !!p.discount_enabled;

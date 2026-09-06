@@ -102,11 +102,13 @@ async function loadAnalytics() {
       errorBox.style.display = "block";
       renderStatCardsEmpty();
       renderTopPassagesError();
+      renderPassBreakdown(null);
       return;
     }
 
     renderStatCards(data);
     renderTopPassages(data.top_passages || []);
+    renderPassBreakdown(data.pass_breakdown || null);
   } catch (err) {
     console.error("Admin analytics error (thrown, not returned):", {
       rpc: "admin_get_analytics_overview",
@@ -120,6 +122,7 @@ async function loadAnalytics() {
     errorBox.style.display = "block";
     renderStatCardsEmpty();
     renderTopPassagesError();
+    renderPassBreakdown(null);
   } finally {
     analyticsLoading = false;
     refreshBtn.disabled = false;
@@ -190,6 +193,65 @@ function renderTopPassages(rows) {
 function renderTopPassagesError() {
   const container = document.getElementById("analyticsTopPassages");
   container.innerHTML = '<div class="empty-state">Unable to load.</div>';
+}
+
+// Spec requirement: never combine upgrade revenue/counts with normal
+// Combo purchase revenue/counts anywhere in reporting. purchases and
+// upgrades are rendered as two visually separate tables here — never
+// merged into one row or one total, even though both ultimately
+// concern the same pass_type.
+function renderPassBreakdown(breakdown) {
+  const container = document.getElementById("analyticsPassBreakdown");
+  if (!breakdown) {
+    container.innerHTML = '<div class="empty-state">Unable to load.</div>';
+    return;
+  }
+
+  const purchases = breakdown.purchases_by_pass_type || [];
+  const upgrades = breakdown.upgrades_by_path || [];
+  const activePasses = breakdown.active_passes_by_type || [];
+  const expiredCount = breakdown.expired_passes_count || 0;
+
+  const purchaseRows = purchases.length
+    ? purchases.map(r => `
+        <tr>
+          <td>${escapeHtmlAdminAnalytics(r.pass_type)}</td>
+          <td>${formatIndianNumber(r.count)}</td>
+          <td>${formatIndianCurrency(r.revenue)}</td>
+        </tr>`).join("")
+    : '<tr><td colspan="3" class="empty-state">No purchases in this period.</td></tr>';
+
+  const upgradeRows = upgrades.length
+    ? upgrades.map(r => `
+        <tr>
+          <td>${escapeHtmlAdminAnalytics(r.pass_type)} &rarr; Combo</td>
+          <td>${formatIndianNumber(r.count)}</td>
+          <td>${formatIndianCurrency(r.revenue)}</td>
+        </tr>`).join("")
+    : '<tr><td colspan="3" class="empty-state">No upgrades in this period.</td></tr>';
+
+  const activeSummary = activePasses.length
+    ? activePasses.map(r => escapeHtmlAdminAnalytics(r.pass_type) + ": " + formatIndianNumber(r.count)).join(" &middot; ")
+    : "None";
+
+  container.innerHTML = `
+    <div class="admin-pass-breakdown-group">
+      <div class="admin-pass-breakdown-label">Purchases</div>
+      <table class="marksheet">
+        <thead><tr><th>Pass</th><th>Count</th><th>Revenue</th></tr></thead>
+        <tbody>${purchaseRows}</tbody>
+      </table>
+    </div>
+    <div class="admin-pass-breakdown-group" style="margin-top:16px;">
+      <div class="admin-pass-breakdown-label">Upgrades</div>
+      <table class="marksheet">
+        <thead><tr><th>Path</th><th>Count</th><th>Revenue</th></tr></thead>
+        <tbody>${upgradeRows}</tbody>
+      </table>
+    </div>
+    <div class="admin-pass-breakdown-group" style="margin-top:16px; font-size:0.88rem;">
+      <strong>Active passes:</strong> ${activeSummary} &nbsp;&middot;&nbsp; <strong>Expired:</strong> ${formatIndianNumber(expiredCount)}
+    </div>`;
 }
 
 function formatIndianNumber(n) {
