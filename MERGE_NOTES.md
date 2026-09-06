@@ -22,3 +22,12 @@ This preserves admin-controlled pass pricing/offer pricing/upgrade pricing, serv
 
 ## Shared auth backend
 - `js/auth.js` was identical in both source projects and was retained unchanged.
+
+
+## Subscription card update
+- Active SSC now renders only the SSC card, with validity/current-plan/access details and the admin-configured SSC -> Combo upgrade price inside the same card. Legal and Combo cards are hidden.
+- Active Legal follows the same pattern in reverse.
+- Active Combo renders only the Combo current-plan card; SSC and Legal cards are hidden.
+- No-active-pass users still see all configured PASS purchase cards.
+- Upgrade continues to use the existing Combo product id and `data-is-upgrade="true"`, preserving the existing server-side Razorpay/upgrade flow and same-expiry conversion.
+- Upgrade price is read from `upgrade_to_combo_price`; no price is hard-coded in the frontend.

@@ -3680,3 +3680,105 @@ body.app-shell.reattempt-page .rt-error{ margin:14px auto 0; max-width:700px; pa
   body.app-shell.reattempt-page .rt-summary-item:nth-child(3)::before{ display:none; }
   body.app-shell.reattempt-page .rt-duration-grid{ grid-template-columns:1fr; }
 }
+
+/* ============================================================
+   Active pass details + inline Combo upgrade
+   ------------------------------------------------------------
+   Used by subscriptions.js when a student already owns SSC or
+   Legal. The current plan and upgrade CTA live inside the same
+   card; the separate Combo card is hidden by the renderer.
+   ============================================================ */
+body.app-shell .pass-current-plan-box{
+  width: 100%;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  background: var(--ts-surface-2, rgba(248,250,252,0.72));
+  box-sizing: border-box;
+}
+body.app-shell .pass-current-plan-title{
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ts-text);
+  margin-bottom: 10px;
+}
+body.app-shell .pass-plan-detail-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  border-top: 1px solid var(--ts-border);
+  font-size: 0.82rem;
+  color: var(--ts-muted);
+}
+body.app-shell .pass-plan-detail-row:first-of-type{ border-top: 0; padding-top: 0; }
+body.app-shell .pass-plan-detail-row:last-of-type{ padding-bottom: 0; }
+body.app-shell .pass-plan-detail-row strong{
+  color: var(--ts-text);
+  font-weight: 700;
+  text-align: right;
+}
+
+body.app-shell .pass-upgrade-box{
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(124,58,237,0.18);
+  border-radius: 12px;
+  background: rgba(124,58,237,0.055);
+  box-sizing: border-box;
+}
+body.app-shell .pass-upgrade-title{
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--ts-purple, #7c3aed);
+  margin-bottom: 5px;
+}
+body.app-shell .pass-upgrade-text{
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ts-muted);
+}
+body.app-shell .pass-upgrade-text strong{
+  color: var(--ts-text);
+  font-weight: 800;
+}
+body.app-shell .pass-upgrade-btn{
+  margin-top: 12px !important;
+  background: var(--ts-purple, #7c3aed) !important;
+  border-color: var(--ts-purple, #7c3aed) !important;
+}
+body.app-shell .pass-upgrade-btn:hover:not(:disabled){
+  filter: brightness(0.95);
+}
+body.app-shell .pass-upgrade-note{
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--ts-muted);
+}
+body.app-shell .pass-upgrade-box-unavailable{
+  color: var(--ts-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px){
+  body.app-shell .pass-plan-detail-row{
+    gap: 10px;
+    font-size: 0.78rem;
+  }
+  body.app-shell .pass-plan-detail-row strong{ max-width: 58%; }
+}
+
+html[data-theme="dark"] body.app-shell .pass-current-plan-box{
+  background: rgba(255,255,255,0.035);
+}
+html[data-theme="dark"] body.app-shell .pass-upgrade-box{
+  background: rgba(124,58,237,0.11);
+  border-color: rgba(167,139,250,0.22);
+}
