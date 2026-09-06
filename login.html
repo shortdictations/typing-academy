@@ -22,6 +22,17 @@
 <p class="auth-bottom" id="authModeBottom"><span id="signinModePrompt">Don't have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSignupBtn">Sign up</button></span><span id="signupModePrompt" hidden>Already have an account? <button type="button" class="auth-step-link auth-signup-link" id="openSigninBtn">Sign in</button></span></p>
 <div class="auth-step-back" id="authStepBack"><button type="button" class="auth-step-link" id="changeStepBtn">‹&nbsp; Change email</button></div>
 </div>
+<div class="auth-special-view auth-forgot-view" id="forgotPasswordView" style="display:none">
+  <div class="auth-view">
+    <div class="auth-heading"><h1>Reset your password</h1><p>Enter your email to receive reset instructions.</p></div>
+    <div class="auth-error-msg" id="forgotErrorMsg"></div><div class="auth-success-msg" id="forgotSuccessMsg"></div>
+    <form id="forgotInlineForm" novalidate>
+      <div class="auth-field"><label for="forgotInlineEmail">Email</label><input class="auth-input" type="email" id="forgotInlineEmail" placeholder="Your email address" autocomplete="email" required></div>
+      <button type="submit" class="auth-primary" id="forgotInlineBtn"><span>Send reset instructions</span></button>
+    </form>
+    <p class="auth-bottom auth-simple-back"><button type="button" class="auth-step-link auth-back-inline" id="forgotBackBtn">‹&nbsp; Back to sign in</button></p>
+  </div>
+</div>
 <div class="auth-special-view" id="verificationSuccessView" style="display:none"><div class="auth-verify"><div class="auth-verify-icon">✓</div><h2>Check your email</h2><p>We've sent a verification link to</p><div class="auth-verify-email" id="verifySuccessEmail"></div><p>Open the email and verify your account to continue.</p><button type="button" class="auth-secondary auth-resend" id="resendEmailBtn">Resend email</button><p class="auth-resend-status" id="resendStatus"></p><p class="auth-bottom"><a href="login.html">Back to sign in</a></p></div></div>
 <div class="auth-special-view" id="accountExistsView" style="display:none"><div class="auth-verify"><div class="auth-verify-icon" style="background:#fff7df;color:#b27a00">!</div><h2>Account already exists</h2><p>An account with this email already exists. Please sign in instead.</p><a class="auth-primary" href="login.html" style="text-decoration:none;margin-top:18px">Sign in</a></div></div>
 </section></main>
@@ -31,7 +42,7 @@
 <script>
 (()=>{
  const $=id=>document.getElementById(id);
- const panel=$('authPanel'), flow=$('authFlow'), socials=$('authSocials'), signupFields=$('signupFields');
+ const panel=$('authPanel'), flow=$('authFlow'), socials=$('authSocials'), signupFields=$('signupFields'), forgotView=$('forgotPasswordView');
  const email=$('loginEmail'), passwordStep=$('passwordStep'), password=$('authPassword');
  const passwordLabel=$('passwordLabel'), resetLink=$('resetPasswordLink'), primary=$('primaryBtn'), bottom=$('authModeBottom'), stepBack=$('authStepBack');
  let mode='signin', step='email', animating=false;
@@ -75,6 +86,32 @@
  function withMotionLock(fn){
    flow.classList.add('auth-motion-lock');
    try{return fn()}finally{setTimeout(()=>flow.classList.remove('auth-motion-lock'),360)}
+ }
+
+ async function morphToForgot(){
+   if(animating) return;
+   animating=true; clearMsgs();
+   const currentEmail=email.value.trim();
+   const run=()=>{
+     flow.style.display='none';
+     forgotView.style.display='block';
+     const fe=$('forgotInlineEmail'); if(currentEmail) fe.value=currentEmail;
+   };
+   if(document.startViewTransition){ const t=document.startViewTransition(run); try{await t.finished}catch{} }
+   else { run(); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+   history.replaceState(null,'','login.html?mode=forgot');
+   animating=false;
+   requestAnimationFrame(()=>{try{$('forgotInlineEmail').focus({preventScroll:true})}catch{}});
+ }
+ async function morphForgotBack(){
+   if(animating) return;
+   animating=true;
+   const run=()=>{forgotView.style.display='none';flow.style.display='block';setStaticState('signin','password');};
+   if(document.startViewTransition){ const t=document.startViewTransition(run); try{await t.finished}catch{} }
+   else { run(); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+   history.replaceState(null,'','login.html');
+   animating=false;
+   requestAnimationFrame(()=>{try{email.focus({preventScroll:true})}catch{}});
  }
 
  async function morphTo(newMode,newStep,{focus=true,updateUrl=true}={}){
@@ -128,6 +165,18 @@
    }
  }
 
+ $('resetPasswordLink').addEventListener('click',e=>{e.preventDefault();morphToForgot();});
+ $('forgotBackBtn').addEventListener('click',()=>morphForgotBack());
+ $('forgotInlineForm').addEventListener('submit',async e=>{
+   e.preventDefault();
+   const fi=$('forgotInlineEmail'), b=$('forgotInlineBtn'), er=$('forgotErrorMsg'), ok=$('forgotSuccessMsg');
+   er.style.display='none'; ok.style.display='none';
+   if(!fi.value.trim()||!fi.checkValidity()){er.textContent='Please enter a valid email address.';er.style.display='block';fi.focus();return}
+   b.disabled=true;b.querySelector('span').textContent='Sending...';
+   try{const {error}=await supabaseClient.auth.resetPasswordForEmail(fi.value.trim(),{redirectTo:window.location.origin+'/reset-password.html'});if(error)throw error;ok.textContent='Reset instructions have been sent to your email.';ok.style.display='block';}
+   catch(err){er.textContent=err?.message||'Could not send the reset instructions. Please try again.';er.style.display='block';}
+   finally{b.disabled=false;b.querySelector('span').textContent='Send reset instructions';}
+ });
  $('openSignupBtn').onclick=()=>morphTo('signup','email');
  $('openSigninBtn').onclick=()=>morphTo('signin','email');
  primary.onclick=submit;
@@ -140,6 +189,7 @@
  setStaticState('signin','email'); if(window.lucide)lucide.createIcons();
  const params=new URLSearchParams(location.search);
  if(params.get('mode')==='signup'){setStaticState('signup','email');setTimeout(()=>$('regFirstName').focus(),80)}
+ else if(params.get('mode')==='forgot'){morphToForgot()}
  else{(async()=>{try{const user=await getCurrentUser();if(user)location.href='dashboard.html'}catch(e){}})()}
 })();
 </script>

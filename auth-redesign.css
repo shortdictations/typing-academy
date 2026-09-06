@@ -124,3 +124,11 @@ body.auth-shell{
     animation-duration: 1ms !important;
   }
 }
+
+/* Inline forgot-password morph */
+#forgotPasswordView{view-transition-name:auth-forgot-view}
+#forgotInlineForm .auth-field{margin-bottom:14px}
+#forgotInlineBtn{margin-top:0}
+#forgotBackBtn{background:none;border:0;padding:0;cursor:pointer;font:inherit}
+::view-transition-group(auth-forgot-view){animation-duration:360ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+::view-transition-old(auth-forgot-view),::view-transition-new(auth-forgot-view){animation-duration:360ms;animation-timing-function:cubic-bezier(.22,1,.36,1)}
