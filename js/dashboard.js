@@ -10,8 +10,53 @@
    the retired practice system and is no longer read here at all.
    ============================================================ */
 
+// The dashboard can be restored from the browser back/forward cache (bfcache)
+// after a successful pass upgrade. In that case DOMContentLoaded does NOT fire
+// again, so the old "Current Plan" card can continue showing SSC/Legal even
+// though user_passes already contains the newly upgraded COMBO entitlement.
+// Always refresh the pass/credit summary when the dashboard becomes visible
+// again. This reads the same authoritative user_passes data as the rest of the
+// app and does not alter payment or entitlement logic.
+let dashboardCurrentUser = null;
+let dashboardRefreshInFlight = false;
+
+async function refreshDashboardPassState() {
+  if (dashboardRefreshInFlight) return;
+  const currentPlanBlock = document.getElementById("currentPlanBlock");
+  const creditsBlock = document.getElementById("creditsBlock");
+  if (!currentPlanBlock && !creditsBlock) return;
+
+  dashboardRefreshInFlight = true;
+  try {
+    let user = dashboardCurrentUser;
+    if (!user && typeof getCurrentUser === "function") {
+      user = await getCurrentUser();
+      dashboardCurrentUser = user;
+    }
+    if (!user) return;
+    await renderPassCreditsCard(user);
+  } catch (err) {
+    console.error("Could not refresh dashboard pass state:", err);
+  } finally {
+    dashboardRefreshInFlight = false;
+  }
+}
+
+window.addEventListener("pageshow", () => {
+  // pageshow fires for normal navigation as well as bfcache restoration.
+  // A short defer lets the restored DOM settle before replacing the stale
+  // Current Plan markup.
+  setTimeout(refreshDashboardPassState, 0);
+});
+
+window.addEventListener("focus", () => {
+  refreshDashboardPassState();
+});
+
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireLogin(); // redirects to login.html if not logged in
+  if (!user) return;
+  dashboardCurrentUser = user;
   if (!user) return;
 
   showStudentName(user);

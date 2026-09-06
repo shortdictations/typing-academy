@@ -69,6 +69,11 @@ const STATUS_META = {
 };
 
 function transactionDisplayName(t) {
+  // Combo is the target product for an upgrade, but the history/detail
+  // page must distinguish that from a full-price Combo purchase.
+  if (t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE") {
+    return "Upgrade to Combo";
+  }
   if (t.products && t.products.name) return t.products.name;
   if (t.product_type === "PASS") return (t.pass_type || "") + " Pass";
   return (t.credits || "?") + " Test Credits";
@@ -76,8 +81,10 @@ function transactionDisplayName(t) {
 
 function purchaseInfoHtml(t) {
   const dateStr = new Date(t.created_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const isUpgrade = t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE";
   const rows = [
     ["Purchase Date", dateStr],
+    ["Transaction Type", isUpgrade ? "Upgrade to Combo" : (t.product_type === "PASS" ? "Pass Purchase" : "Credit Purchase")],
     ["Order ID", t.order_id || "—"],
   ];
   // Only shown if it actually exists — never invented for a
@@ -150,7 +157,7 @@ async function renderPassDetail(t, userId, body) {
     passSection = `
       <div class="ph-detail-section">
         <div class="ph-detail-section-title">Pass Details</div>
-        <div class="ph-detail-row"><span>Pass</span><strong>${escapeHtmlPD(transactionDisplayName(t))}</strong></div>
+        <div class="ph-detail-row"><span>${String(t.transaction_type || "").toUpperCase() === "UPGRADE" ? "Upgrade" : "Pass"}</span><strong>${escapeHtmlPD(transactionDisplayName(t))}</strong></div>
         <div class="ph-detail-row"><span>Validity</span><strong>${t.validity_days ? t.validity_days + " Days" : "—"}</strong></div>
         <div class="ph-detail-row"><span>Activated</span><strong>${formatDatePD(matchedPass.starts_at)}</strong></div>
         <div class="ph-detail-row"><span>Expires</span><strong>${formatDatePD(matchedPass.expires_at)}</strong></div>

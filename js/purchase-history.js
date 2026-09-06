@@ -123,6 +123,12 @@ const STATUS_META = {
 };
 
 function transactionDisplayName(t) {
+  // An upgrade uses the Combo product_id because that is the product
+  // being unlocked, but it is NOT a normal Combo purchase. Keep the
+  // transaction type authoritative for purchase-history presentation.
+  if (t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE") {
+    return "Upgrade to Combo";
+  }
   if (t.products && t.products.name) return t.products.name;
   if (t.product_type === "PASS") return (t.pass_type || "") + " Pass";
   return (t.credits || "?") + " Test Credits";
@@ -131,7 +137,8 @@ function transactionDisplayName(t) {
 function buildTransactionCardHtml(t) {
   const status = STATUS_META[t.status] || { label: t.status, cls: "" };
   const displayDate = new Date(t.paid_at || t.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-  const typeLabel = t.product_type === "PASS" ? "Pass" : "Credits";
+  const isUpgrade = t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE";
+  const typeLabel = isUpgrade ? "Pass Upgrade" : (t.product_type === "PASS" ? "Pass" : "Credits");
   const icon = t.product_type === "PASS"
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';

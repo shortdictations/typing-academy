@@ -31,3 +31,9 @@ This preserves admin-controlled pass pricing/offer pricing/upgrade pricing, serv
 - No-active-pass users still see all configured PASS purchase cards.
 - Upgrade continues to use the existing Combo product id and `data-is-upgrade="true"`, preserving the existing server-side Razorpay/upgrade flow and same-expiry conversion.
 - Upgrade price is read from `upgrade_to_combo_price`; no price is hard-coded in the frontend.
+
+## Purchase History — Combo Upgrade display/pricing fix
+- Purchase History and Purchase Details now distinguish `transaction_type = UPGRADE` from a normal Combo purchase and display **Upgrade to Combo** instead of the Combo product name.
+- Upgrade transactions are labeled **Pass Upgrade** in history and **Upgrade to Combo** in details.
+- `create-razorpay-order` now enforces the source pass's configured `upgrade_to_combo_price` at the server payment boundary for UPGRADE transactions, preventing the Combo regular/offer price from being charged or recorded for an upgrade.
+- Razorpay checkout description is also **Upgrade to Combo** for upgrade transactions.

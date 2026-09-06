@@ -98,6 +98,46 @@ Deno.serve(async (req: Request) => {
       effectivePrice = Number(resolved.effective_price);
       transactionType = resolved.transaction_type;
       upgradeFromPassId = resolved.upgrade_from_pass_id;
+
+      // For an upgrade, the amount charged must ALWAYS be the upgrade
+      // price configured on the student's source pass. The Combo
+      // product's normal/offer price is a different price and must
+      // never leak into an UPGRADE transaction. The RPC remains the
+      // authoritative eligibility gate; this second server-side read
+      // makes the pricing invariant explicit at the payment boundary.
+      if (transactionType === "UPGRADE") {
+        if (!upgradeFromPassId) {
+          throw new Error("Upgrade is missing its source pass");
+        }
+
+        const { data: sourcePass, error: sourcePassError } = await supabaseAdmin
+          .from("user_passes")
+          .select("id, pass_type")
+          .eq("id", upgradeFromPassId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (sourcePassError) throw sourcePassError;
+        if (!sourcePass) throw new Error("Source pass for upgrade was not found");
+
+        const { data: sourceProduct, error: sourceProductError } = await supabaseAdmin
+          .from("products")
+          .select("upgrade_to_combo_price")
+          .eq("active", true)
+          .eq("product_type", "PASS")
+          .eq("pass_type", sourcePass.pass_type)
+          .maybeSingle();
+
+        if (sourceProductError) throw sourceProductError;
+        if (!sourceProduct || sourceProduct.upgrade_to_combo_price == null) {
+          throw new Error("Upgrade pricing is not configured for this pass");
+        }
+
+        effectivePrice = Number(sourceProduct.upgrade_to_combo_price);
+        if (!Number.isFinite(effectivePrice) || effectivePrice < 0) {
+          throw new Error("Invalid upgrade price configured for this pass");
+        }
+      }
     } else {
       // Non-pass products (credit packages) are unaffected by any of
       // the upgrade/entitlement logic above — same pricing path as
@@ -178,7 +218,7 @@ Deno.serve(async (req: Request) => {
         amount: amountInPaise,
         currency: order.currency,
         key_id: razorpayKeyId, // public key only — the secret never leaves the server
-        product_name: product.name,
+        product_name: transactionType === "UPGRADE" ? "Upgrade to Combo" : product.name,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
