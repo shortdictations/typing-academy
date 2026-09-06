@@ -24,10 +24,10 @@
 </div>
 <div class="auth-special-view auth-forgot-view" id="forgotPasswordView" style="display:none">
   <div class="auth-view">
-    <div class="auth-heading"><h1>Reset your password</h1><p>Enter your email to receive reset instructions.</p></div>
+    <div class="auth-heading" id="forgotHeading"><h1>Reset your password</h1><p>Enter your email to receive reset instructions.</p></div>
     <div class="auth-error-msg" id="forgotErrorMsg"></div><div class="auth-success-msg" id="forgotSuccessMsg"></div>
     <form id="forgotInlineForm" novalidate>
-      <div class="auth-field"><label for="forgotInlineEmail">Email</label><input class="auth-input" type="email" id="forgotInlineEmail" placeholder="Your email address" autocomplete="email" required></div>
+      <div class="auth-field" id="forgotEmailField"><label for="forgotInlineEmail">Email</label><input class="auth-input" type="email" id="forgotInlineEmail" placeholder="Your email address" autocomplete="email" required></div>
       <button type="submit" class="auth-primary" id="forgotInlineBtn"><span>Send reset instructions</span></button>
     </form>
     <p class="auth-bottom auth-simple-back"><button type="button" class="auth-step-link auth-back-inline" id="forgotBackBtn">‹&nbsp; Back to sign in</button></p>
