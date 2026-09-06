@@ -151,6 +151,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   // the card stayed visibly stacked on top of the live test after
   // Resume Test, even though the test itself had genuinely started.
   card.style.setProperty("display", "flex", "important");
+  card.setAttribute("aria-hidden", "false");
 
   const category = (sessionRow?.category || mockRow?.category || "ssc").toLowerCase();
   const title = mockRow?.title || (category === "legal" ? "Legal Typing Test" : "SSC Typing Test");
@@ -185,6 +186,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
       // Reuse the exact existing session and its server-authoritative
       // duration. No new session, passage, credit, or re-attempt is created.
       card.style.setProperty("display", "none", "important");
+      card.setAttribute("aria-hidden", "true");
       await handleStartClick();
     } finally {
       if (!document.body.classList.contains("mock-test-active")) {
@@ -197,7 +199,23 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
 }
 
 function initPreTestSelection() {
-  document.getElementById("preTestCard").style.display = "block";
+  // Normal selection state is mutually exclusive with the unfinished
+  // session state. Reset the state class/visibility explicitly so a
+  // browser restore or a previous resume cannot leave both sections
+  // visible at once.
+  document.body.classList.remove("unfinished-session-active");
+  const unfinishedCard = document.getElementById("unfinishedSessionCard");
+  if (unfinishedCard) {
+    unfinishedCard.setAttribute("aria-hidden", "true");
+    unfinishedCard.style.setProperty("display", "none", "important");
+  }
+  const setupCard = document.getElementById("setupCard");
+  if (setupCard) {
+    setupCard.style.setProperty("display", "none", "important");
+    setupCard.hidden = true;
+    setupCard.setAttribute("aria-hidden", "true");
+  }
+  document.getElementById("preTestCard").style.setProperty("display", "block", "important");
 
   document.getElementById("ptsSscOption").addEventListener("click", () => selectPtsType("ssc"));
   document.getElementById("ptsLegalOption").addEventListener("click", () => selectPtsType("legal"));

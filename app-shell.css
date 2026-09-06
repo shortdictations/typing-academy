@@ -3402,6 +3402,13 @@ body.app-shell.mock-attempt-page.unfinished-session-active #setupCard,
 body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~ #setupCard{
   display: none !important;
 }
+/* The unfinished-session state is exclusive: never show the new-test
+   picker underneath it, even if another rule later forces the picker
+   to display. */
+body.app-shell.mock-attempt-page.unfinished-session-active #preTestCard,
+body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~ #preTestCard{
+  display: none !important;
+}
 
 body.app-shell.mock-attempt-page.unfinished-session-active .unfinished-session-card{
   display: flex !important;
