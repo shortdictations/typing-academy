@@ -15,7 +15,7 @@ body.auth-shell{
 .auth-heading{text-align:center;margin:0 0 28px}
 .auth-heading h1{margin:0 0 5px;color:var(--auth-text);font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.55px}
 .auth-heading p{margin:0;color:var(--auth-muted);font-size:13px;line-height:1.45}
-.auth-socials{display:grid;grid-template-columns:1fr;gap:9px;margin:0 0 14px;overflow:hidden;max-height:60px;opacity:1;transition:max-height .34s cubic-bezier(.22,.61,.36,1),opacity .20s ease,margin .34s cubic-bezier(.22,.61,.36,1)}
+.auth-socials{display:grid;grid-template-columns:1fr;gap:9px;margin:0 0 14px;overflow:hidden;max-height:60px;opacity:1;transition:max-height .30s cubic-bezier(.2,.8,.2,1),opacity .16s ease,margin .30s cubic-bezier(.2,.8,.2,1)}
 .auth-socials.is-collapsed{max-height:0;opacity:0;margin-bottom:0;pointer-events:none}
 .auth-social-btn{height:42px;border:1px solid var(--auth-border);border-radius:8px;background:#fff;color:var(--auth-text);display:flex;align-items:center;justify-content:center;gap:9px;font:600 13px/1 inherit;cursor:pointer;transition:border-color .15s,background .15s}
 .auth-social-btn:hover{border-color:#cbd5e1;background:#fbfcfe}.auth-social-btn:disabled{opacity:.6;cursor:not-allowed}.auth-social-btn svg{width:16px;height:16px;flex:none}
@@ -31,13 +31,13 @@ body.auth-shell{
 .auth-primary:hover{background:var(--auth-primary-hover);box-shadow:0 8px 18px rgba(37,99,235,.18)}.auth-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none}.auth-primary svg{width:15px;height:15px}
 .auth-step-link{border:0;background:none;padding:0;color:var(--auth-muted);font:600 11px/1.3 inherit;cursor:pointer}.auth-step-link:hover{color:var(--auth-text)}
 .auth-signup-link{color:var(--auth-text);font-weight:700;font-size:12px}.auth-bottom{text-align:center;margin:18px 0 0;color:var(--auth-muted);font-size:12px}.auth-bottom a{color:var(--auth-text);font-weight:700;text-decoration:none}
-.auth-step-back{text-align:center;margin-top:17px;opacity:0;transform:translateY(-5px);transition:opacity .18s ease,transform .28s cubic-bezier(.22,.61,.36,1)}
+.auth-step-back{text-align:center;margin-top:17px;opacity:0;transform:translateY(-5px);transition:opacity .16s ease,transform .30s cubic-bezier(.2,.8,.2,1)}
 .auth-panel.is-password .auth-step-back{opacity:1;transform:none}
 .auth-error-msg,.auth-success-msg{display:none;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:0 0 14px}.auth-error-msg{background:#fff2f2;color:#b3261e;border:1px solid #f2cccc}.auth-success-msg{background:#eefaf4;color:#138a54;border:1px solid #c8ead8}
 /* The wrappers animate their real measured height; children never use horizontal transforms. */
-.auth-signup-fields{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin-bottom .34s cubic-bezier(.22,.61,.36,1)}
+.auth-signup-fields{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .30s cubic-bezier(.2,.8,.2,1),opacity .16s ease,margin-bottom .30s cubic-bezier(.2,.8,.2,1)}
 .auth-signup-fields.is-expanded{opacity:1;pointer-events:auto;margin-bottom:0}
-.auth-password-step{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .34s cubic-bezier(.22,.61,.36,1),opacity .18s ease,margin-bottom .34s cubic-bezier(.22,.61,.36,1)}
+.auth-password-step{height:0;opacity:0;overflow:hidden;pointer-events:none;margin:0;transition:height .30s cubic-bezier(.2,.8,.2,1),opacity .16s ease,margin-bottom .30s cubic-bezier(.2,.8,.2,1)}
 .auth-password-step.is-visible{opacity:1;pointer-events:auto;margin-bottom:0}
 .auth-password-field{margin:0 0 14px}
 .auth-password-field .auth-field-row{margin-bottom:6px}
