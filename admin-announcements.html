@@ -152,6 +152,22 @@
         <p class="test-rules-note" style="margin-top:6px;">At least one location must be selected.</p>
       </div>
 
+      <div class="field" id="offerWrap" style="background:var(--paper); border:1px solid var(--paper-line); border-radius:6px; padding:14px;">
+        <label for="aOfferType">Promotional Offer (optional)</label>
+        <select id="aOfferType">
+          <option value="">Not a promotional offer</option>
+          <option value="DISCOUNT">Discount</option>
+          <option value="FREE_CREDITS">Free Credits</option>
+          <option value="FREE_PASS">Free Pass</option>
+          <option value="GENERAL_PROMOTION">General Promotion</option>
+        </select>
+        <div id="offerBadgeWrap" style="display:none; margin-top:10px;">
+          <label for="aBadge">Badge Text</label>
+          <input type="text" id="aBadge" maxlength="30" placeholder="e.g. 20% OFF">
+          <p style="font-size:0.78rem; color:var(--ink-soft); margin:4px 0 0;">Shown inline in the ticker alongside the title, e.g. "[20% OFF] Limited Time SSC Pass Offer". Purely descriptive — setting this does not create or change any actual discount; configure the discount itself on the Pass in Subscription &amp; Credits.</p>
+        </div>
+      </div>
+
       <p class="lede" style="margin:18px 0 8px; font-size:0.85rem;">Optional action button (leave blank to hide it)</p>
       <div class="setup-grid">
         <div class="field">

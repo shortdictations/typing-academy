@@ -82,7 +82,12 @@ function setUpTicker(container, announcements) {
   // outside it — so the whole line travels together as one piece.
   const icon = '<span class="announcement-ticker-icon">&#128226;</span>';
   const items = announcements.map(a => {
-    const text = escapeHtmlTicker(a.title) +
+    // Purely display — the badge is descriptive text set by the admin
+    // on the announcement itself; it never reads from or affects a
+    // product's actual discount_enabled/type/value, which live only
+    // on the products table and are what the payment flow enforces.
+    const badgePrefix = a.badge ? "[" + escapeHtmlTicker(a.badge) + "] " : "";
+    const text = badgePrefix + escapeHtmlTicker(a.title) +
       (a.message ? ": " + escapeHtmlTicker(a.message) : "");
     return a.action_url
       ? '<a class="announcement-ticker-item" href="' + escapeHtmlTicker(a.action_url) + '">' + text + '</a>'

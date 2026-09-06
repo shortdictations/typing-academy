@@ -24,9 +24,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("announcementForm").addEventListener("submit", handleSubmit);
   document.getElementById("cancelEditBtn").addEventListener("click", exitEditMode);
+  document.getElementById("aOfferType").addEventListener("change", updateOfferFieldsVisibility);
+  updateOfferFieldsVisibility();
 
   await loadAnnouncements();
 });
+
+function updateOfferFieldsVisibility() {
+  const hasOffer = document.getElementById("aOfferType").value !== "";
+  document.getElementById("offerBadgeWrap").style.display = hasOffer ? "block" : "none";
+}
 
 /* ---------------- Loading / rendering the list ---------------- */
 
@@ -55,10 +62,14 @@ async function loadAnnouncements() {
 
   let rows = "";
   data.forEach(a => {
+    const offerCell = a.offer_type
+      ? '<td><span class="pill">' + escapeHtmlAnn(a.badge || a.offer_type) + '</span></td>'
+      : "<td>&mdash;</td>";
     rows += `
       <tr>
         <td>${escapeHtmlAnn(a.title)}</td>
         <td><span class="pill">${escapeHtmlAnn(a.type)}</span></td>
+        ${offerCell}
         <td>${escapeHtmlAnn(showOnLabel(a.show_on))}</td>
         <td>${a.active ? "Active" : "Inactive"}</td>
         <td>${formatDateCell(a.start_at)}</td>
@@ -75,7 +86,7 @@ async function loadAnnouncements() {
     <div style="overflow-x:auto;">
     <table class="marksheet">
       <thead>
-        <tr><th>Title</th><th>Type</th><th>Show On</th><th>Active</th><th>Start</th><th>End</th><th>Actions</th></tr>
+        <tr><th>Title</th><th>Type</th><th>Offer</th><th>Show On</th><th>Active</th><th>Start</th><th>End</th><th>Actions</th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
@@ -122,7 +133,9 @@ async function handleSubmit(e) {
     display_order: parseInt(document.getElementById("aOrder").value, 10) || 0,
     action_label: document.getElementById("aActionLabel").value.trim() || null,
     action_url: document.getElementById("aActionUrl").value.trim() || null,
-    show_on: showOn
+    show_on: showOn,
+    offer_type: document.getElementById("aOfferType").value || null,
+    badge: document.getElementById("aBadge").value.trim() || null
   };
 
   if (!payload.title || !payload.message) {
@@ -177,6 +190,9 @@ function startEdit(id) {
   document.getElementById("aOrder").value = a.display_order;
   document.getElementById("aActionLabel").value = a.action_label || "";
   document.getElementById("aActionUrl").value = a.action_url || "";
+  document.getElementById("aOfferType").value = a.offer_type || "";
+  document.getElementById("aBadge").value = a.badge || "";
+  updateOfferFieldsVisibility();
   const showOn = a.show_on || ["dashboard"];
   document.getElementById("aShowDashboard").checked = showOn.includes("dashboard");
   document.getElementById("aShowHome").checked = showOn.includes("home");
@@ -190,6 +206,7 @@ function startEdit(id) {
 function exitEditMode() {
   editingId = null;
   document.getElementById("announcementForm").reset();
+  updateOfferFieldsVisibility();
   document.getElementById("formLabel").textContent = "Create Announcement";
   document.getElementById("submitBtn").textContent = "Create Announcement";
   document.getElementById("cancelEditBtn").style.display = "none";

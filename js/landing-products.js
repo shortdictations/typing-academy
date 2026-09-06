@@ -39,11 +39,14 @@ async function loadPricing() {
   if (!grid || !creditOptions) return;
 
   try {
-    const { data, error } = await supabaseClient
-      .from("products")
-      .select("*")
-      .eq("active", true)
-      .order("display_order", { ascending: true });
+    // get_products_with_pricing() (not a plain products select) — the
+    // same function subscriptions.js (the logged-in pricing page) and
+    // the payment edge function's own calculation both use, so an
+    // active discount shows identically here, pre-login, as it does
+    // everywhere else. Public/anonymous-callable already (confirmed:
+    // PUBLIC/anon both have EXECUTE on it) — no login required to see
+    // pricing on the landing page, same as before this change.
+    const { data, error } = await supabaseClient.rpc("get_products_with_pricing");
 
     if (error) throw error;
 
@@ -70,17 +73,24 @@ function renderPasses(passes, grid) {
   grid.innerHTML = passes.map(p => {
     const visual = PASS_VISUALS[p.pass_type] || DEFAULT_PASS_VISUAL;
     const featuredClass = p.best_value ? " featured" : "";
-    const badge = (p.best_value && p.badge_text)
-      ? `<div class="best-value">${escapeHtmlLP(p.badge_text.toUpperCase())}</div>`
-      : "";
+    // best_value and discount_active are independent — same rule as
+    // the logged-in pricing page: a single badge_text is shown
+    // whenever either applies, with a plain discount-derived fallback
+    // only when the admin left badge_text blank.
+    const showBadge = p.best_value || p.discount_active;
+    const badgeText = p.badge_text || (p.best_value ? "Best Value" : discountBadgeFallbackLP(p));
+    const badge = showBadge ? `<div class="best-value">${escapeHtmlLP(badgeText.toUpperCase())}</div>` : "";
     const features = (p.features || []).map(f => `<li>${escapeHtmlLP(f)}</li>`).join("");
+    const priceHtml = p.discount_active
+      ? `<div class="price price-discounted"><span class="price-original">₹${formatPriceLP(p.price)}</span> ₹${formatPriceLP(p.effective_price)} <small>${p.validity_days} days</small></div>`
+      : `<div class="price">₹${formatPriceLP(p.price)} <small>${p.validity_days} days</small></div>`;
 
     return `
       <article class="price-card${featuredClass}">
         ${badge}
         <div class="price-top"><span class="price-icon ${visual.bg}"><i data-lucide="${visual.icon}"></i></span><span>${escapeHtmlLP(p.pass_type || "")}</span></div>
         <h3>${escapeHtmlLP(p.name)}</h3>
-        <div class="price">₹${formatPriceLP(p.price)} <small>${p.validity_days} days</small></div>
+        ${priceHtml}
         <ul>${features}</ul>
         <a class="lp-btn ${visual.btnClass}" href="register.html">Get Started</a>
       </article>`;
@@ -97,14 +107,25 @@ function renderCredits(credits, container) {
 
   container.innerHTML = credits.map(p => {
     const bestClass = p.best_value ? " credit-best" : "";
-    const badge = (p.best_value && p.badge_text)
-      ? `<small>${escapeHtmlLP(p.badge_text)}</small>`
-      : "";
+    const showBadge = p.best_value || p.discount_active;
+    const badgeText = p.badge_text || (p.best_value ? "Best Value" : discountBadgeFallbackLP(p));
+    const badge = showBadge ? `<small>${escapeHtmlLP(badgeText)}</small>` : "";
+    const priceHtml = p.discount_active
+      ? `<span class="price-discounted"><span class="price-original">₹${formatPriceLP(p.price)}</span> ₹${formatPriceLP(p.effective_price)}</span>`
+      : `<span>₹${formatPriceLP(p.price)}</span>`;
     return `
       <div class="${bestClass.trim()}">
-        <strong>${p.credits}</strong><span>₹${formatPriceLP(p.price)}</span>${badge}
+        <strong>${p.credits}</strong>${priceHtml}${badge}
       </div>`;
   }).join("");
+}
+
+// Only used when the admin left badge_text blank and there's no
+// Featured badge to show instead — mirrors subscriptions.js's own
+// fallback exactly, so the two pages never disagree on wording.
+function discountBadgeFallbackLP(p) {
+  if (!p.discount_active) return "";
+  return p.discount_type === "PERCENTAGE" ? p.discount_value + "% OFF" : "\u20B9" + p.discount_value + " OFF";
 }
 
 async function loadFreeCreditsCopy() {

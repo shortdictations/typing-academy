@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
     // (and thus fulfill) someone else's order_id.
     const { data: txn, error: txnError } = await supabaseAdmin
       .from("purchase_transactions")
-      .select("user_id")
+      .select("user_id, amount, currency")
       .eq("order_id", razorpay_order_id)
       .maybeSingle();
     if (txnError) throw txnError;
@@ -92,6 +92,62 @@ Deno.serve(async (req: Request) => {
         .eq("order_id", razorpay_order_id)
         .eq("fulfilled", false); // never overwrite an already-fulfilled row
       return new Response(JSON.stringify({ error: "Payment signature verification failed" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Explicit amount check — a second, independent layer on top of
+    // signature verification, not a replacement for it. The signature
+    // alone already proves this payment_id/order_id pair is genuinely
+    // from Razorpay, but it does not, by itself, prove the amount
+    // Razorpay actually settled matches what create-razorpay-order
+    // told Razorpay to charge at order-creation time. Fetching the
+    // payment directly from Razorpay's API (never trusting anything
+    // the browser sent about the amount) and comparing it against the
+    // amount this same order was created with in
+    // purchase_transactions catches any divergence between the two —
+    // whichever end it originated from — before fulfillment ever runs.
+    const razorpayKeyId = Deno.env.get("RAZORPAY_KEY_ID")!;
+    const authHeader64 = btoa(`${razorpayKeyId}:${razorpayKeySecret}`);
+    const paymentRes = await fetch(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
+      headers: { Authorization: `Basic ${authHeader64}` },
+    });
+    if (!paymentRes.ok) {
+      throw new Error(`Could not fetch payment details from Razorpay (status ${paymentRes.status})`);
+    }
+    const paymentData = await paymentRes.json();
+
+    if (paymentData.order_id !== razorpay_order_id) {
+      return new Response(JSON.stringify({ error: "Payment does not match the expected order" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const expectedAmountInPaise = Math.round(Number(txn.amount) * 100);
+    const expectedCurrency = (txn.currency || "INR").toUpperCase();
+    if (paymentData.amount !== expectedAmountInPaise || (paymentData.currency || "").toUpperCase() !== expectedCurrency) {
+      console.error(
+        `Amount mismatch for order ${razorpay_order_id}: expected ${expectedAmountInPaise} ${expectedCurrency}, ` +
+        `Razorpay reports ${paymentData.amount} ${paymentData.currency}`
+      );
+      await supabaseAdmin
+        .from("purchase_transactions")
+        .update({ status: "failed" })
+        .eq("order_id", razorpay_order_id)
+        .eq("fulfilled", false);
+      return new Response(JSON.stringify({ error: "Payment amount does not match the expected order amount" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Razorpay's own payment status is the actual money-movement
+    // truth — "captured" (or "authorized" for non-auto-capture flows)
+    // is required before this is treated as a real, completed payment.
+    if (paymentData.status !== "captured" && paymentData.status !== "authorized") {
+      return new Response(JSON.stringify({ error: `Payment is not completed (status: ${paymentData.status})` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
