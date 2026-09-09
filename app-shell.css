@@ -3803,3 +3803,72 @@ html[data-theme="dark"] body.app-shell .pass-upgrade-box{
   background: rgba(124,58,237,0.11);
   border-color: rgba(167,139,250,0.22);
 }
+
+/* ---------- Premium active pass card layout ---------- */
+body.app-shell .pass-card.is-owned,
+body.app-shell .pass-card.is-owned *{
+  text-align: left;
+}
+body.app-shell .pass-card-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+body.app-shell .pass-card-header .card-label{
+  margin:0;
+  padding:0;
+}
+body.app-shell .pass-active-badge{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:.04em;
+  color:#15803d;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+}
+body.app-shell .pass-active-badge .pass-status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#16a34a;
+  display:inline-block;
+}
+body.app-shell .pass-upgrade-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+body.app-shell .pass-upgrade-title{
+  margin:0;
+}
+body.app-shell .pass-upgrade-price{
+  flex-shrink:0;
+  white-space:nowrap;
+  color:var(--ts-purple,#7c3aed);
+  font-size:.78rem;
+  font-weight:800;
+}
+body.app-shell .pass-upgrade-btn{
+  justify-content:center;
+}
+body.app-shell .pass-upgrade-btn-price{
+  font-weight:800;
+}
+body.app-shell .pass-upgrade-note{
+  text-align:center !important;
+}
+@media (max-width:560px){
+  body.app-shell .pass-upgrade-heading{align-items:flex-start;}
+  body.app-shell .pass-upgrade-title{max-width:68%;}
+  body.app-shell .pass-upgrade-price{font-size:.72rem;}
+}

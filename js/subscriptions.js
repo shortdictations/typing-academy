@@ -274,59 +274,66 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
 
 // Active SSC/Legal users see their current plan and the upgrade CTA in the
 // SAME card. The separate Combo card is hidden for these users.
+function getDaysLeft(expiresAt) {
+  const now = new Date();
+  const expiry = new Date(expiresAt);
+  const difference = expiry.getTime() - now.getTime();
+  if (difference <= 0) return 0;
+  return Math.ceil(difference / (1000 * 60 * 60 * 24));
+}
+
 function buildOwnedPassCardHtml(p, activeState, comboProduct) {
-  const theme = (p.pass_type || "ssc").toLowerCase();
-  const catClass = "plan-" + theme;
-  const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
-  const unlocks = p.pass_type === "SSC" ? "Legal" : "SSC";
+  const passType = (p.pass_type || "").toUpperCase();
+  const currentCategory = passType === "SSC" ? "SSC" : "Legal";
+  const unlockedCategory = passType === "SSC" ? "Legal" : "SSC";
+  const daysLeft = getDaysLeft(activeState.expiresAt);
   const upgradePrice = p.upgrade_to_combo_price;
   const canUpgrade = !!comboProduct && upgradePrice != null;
 
   const upgradeHtml = canUpgrade ? `
     <div class="pass-upgrade-box">
-      <div class="pass-upgrade-title">Get Unlimited ${unlocks} Mocks</div>
+      <div class="pass-upgrade-heading">
+        <span class="pass-upgrade-title">GET UNLIMITED ${unlockedCategory.toUpperCase()} MOCKS</span>
+        <span class="pass-upgrade-price">JUST AT &#8377;${upgradePrice}</span>
+      </div>
       <div class="pass-upgrade-text">
-        Upgrade your plan for just <strong>&#8377;${upgradePrice}</strong> and get access to all ${unlocks} typing mocks too.
+        Upgrade to Combo and unlock all ${unlockedCategory} typing mocks.
       </div>
     </div>
+
     <button class="btn btn-full pass-upgrade-btn buy-product-btn"
       data-product-id="${comboProduct.id}"
       data-is-upgrade="true"
       data-product-type="PASS"
       data-pass-type="COMBO">
-      Upgrade to Combo <span aria-hidden="true">&rarr;</span>
+      Unlock Unlimited ${unlockedCategory} Mocks
+      <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
+      <span aria-hidden="true">&rarr;</span>
     </button>
+
     <div class="pass-upgrade-note">Your current validity will remain the same.</div>
   ` : `
     <div class="pass-upgrade-box pass-upgrade-box-unavailable">
-      Upgrade pricing is not available right now. Please check back later.
+      Combo upgrade is currently unavailable.
     </div>
   `;
 
   return `
-    <div class="card pass-card ${catClass} is-owned">
-      <div class="pass-status-row">
-        <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
+    <div class="card pass-card ${"plan-" + currentCategory.toLowerCase()} is-owned">
+      <div class="pass-card-header">
+        <div class="card-label">${currentCategory} PASS</div>
+        <span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>
       </div>
-      <div class="card-label">${escapeHtmlLocal(p.name)}</div>
 
       <div class="pass-current-plan-box">
         <div class="pass-current-plan-title">Your Current Plan</div>
         <div class="pass-plan-detail-row">
           <span>Validity</span>
-          <strong>${p.validity_days} days</strong>
-        </div>
-        <div class="pass-plan-detail-row">
-          <span>Valid Till</span>
-          <strong>${expiryText}</strong>
+          <strong>${daysLeft} ${daysLeft === 1 ? "day" : "days"} left</strong>
         </div>
         <div class="pass-plan-detail-row">
           <span>Access</span>
-          <strong>All ${escapeHtmlLocal(unlocks === "Legal" ? "SSC" : "Legal")} mocks</strong>
+          <strong>All ${currentCategory} mocks</strong>
         </div>
       </div>
 
