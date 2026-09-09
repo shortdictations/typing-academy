@@ -262,6 +262,14 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
   }
 
   grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance);
+
+  // Keep the desktop composition intentionally compact when only two
+  // cards are present. The four-card state keeps the established 2x2
+  // layout; the two-card state is centered inside a narrower container
+  // instead of stretching each card across the entire content area.
+  const cardCount = grid.querySelectorAll(':scope > .pass-card').length;
+  grid.classList.toggle('passes-grid--two', cardCount === 2);
+  grid.classList.toggle('passes-grid--four', cardCount >= 4);
 }
 
 // Active SSC/Legal users see their current plan and the upgrade CTA in the
@@ -269,7 +277,6 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
 function buildOwnedPassCardHtml(p, activeState, comboProduct) {
   const theme = (p.pass_type || "ssc").toLowerCase();
   const catClass = "plan-" + theme;
-  const iconHtml = '<div class="plan-icon">' + planIconSvg(theme) + '</div>';
   const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -302,7 +309,6 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
 
   return `
     <div class="card pass-card ${catClass} is-owned">
-      ${iconHtml}
       <div class="pass-status-row">
         <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
       </div>
@@ -340,7 +346,6 @@ function buildPassCardHtml(p, activeState) {
   const bestValueBadge = showBadge ? '<span class="best-value-badge">' + escapeHtmlLocal(p.badge_text || defaultBadgeText) + '</span>' : "";
   const theme = (p.pass_type || "ssc").toLowerCase();
   const catClass = "plan-" + theme;
-  const iconHtml = '<div class="plan-icon">' + planIconSvg(theme) + '</div>';
   const priceHtml = priceDisplayHtml(p);
 
   if (activeState) {
@@ -349,7 +354,6 @@ function buildPassCardHtml(p, activeState) {
     return `
       <div class="card pass-card ${catClass} is-owned${featured}">
         ${bestValueBadge}
-        ${iconHtml}
         <div class="pass-status-row">
           <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
         </div>
@@ -380,7 +384,6 @@ function buildPassCardHtml(p, activeState) {
   return `
     <div class="card pass-card ${catClass}${featured}">
       ${bestValueBadge}
-      ${iconHtml}
       <div class="pass-status-row pass-status-row-inactive">
         <span class="pass-status-text-inactive">Not Active</span>
       </div>
@@ -429,7 +432,6 @@ function priceDisplayHtml(p) {
 function buildCreditsSummaryCardHtml(creditBalance) {
   return `
     <div class="card pass-card plan-credit credits-summary-card">
-      <div class="plan-icon">${planIconSvg("credit")}</div>
       <div class="card-label">Test Credits</div>
       <div class="credits-summary-count">${creditBalance}</div>
       <div class="credits-summary-label">Credits Available</div>

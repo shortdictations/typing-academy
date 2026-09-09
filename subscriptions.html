@@ -23,25 +23,10 @@
    existing Test Credits summary card.
    ============================================================ */
 
-/* ---- 1. Bigger icons ----
-   Slightly reduced from an earlier pass (72px) per explicit
-   follow-up feedback that the cards had grown too tall — still
-   noticeably bigger than app-shell.css's own 44px base, honoring
-   the original "make icons bigger" request, just less extreme. */
-body.subscriptions-page .plan-icon{
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 10px;
-}
-body.subscriptions-page .plan-icon svg{
-  width: 28px;
-  height: 28px;
-}
-
-/* ---- 2 & 4. Centered top section, bigger titles ----
-   Only the top identity block (icon/status/title/price/validity) —
-   feature lists and the button keep their existing left alignment,
-   per the brief's explicit instruction not to center the whole card. */
+/* ---- Card identity + compact typography ----
+   Subscription cards intentionally have no plan/logo icons. The
+   hierarchy is carried by the plan name, status, pricing, features,
+   and CTA — a cleaner premium SaaS pattern. */
 body.subscriptions-page .pass-status-row,
 body.subscriptions-page .pass-status-row-inactive{
   justify-content: center;
@@ -88,7 +73,7 @@ body.subscriptions-page .pass-card .plan-features{ margin-bottom: 8px; }
    shadow + slightly larger padding for a less flat, more premium
    feel; a small star (CSS-drawn, no JS/markup change needed since
    subscriptions.js only ever renders the badge's text) reinforces
-   "this one's special" without needing an icon font or extra HTML.
+   "this one's special" without adding another visual icon.
    Scoped to .best-value-badge only — .credit-pack-badge ("Best
    Offer" on the credit chips below) already has its own working
    style and wasn't part of what looked off. */

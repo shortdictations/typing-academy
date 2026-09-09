@@ -1860,7 +1860,28 @@ body.app-shell .help-article-close{ margin-top: 6px; }
 }
 
 /* ---------- Subscriptions / Pass & Credits page ---------- */
-body.app-shell .passes-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 14px; }
+body.app-shell .passes-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 18px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 14px auto 0;
+}
+body.app-shell .passes-grid.passes-grid--two{
+  max-width: 900px;
+}
+body.app-shell .passes-grid.passes-grid--four{
+  max-width: 1080px;
+}
+@media (max-width: 900px){
+  body.app-shell .passes-grid,
+  body.app-shell .passes-grid.passes-grid--two,
+  body.app-shell .passes-grid.passes-grid--four{
+    grid-template-columns: 1fr;
+    max-width: 620px;
+  }
+}
 body.app-shell .pass-card{
   background: #fff;
   border: 1px solid var(--ts-border);
@@ -3400,13 +3421,6 @@ body.app-shell.mock-attempt-page #preTestError{ margin-top: 10px; }
 /* Final unfinished-state alignment: the illustration belongs above the content on every viewport. */
 body.app-shell.mock-attempt-page.unfinished-session-active #setupCard,
 body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~ #setupCard{
-  display: none !important;
-}
-/* The unfinished-session state is exclusive: never show the new-test
-   picker underneath it, even if another rule later forces the picker
-   to display. */
-body.app-shell.mock-attempt-page.unfinished-session-active #preTestCard,
-body.app-shell.mock-attempt-page .unfinished-session-card[aria-hidden="false"] ~ #preTestCard{
   display: none !important;
 }
 
