@@ -356,25 +356,21 @@ function buildPassCardHtml(p, activeState) {
   const priceHtml = priceDisplayHtml(p);
 
   if (activeState) {
-    const expiryText = new Date(activeState.expiresAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     const accessText = p.pass_type === "COMBO" ? "All SSC + Legal mocks" : `All ${p.pass_type === "SSC" ? "SSC" : "Legal"} mocks`;
+    const daysLeft = getDaysLeft(activeState.expiresAt);
     return `
       <div class="card pass-card ${catClass} is-owned${featured}">
         ${bestValueBadge}
-        <div class="pass-status-row">
-          <span class="pass-status-dot"></span><span class="pass-status-text">Active</span>
+        <div class="pass-card-header">
+          <div class="card-label">${escapeHtmlLocal(p.name)}</div>
+          <span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>
         </div>
-        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
 
         <div class="pass-current-plan-box">
           <div class="pass-current-plan-title">Your Current Plan</div>
           <div class="pass-plan-detail-row">
             <span>Validity</span>
-            <strong>${p.validity_days} days</strong>
-          </div>
-          <div class="pass-plan-detail-row">
-            <span>Valid Till</span>
-            <strong>${expiryText}</strong>
+            <strong>${daysLeft} ${daysLeft === 1 ? "day" : "days"} left</strong>
           </div>
           <div class="pass-plan-detail-row">
             <span>Access</span>
