@@ -131,134 +131,6 @@ body.subscriptions-page .pass-status-dot{
   body.subscriptions-page .pass-status-dot{ animation: none; }
 }
 
-/* ---- 7/8/11/12. Credits card flip ----
-   .credits-flip-outer wraps the summary card's own existing content
-   completely unchanged as the FRONT face, and adds a new BACK face
-   for history — subscriptions.js's own HTML/classes for the card
-   itself are never modified, only wrapped (see the script below).
-   A fixed pixel height (set by JS) is what keeps both flip faces
-   identically sized and stops any resize during the flip — CSS
-   alone (height:100%) was tried and found insufficient: on mobile,
-   where the grid drops to a single column, each card's height
-   becomes "auto" rather than being stretched by a taller sibling,
-   and height:100% of an auto-height parent doesn't resolve to
-   anything usable (confirmed directly: content overlapped the
-   section below it). The JS measurement itself (see
-   enhanceCreditsCard()) reads the CARD's own rendered height, not
-   just the front content's isolated height — that's what correctly
-   captures a desktop grid-stretch AND a mobile natural-content
-   height with the same single measurement. */
-body.subscriptions-page .credits-flip-outer{
-  perspective: 1200px;
-  width: 100%;
-}
-body.subscriptions-page .credits-flip-inner{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s cubic-bezier(0.4, 0.1, 0.2, 1);
-  transform-style: preserve-3d;
-}
-body.subscriptions-page .credits-flip-inner.is-flipped{
-  transform: rotateY(180deg);
-}
-body.subscriptions-page .credits-flip-front,
-body.subscriptions-page .credits-flip-back{
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  display: flex;
-  flex-direction: column;
-}
-body.subscriptions-page .credits-flip-back{
-  transform: rotateY(180deg);
-  text-align: left;
-  align-items: stretch;
-}
-@media (prefers-reduced-motion: reduce){
-  body.subscriptions-page .credits-flip-inner{ transition: none; }
-}
-
-body.subscriptions-page .credit-history-title{
-  text-align: center;
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--ts-gold-dark);
-  margin-bottom: 12px;
-}
-body.subscriptions-page .credit-history-list{
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
-  margin-bottom: 12px;
-  scrollbar-width: thin;
-}
-body.subscriptions-page .credit-history-list::-webkit-scrollbar{ width: 6px; }
-body.subscriptions-page .credit-history-list::-webkit-scrollbar-track{ background: transparent; }
-body.subscriptions-page .credit-history-list::-webkit-scrollbar-thumb{ background: var(--ts-border); border-radius: 8px; }
-
-body.subscriptions-page .credit-history-item{
-  padding: 10px 12px;
-  border: 1px solid var(--ts-border);
-  border-radius: 10px;
-  margin-bottom: 8px;
-  background: #fff;
-}
-body.subscriptions-page .credit-history-item:last-child{ margin-bottom: 0; }
-body.subscriptions-page .credit-history-amount{
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--ts-gold-dark);
-}
-body.subscriptions-page .credit-history-dates{
-  font-size: 12px;
-  color: var(--ts-muted);
-  margin-top: 3px;
-}
-body.subscriptions-page .credit-history-empty{
-  text-align: center;
-  color: var(--ts-muted);
-  font-size: 13px;
-  padding: 20px 10px;
-}
-body.subscriptions-page .credit-history-empty strong{
-  display: block;
-  color: var(--ts-text);
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-body.subscriptions-page .credit-history-back-btn{
-  margin-top: auto;
-}
-
-/* Description text replacing subscriptions.js's own brief
-   ".credits-summary-note" — see enhanceCreditsCard() above. Sits
-   above the (margin-top:auto'd) "Show Credit History" button, same
-   as the description text pattern used on the other three cards. */
-body.subscriptions-page .credits-summary-description{
-  text-align: center;
-  margin: 10px 0 16px;
-}
-body.subscriptions-page .credits-summary-description p{
-  margin: 0 0 8px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ts-muted);
-}
-body.subscriptions-page .credits-summary-description-fact{
-  font-weight: 700;
-  color: var(--ts-gold-dark);
-}
-body.subscriptions-page .credits-summary-description-note{
-  font-size: 12px;
-  margin-bottom: 0;
-}
-
-
 /* ============================================================
    TypeShala Premium Glass Pricing UI — subscription page only
    Visual layer: preserves the existing purchase/eligibility DOM
@@ -454,7 +326,6 @@ body.subscriptions-page .credits-summary-count{
 body.subscriptions-page .credits-summary-label{ color:#6f6250; font-weight:750; }
 body.subscriptions-page .credits-summary-note{ color:#8a795e; }
 
-body.subscriptions-page #creditProductsGrid{ width:min(100%,1160px); margin-left:auto !important; margin-right:auto !important; }
 body.subscriptions-page .subscriptions-help-banner{
   margin-top:26px;
   border:1px solid rgba(255,255,255,.82);
@@ -477,6 +348,274 @@ body.subscriptions-page .subscriptions-help-banner{
   body.subscriptions-page .pass-upgrade-heading{ flex-direction:column; }
 }
 
+
+/* ============================================================
+   Combined Test Credits card
+   Available balance + purchase options live in one card.
+   Prices remain fully admin-driven; only the supported quantities
+   10 / 20 / 30 are displayed. No per-test pricing text.
+   ============================================================ */
+body.subscriptions-page .credits-combined-card{
+  grid-column:span 1;
+  padding:26px !important;
+  min-height:100%;
+  background:
+    radial-gradient(circle at 92% 4%, rgba(245,158,11,.15), transparent 24%),
+    radial-gradient(circle at 82% 26%, rgba(251,191,36,.10), transparent 28%),
+    linear-gradient(145deg,rgba(255,251,242,.94),rgba(255,255,255,.76)) !important;
+  border-color:rgba(245,158,11,.18) !important;
+}
+body.subscriptions-page .credits-card-topline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+body.subscriptions-page .credits-card-kicker{
+  color:#b86b00;
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.16em;
+}
+body.subscriptions-page .credits-card-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  padding:0 14px;
+  border-radius:999px;
+  background:rgba(255,244,214,.82);
+  border:1px solid rgba(245,158,11,.24);
+  color:#b86b00;
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.04em;
+  white-space:nowrap;
+}
+body.subscriptions-page .credits-card-title{
+  margin:15px 0 5px;
+  color:#0d1b45;
+  font-size:30px;
+  line-height:1.1;
+  letter-spacing:-.035em;
+}
+body.subscriptions-page .credits-card-subtitle{
+  margin:0;
+  color:#667596;
+  font-size:14px;
+  line-height:1.55;
+}
+body.subscriptions-page .credits-balance-panel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:20px;
+  padding:18px 18px 18px 20px;
+  border:1px solid rgba(245,158,11,.18);
+  border-radius:18px;
+  background:rgba(255,255,255,.58);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+body.subscriptions-page .credits-balance-main{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+body.subscriptions-page .credits-balance-number{
+  color:#d98500;
+  font-size:52px;
+  line-height:.9;
+  font-weight:900;
+  letter-spacing:-.055em;
+}
+body.subscriptions-page .credits-balance-heading{
+  color:#172650;
+  font-size:15px;
+  font-weight:850;
+}
+body.subscriptions-page .credits-balance-note{
+  margin-top:4px;
+  color:#71809f;
+  font-size:12px;
+}
+body.subscriptions-page .credits-history-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-width:148px;
+  padding:12px 16px;
+  border-radius:13px;
+  background:rgba(255,247,228,.95);
+  border:1px solid rgba(245,158,11,.16);
+  color:#c27800;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:850;
+  transition:transform .18s ease, background .18s ease;
+}
+body.subscriptions-page .credits-history-link:hover{
+  transform:translateY(-1px);
+  background:#fff1c9;
+}
+body.subscriptions-page .credits-benefits{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  margin-top:18px;
+  padding:4px 0 18px;
+  border-bottom:1px solid rgba(245,158,11,.14);
+}
+body.subscriptions-page .credits-benefit{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  color:#536487;
+  text-align:center;
+  font-size:11px;
+  line-height:1.35;
+}
+body.subscriptions-page .credits-benefit + .credits-benefit{
+  border-left:1px solid rgba(245,158,11,.12);
+}
+body.subscriptions-page .credits-benefit > span{
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#fff2d6;
+  color:#d98500;
+  font-size:18px;
+  font-weight:900;
+}
+body.subscriptions-page .credits-benefit strong{
+  font-weight:700;
+}
+body.subscriptions-page .credits-purchase-section{
+  margin-top:18px;
+}
+body.subscriptions-page .credits-purchase-title{
+  color:#101d49;
+  font-size:19px;
+  font-weight:850;
+  letter-spacing:-.02em;
+}
+body.subscriptions-page .credits-purchase-label{
+  margin-top:3px;
+  color:#6d7b9b;
+  font-size:12px;
+}
+body.subscriptions-page .credits-pack-row-large{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px !important;
+  margin-top:11px !important;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
+  position:relative;
+  min-height:82px;
+  padding:13px 14px !important;
+  border-radius:15px !important;
+  border:1px solid rgba(205,214,235,.8) !important;
+  background:rgba(255,255,255,.72) !important;
+  color:#162550 !important;
+  text-align:left !important;
+  box-shadow:0 5px 16px rgba(50,60,100,.045);
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip:hover{
+  transform:translateY(-2px);
+  border-color:rgba(245,158,11,.35) !important;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip.selected{
+  border:2px solid #f29a00 !important;
+  background:linear-gradient(145deg,#fff8e9,#fffdf8) !important;
+  box-shadow:0 8px 22px rgba(217,133,0,.12);
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-name{
+  display:block;
+  margin:0 !important;
+  color:#182754 !important;
+  font-size:14px;
+  font-weight:850;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-check{
+  position:absolute;
+  top:9px;
+  right:9px;
+  display:grid;
+  place-items:center;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#ee9700;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-price{
+  margin-top:9px;
+  color:#0e1d49 !important;
+  font-size:22px !important;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-price-original{
+  color:#8993a9 !important;
+  font-size:12px !important;
+  font-weight:650;
+  text-decoration:line-through;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
+  position:absolute;
+  top:-9px;
+  right:10px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#eafaf0;
+  border:1px solid #c6efd6;
+  color:#16834a;
+  font-size:9px;
+  font-weight:850;
+}
+body.subscriptions-page .credits-combined-buy-btn{
+  width:100%;
+  margin-top:13px !important;
+  min-height:48px !important;
+  border:0 !important;
+  border-radius:14px !important;
+  color:#fff !important;
+  background:linear-gradient(135deg,#ee9400,#ffb31b) !important;
+  box-shadow:0 10px 24px rgba(217,133,0,.20) !important;
+  font-size:14px;
+}
+body.subscriptions-page .credits-combined-buy-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 28px rgba(217,133,0,.25) !important;
+}
+body.subscriptions-page .credits-empty-packs{
+  grid-column:1/-1;
+  padding:15px;
+  border-radius:12px;
+  background:rgba(255,255,255,.6);
+  color:#7a859d;
+  font-size:12px;
+}
+@media (max-width:900px){
+  body.subscriptions-page .credits-benefits{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  body.subscriptions-page .credits-benefit:nth-child(3){ border-left:0; }
+  body.subscriptions-page .credits-benefit:nth-child(n+3){ border-top:1px solid rgba(245,158,11,.12); }
+}
+@media (max-width:560px){
+  body.subscriptions-page .credits-combined-card{ padding:20px !important; }
+  body.subscriptions-page .credits-card-title{ font-size:26px; }
+  body.subscriptions-page .credits-balance-panel{ align-items:stretch; flex-direction:column; }
+  body.subscriptions-page .credits-history-link{ width:100%; }
+  body.subscriptions-page .credits-pack-row-large{ grid-template-columns:1fr; }
+  body.subscriptions-page .credits-benefits{ grid-template-columns:1fr 1fr; }
+}
 </style>
 </head>
 <body class="app-shell subscriptions-page">
@@ -585,14 +724,6 @@ body.subscriptions-page .subscriptions-help-banner{
     <div class="loading-strip">Loading your plans...</div>
   </div>
 
-  <!-- Purchasable credit packs — admin-configured (products table,
-       product_type = CREDIT). Separate from the summary card above:
-       this is what you can BUY, that card is what you already HAVE.
-       Built entirely by renderCreditProducts() in subscriptions.js —
-       see there for the panel/pack-selection/notice structure. -->
-  <div id="creditProductsGrid" style="margin-top:36px;">
-    <div class="loading-strip">Loading credit packages...</div>
-  </div>
 
   <!-- CONTACT SUPPORT -->
   <div class="subscriptions-help-banner">
@@ -639,192 +770,7 @@ body.subscriptions-page .subscriptions-help-banner{
 <script src="js/payments.js"></script>
 <script src="js/subscriptions.js"></script>
 
-<script>
-/* ============================================================
-   Scoped subscriptions.html enhancement — Credit History flip.
-   Does not modify subscriptions.js at all: it watches the grid
-   subscriptions.js already renders into, and once the existing
-   Test Credits summary card appears, wraps its EXISTING content
-   (untouched) as a flip-card front face, replaces only that
-   card's own "Buy Credits" link with "Show Credit History", and
-   adds a back face showing this user's own real purchased-credit
-   lots from wallet_credits (the same table subscriptions.js
-   already reads for the balance) — read-only, no new tables, no
-   changes to purchase/allocation logic.
-   ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  const grid = document.getElementById("passProductsGrid");
-  if (!grid) return;
 
-  // subscriptions.js replaces grid.innerHTML wholesale on initial
-  // load AND after every successful purchase — this observer re-runs
-  // the enhancement each time, so a fresh (unflipped, balance-updated)
-  // card is correctly re-wrapped rather than left as the old,
-  // now-detached DOM node's stale flip state.
-  const observer = new MutationObserver(() => enhanceCreditsCard());
-  observer.observe(grid, { childList: true });
-  enhanceCreditsCard(); // in case the grid is already populated
-
-  // Display-only: the credit pack chips ("10 Credits", "20 Credits",
-  // "30 Credits") should read "Tests" instead of "Credits" in this
-  // one section. The chip's label is the product's own real name
-  // from the database (p.name in subscriptions.js's
-  // creditPackChipHtml()) — never hard-coded here, and
-  // subscriptions.js itself is not modified at all. This only
-  // rewrites the TEXT NODE inside each already-rendered
-  // .credit-pack-name element, leaving its checkmark <span> child,
-  // the product id, the price, badge text, and every purchase
-  // function completely untouched. Re-applied on every re-render
-  // (initial load AND every pack-selection click, which
-  // subscriptions.js's own click handler re-renders this same grid
-  // for) via a second, independent observer — never touches
-  // #passProductsGrid or anything in it.
-  const creditGrid = document.getElementById("creditProductsGrid");
-  if (creditGrid) {
-    const creditObserver = new MutationObserver(() => relabelCreditPackNames());
-    creditObserver.observe(creditGrid, { childList: true, subtree: true });
-    relabelCreditPackNames();
-  }
-});
-
-function relabelCreditPackNames() {
-  document.querySelectorAll("#creditProductsGrid .credit-pack-name").forEach(el => {
-    Array.from(el.childNodes).forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        node.textContent = node.textContent.replace(/credits/gi, "Tests");
-      }
-    });
-  });
-}
-
-function enhanceCreditsCard() {
-  const card = document.querySelector("#passProductsGrid .credits-summary-card");
-  // dataset guard: MutationObserver can fire more than once for a
-  // single innerHTML replacement — this stops the same card instance
-  // from being wrapped twice, without needing to unobserve/reobserve.
-  if (!card || card.dataset.flipReady) return;
-  card.dataset.flipReady = "true";
-
-  // Only this card's own "Buy Credits" link is removed — it was
-  // always just an anchor scrolling to the real purchase panel
-  // below (#creditProductsGrid), never the actual purchase action
-  // itself, so nothing about buying credits is lost.
-  const buyLink = card.querySelector("a.btn");
-  if (buyLink) buyLink.remove();
-
-  const front = document.createElement("div");
-  while (card.firstChild) front.appendChild(card.firstChild); // moves subscriptions.js's own markup verbatim, nothing rebuilt
-
-  // subscriptions.js's own markup includes a brief ".credits-summary-note"
-  // ("1 credit = 1 test") — replaced here with the fuller description
-  // requested, which already covers that same fact as its own line, so
-  // the short note would otherwise duplicate it right below.
-  const oldNote = front.querySelector(".credits-summary-note");
-  const description = document.createElement("div");
-  description.className = "credits-summary-description";
-  description.innerHTML =
-    '<p>Unlock any mock test you desire. Use your credits and take tests.</p>' +
-    '<p class="credits-summary-description-fact">1 Credit = 1 Test Attempt</p>' +
-    '<p class="credits-summary-description-note">Credits are valid for 365 days from the date of purchase.</p>';
-  if (oldNote) {
-    oldNote.replaceWith(description);
-  } else {
-    front.appendChild(description);
-  }
-
-  const showHistoryBtn = document.createElement("button");
-  showHistoryBtn.type = "button";
-  showHistoryBtn.className = "btn btn-ghost btn-full";
-  showHistoryBtn.innerHTML = 'Show Credit History <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-left:4px;"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>';
-  front.appendChild(showHistoryBtn);
-
-  // Measured on CARD itself (not front) while front sits inside it as
-  // a normal, non-absolutely-positioned block — this is what actually
-  // fixes the bug found by testing on a real grid: measuring front's
-  // own isolated height (the previous approach) ignores the fact that
-  // a CSS grid stretches the CARD taller to match its tallest sibling
-  // (e.g. Combo Pass, whose extra badge/status text makes it taller),
-  // which front alone — a plain block with no flex-grow — never
-  // expands to fill, leaving a gap. Measuring the card, which IS the
-  // element the grid actually stretches, gives the right number in
-  // both contexts: on desktop it reflects that stretch; on mobile
-  // (single-column, no stretching) it's simply the card's own natural
-  // content height with the new description/button already counted.
-  card.appendChild(front);
-  const measuredHeight = Math.ceil(card.getBoundingClientRect().height);
-  card.removeChild(front);
-  front.className = "credits-flip-front";
-
-  const back = document.createElement("div");
-  back.className = "credits-flip-back";
-  back.innerHTML =
-    '<div class="credit-history-title">Credit Purchase History</div>' +
-    '<div class="credit-history-list" id="creditHistoryList"><div class="credit-history-empty">Loading…</div></div>' +
-    '<button type="button" class="btn btn-ghost btn-full credit-history-back-btn">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Back to Credits</button>';
-
-  const inner = document.createElement("div");
-  inner.className = "credits-flip-inner";
-  inner.appendChild(front);
-  inner.appendChild(back);
-
-  const outer = document.createElement("div");
-  outer.className = "credits-flip-outer";
-  outer.style.height = measuredHeight + "px";
-  outer.appendChild(inner);
-
-  card.appendChild(outer);
-
-  showHistoryBtn.setAttribute("aria-label", "Show credit purchase history");
-  showHistoryBtn.addEventListener("click", () => inner.classList.add("is-flipped"));
-  const backBtn = back.querySelector(".credit-history-back-btn");
-  backBtn.setAttribute("aria-label", "Back to credits");
-  backBtn.addEventListener("click", () => inner.classList.remove("is-flipped"));
-
-  loadCreditHistory();
-}
-
-// Read-only: this user's own purchased (not free-signup) credit
-// lots, from the SAME wallet_credits table subscriptions.js already
-// queries for the balance total — no new table, no schema change.
-// RLS already scopes every row to auth.uid() (unchanged), and this
-// query explicitly filters to the current user's id as well.
-async function loadCreditHistory() {
-  const listEl = document.getElementById("creditHistoryList");
-  if (!listEl) return;
-
-  try {
-    const user = await getCurrentUser();
-    if (!user) return;
-
-    const { data, error } = await supabaseClient
-      .from("wallet_credits")
-      .select("credits_total, created_at, expires_at")
-      .eq("user_id", user.id)
-      .eq("credit_type", "purchased")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    if (!data || data.length === 0) {
-      listEl.innerHTML = '<div class="credit-history-empty"><strong>No credit purchases yet.</strong>Your purchased credit packages will appear here.</div>';
-      return;
-    }
-
-    listEl.innerHTML = data.map(row => {
-      const purchased = new Date(row.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-      const expires = new Date(row.expires_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-      return '<div class="credit-history-item">' +
-        '<div class="credit-history-amount">' + row.credits_total + ' Credits</div>' +
-        '<div class="credit-history-dates">Purchased: ' + purchased + ' &middot; Expires: ' + expires + '</div>' +
-        '</div>';
-    }).join("");
-  } catch (err) {
-    console.error("Could not load credit history:", err);
-    listEl.innerHTML = '<div class="credit-history-empty">Could not load credit history right now.</div>';
-  }
-}
-</script>
 
 <!-- Mobile Profile drawer — opened by the Profile bottom-nav button
      (mobile only; the button that triggers this doesn't exist on
