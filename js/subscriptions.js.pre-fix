@@ -120,39 +120,17 @@ async function loadProductCatalog(userId) {
   // extensions, network conditions, or a Supabase RPC can leave one request
   // pending much longer than the UI should wait. Each request below is bounded
   // and the catalog has a direct-table fallback.
-  // IMPORTANT: Supabase requests can REJECT (network/CORS/fetch errors),
-  // not just return { error }. The previous wrapper only handled the latter,
-  // so a rejected RPC escaped the fallback branch and sent the whole page
-  // straight to the generic error card. Convert rejections into the same
-  // { data, error } shape so the direct products-table fallback can run.
-  // Accept a function rather than an already-created Promise so synchronous
-  // Supabase/client errors are caught as well. This is important because an
-  // exception thrown while constructing .rpc()/.from() otherwise escapes
-  // before Promise.race() gets a chance to handle it.
-  const withTimeout = async (operation, ms, label) => {
-    let promise;
-    try {
-      promise = Promise.resolve().then(operation);
-    } catch (err) {
-      console.warn(`[subscriptions] ${label} failed synchronously:`, err);
-      return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
-    }
-
-    return Promise.race([
-      promise.catch((err) => {
-        console.warn(`[subscriptions] ${label} failed:`, err);
-        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
-      }),
-      new Promise((resolve) => setTimeout(() => {
-        console.warn(`[subscriptions] ${label} timed out after ${ms}ms`);
-        resolve({ data: null, error: new Error(`${label} timed out`) });
-      }, ms))
-    ]);
-  };
+  const withTimeout = (promise, ms, label) => Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(() => {
+      console.warn(`[subscriptions] ${label} timed out after ${ms}ms`);
+      resolve({ data: null, error: new Error(`${label} timed out`) });
+    }, ms))
+  ]);
 
   try {
     let productsResult = await withTimeout(
-      () => supabaseClient.rpc("get_products_with_pricing"),
+      supabaseClient.rpc("get_products_with_pricing"),
       7000,
       "product catalog RPC"
     );
@@ -164,7 +142,7 @@ async function loadProductCatalog(userId) {
     if (productsResult.error || !Array.isArray(productsResult.data)) {
       console.warn("[subscriptions] Pricing RPC unavailable; using product-table fallback.", productsResult.error);
       productsResult = await withTimeout(
-        () => supabaseClient
+        supabaseClient
           .from("products")
           .select("id, product_type, pass_type, credits, name, price, currency, validity_days, description, features, display_order, active, plan_code, best_value, badge_text, discount_enabled, discount_type, discount_value, discount_start_at, discount_end_at, upgrade_to_combo_price")
           .eq("active", true)
@@ -174,20 +152,13 @@ async function loadProductCatalog(userId) {
       );
     }
 
-    let products = Array.isArray(productsResult.data) ? productsResult.data : [];
-
-    // Direct-table fallback does not include the RPC-computed pricing fields,
-    // so calculate those display-only fields locally when the RPC is down.
-    // Checkout still uses the server-authoritative price; this is only a
-    // rendering fallback so the page never becomes unusable because the
-    // pricing RPC is temporarily unavailable.
-    products = products.map(normalizeFallbackProductPricing);
+    const products = Array.isArray(productsResult.data) ? productsResult.data : [];
 
     // User-state queries are deliberately independent. A problem reading one
     // user's pass/credit rows must not prevent the product cards from showing.
     const [passResult, creditResult] = await Promise.all([
       withTimeout(
-        () => supabaseClient
+        supabaseClient
           .from("user_passes")
           .select("pass_type, status, starts_at, expires_at")
           .eq("user_id", userId),
@@ -195,7 +166,7 @@ async function loadProductCatalog(userId) {
         "active-pass query"
       ),
       withTimeout(
-        () => supabaseClient
+        supabaseClient
           .from("wallet_credits")
           .select("credits_remaining, expires_at")
           .eq("user_id", userId),
@@ -234,33 +205,6 @@ async function loadProductCatalog(userId) {
       </div>`;
     return null;
   }
-}
-
-
-function normalizeFallbackProductPricing(p) {
-  const out = { ...p };
-  const enabled = Boolean(p.discount_enabled);
-  const now = Date.now();
-  const startsOk = !p.discount_start_at || now >= new Date(p.discount_start_at).getTime();
-  const endsOk = !p.discount_end_at || now <= new Date(p.discount_end_at).getTime();
-  const active = enabled && !!p.discount_type && p.discount_value != null && startsOk && endsOk;
-
-  out.discount_active = active;
-  if (!active) {
-    out.effective_price = p.price;
-    return out;
-  }
-
-  const base = Number(p.price);
-  const value = Number(p.discount_value);
-  let effective = base;
-  if (p.discount_type === "PERCENTAGE") {
-    effective = base - (base * value / 100);
-  } else if (p.discount_type === "FIXED") {
-    effective = base - value;
-  }
-  out.effective_price = Math.max(0, effective);
-  return out;
 }
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()
@@ -631,37 +575,9 @@ function bindCombinedCreditCard(grid, products = []) {
 }
 
 // Module-level so it survives the re-render triggered by clicking a
-// different pack and by loadProductCatalog() refreshing after a purchase —
-// the same pack stays selected across both.
+// different pack (see below) and by loadProductCatalog() refreshing
+// after a purchase — the same pack stays selected across both.
 let selectedCreditProductId = null;
-
-// Renders one selectable credit package. The package quantities are limited
-// to 10/20/30 by renderAccessGrid(), while the actual product id and price
-// always come from the admin-managed products table. No per-test pricing is
-// displayed here.
-function creditPackChipHtml(p, selected) {
-  const credits = Number(p.credits);
-  const name = p.name || `${credits} Credits`;
-  const price = p.discount_active ? p.effective_price : p.price;
-  const originalPrice = p.discount_active ? p.price : null;
-  const badge = p.badge_text || (p.description && /best offer/i.test(p.description) ? p.description : "");
-
-  return `
-    <button type="button"
-      class="credit-pack-chip${selected ? " selected" : ""}"
-      role="radio"
-      aria-checked="${selected ? "true" : "false"}"
-      data-product-id="${escapeHtmlLocal(p.id)}">
-      ${badge ? `<span class="credit-pack-badge">${escapeHtmlLocal(badge)}</span>` : ""}
-      ${selected ? '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>' : ""}
-      <span class="credit-pack-name">${escapeHtmlLocal(name)}</span>
-      <span class="credit-pack-price${originalPrice != null ? " credit-pack-price-discounted" : ""}">
-        ${originalPrice != null ? `<span class="credit-pack-price-original">&#8377;${originalPrice}</span>` : ""}
-        <span class="credit-pack-price-final">&#8377;${price}</span>
-      </span>
-    </button>`;
-}
-
 
 function escapeHtmlLocal(str) {
   const div = document.createElement("div");
