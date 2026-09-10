@@ -114,97 +114,34 @@ async function waitForPurchaseActivation(userId, result) {
 
 async function loadProductCatalog(userId) {
   const passGrid = document.getElementById("passProductsGrid");
-  if (!passGrid) return null;
-
-  // Never leave the page stuck on "Loading your plans...". Some browsers,
-  // extensions, network conditions, or a Supabase RPC can leave one request
-  // pending much longer than the UI should wait. Each request below is bounded
-  // and the catalog has a direct-table fallback.
-  const withTimeout = (promise, ms, label) => Promise.race([
-    promise,
-    new Promise((resolve) => setTimeout(() => {
-      console.warn(`[subscriptions] ${label} timed out after ${ms}ms`);
-      resolve({ data: null, error: new Error(`${label} timed out`) });
-    }, ms))
+  const [{ data: products, error: productsError }, { data: passRows }, { data: creditRows }] = await Promise.all([
+    // get_products_with_pricing() (not a plain products select) — the
+    // SAME function the payment edge function's pricing logic mirrors,
+    // so effective_price/discount_active shown here always match what
+    // Buy Now would actually charge. This is still display information
+    // only: the edge function recalculates independently from the
+    // database row at payment time, never trusting this response.
+    supabaseClient.rpc("get_products_with_pricing"),
+    supabaseClient.from("user_passes").select("pass_type, status, starts_at, expires_at").eq("user_id", userId),
+    supabaseClient.from("wallet_credits").select("credits_remaining, expires_at").eq("user_id", userId)
   ]);
 
-  try {
-    let productsResult = await withTimeout(
-      supabaseClient.rpc("get_products_with_pricing"),
-      7000,
-      "product catalog RPC"
-    );
-
-    // The RPC is preferred because it calculates the same effective pricing
-    // used by checkout. If it errors/times out, fall back to the public product
-    // rows so the page can still render and the server remains authoritative
-    // when a purchase is actually made.
-    if (productsResult.error || !Array.isArray(productsResult.data)) {
-      console.warn("[subscriptions] Pricing RPC unavailable; using product-table fallback.", productsResult.error);
-      productsResult = await withTimeout(
-        supabaseClient
-          .from("products")
-          .select("id, product_type, pass_type, credits, name, price, currency, validity_days, description, features, display_order, active, plan_code, best_value, badge_text, discount_enabled, discount_type, discount_value, discount_start_at, discount_end_at, upgrade_to_combo_price")
-          .eq("active", true)
-          .order("display_order", { ascending: true }),
-        7000,
-        "product catalog fallback"
-      );
-    }
-
-    const products = Array.isArray(productsResult.data) ? productsResult.data : [];
-
-    // User-state queries are deliberately independent. A problem reading one
-    // user's pass/credit rows must not prevent the product cards from showing.
-    const [passResult, creditResult] = await Promise.all([
-      withTimeout(
-        supabaseClient
-          .from("user_passes")
-          .select("pass_type, status, starts_at, expires_at")
-          .eq("user_id", userId),
-        7000,
-        "active-pass query"
-      ),
-      withTimeout(
-        supabaseClient
-          .from("wallet_credits")
-          .select("credits_remaining, expires_at")
-          .eq("user_id", userId),
-        7000,
-        "credit-balance query"
-      )
-    ]);
-
-    const activePassByType = buildActivePassMap(Array.isArray(passResult.data) ? passResult.data : []);
-    const creditBalance = sumUnexpiredCredits(Array.isArray(creditResult.data) ? creditResult.data : []);
-
-    const creditProducts = products
-      .filter(p => p.product_type === "CREDIT" && [10, 20, 30].includes(Number(p.credits)))
-      .sort((a, b) => Number(a.credits) - Number(b.credits));
-
-    renderAccessGrid(
-      products.filter(p => p.product_type === "PASS"),
-      activePassByType,
-      creditBalance,
-      passGrid,
-      creditProducts
-    );
-
-    if (!products.length) {
-      passGrid.insertAdjacentHTML("afterbegin", '<div class="empty-state">No plans are currently available.</div>');
-    }
-
-    return { products, activePassByType, creditBalance };
-  } catch (err) {
-    console.error("[subscriptions] Failed to load subscription catalog:", err);
-    passGrid.innerHTML = `
-      <div class="subscription-load-error">
-        <strong>We couldn't load the plans.</strong>
-        <span>Please refresh the page and try again.</span>
-        <button type="button" class="btn btn-ghost" onclick="window.location.reload()">Refresh</button>
-      </div>`;
-    return null;
+  if (productsError) {
+    console.error(productsError);
+    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
+    return;
   }
+
+  const activePassByType = buildActivePassMap(passRows || []);
+  const creditBalance = sumUnexpiredCredits(creditRows || []);
+
+  const creditProducts = products
+    .filter(p => p.product_type === "CREDIT" && [10, 20, 30].includes(Number(p.credits)))
+    .sort((a, b) => Number(a.credits) - Number(b.credits));
+
+  renderAccessGrid(products.filter(p => p.product_type === "PASS"), activePassByType, creditBalance, passGrid, creditProducts);
+
+  return { products, activePassByType, creditBalance };
 }
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()

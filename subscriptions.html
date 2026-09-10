@@ -616,6 +616,26 @@ body.subscriptions-page .credits-empty-packs{
   body.subscriptions-page .credits-pack-row-large{ grid-template-columns:1fr; }
   body.subscriptions-page .credits-benefits{ grid-template-columns:1fr 1fr; }
 }
+body.subscriptions-page .subscription-load-error{
+  grid-column:1/-1;
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:28px;
+  text-align:center;
+  border:1px solid rgba(148,163,184,.18);
+  border-radius:18px;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  color:#52648f;
+}
+body.subscriptions-page .subscription-load-error strong{color:#17224b;font-size:16px;}
+body.subscriptions-page .subscription-load-error span{font-size:13px;}
+body.subscriptions-page .subscription-load-error .btn{margin-top:8px;}
 </style>
 </head>
 <body class="app-shell subscriptions-page">
@@ -768,7 +788,7 @@ body.subscriptions-page .credits-empty-packs{
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/payments.js"></script>
-<script src="js/subscriptions.js"></script>
+<script src="js/subscriptions.js?v=20260910-credits-fix"></script>
 
 
 
