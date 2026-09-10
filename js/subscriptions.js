@@ -584,10 +584,14 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
       </div>
 
       <div class="credits-benefits">
-        <div class="credits-benefit"><span aria-hidden="true">&#8734;</span><strong>Use for SSC or Legal mocks</strong></div>
-        <div class="credits-benefit"><span aria-hidden="true">&#43;</span><strong>Buy multiple credits anytime</strong></div>
-        <div class="credits-benefit"><span aria-hidden="true">&#9675;</span><strong>No time limit</strong></div>
-        <div class="credits-benefit"><span aria-hidden="true">&#10003;</span><strong>Valid for 365 days</strong></div>
+        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#8734;</span><strong>Use for SSC or Legal mocks</strong></div>
+        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#43;</span><strong>Buy multiple credits anytime</strong></div>
+        <div class="credits-benefit"><span class="credits-benefit-icon credits-watch-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3 2"/><path d="M9 2.8h6M9 21.2h6"/></svg>
+        </span><strong>No time limit</strong></div>
+        <div class="credits-benefit"><span class="credits-benefit-icon credits-calendar-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"/></svg>
+        </span><strong>Valid for 365 days</strong></div>
       </div>
 
       <div class="credits-purchase-section">
