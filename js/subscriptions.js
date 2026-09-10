@@ -120,8 +120,16 @@ async function loadProductCatalog(userId) {
   // extensions, network conditions, or a Supabase RPC can leave one request
   // pending much longer than the UI should wait. Each request below is bounded
   // and the catalog has a direct-table fallback.
+  // IMPORTANT: Supabase requests can REJECT (network/CORS/fetch errors),
+  // not just return { error }. The previous wrapper only handled the latter,
+  // so a rejected RPC escaped the fallback branch and sent the whole page
+  // straight to the generic error card. Convert rejections into the same
+  // { data, error } shape so the direct products-table fallback can run.
   const withTimeout = (promise, ms, label) => Promise.race([
-    promise,
+    Promise.resolve(promise).catch((err) => {
+      console.warn(`[subscriptions] ${label} failed:`, err);
+      return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }),
     new Promise((resolve) => setTimeout(() => {
       console.warn(`[subscriptions] ${label} timed out after ${ms}ms`);
       resolve({ data: null, error: new Error(`${label} timed out`) });
@@ -152,7 +160,14 @@ async function loadProductCatalog(userId) {
       );
     }
 
-    const products = Array.isArray(productsResult.data) ? productsResult.data : [];
+    let products = Array.isArray(productsResult.data) ? productsResult.data : [];
+
+    // Direct-table fallback does not include the RPC-computed pricing fields,
+    // so calculate those display-only fields locally when the RPC is down.
+    // Checkout still uses the server-authoritative price; this is only a
+    // rendering fallback so the page never becomes unusable because the
+    // pricing RPC is temporarily unavailable.
+    products = products.map(normalizeFallbackProductPricing);
 
     // User-state queries are deliberately independent. A problem reading one
     // user's pass/credit rows must not prevent the product cards from showing.
@@ -205,6 +220,33 @@ async function loadProductCatalog(userId) {
       </div>`;
     return null;
   }
+}
+
+
+function normalizeFallbackProductPricing(p) {
+  const out = { ...p };
+  const enabled = Boolean(p.discount_enabled);
+  const now = Date.now();
+  const startsOk = !p.discount_start_at || now >= new Date(p.discount_start_at).getTime();
+  const endsOk = !p.discount_end_at || now <= new Date(p.discount_end_at).getTime();
+  const active = enabled && !!p.discount_type && p.discount_value != null && startsOk && endsOk;
+
+  out.discount_active = active;
+  if (!active) {
+    out.effective_price = p.price;
+    return out;
+  }
+
+  const base = Number(p.price);
+  const value = Number(p.discount_value);
+  let effective = base;
+  if (p.discount_type === "PERCENTAGE") {
+    effective = base - (base * value / 100);
+  } else if (p.discount_type === "FIXED") {
+    effective = base - value;
+  }
+  out.effective_price = Math.max(0, effective);
+  return out;
 }
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()
