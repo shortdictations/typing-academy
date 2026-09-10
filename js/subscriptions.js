@@ -564,10 +564,9 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
   return `
     <section class="card pass-card plan-credit credits-summary-card credits-combined-card" aria-label="Test Credits">
       <div class="credits-card-topline">
-        <div class="credits-card-kicker">TEST CREDITS</div>
+        <h2 class="credits-card-title">TEST CREDIT</h2>
         <span class="credits-card-badge">PAY AS YOU GO</span>
       </div>
-      <h2 class="credits-card-title">Your Test Credits</h2>
       <p class="credits-card-subtitle">Use credit and take mock tests whenever you want.</p>
 
       <div class="credits-balance-panel">
@@ -618,12 +617,7 @@ function bindCombinedCreditCard(grid, products = []) {
         const active = item.dataset.productId === selectedCreditProductId;
         item.classList.toggle("selected", active);
         item.setAttribute("aria-checked", String(active));
-        const check = item.querySelector(".credit-pack-check");
-        if (active && !check) {
-          item.insertAdjacentHTML("afterbegin", '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>');
-        } else if (!active && check) {
-          check.remove();
-        }
+
       });
       const buyBtn = card.querySelector(".credits-combined-buy-btn");
       if (buyBtn) buyBtn.dataset.productId = selected.id;
@@ -654,7 +648,6 @@ function creditPackChipHtml(p, selected) {
       aria-checked="${selected ? "true" : "false"}"
       data-product-id="${escapeHtmlLocal(p.id)}">
       ${badge ? `<span class="credit-pack-badge">${escapeHtmlLocal(badge)}</span>` : ""}
-      ${selected ? '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>' : ""}
       <span class="credit-pack-name">${escapeHtmlLocal(name)}</span>
       <span class="credit-pack-price${originalPrice != null ? " credit-pack-price-discounted" : ""}">
         ${originalPrice != null ? `<span class="credit-pack-price-original">&#8377;${originalPrice}</span>` : ""}
