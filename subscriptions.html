@@ -788,7 +788,7 @@ body.subscriptions-page .subscription-load-error .btn{margin-top:8px;}
 <script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/payments.js"></script>
-<script src="js/subscriptions.js?v=20260910-credits-final"></script>
+<script src="js/subscriptions.js?v=20260910-credits-final2"></script>
 
 
 
@@ -999,5 +999,60 @@ body.subscriptions-page .credits-combined-buy-btn{
   body.subscriptions-page .credits-combined-card{ padding:17px !important; }
   body.subscriptions-page .credits-card-title{ font-size:22px; }
   body.subscriptions-page .credits-balance-panel{ padding:12px; }
+}
+</style>
+<style>
+/* Final requested Test Credits refinements — left-aligned content, compact copy, 3 benefits. */
+body.subscriptions-page .credits-combined-card,
+body.subscriptions-page .credits-combined-card *{
+  text-align:left;
+}
+body.subscriptions-page .credits-combined-card .credits-card-topline{
+  text-align:left;
+}
+body.subscriptions-page .credits-combined-card .credits-card-badge{
+  margin-left:auto;
+  text-align:center;
+}
+body.subscriptions-page .credits-combined-card .credits-balance-main{
+  text-align:left;
+}
+body.subscriptions-page .credits-combined-card .credits-history-link{
+  text-align:center;
+}
+body.subscriptions-page .credits-benefits{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+body.subscriptions-page .credits-benefit{
+  align-items:center;
+  text-align:center !important;
+}
+body.subscriptions-page .credits-benefit strong{
+  text-align:center !important;
+}
+/* Selected-pack check sits in the lower-right corner so it never collides with the package name or offer badge. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-check{
+  top:auto;
+  right:8px;
+  bottom:8px;
+  width:19px;
+  height:19px;
+  z-index:3;
+}
+/* Best Offer stays at the top-right of its own package and always sits above the card edge. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
+  top:6px !important;
+  right:7px !important;
+  bottom:auto !important;
+  transform:none !important;
+  z-index:4;
+  white-space:nowrap;
+}
+@media (max-width:900px){
+  body.subscriptions-page .credits-benefits{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:560px){
+  body.subscriptions-page .credits-benefits{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  body.subscriptions-page .credits-benefit{ padding:6px 4px; font-size:8.5px; }
 }
 </style>
