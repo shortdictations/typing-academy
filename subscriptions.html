@@ -637,6 +637,121 @@ body.subscriptions-page .subscription-load-error strong{color:#17224b;font-size:
 body.subscriptions-page .subscription-load-error span{font-size:13px;}
 body.subscriptions-page .subscription-load-error .btn{margin-top:8px;}
 </style>
+
+
+<style>
+/* ============================================================
+   FINAL PASS / TEST CREDIT ALIGNMENT REFINEMENT
+   Requested: 10 Sep 2026
+   ============================================================ */
+
+/* The credit card is a flex/grid item in the access grid.  Its
+   children must explicitly stretch to the card width; otherwise
+   inherited align-items:center can make the text look centered
+   even when text-align:left is set. */
+body.subscriptions-page .credits-combined-card{
+  align-items:stretch !important;
+  text-align:left !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-topline,
+body.subscriptions-page .credits-combined-card .credits-card-title,
+body.subscriptions-page .credits-combined-card .credits-card-subtitle,
+body.subscriptions-page .credits-combined-card .credits-balance-panel,
+body.subscriptions-page .credits-combined-card .credits-benefits,
+body.subscriptions-page .credits-combined-card .credits-purchase-section{
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box;
+}
+
+/* Top row: TEST CREDITS at far left, PAY AS YOU GO at far right. */
+body.subscriptions-page .credits-combined-card .credits-card-topline{
+  display:flex !important;
+  width:100% !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+}
+body.subscriptions-page .credits-combined-card .credits-card-kicker{
+  margin:0 !important;
+  text-align:left !important;
+}
+body.subscriptions-page .credits-combined-card .credits-card-badge{
+  margin:0 0 0 auto !important;
+  flex:0 0 auto !important;
+  text-align:center !important;
+}
+
+/* Main heading + description: left aligned. */
+body.subscriptions-page .credits-combined-card .credits-card-title,
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{
+  align-self:stretch !important;
+  text-align:left !important;
+}
+
+/* Purchase heading stays left aligned. */
+body.subscriptions-page .credits-combined-card .credits-purchase-title,
+body.subscriptions-page .credits-combined-card .credits-purchase-label{
+  width:100% !important;
+  text-align:left !important;
+}
+
+/* All CTA buttons: text and arrow must be visually centred. */
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn,
+body.subscriptions-page .pass-card .btn-full,
+body.subscriptions-page .pass-card .pass-upgrade-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+
+/* Credit package chips remain left aligned, while keeping enough
+   top/right breathing room for the offer badge and bottom/right
+   breathing room for the selected check. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
+  text-align:left !important;
+  padding:11px 38px 10px 11px !important;
+  overflow:visible !important;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-name,
+body.subscriptions-page .credits-pack-row-large .credit-pack-price{
+  text-align:left !important;
+}
+
+/* Best Offer: fixed to the upper-right, never covering the credit
+   name. The extra right padding above reserves its visual area. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
+  top:6px !important;
+  right:7px !important;
+  bottom:auto !important;
+  transform:none !important;
+  z-index:5 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  pointer-events:none !important;
+}
+
+/* Selected check: bottom-right, completely separate from Best Offer. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-check{
+  top:auto !important;
+  right:7px !important;
+  bottom:7px !important;
+  z-index:6 !important;
+  width:19px !important;
+  height:19px !important;
+  display:grid !important;
+  place-items:center !important;
+  line-height:1 !important;
+}
+
+/* The 30-credit package needs no special overlap treatment: its
+   name is constrained by the chip's reserved right-side padding. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip[data-product-id] .credit-pack-name{
+  max-width:100%;
+}
+</style>
+
 </head>
 <body class="app-shell subscriptions-page">
 
