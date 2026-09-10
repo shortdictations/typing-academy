@@ -19,33 +19,10 @@
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const passGrid = document.getElementById("passProductsGrid");
-  const creditGrid = document.getElementById("creditProductsGrid");
-  let loadingSafetyTimer = null;
+  const user = await requireLogin();
+  if (!user) return;
 
-  // A protected-page/auth failure should never leave students staring at an
-  // infinite “Loading your plans…” box. This is only a UI safety net; it does
-  // not change authentication or purchase authorization.
-  if (passGrid) {
-    loadingSafetyTimer = setTimeout(() => {
-      if (passGrid.querySelector(".loading-strip")) {
-        passGrid.innerHTML = '<div class="empty-state catalog-load-error"><strong>Plans are taking longer than expected.</strong><span>Please refresh the page to try again.</span><button type="button" class="btn btn-ghost" onclick="location.reload()">Refresh</button></div>';
-        if (creditGrid) creditGrid.innerHTML = '<div class="empty-state">Credit packages are taking longer than expected. Please refresh.</div>';
-      }
-    }, 12000);
-  }
-
-  try {
-    const user = await requireLogin();
-    if (!user) return;
-
-    await loadProductCatalog(user.id);
-  } catch (error) {
-    console.error("Subscription page initialization failed:", error);
-    if (passGrid) passGrid.innerHTML = '<div class="empty-state catalog-load-error"><strong>We could not load your plans.</strong><span>Please refresh the page and try again.</span><button type="button" class="btn btn-ghost" onclick="location.reload()">Refresh</button></div>';
-  } finally {
-    if (loadingSafetyTimer) clearTimeout(loadingSafetyTimer);
-  }
+  await loadProductCatalog(user.id);
 
   // One delegated listener handles every Buy button, present or
   // future — no per-button listener wiring needed.
@@ -108,9 +85,9 @@ function hidePurchaseMessage() {
 }
 
 // Reads the admin-managed products catalog AND this user's own
-// pass/credit state, then renders both grids. The frontend never
-// assumes a fixed number or names of plans — it renders whatever
-// active PASS/CREDIT products exist, in display_order.
+// pass/credit state, then renders the pass cards and the combined
+// Test Credits card. Credit purchase choices are admin-priced but
+// limited to the three supported quantities: 10, 20 and 30.
 async function waitForPurchaseActivation(userId, result) {
   const expectedPassType = result?.product_type === "PASS"
     ? (result.pass_type || (result.transaction_type === "UPGRADE" ? "COMBO" : null))
@@ -137,97 +114,34 @@ async function waitForPurchaseActivation(userId, result) {
 
 async function loadProductCatalog(userId) {
   const passGrid = document.getElementById("passProductsGrid");
-  const creditGrid = document.getElementById("creditProductsGrid");
-  if (!passGrid || !creditGrid) return null;
+  const [{ data: products, error: productsError }, { data: passRows }, { data: creditRows }] = await Promise.all([
+    // get_products_with_pricing() (not a plain products select) — the
+    // SAME function the payment edge function's pricing logic mirrors,
+    // so effective_price/discount_active shown here always match what
+    // Buy Now would actually charge. This is still display information
+    // only: the edge function recalculates independently from the
+    // database row at payment time, never trusting this response.
+    supabaseClient.rpc("get_products_with_pricing"),
+    supabaseClient.from("user_passes").select("pass_type, status, starts_at, expires_at").eq("user_id", userId),
+    supabaseClient.from("wallet_credits").select("credits_remaining, expires_at").eq("user_id", userId)
+  ]);
 
-  try {
-    // Do not let one secondary user-state query prevent the whole pricing
-    // page from rendering. The catalog is the important part of this page;
-    // pass/credit state is an enhancement layered on top of it.
-    const [productResult, passResult, creditResult] = await Promise.allSettled([
-      getPricingCatalog(),
-      supabaseClient.from("user_passes")
-        .select("pass_type, status, starts_at, expires_at")
-        .eq("user_id", userId),
-      supabaseClient.from("wallet_credits")
-        .select("credits_remaining, expires_at")
-        .eq("user_id", userId)
-    ]);
-
-    if (productResult.status !== "fulfilled" || !productResult.value?.length) {
-      const reason = productResult.status === "rejected" ? productResult.reason : new Error("No active products returned");
-      console.error("Could not load TypeShala product catalog:", reason);
-      passGrid.innerHTML = '<div class="empty-state catalog-load-error"><strong>We could not load your plans.</strong><span>Please refresh the page and try again.</span><button type="button" class="btn btn-ghost" onclick="location.reload()">Refresh</button></div>';
-      creditGrid.innerHTML = '<div class="empty-state">Credit packages are temporarily unavailable.</div>';
-      return null;
-    }
-
-    const products = productResult.value;
-    const passRows = passResult.status === "fulfilled" ? (passResult.value?.data || []) : [];
-    const creditRows = creditResult.status === "fulfilled" ? (creditResult.value?.data || []) : [];
-
-    if (passResult.status === "rejected") console.warn("Pass state could not be loaded; rendering catalog without active-pass state.", passResult.reason);
-    if (creditResult.status === "rejected") console.warn("Credit balance could not be loaded; rendering catalog with zero displayed balance.", creditResult.reason);
-
-    const activePassByType = buildActivePassMap(passRows);
-    const creditBalance = sumUnexpiredCredits(creditRows);
-
-    renderAccessGrid(products.filter(p => p.product_type === "PASS"), activePassByType, creditBalance, passGrid);
-    renderCreditProducts(products.filter(p => p.product_type === "CREDIT"), creditGrid);
-
-    return { products, activePassByType, creditBalance };
-  } catch (error) {
-    console.error("Unexpected subscription page loading error:", error);
-    passGrid.innerHTML = '<div class="empty-state catalog-load-error"><strong>We could not load your plans.</strong><span>Please refresh the page and try again.</span><button type="button" class="btn btn-ghost" onclick="location.reload()">Refresh</button></div>';
-    creditGrid.innerHTML = '<div class="empty-state">Credit packages are temporarily unavailable.</div>';
-    return null;
+  if (productsError) {
+    console.error(productsError);
+    passGrid.innerHTML = '<div class="empty-state">Could not load plans.</div>';
+    return;
   }
-}
 
-// Primary catalog source: the same server-side pricing RPC used by the
-// payment flow. If the RPC is temporarily unavailable after a deployment,
-// fall back to the products table so the page never gets stuck forever on
-// “Loading your plans…”. The fallback is display-only; payment pricing is
-// still recalculated and enforced by the server at checkout.
-async function getPricingCatalog() {
-  const { data, error } = await supabaseClient.rpc("get_products_with_pricing");
-  if (!error && Array.isArray(data) && data.length) return data.filter(p => p.active !== false);
+  const activePassByType = buildActivePassMap(passRows || []);
+  const creditBalance = sumUnexpiredCredits(creditRows || []);
 
-  console.warn("get_products_with_pricing() unavailable; using products-table display fallback.", error);
+  const creditProducts = products
+    .filter(p => p.product_type === "CREDIT" && [10, 20, 30].includes(Number(p.credits)))
+    .sort((a, b) => Number(a.credits) - Number(b.credits));
 
-  const { data: rawProducts, error: rawError } = await supabaseClient
-    .from("products")
-    .select("*")
-    .eq("active", true)
-    .order("product_type", { ascending: true })
-    .order("display_order", { ascending: true });
+  renderAccessGrid(products.filter(p => p.product_type === "PASS"), activePassByType, creditBalance, passGrid, creditProducts);
 
-  if (rawError) throw rawError;
-
-  const now = new Date();
-  return (rawProducts || []).map(p => {
-    const discountEnabled = !!p.discount_enabled;
-    const starts = p.discount_start_at ? new Date(p.discount_start_at) : null;
-    const ends = p.discount_end_at ? new Date(p.discount_end_at) : null;
-    const withinWindow = (!starts || starts <= now) && (!ends || now <= ends);
-    const discountActive = discountEnabled && withinWindow;
-    let effectivePrice = Number(p.price);
-
-    if (discountActive) {
-      if (p.discount_type === "PERCENTAGE") {
-        effectivePrice = effectivePrice - (effectivePrice * Number(p.discount_value || 0) / 100);
-      } else if (p.discount_type === "FIXED") {
-        effectivePrice = effectivePrice - Number(p.discount_value || 0);
-      }
-      effectivePrice = Math.max(0, Math.min(Number(p.price), effectivePrice));
-    }
-
-    return {
-      ...p,
-      effective_price: effectivePrice.toFixed(2),
-      discount_active: discountActive
-    };
-  });
+  return { products, activePassByType, creditBalance };
 }
 
 // A pass is valid only when: starts_at <= now() AND expires_at > now()
@@ -301,7 +215,7 @@ function viewTestsHref(passType) {
 //
 // resolve_pass_purchase() remains the server-authoritative eligibility/price
 // check. This rendering logic is never trusted to authorize a payment.
-function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
+function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, creditProducts = []) {
   const hasSSC = !!activePassByType.SSC;
   const hasLegal = !!activePassByType.LEGAL;
   const hasCombo = !!activePassByType.COMBO || (hasSSC && hasLegal);
@@ -347,7 +261,8 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid) {
     passCardsHtml = passProducts.map(p => buildPassCardHtml(p, null)).join("");
   }
 
-  grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance);
+  grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance, creditProducts);
+  bindCombinedCreditCard(grid, creditProducts);
 
   // Keep the desktop composition intentionally compact when only two
   // cards are present. The four-card state keeps the established 2x2
@@ -518,102 +433,88 @@ function priceDisplayHtml(p) {
 // border) matches .plan-credit on the public landing page (see
 // planIconSvg above and the app-shell.css rules mirroring
 // landing.css's body.landing-v2 .plan-credit block).
-function buildCreditsSummaryCardHtml(creditBalance) {
+function buildCreditsSummaryCardHtml(creditBalance, products = []) {
+  const visibleProducts = products.filter(p => [10, 20, 30].includes(Number(p.credits)));
+  const selectedId = selectedCreditProductId && visibleProducts.some(p => p.id === selectedCreditProductId)
+    ? selectedCreditProductId
+    : (visibleProducts[0]?.id || "");
+  const packsHtml = visibleProducts.length
+    ? visibleProducts.map(p => creditPackChipHtml(p, p.id === selectedId)).join("")
+    : '<div class="credits-empty-packs">Credit packages are currently unavailable.</div>';
+
   return `
-    <div class="card pass-card plan-credit credits-summary-card">
-      <div class="card-label">Test Credits</div>
-      <div class="credits-summary-count">${creditBalance}</div>
-      <div class="credits-summary-label">Credits Available</div>
-      <div class="credits-summary-note">1 credit = 1 test</div>
-      <a class="btn btn-ghost btn-full" href="#creditProductsGrid">Buy Credits <span aria-hidden="true">&rarr;</span></a>
-    </div>`;
+    <section class="card pass-card plan-credit credits-summary-card credits-combined-card" aria-label="Test Credits">
+      <div class="credits-card-topline">
+        <div class="credits-card-kicker">TEST CREDITS</div>
+        <span class="credits-card-badge">PAY AS YOU GO</span>
+      </div>
+      <h2 class="credits-card-title">Your Test Credits</h2>
+      <p class="credits-card-subtitle">Take mock tests whenever you want.<br>No time limit. Use at your own pace.</p>
+
+      <div class="credits-balance-panel">
+        <div class="credits-balance-main">
+          <div class="credits-balance-number">${creditBalance}</div>
+          <div>
+            <div class="credits-balance-heading">Available Credits</div>
+            <div class="credits-balance-note">1 credit = 1 test attempt</div>
+          </div>
+        </div>
+        <a class="credits-history-link" href="purchase-history.html">
+          <span>View History</span><span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="credits-benefits">
+        <div class="credits-benefit"><span aria-hidden="true">&#8734;</span><strong>Use for SSC or Legal mocks</strong></div>
+        <div class="credits-benefit"><span aria-hidden="true">&#43;</span><strong>Buy multiple credits anytime</strong></div>
+        <div class="credits-benefit"><span aria-hidden="true">&#9675;</span><strong>No time limit</strong></div>
+        <div class="credits-benefit"><span aria-hidden="true">&#10003;</span><strong>Valid for 365 days</strong></div>
+      </div>
+
+      <div class="credits-purchase-section">
+        <div class="credits-purchase-title">Buy Test Credits</div>
+        <div class="credits-purchase-label">Select number of credits</div>
+        <div class="credit-pack-row credits-pack-row-large" role="radiogroup" aria-label="Choose number of test credits">
+          ${packsHtml}
+        </div>
+        ${visibleProducts.length ? `
+          <button class="btn credits-panel-buy-btn credits-combined-buy-btn buy-product-btn" data-product-id="${selectedId}" data-product-type="CREDIT">
+            Buy Test Credits <span aria-hidden="true">&rarr;</span>
+          </button>` : ""}
+      </div>
+    </section>`;
+}
+
+function bindCombinedCreditCard(grid, products = []) {
+  const card = grid.querySelector(".credits-combined-card");
+  if (!card) return;
+  const visibleProducts = products.filter(p => [10, 20, 30].includes(Number(p.credits)));
+  card.querySelectorAll(".credit-pack-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      selectedCreditProductId = chip.dataset.productId;
+      const selected = visibleProducts.find(p => p.id === selectedCreditProductId);
+      if (!selected) return;
+      card.querySelectorAll(".credit-pack-chip").forEach(item => {
+        const active = item.dataset.productId === selectedCreditProductId;
+        item.classList.toggle("selected", active);
+        item.setAttribute("aria-checked", String(active));
+        const check = item.querySelector(".credit-pack-check");
+        if (active && !check) {
+          item.insertAdjacentHTML("afterbegin", '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>');
+        } else if (!active && check) {
+          check.remove();
+        }
+      });
+      const buyBtn = card.querySelector(".credits-combined-buy-btn");
+      if (buyBtn) buyBtn.dataset.productId = selected.id;
+    });
+  });
 }
 
 // Module-level so it survives the re-render triggered by clicking a
 // different pack (see below) and by loadProductCatalog() refreshing
 // after a purchase — the same pack stays selected across both.
 let selectedCreditProductId = null;
-
-// Compact horizontal purchase panel: icon+title+validity+description
-// on the left, selectable pack chips in the middle, one shared "Buy
-// Credits" button on the right — then a separate FIFO info notice
-// below. Selecting a pack just updates which product_id the shared
-// Buy button submits; the actual purchase still goes through the
-// exact same startPurchase()/buy-product-btn delegated handler at
-// the top of this file — nothing about the purchase flow changes,
-// only which single button triggers it.
-function renderCreditProducts(products, container) {
-  if (products.length === 0) {
-    container.innerHTML = '<div class="empty-state">No credit packages available right now.</div>';
-    return;
-  }
-
-  if (!selectedCreditProductId || !products.some(p => p.id === selectedCreditProductId)) {
-    selectedCreditProductId = products[0].id;
-  }
-  const selected = products.find(p => p.id === selectedCreditProductId) || products[0];
-
-  // One shared "Valid for X days" line only makes sense to state once
-  // if every pack actually shares it; otherwise it reflects whichever
-  // pack is currently selected, and updates when the selection does —
-  // never a single number silently wrong for some packs.
-  const allSameValidity = products.every(p => p.validity_days === products[0].validity_days);
-  const validityDays = allSameValidity ? products[0].validity_days : selected.validity_days;
-  const description = selected.description || "Use credits to take mock tests on any category.";
-
-  container.innerHTML = `
-    <div class="credits-panel">
-      <div class="credits-panel-icon">${planIconSvg("credit")}</div>
-      <div class="credits-panel-info">
-        <div class="credits-panel-title">Test Credits</div>
-        <div class="credits-panel-validity">Valid for ${validityDays} days</div>
-        <div class="credits-panel-desc">${escapeHtmlLocal(description)}</div>
-      </div>
-      <div class="credit-pack-row" role="radiogroup" aria-label="Choose a credit pack">
-        ${products.map(p => creditPackChipHtml(p, p.id === selectedCreditProductId)).join("")}
-      </div>
-      <button class="btn credits-panel-buy-btn buy-product-btn" data-product-id="${selected.id}" data-product-type="CREDIT">
-        Buy Credits <span aria-hidden="true">&rarr;</span>
-      </button>
-    </div>
-    <div class="credits-fifo-notice">
-      <span class="credits-fifo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-      <span>1 credit is equal to 1 test attempt. Credits are used on a first-in, first-out basis. Each purchase has its own validity.</span>
-    </div>`;
-
-  // Selecting a pack re-renders the whole panel with the new
-  // selection — simplest way to keep the chip's selected state, the
-  // Buy button's data-product-id, and the validity/description line
-  // all consistent with each other, without hand-syncing three
-  // separate DOM updates.
-  container.querySelectorAll(".credit-pack-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      selectedCreditProductId = chip.dataset.productId;
-      renderCreditProducts(products, container);
-    });
-  });
-}
-
-function creditPackChipHtml(p, isSelected) {
-  // badge_text shows whenever it's set OR a discount is active with no
-  // custom text — same fallback rule the pass cards use above, kept
-  // small here since this chip has far less room than a full card.
-  const badgeText = p.badge_text || (p.discount_active ? discountBadgeFallback(p) : "");
-  const badge = badgeText ? '<span class="credit-pack-badge">' + escapeHtmlLocal(badgeText) + "</span>" : "";
-  // Selection is never color-only: aria-checked carries it for
-  // assistive tech, and the checkmark carries it visually alongside
-  // the border/weight change.
-  const check = isSelected ? '<span class="credit-pack-check" aria-hidden="true">&#10003;</span>' : "";
-  const priceHtml = p.discount_active
-    ? '<div class="credit-pack-price credit-pack-price-discounted"><span class="credit-pack-price-original">&#8377;' + p.price + '</span> &#8377;' + p.effective_price + '</div>'
-    : '<div class="credit-pack-price">&#8377;' + p.price + '</div>';
-  return `
-    <button type="button" class="credit-pack-chip${isSelected ? " selected" : ""}" data-product-id="${p.id}" role="radio" aria-checked="${isSelected}">
-      ${badge}
-      <div class="credit-pack-name">${check}${escapeHtmlLocal(p.name)}</div>
-      ${priceHtml}
-    </button>`;
-}
 
 function escapeHtmlLocal(str) {
   const div = document.createElement("div");
