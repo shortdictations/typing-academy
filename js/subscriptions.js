@@ -270,27 +270,11 @@ function normalizeFallbackProductPricing(p) {
 // latest-expiring valid row of each type (mirrors fetchActivePasses
 // in auth.js).
 function buildActivePassMap(passRows) {
-  // Keep this display rule identical to auth.js/fetchActivePasses().
-  // A purchased entitlement is considered active when it is not cancelled
-  // and its validity window is current. Do not require status === "active":
-  // the server-side fulfillment flow is authoritative and valid non-cancelled
-  // entitlement states must not make the UI incorrectly say "Not Active".
   const now = new Date();
   const map = {};
   passRows.forEach(p => {
-    const status = String(p.status || "").toLowerCase();
-    const startsAt = new Date(p.starts_at);
-    const expiresAt = new Date(p.expires_at);
-
-    if (
-      status === "cancelled" ||
-      Number.isNaN(startsAt.getTime()) ||
-      Number.isNaN(expiresAt.getTime()) ||
-      startsAt > now ||
-      expiresAt <= now
-    ) return;
-
-    if (!map[p.pass_type] || expiresAt > new Date(map[p.pass_type].expiresAt)) {
+    if (p.status === "cancelled" || new Date(p.starts_at) > now || new Date(p.expires_at) <= now) return;
+    if (!map[p.pass_type] || new Date(p.expires_at) > new Date(map[p.pass_type].expiresAt)) {
       map[p.pass_type] = { expiresAt: p.expires_at };
     }
   });
@@ -374,10 +358,7 @@ function viewTestsHref(passType) {
 function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, creditProducts = []) {
   const hasSSC = !!activePassByType.SSC;
   const hasLegal = !!activePassByType.LEGAL;
-  // Combo is shown/treated as active only when the user actually owns a
-  // valid COMBO entitlement. Having both SSC and Legal rows must never be
-  // converted into an assumed Combo purchase.
-  const hasCombo = !!activePassByType.COMBO;
+  const hasCombo = !!activePassByType.COMBO || (hasSSC && hasLegal);
 
   const sscProduct = passProducts.find(p => p.pass_type === "SSC");
   const legalProduct = passProducts.find(p => p.pass_type === "LEGAL");
@@ -387,18 +368,25 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
 
   if (hasCombo) {
     // A real Combo entitlement is the only state where the separate
-    // SSC/Legal purchase card is replaced by the active Combo card.
-    // The Test Credit card is always kept visible.
+    // SSC/Legal selector disappears. The credit card remains alongside it.
     if (comboProduct && activePassByType.COMBO) {
       passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
+    } else if (comboProduct && (hasSSC || hasLegal)) {
+      // Legacy fallback: if both category entitlements exist without a
+      // Combo row, render one full-access Combo card using the latest expiry.
+      const expiryCandidates = [activePassByType.SSC, activePassByType.LEGAL]
+        .filter(Boolean)
+        .map(state => new Date(state.expiresAt).getTime());
+      const latestExpiry = expiryCandidates.length ? Math.max(...expiryCandidates) : null;
+      if (latestExpiry) {
+        passCardsHtml = buildPassCardHtml(comboProduct, {
+          expiresAt: new Date(latestExpiry).toISOString()
+        });
+      }
     }
   } else {
     // SSC + Legal are intentionally one reusable card with a category
-    // toggle. When neither is purchased, this card is shown as a
-    // purchase card AND the separate Combo purchase card is also shown.
-    // Once SSC or Legal is purchased, the Combo purchase card disappears
-    // and the same combined card becomes the active current-plan card
-    // with its Combo upgrade CTA.
+    // toggle. The selected category is client-side display state only.
     const defaultType = hasLegal && !hasSSC ? "LEGAL" : "SSC";
     if (sscProduct || legalProduct) {
       passCardsHtml = buildCombinedCategoryPassCardHtml(
@@ -408,10 +396,6 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
         defaultType,
         comboProduct
       );
-    }
-
-    if (!hasSSC && !hasLegal && comboProduct) {
-      passCardsHtml += buildPassCardHtml(comboProduct, null);
     }
   }
 
@@ -428,7 +412,6 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   });
 
   // Layout is based on the number of visible cards, including Test Credit:
-  //   4 cards -> 3 pass cards in the first row + Test Credit centred below
   //   3 cards -> 3 equal cards in one row
   //   2 cards -> 2 equal cards in one row
   //   1 card  -> one centred card
@@ -486,9 +469,6 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
         class="pass-category-option${type === "SSC" ? " is-selected" : ""}"
         data-pass-category="SSC"
         aria-pressed="${type === "SSC" ? "true" : "false"}">SSC</button>
-      <span class="pass-category-switch" aria-hidden="true">
-        <span class="pass-category-switch-knob"></span>
-      </span>
       <button type="button"
         class="pass-category-option${type === "LEGAL" ? " is-selected" : ""}"
         data-pass-category="LEGAL"
@@ -499,7 +479,6 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
     <div class="pass-card-header pass-category-header">
       <div class="pass-category-title-wrap">
         <div class="card-label">${escapeHtmlLocal(product.name || (type + " PASS"))}</div>
-        ${activeState ? '<span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>' : ''}
       </div>
       ${toggleHtml}
     </div>`;
@@ -562,10 +541,6 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
   return `
     <div class="card pass-card pass-category-card ${catClass}${featured}">
       ${bestValueBadge}
-      <div class="pass-status-row pass-status-row-inactive">
-        <span class="pass-status-text-inactive">Not Active</span>
-      </div>
-
       ${headerHtml}
 
       ${priceDisplayHtml(product)}
@@ -715,10 +690,9 @@ function buildPassCardHtml(p, activeState) {
   return `
     <div class="card pass-card ${catClass}${featured}">
       ${bestValueBadge}
-      <div class="pass-status-row pass-status-row-inactive">
-        <span class="pass-status-text-inactive">Not Active</span>
+      <div class="pass-card-header">
+        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
       </div>
-      <div class="card-label">${escapeHtmlLocal(p.name)}</div>
       ${priceHtml}
       <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
       ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
@@ -870,9 +844,3 @@ function escapeHtmlLocal(str) {
   div.textContent = str;
   return div.innerHTML;
 }
-
-
-// SUBSCRIPTIONS_UI_BUILD: 20260911-2334
-
-
-// SUBSCRIPTIONS_UI_BUILD: 20260911-2338-active-badge
