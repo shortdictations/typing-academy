@@ -1669,3 +1669,58 @@ body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
   box-shadow:0 1px 3px rgba(20,30,60,.06);
 }
 </style>
+<style>
+/* Final visual alignment pass — 12 Sep 2026 */
+body.subscriptions-page .passes-grid .pass-card{
+  box-sizing:border-box;
+}
+/* Keep every pass title at the same visual baseline, regardless of
+   whether the card has a Best Value badge or SSC/Legal selector. */
+body.subscriptions-page .pass-card > .pass-card-header,
+body.subscriptions-page .pass-category-card > .pass-category-header{
+  min-height:40px !important;
+  margin-top:0 !important;
+  margin-bottom:14px !important;
+  padding-top:0 !important;
+  display:flex !important;
+  align-items:center !important;
+}
+body.subscriptions-page .pass-card > .pass-card-header .card-label,
+body.subscriptions-page .pass-category-card > .pass-category-header .card-label{
+  line-height:1.15 !important;
+  text-align:left !important;
+}
+/* The promo badge belongs beside pricing and must have breathing room. */
+body.subscriptions-page .pass-price-discounted{
+  align-items:baseline !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  margin-top:2px !important;
+}
+body.subscriptions-page .pass-discount-inline{
+  margin-left:2px !important;
+  padding:4px 9px !important;
+  font-size:10px !important;
+  letter-spacing:.01em !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+}
+/* Compact the Test Credit internals without changing its card style. */
+body.subscriptions-page .credits-combined-card .credits-card-title{ font-size:22px !important; }
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{ font-size:11px !important; line-height:1.35 !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-panel{ padding:12px 12px 12px 14px !important; margin-top:11px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-number{ font-size:40px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-heading{ font-size:12px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-note{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-history-link{ min-width:108px !important; padding:9px 9px !important; font-size:10px !important; }
+body.subscriptions-page .credits-combined-card .credits-benefit{ font-size:8.5px !important; line-height:1.2 !important; padding:5px 5px !important; }
+body.subscriptions-page .credits-combined-card .credits-benefit > span{ width:26px !important; height:26px !important; font-size:14px !important; }
+body.subscriptions-page .credits-combined-card .credits-purchase-title{ font-size:15px !important; }
+body.subscriptions-page .credits-combined-card .credits-purchase-label{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{ min-height:66px !important; padding:8px 9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{ font-size:11px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{ font-size:17px !important; margin-top:4px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price-original{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{ font-size:7px !important; padding:3px 6px !important; top:-9px !important; right:6px !important; }
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-height:42px !important; font-size:12px !important; }
+</style>
