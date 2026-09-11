@@ -490,6 +490,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
     <div class="pass-card-header pass-category-header">
       <div class="pass-category-title-wrap">
         <div class="card-label">${escapeHtmlLocal(product.name || (type + " PASS"))}</div>
+        ${activeState ? '<span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>' : ''}
       </div>
       ${toggleHtml}
     </div>`;
@@ -863,3 +864,6 @@ function escapeHtmlLocal(str) {
 
 
 // SUBSCRIPTIONS_UI_BUILD: 20260911-2334
+
+
+// SUBSCRIPTIONS_UI_BUILD: 20260911-2338-active-badge
