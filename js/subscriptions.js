@@ -270,14 +270,27 @@ function normalizeFallbackProductPricing(p) {
 // latest-expiring valid row of each type (mirrors fetchActivePasses
 // in auth.js).
 function buildActivePassMap(passRows) {
+  // Keep this display rule identical to auth.js/fetchActivePasses().
+  // A purchased entitlement is considered active when it is not cancelled
+  // and its validity window is current. Do not require status === "active":
+  // the server-side fulfillment flow is authoritative and valid non-cancelled
+  // entitlement states must not make the UI incorrectly say "Not Active".
   const now = new Date();
   const map = {};
   passRows.forEach(p => {
-    // A pass is ACTIVE only after the purchase has actually been fulfilled.
-    // The database status is the source of truth for entitlement state.
     const status = String(p.status || "").toLowerCase();
-    if (status !== "active" || new Date(p.starts_at) > now || new Date(p.expires_at) <= now) return;
-    if (!map[p.pass_type] || new Date(p.expires_at) > new Date(map[p.pass_type].expiresAt)) {
+    const startsAt = new Date(p.starts_at);
+    const expiresAt = new Date(p.expires_at);
+
+    if (
+      status === "cancelled" ||
+      Number.isNaN(startsAt.getTime()) ||
+      Number.isNaN(expiresAt.getTime()) ||
+      startsAt > now ||
+      expiresAt <= now
+    ) return;
+
+    if (!map[p.pass_type] || expiresAt > new Date(map[p.pass_type].expiresAt)) {
       map[p.pass_type] = { expiresAt: p.expires_at };
     }
   });
@@ -406,6 +419,7 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   });
 
   // Layout is based on the number of visible cards, including Test Credit:
+  //   4 cards -> 3 pass cards in the first row + Test Credit centred below
   //   3 cards -> 3 equal cards in one row
   //   2 cards -> 2 equal cards in one row
   //   1 card  -> one centred card
@@ -846,3 +860,6 @@ function escapeHtmlLocal(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+
+// SUBSCRIPTIONS_UI_BUILD: 20260911-2334
