@@ -314,6 +314,25 @@ function featuresListHtml(features) {
     "</ul>";
 }
 
+// Canonical feature list shown on every ACTIVE pass card. Keep this separate
+// from the admin product description/features so an active student's
+// entitlements are presented consistently even if older product rows have
+// incomplete feature metadata.
+function activePassFeatures(passType) {
+  const type = (passType || "").toUpperCase();
+  const mocks = type === "COMBO" ? "All SSC + Legal typing mocks"
+    : type === "SSC" ? "All SSC typing mocks"
+    : "All Legal typing mocks";
+  return [
+    "Unlimited mock tests",
+    mocks,
+    "Choose test duration: 5 mins / 10 mins",
+    "Access throughout the validity period",
+    "Performance analysis",
+    "Weak key analysis"
+  ];
+}
+
 // The student no longer picks a specific mock from a list — every
 // pass type (SSC, Legal, or Combo covering both) now goes straight to
 // mock-test-attempt.html's own pre-test selection screen, which lets
@@ -458,17 +477,11 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
         </div>
         <div class="pass-plan-detail-row">
           <span>Access</span>
-          <strong>All ${currentCategory} typing mocks</strong>
+          <strong>All ${currentCategory} mocks</strong>
         </div>
       </div>
-      <ul class="pass-feature-list active-pass-features">
-        <li>Unlimited mock tests</li>
-        <li>All ${currentCategory} typing mocks</li>
-        <li>Choose test duration: 5 mins / 10 mins</li>
-        <li>Access throughout the validity period</li>
-        <li>Performance analysis</li>
-        <li>Weak key analysis</li>
-      </ul>
+
+      ${featuresListHtml(activePassFeatures(passType))}
 
       ${upgradeHtml}
     </div>`;
@@ -511,14 +524,8 @@ function buildPassCardHtml(p, activeState) {
           </div>
         </div>
 
-        <ul class="pass-feature-list active-pass-features">
-          <li>Unlimited mock tests</li>
-          <li>All ${p.pass_type === "COMBO" ? "SSC + Legal" : (p.pass_type === "SSC" ? "SSC" : "Legal")} typing mocks</li>
-          <li>Choose test duration: 5 mins / 10 mins</li>
-          <li>Access throughout the validity period</li>
-          <li>Performance analysis</li>
-          <li>Weak key analysis</li>
-        </ul>
+        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
+        ${featuresListHtml(activePassFeatures(p.pass_type))}
         <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
       </div>`;
   }

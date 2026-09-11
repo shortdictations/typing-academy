@@ -2736,27 +2736,3 @@ body.dashboard-page{
   .admin-passage-row{ flex-wrap: wrap; }
   .admin-passage-attempts{ margin-left: 44px; }
 }
-
-/* Active pass feature list */
-body.subscriptions-page .active-pass-features{
-  list-style:none;
-  margin:14px 0 18px;
-  padding:0;
-  text-align:left;
-}
-body.subscriptions-page .active-pass-features li{
-  position:relative;
-  padding-left:20px;
-  margin:0 0 9px;
-  color:#40527d;
-  font-size:14px;
-  line-height:1.45;
-}
-body.subscriptions-page .active-pass-features li::before{
-  content:"✓";
-  position:absolute;
-  left:0;
-  top:0;
-  font-weight:800;
-  color:#4f46e5;
-}
