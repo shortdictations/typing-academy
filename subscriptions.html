@@ -1194,6 +1194,74 @@ body.subscriptions-page .passes-grid--two{
 }
 </style>
 
+
+<style>
+/* ============================================================
+   FINAL CARD ALIGNMENT + CREDIT PACKAGE TYPOGRAPHY
+   ============================================================ */
+/* Keep SSC/Legal and Combo title rows on exactly the same vertical
+   starting line. The category selector stays visually on the right
+   without changing the title's position. */
+body.subscriptions-page .pass-card > .pass-card-header,
+body.subscriptions-page .pass-category-card > .pass-category-header{
+  height:40px !important;
+  min-height:40px !important;
+  box-sizing:border-box !important;
+  margin-top:0 !important;
+  margin-bottom:14px !important;
+  padding:0 !important;
+  align-items:flex-start !important;
+}
+body.subscriptions-page .pass-card > .pass-card-header .card-label,
+body.subscriptions-page .pass-category-card > .pass-category-header .card-label{
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1.15 !important;
+  transform:none !important;
+}
+body.subscriptions-page .pass-category-title-wrap{
+  display:flex !important;
+  align-items:flex-start !important;
+  height:100% !important;
+}
+body.subscriptions-page .pass-category-toggle{
+  margin-top:0 !important;
+}
+/* Keep pricing at the same vertical position in both pass cards. */
+body.subscriptions-page .pass-card .pass-price,
+body.subscriptions-page .pass-card .pass-price-discounted{
+  margin-top:0 !important;
+}
+/* Discount badge: smaller and comfortably separated from the price. */
+body.subscriptions-page .pass-price-discounted{
+  gap:12px !important;
+}
+body.subscriptions-page .pass-discount-inline{
+  margin-left:0 !important;
+  padding:3px 8px !important;
+  font-size:9px !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+}
+/* Compact credit package text so all three options fit cleanly. */
+body.subscriptions-page .credits-combined-card .credit-pack-name{
+  font-size:10px !important;
+  line-height:1.15 !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  margin-top:3px !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price-final{
+  font-size:15px !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price-original{
+  font-size:8px !important;
+}
+</style>
+
 </head>
 <body class="app-shell subscriptions-page">
 

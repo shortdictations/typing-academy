@@ -837,7 +837,7 @@ let selectedCreditProductId = null;
 // displayed here.
 function creditPackChipHtml(p, selected) {
   const credits = Number(p.credits);
-  const name = credits === 10 ? "10 🪙" : (credits === 20 ? "20 🪙" : (credits === 30 ? "30 🪙" : (p.name || `${credits} Credits`)));
+  const name = credits === 10 ? "10 Credits" : (credits === 20 ? "20 Credits" : (credits === 30 ? "30 Credits" : (p.name || `${credits} Credits`)));
   const price = p.discount_active ? p.effective_price : p.price;
   const originalPrice = p.discount_active ? p.price : null;
   const badge = p.badge_text || (p.description && /best offer/i.test(p.description) ? p.description : "");
