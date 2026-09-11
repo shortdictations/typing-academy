@@ -387,13 +387,18 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
 
   if (hasCombo) {
     // A real Combo entitlement is the only state where the separate
-    // SSC/Legal selector disappears. The credit card remains alongside it.
+    // SSC/Legal purchase card is replaced by the active Combo card.
+    // The Test Credit card is always kept visible.
     if (comboProduct && activePassByType.COMBO) {
       passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
     }
   } else {
     // SSC + Legal are intentionally one reusable card with a category
-    // toggle. The selected category is client-side display state only.
+    // toggle. When neither is purchased, this card is shown as a
+    // purchase card AND the separate Combo purchase card is also shown.
+    // Once SSC or Legal is purchased, the Combo purchase card disappears
+    // and the same combined card becomes the active current-plan card
+    // with its Combo upgrade CTA.
     const defaultType = hasLegal && !hasSSC ? "LEGAL" : "SSC";
     if (sscProduct || legalProduct) {
       passCardsHtml = buildCombinedCategoryPassCardHtml(
@@ -403,6 +408,10 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
         defaultType,
         comboProduct
       );
+    }
+
+    if (!hasSSC && !hasLegal && comboProduct) {
+      passCardsHtml += buildPassCardHtml(comboProduct, null);
     }
   }
 
