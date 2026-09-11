@@ -200,38 +200,44 @@ body.subscriptions-page .subscriptions-hero .lede{
 body.subscriptions-page .subscriptions-hero-graphic{ display:none; }
 
 body.subscriptions-page .passes-grid{
-  width:min(100%,840px);
-  max-width:840px;
-  margin: 0 auto;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  width:min(100%,1000px);
+  max-width:1000px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(280px,1fr));
   gap:18px;
   align-items:stretch;
   justify-content:center;
 }
 
-/* Deliberate pricing compositions:
-   4 visible cards = 2 x 2; 2 visible cards = 2 across.
-   Cards keep a comfortable width instead of expanding to fill a
-   four-column row when one or more products are hidden by ownership. */
+/* Deliberate modern card compositions:
+   - 4 visible cards: 3 pass cards across the first row, with the
+     Test Credit card centred beneath them.
+   - 2 visible cards: two equal, sensible-width cards in one row.
+   Cards never stretch unnecessarily to fill the whole page. */
 body.subscriptions-page .passes-grid--four{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  width:min(100%,1000px);
+  max-width:1000px;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
 }
-body.subscriptions-page .passes-grid--two{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-body.subscriptions-page .passes-grid--three{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-body.subscriptions-page .passes-grid--three > :last-child{
-  grid-column:1 / -1;
-  width:calc((100% - 18px) / 2);
+body.subscriptions-page .passes-grid--four > .credits-summary-card{
+  grid-column:2;
+  width:100%;
   justify-self:center;
 }
+body.subscriptions-page .passes-grid--two{
+  width:min(100%,650px);
+  max-width:650px;
+  grid-template-columns:repeat(2,minmax(280px,1fr));
+}
+body.subscriptions-page .passes-grid--three{
+  width:min(100%,1000px);
+  max-width:1000px;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
+}
 body.subscriptions-page .passes-grid--one{
-  max-width:480px;
+  width:min(100%,460px);
+  max-width:460px;
   grid-template-columns:1fr;
 }
 
@@ -360,7 +366,25 @@ body.subscriptions-page .subscriptions-help-banner{
 }
 
 @media (max-width:1100px){
-  body.subscriptions-page .passes-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); max-width:900px; }
+  body.subscriptions-page .passes-grid--four{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column:1 / -1;
+    width:min(100%,360px);
+    justify-self:center;
+  }
+  body.subscriptions-page .passes-grid--three{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--two{
+    width:min(100%,650px);
+    max-width:650px;
+  }
 }
 @media (max-width:700px){
   body.subscriptions-page .subscriptions-hero{ padding:20px 10px 22px; }
