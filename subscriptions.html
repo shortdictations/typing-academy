@@ -691,6 +691,273 @@ body.subscriptions-page .subscription-load-error{
 body.subscriptions-page .subscription-load-error strong{color:#17224b;font-size:16px;}
 body.subscriptions-page .subscription-load-error span{font-size:13px;}
 body.subscriptions-page .subscription-load-error .btn{margin-top:8px;}
+
+/* ============================================================
+   Pass selector + balanced card sizing
+   Keeps the existing TypeShala card visual language intact.
+   ============================================================ */
+
+body.subscriptions-page .pass-category-header{
+  align-items:center;
+  margin-bottom:14px;
+  gap:12px;
+}
+
+body.subscriptions-page .pass-category-title-wrap{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+body.subscriptions-page .pass-category-toggle{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 6px;
+  border:1px solid rgba(148,163,184,.24);
+  border-radius:999px;
+  background:rgba(255,255,255,.62);
+  box-shadow:0 3px 10px rgba(30,41,59,.05);
+}
+
+body.subscriptions-page .pass-category-option{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:#6d7b9b;
+  font-family:inherit;
+  font-size:10px;
+  line-height:1;
+  font-weight:850;
+  letter-spacing:.05em;
+  padding:5px 6px;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+body.subscriptions-page .pass-category-option.is-selected{
+  color:#172650;
+  background:#fff;
+  box-shadow:0 2px 7px rgba(30,41,59,.09);
+}
+
+body.subscriptions-page .pass-category-option:focus-visible{
+  outline:2px solid rgba(59,130,246,.45);
+  outline-offset:2px;
+}
+
+body.subscriptions-page .pass-category-switch{
+  position:relative;
+  width:22px;
+  height:12px;
+  border-radius:999px;
+  background:#d8deeb;
+  flex:none;
+}
+
+body.subscriptions-page .pass-category-switch-knob{
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 3px rgba(30,41,59,.18);
+  transition:transform .18s ease;
+}
+
+body.subscriptions-page .pass-category-header:has(.pass-category-option[data-pass-category="LEGAL"].is-selected) .pass-category-switch-knob{
+  transform:translateX(10px);
+}
+
+body.subscriptions-page .pass-category-card .best-value-badge{
+  /* Keep the promotional badge on the card edge without competing
+     with the SSC/Legal selector in the header. */
+  top:-10px;
+  right:50%;
+  transform:translateX(50%);
+  z-index:3;
+}
+
+body.subscriptions-page .pass-category-card .pass-category-header{
+  padding-top:2px;
+}
+
+body.subscriptions-page .pass-category-card .pass-card-description{
+  font-size:.8rem;
+  line-height:1.4;
+}
+
+body.subscriptions-page .pass-category-card .plan-features li{
+  font-size:.82rem;
+  margin-bottom:6px;
+  line-height:1.35;
+}
+
+/* The credit card keeps its established appearance, but its internal
+   typography is intentionally more compact so it can share the exact
+   same outer card dimensions as the pass cards. */
+body.subscriptions-page .credits-combined-card{
+  box-sizing:border-box;
+  padding:22px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-topline{
+  gap:8px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-badge{
+  min-height:28px;
+  padding:0 11px;
+  font-size:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-title{
+  margin:10px 0 4px;
+  font-size:25px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{
+  font-size:12px;
+  line-height:1.4;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-panel{
+  margin-top:14px;
+  padding:14px 14px 14px 16px;
+  gap:10px;
+  border-radius:15px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-number{
+  font-size:44px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-main{
+  gap:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-heading{
+  font-size:13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-note{
+  font-size:10px;
+  margin-top:3px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-history-link{
+  min-width:118px;
+  padding:10px 11px;
+  border-radius:11px;
+  gap:7px;
+  font-size:11px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefits{
+  margin-top:13px;
+  padding:2px 0 13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefit{
+  gap:6px;
+  padding:6px 7px;
+  font-size:9.5px;
+  line-height:1.3;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefit > span{
+  width:28px;
+  height:28px;
+  font-size:15px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-section{
+  margin-top:13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-title{
+  font-size:17px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-label{
+  font-size:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+  margin-top:9px !important;
+  gap:8px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  min-height:72px;
+  padding:10px 11px !important;
+  border-radius:13px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:12px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  margin-top:6px;
+  font-size:19px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price-original{
+  font-size:10px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
+  top:-8px;
+  right:7px;
+  padding:3px 6px;
+  font-size:8px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{
+  margin-top:10px !important;
+  min-height:44px !important;
+  font-size:13px;
+}
+
+@media (max-width:900px){
+  body.subscriptions-page .passes-grid--three{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--three > .credits-summary-card{
+    grid-column:1 / -1;
+    width:min(100%,360px);
+    justify-self:center;
+  }
+}
+
+@media (max-width:700px){
+  body.subscriptions-page .pass-category-header{
+    align-items:flex-start;
+  }
+  body.subscriptions-page .pass-category-toggle{
+    margin-top:-2px;
+  }
+}
+
+@media (max-width:560px){
+  body.subscriptions-page .passes-grid--two{
+    width:min(100%,620px);
+    max-width:620px;
+    grid-template-columns:1fr;
+  }
+  body.subscriptions-page .pass-category-option{
+    font-size:9px;
+  }
+  body.subscriptions-page .credits-combined-card{
+    padding:20px !important;
+  }
+}
+
 </style>
 
 
