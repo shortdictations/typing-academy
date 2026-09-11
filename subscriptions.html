@@ -60,8 +60,6 @@ body.subscriptions-page .pass-duration-pill{
    itself shorter, directly reducing the empty space between content
    and the bottom-pinned button on every card, not just this one. */
 body.subscriptions-page .pass-card{ padding: 18px; }
-body.subscriptions-page .pass-card,
-body.subscriptions-page .credits-summary-card{ min-height:560px; }
 body.subscriptions-page .plan-features{ margin-top: 10px; }
 body.subscriptions-page .plan-features li{ margin-bottom: 6px; }
 body.subscriptions-page .pass-card .plan-features{ margin-bottom: 8px; }
@@ -202,40 +200,40 @@ body.subscriptions-page .subscriptions-hero .lede{
 body.subscriptions-page .subscriptions-hero-graphic{ display:none; }
 
 body.subscriptions-page .passes-grid{
-  width:min(100%,1280px);
-  max-width:1280px;
-  margin:0 auto;
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,280px));
-  gap:24px;
-  justify-content:center;
+  width:min(100%,840px);
+  max-width:840px;
+  margin: 0 auto;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
   align-items:stretch;
+  justify-content:center;
 }
 
-/* Keep cards visually compact at every card count. The grid changes the
-   number of columns, but never lets a card grow into a huge empty column. */
+/* Deliberate pricing compositions:
+   4 visible cards = 2 x 2; 2 visible cards = 2 across.
+   Cards keep a comfortable width instead of expanding to fill a
+   four-column row when one or more products are hidden by ownership. */
 body.subscriptions-page .passes-grid--four{
-  max-width:1280px;
-  grid-template-columns:repeat(4,minmax(0,280px));
-}
-body.subscriptions-page .passes-grid--three{
-  max-width:1280px;
-  grid-template-columns:repeat(3,minmax(0,280px));
+  max-width:840px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 body.subscriptions-page .passes-grid--two{
-  max-width:1280px;
-  grid-template-columns:repeat(2,minmax(0,280px));
+  max-width:840px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
-body.subscriptions-page .passes-grid--one{
-  max-width:1280px;
-  grid-template-columns:minmax(0,280px);
+body.subscriptions-page .passes-grid--three{
+  max-width:840px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 body.subscriptions-page .passes-grid--three > :last-child{
-  grid-column:auto;
-  width:100%;
-  justify-self:stretch;
+  grid-column:1 / -1;
+  width:calc((100% - 18px) / 2);
+  justify-self:center;
 }
-
+body.subscriptions-page .passes-grid--one{
+  max-width:480px;
+  grid-template-columns:1fr;
+}
 
 body.subscriptions-page .pass-card,
 body.subscriptions-page .credits-summary-card{
@@ -361,17 +359,8 @@ body.subscriptions-page .subscriptions-help-banner{
   border-radius:18px;
 }
 
-@media (max-width:1199px){
-  body.subscriptions-page .passes-grid,
-  body.subscriptions-page .passes-grid--four,
-  body.subscriptions-page .passes-grid--three{
-    grid-template-columns:repeat(2,minmax(260px,280px));
-    max-width:620px;
-  }
-  body.subscriptions-page .passes-grid--four > :nth-child(3),
-  body.subscriptions-page .passes-grid--four > :nth-child(4){
-    grid-column:auto;
-  }
+@media (max-width:1100px){
+  body.subscriptions-page .passes-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); max-width:900px; }
 }
 @media (max-width:700px){
   body.subscriptions-page .subscriptions-hero{ padding:20px 10px 22px; }
@@ -380,10 +369,7 @@ body.subscriptions-page .subscriptions-help-banner{
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four,
-  body.subscriptions-page .passes-grid--one{
-    grid-template-columns:minmax(0,1fr);
-    max-width:620px;
-  }
+  body.subscriptions-page .passes-grid--one{ grid-template-columns:1fr; max-width:620px; }
   body.subscriptions-page .passes-grid--three > :last-child{
     grid-column:auto;
     width:100%;
