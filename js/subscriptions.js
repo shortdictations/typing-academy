@@ -458,9 +458,17 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
         </div>
         <div class="pass-plan-detail-row">
           <span>Access</span>
-          <strong>All ${currentCategory} mocks</strong>
+          <strong>All ${currentCategory} typing mocks</strong>
         </div>
       </div>
+      <ul class="pass-feature-list active-pass-features">
+        <li>Unlimited mock tests</li>
+        <li>All ${currentCategory} typing mocks</li>
+        <li>Choose test duration: 5 mins / 10 mins</li>
+        <li>Access throughout the validity period</li>
+        <li>Performance analysis</li>
+        <li>Weak key analysis</li>
+      </ul>
 
       ${upgradeHtml}
     </div>`;
@@ -503,8 +511,14 @@ function buildPassCardHtml(p, activeState) {
           </div>
         </div>
 
-        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${featuresListHtml(p.features)}
+        <ul class="pass-feature-list active-pass-features">
+          <li>Unlimited mock tests</li>
+          <li>All ${p.pass_type === "COMBO" ? "SSC + Legal" : (p.pass_type === "SSC" ? "SSC" : "Legal")} typing mocks</li>
+          <li>Choose test duration: 5 mins / 10 mins</li>
+          <li>Access throughout the validity period</li>
+          <li>Performance analysis</li>
+          <li>Weak key analysis</li>
+        </ul>
         <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
       </div>`;
   }
