@@ -383,13 +383,18 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance, creditProducts);
   bindCombinedCreditCard(grid, creditProducts);
 
-  // Keep the desktop composition intentionally compact when only two
-  // cards are present. The four-card state keeps the established 2x2
-  // layout; the two-card state is centered inside a narrower container
-  // instead of stretching each card across the entire content area.
-  const cardCount = grid.querySelectorAll(':scope > .pass-card').length;
+  // Layout is based on the TOTAL visible cards, including the combined
+  // Test Credit card.  This gives the pricing section a deliberate
+  // composition instead of allowing two cards to stretch too wide:
+  //   4 cards -> 2 x 2
+  //   2 cards -> 2 in one row
+  //   3 cards -> 2 + 1 (the last card is centred by CSS)
+  //   1 card  -> single centred card
+  const cardCount = grid.querySelectorAll(':scope > .pass-card, :scope > .credits-summary-card').length;
   grid.classList.toggle('passes-grid--two', cardCount === 2);
-  grid.classList.toggle('passes-grid--four', cardCount >= 4);
+  grid.classList.toggle('passes-grid--four', cardCount === 4);
+  grid.classList.toggle('passes-grid--three', cardCount === 3);
+  grid.classList.toggle('passes-grid--one', cardCount === 1);
 }
 
 // Active SSC/Legal users see their current plan and the upgrade CTA in the

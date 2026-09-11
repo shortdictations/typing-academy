@@ -200,16 +200,39 @@ body.subscriptions-page .subscriptions-hero .lede{
 body.subscriptions-page .subscriptions-hero-graphic{ display:none; }
 
 body.subscriptions-page .passes-grid{
-  width:min(100%,1160px);
-  max-width:1160px;
+  width:min(100%,960px);
+  max-width:960px;
   margin: 0 auto;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
   align-items:stretch;
+  justify-content:center;
+}
+
+/* Deliberate pricing compositions:
+   4 visible cards = 2 x 2; 2 visible cards = 2 across.
+   Cards keep a comfortable width instead of expanding to fill a
+   four-column row when one or more products are hidden by ownership. */
+body.subscriptions-page .passes-grid--four{
+  max-width:960px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 body.subscriptions-page .passes-grid--two{
-  max-width:880px;
+  max-width:960px;
   grid-template-columns:repeat(2,minmax(0,1fr));
+}
+body.subscriptions-page .passes-grid--three{
+  max-width:960px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+body.subscriptions-page .passes-grid--three > :last-child{
+  grid-column:1 / -1;
+  width:calc((100% - 18px) / 2);
+  justify-self:center;
+}
+body.subscriptions-page .passes-grid--one{
+  max-width:480px;
+  grid-template-columns:1fr;
 }
 
 body.subscriptions-page .pass-card,
@@ -343,7 +366,15 @@ body.subscriptions-page .subscriptions-help-banner{
   body.subscriptions-page .subscriptions-hero{ padding:20px 10px 22px; }
   body.subscriptions-page .subscriptions-hero h1{ font-size:34px; }
   body.subscriptions-page .passes-grid,
-  body.subscriptions-page .passes-grid--two{ grid-template-columns:1fr; max-width:620px; }
+  body.subscriptions-page .passes-grid--two,
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four,
+  body.subscriptions-page .passes-grid--one{ grid-template-columns:1fr; max-width:620px; }
+  body.subscriptions-page .passes-grid--three > :last-child{
+    grid-column:auto;
+    width:100%;
+    justify-self:stretch;
+  }
   body.subscriptions-page .pass-card:hover{ transform:none; }
   body.subscriptions-page .pass-upgrade-heading{ flex-direction:column; }
 }
