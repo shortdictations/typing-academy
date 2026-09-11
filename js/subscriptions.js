@@ -307,30 +307,32 @@ function planIconSvg(theme) {
   return icons[theme] || icons.ssc;
 }
 
-function featuresListHtml(features) {
-  if (!features || features.length === 0) return "";
-  return '<ul class="plan-features">' +
-    features.map(f => "<li>" + escapeHtmlLocal(f) + "</li>").join("") +
-    "</ul>";
-}
-
-// Canonical feature list shown on every ACTIVE pass card. Keep this separate
-// from the admin product description/features so an active student's
-// entitlements are presented consistently even if older product rows have
-// incomplete feature metadata.
-function activePassFeatures(passType) {
+function defaultPassFeatures(passType) {
   const type = (passType || "").toUpperCase();
-  const mocks = type === "COMBO" ? "All SSC + Legal typing mocks"
-    : type === "SSC" ? "All SSC typing mocks"
-    : "All Legal typing mocks";
+  const access = type === "COMBO" ? "All SSC + Legal typing mocks" :
+    type === "SSC" ? "All SSC typing mocks" : "All Legal typing mocks";
   return [
     "Unlimited mock tests",
-    mocks,
+    access,
     "Choose test duration: 5 mins / 10 mins",
     "Access throughout the validity period",
     "Performance analysis",
     "Weak key analysis"
   ];
+}
+
+function passFeaturesHtml(passType, features) {
+  // Pass cards always show the standard product feature set. Admin can
+  // still supply a custom description, but these core features are
+  // guaranteed to appear for both inactive/purchase and active cards.
+  return featuresListHtml(defaultPassFeatures(passType));
+}
+
+function featuresListHtml(features) {
+  if (!features || features.length === 0) return "";
+  return '<ul class="plan-features">' +
+    features.map(f => "<li>" + escapeHtmlLocal(f) + "</li>").join("") +
+    "</ul>";
 }
 
 // The student no longer picks a specific mock from a list — every
@@ -481,7 +483,7 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
         </div>
       </div>
 
-      ${featuresListHtml(activePassFeatures(passType))}
+      ${passFeaturesHtml(p.pass_type, p.features)}
 
       ${upgradeHtml}
     </div>`;
@@ -525,7 +527,7 @@ function buildPassCardHtml(p, activeState) {
         </div>
 
         ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${featuresListHtml(activePassFeatures(p.pass_type))}
+        ${passFeaturesHtml(p.pass_type, p.features)}
         <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
       </div>`;
   }
@@ -540,7 +542,7 @@ function buildPassCardHtml(p, activeState) {
       ${priceHtml}
       <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
       ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-      ${featuresListHtml(p.features)}
+      ${passFeaturesHtml(p.pass_type, p.features)}
       <button class="btn btn-full buy-product-btn" data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">Buy Now <span aria-hidden="true">&rarr;</span></button>
     </div>`;
 }
