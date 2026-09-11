@@ -367,13 +367,12 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   let passCardsHtml = "";
 
   if (hasCombo) {
-    // A real Combo entitlement is the only state where the separate
-    // SSC/Legal selector disappears. The credit card remains alongside it.
+    // Once Combo is purchased, show only the active Combo pass + Test Credit.
     if (comboProduct && activePassByType.COMBO) {
       passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
     } else if (comboProduct && (hasSSC || hasLegal)) {
-      // Legacy fallback: if both category entitlements exist without a
-      // Combo row, render one full-access Combo card using the latest expiry.
+      // Legacy fallback: if both category entitlements exist without a Combo
+      // row, present one full-access Combo card using the latest expiry.
       const expiryCandidates = [activePassByType.SSC, activePassByType.LEGAL]
         .filter(Boolean)
         .map(state => new Date(state.expiresAt).getTime());
@@ -384,9 +383,10 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
         });
       }
     }
-  } else {
-    // SSC + Legal are intentionally one reusable card with a category
-    // toggle. The selected category is client-side display state only.
+  } else if (hasSSC || hasLegal) {
+    // A user with SSC or Legal sees that active category in the shared
+    // SSC/Legal card. The Combo purchase card is intentionally hidden because
+    // the upgrade CTA is already inside the active card.
     const defaultType = hasLegal && !hasSSC ? "LEGAL" : "SSC";
     if (sscProduct || legalProduct) {
       passCardsHtml = buildCombinedCategoryPassCardHtml(
@@ -396,6 +396,22 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
         defaultType,
         comboProduct
       );
+    }
+  } else {
+    // No active pass: show the shared SSC/Legal purchase card AND the
+    // separate Combo purchase card, followed by Test Credit.
+    const defaultType = "SSC";
+    if (sscProduct || legalProduct) {
+      passCardsHtml = buildCombinedCategoryPassCardHtml(
+        sscProduct,
+        legalProduct,
+        activePassByType,
+        defaultType,
+        comboProduct
+      );
+    }
+    if (comboProduct) {
+      passCardsHtml += buildPassCardHtml(comboProduct, null);
     }
   }
 
@@ -457,8 +473,8 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
   const theme = type.toLowerCase();
   const catClass = "plan-" + theme;
   const featured = product.best_value ? " featured" : "";
-  const showBadge = product.best_value || product.discount_active;
-  const defaultBadgeText = product.best_value ? "Best Value" : discountBadgeFallback(product);
+  const showBadge = !!product.best_value;
+  const defaultBadgeText = "Best Value";
   const bestValueBadge = showBadge
     ? '<span class="best-value-badge">' + escapeHtmlLocal(product.badge_text || defaultBadgeText) + '</span>'
     : "";
@@ -541,6 +557,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
   return `
     <div class="card pass-card pass-category-card ${catClass}${featured}">
       ${bestValueBadge}
+
       ${headerHtml}
 
       ${priceDisplayHtml(product)}
@@ -651,8 +668,8 @@ function buildPassCardHtml(p, activeState) {
   // or neither) — but there is only one badge_text field, so when
   // either applies it shows the same admin-set text, falling back to
   // a sensible default only when the admin left it blank.
-  const showBadge = p.best_value || p.discount_active;
-  const defaultBadgeText = p.best_value ? "Best Value" : discountBadgeFallback(p);
+  const showBadge = !!p.best_value;
+  const defaultBadgeText = "Best Value";
   const bestValueBadge = showBadge ? '<span class="best-value-badge">' + escapeHtmlLocal(p.badge_text || defaultBadgeText) + '</span>' : "";
   const theme = (p.pass_type || "ssc").toLowerCase();
   const catClass = "plan-" + theme;
@@ -718,10 +735,12 @@ function priceDisplayHtml(p) {
   if (!p.discount_active) {
     return '<div class="pass-price">&#8377;' + p.price + '</div>';
   }
+  const discountText = escapeHtmlLocal(p.badge_text || discountBadgeFallback(p));
   return (
     '<div class="pass-price pass-price-discounted">' +
       '<span class="pass-price-original">&#8377;' + p.price + '</span>' +
       '<span class="pass-price-final">&#8377;' + p.effective_price + '</span>' +
+      '<span class="pass-discount-inline">' + discountText + '</span>' +
     '</div>'
   );
 }
