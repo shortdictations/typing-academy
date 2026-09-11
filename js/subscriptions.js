@@ -273,7 +273,10 @@ function buildActivePassMap(passRows) {
   const now = new Date();
   const map = {};
   passRows.forEach(p => {
-    if (p.status === "cancelled" || new Date(p.starts_at) > now || new Date(p.expires_at) <= now) return;
+    // A pass is ACTIVE only after the purchase has actually been fulfilled.
+    // The database status is the source of truth for entitlement state.
+    const status = String(p.status || "").toLowerCase();
+    if (status !== "active" || new Date(p.starts_at) > now || new Date(p.expires_at) <= now) return;
     if (!map[p.pass_type] || new Date(p.expires_at) > new Date(map[p.pass_type].expiresAt)) {
       map[p.pass_type] = { expiresAt: p.expires_at };
     }
@@ -358,7 +361,10 @@ function viewTestsHref(passType) {
 function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, creditProducts = []) {
   const hasSSC = !!activePassByType.SSC;
   const hasLegal = !!activePassByType.LEGAL;
-  const hasCombo = !!activePassByType.COMBO || (hasSSC && hasLegal);
+  // Combo is shown/treated as active only when the user actually owns a
+  // valid COMBO entitlement. Having both SSC and Legal rows must never be
+  // converted into an assumed Combo purchase.
+  const hasCombo = !!activePassByType.COMBO;
 
   const sscProduct = passProducts.find(p => p.pass_type === "SSC");
   const legalProduct = passProducts.find(p => p.pass_type === "LEGAL");
@@ -371,19 +377,7 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
     // SSC/Legal selector disappears. The credit card remains alongside it.
     if (comboProduct && activePassByType.COMBO) {
       passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
-    } else if (comboProduct && (hasSSC || hasLegal)) {
-      // Legacy fallback: if both category entitlements exist without a
-      // Combo row, render one full-access Combo card using the latest expiry.
-      const expiryCandidates = [activePassByType.SSC, activePassByType.LEGAL]
-        .filter(Boolean)
-        .map(state => new Date(state.expiresAt).getTime());
-      const latestExpiry = expiryCandidates.length ? Math.max(...expiryCandidates) : null;
-      if (latestExpiry) {
-        passCardsHtml = buildPassCardHtml(comboProduct, {
-          expiresAt: new Date(latestExpiry).toISOString()
-        });
-      }
-    }
+
   } else {
     // SSC + Legal are intentionally one reusable card with a category
     // toggle. The selected category is client-side display state only.
