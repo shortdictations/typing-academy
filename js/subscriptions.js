@@ -377,7 +377,7 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
     // SSC/Legal selector disappears. The credit card remains alongside it.
     if (comboProduct && activePassByType.COMBO) {
       passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
-
+    }
   } else {
     // SSC + Legal are intentionally one reusable card with a category
     // toggle. The selected category is client-side display state only.
