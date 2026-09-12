@@ -565,9 +565,18 @@ body.subscriptions-page .credits-purchase-label{
 }
 body.subscriptions-page .credits-pack-row-large{
   display:grid !important;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:10px !important;
+  grid-template-columns:repeat(3, minmax(88px, 1fr));
+  gap:8px !important;
   margin-top:11px !important;
+  justify-content:center;
+}
+
+/* Credit choices stay compact on desktop instead of stretching across
+   the full credit-card width. */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  width:100%;
+  max-width:112px;
+  justify-self:center;
 }
 body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
   position:relative;
@@ -668,7 +677,18 @@ body.subscriptions-page .credits-empty-packs{
   body.subscriptions-page .credits-card-title{ font-size:26px; }
   body.subscriptions-page .credits-balance-panel{ align-items:stretch; flex-direction:column; }
   body.subscriptions-page .credits-history-link{ width:100%; }
-  body.subscriptions-page .credits-pack-row-large{ grid-template-columns:1fr; }
+  /* Mobile: 10 + 20 on row one, 30 on row two. Keep each box at
+     content-friendly width rather than filling the whole card. */
+  body.subscriptions-page .credits-pack-row-large{
+    grid-template-columns:repeat(2, max-content);
+    justify-content:center;
+    column-gap:10px !important;
+    row-gap:10px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+    width:104px;
+    max-width:104px;
+  }
   body.subscriptions-page .credits-benefits{ grid-template-columns:1fr 1fr; }
 }
 body.subscriptions-page .subscription-load-error{
@@ -907,6 +927,15 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
 
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price-original{
   font-size:10px !important;
+}
+
+/* Keep credit package typography compact enough for the smaller chips. */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:11px;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  font-size:17px !important;
+  margin-top:4px;
 }
 
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{

@@ -473,7 +473,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
   const theme = type.toLowerCase();
   const catClass = "plan-" + theme;
   const featured = product.best_value ? " featured" : "";
-  const showBadge = !!product.best_value;
+  const showBadge = !!product.best_value && !activeState;
   const defaultBadgeText = "Best Value";
   const bestValueBadge = showBadge
     ? '<span class="best-value-badge">' + escapeHtmlLocal(product.badge_text || defaultBadgeText) + '</span>'
@@ -668,7 +668,7 @@ function buildPassCardHtml(p, activeState) {
   // or neither) — but there is only one badge_text field, so when
   // either applies it shows the same admin-set text, falling back to
   // a sensible default only when the admin left it blank.
-  const showBadge = !!p.best_value;
+  const showBadge = !!p.best_value && !activeState;
   const defaultBadgeText = "Best Value";
   const bestValueBadge = showBadge ? '<span class="best-value-badge">' + escapeHtmlLocal(p.badge_text || defaultBadgeText) + '</span>' : "";
   const theme = (p.pass_type || "ssc").toLowerCase();
