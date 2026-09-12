@@ -1291,46 +1291,6 @@ body.subscriptions-page .credits-combined-card .credit-pack-price-original{
 }
 </style>
 
-
-<style id="subscriptions-mobile-viewport-fix">
-/* FINAL MOBILE VIEWPORT FIX
-   The cards are intentionally left unchanged. The issue was the
-   subscription page shell itself ending short of the mobile viewport,
-   leaving a blank strip on the right. Force only this page's outer
-   shell/background/header to span the viewport; card sizing remains
-   controlled by the existing subscription grid rules. */
-@media (max-width: 700px){
-  html,
-  body.subscriptions-page{
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  body.subscriptions-page .letterhead,
-  body.subscriptions-page .app-body{
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  body.subscriptions-page .app-content{
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-  }
-
-  body.subscriptions-page .app-content .page{
-    width: 100% !important;
-    max-width: none !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-}
-</style>
 </head>
 <body class="app-shell subscriptions-page">
 
