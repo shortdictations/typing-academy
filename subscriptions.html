@@ -1855,3 +1855,50 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-he
   }
 }
 </style>
+<style>
+/* TEST CREDIT PACKAGE CHIPS — compact and identical on desktop/mobile */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+  grid-template-columns:repeat(3, 86px) !important;
+  justify-content:center !important;
+  gap:8px !important;
+  width:100% !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  width:86px !important;
+  min-width:86px !important;
+  max-width:86px !important;
+  min-height:62px !important;
+  height:62px !important;
+  padding:7px 8px !important;
+  box-sizing:border-box !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:10px !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  margin-top:3px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
+  font-size:6.5px !important;
+  padding:2px 5px !important;
+  top:-8px !important;
+  right:3px !important;
+}
+@media (max-width:700px){
+  /* Keep all three credit boxes in ONE compact row on mobile too. */
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+    grid-template-columns:repeat(3, 86px) !important;
+    justify-content:center !important;
+    gap:8px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+    width:86px !important;
+    min-width:86px !important;
+    max-width:86px !important;
+  }
+}
+</style>
