@@ -3873,25 +3873,18 @@ body.app-shell .pass-upgrade-note{
   body.app-shell .pass-upgrade-price{font-size:.72rem;}
 }
 
-/* TypeShala mobile viewport correction: the authenticated shell must
-   occupy the complete viewport. This is intentionally scoped to the
-   mobile shell and does not alter subscription-card dimensions. */
-@media (max-width: 700px){
-  html, body.app-shell{
-    width:100%;
-    min-width:0;
-    max-width:none;
-  }
-  body.app-shell .letterhead,
-  body.app-shell .app-body,
-  body.app-shell .app-content{
-    width:100%;
-    max-width:none;
-    min-width:0;
-    margin-left:0;
-    margin-right:0;
-  }
-  body.app-shell .app-content{
-    flex:0 0 100%;
-  }
+/* ============================================================
+   Mobile profile drawer: honour the native hidden attribute.
+   The drawer is `display:flex` when configured, which can override
+   the browser's default [hidden]{display:none}. When hidden but
+   still rendered, its off-canvas box-shadow bleeds into the right
+   edge of the viewport and makes the whole page look ~30–60px
+   narrower/darkened on mobile. Keep hidden drawer completely out
+   of the rendering tree; JS removes hidden before adding .open.
+   ============================================================ */
+body.app-shell .mobile-profile-drawer[hidden]{
+  display: none !important;
+}
+body.app-shell .mobile-profile-overlay[hidden]{
+  display: none !important;
 }
