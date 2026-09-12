@@ -1792,3 +1792,37 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{ font-size:7px !important; padding:3px 6px !important; top:-9px !important; right:6px !important; }
 body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-height:42px !important; font-size:12px !important; }
 </style>
+
+<style>
+/* FINAL MOBILE CARD LAYOUT
+   Mobile screens always show exactly ONE subscription card per row.
+   Keep the existing card design and use a sensible readable width. */
+@media (max-width: 700px){
+  body.subscriptions-page .passes-grid,
+  body.subscriptions-page .passes-grid--one,
+  body.subscriptions-page .passes-grid--two,
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four{
+    width: min(100% - 24px, 460px) !important;
+    max-width: 460px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  body.subscriptions-page .passes-grid--three > .credits-summary-card,
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+  }
+
+  body.subscriptions-page .pass-card,
+  body.subscriptions-page .credits-summary-card{
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+</style>
