@@ -3872,19 +3872,3 @@ body.app-shell .pass-upgrade-note{
   body.app-shell .pass-upgrade-title{max-width:68%;}
   body.app-shell .pass-upgrade-price{font-size:.72rem;}
 }
-
-/* ============================================================
-   Mobile profile drawer: honour the native hidden attribute.
-   The drawer is `display:flex` when configured, which can override
-   the browser's default [hidden]{display:none}. When hidden but
-   still rendered, its off-canvas box-shadow bleeds into the right
-   edge of the viewport and makes the whole page look ~30–60px
-   narrower/darkened on mobile. Keep hidden drawer completely out
-   of the rendering tree; JS removes hidden before adding .open.
-   ============================================================ */
-body.app-shell .mobile-profile-drawer[hidden]{
-  display: none !important;
-}
-body.app-shell .mobile-profile-overlay[hidden]{
-  display: none !important;
-}
