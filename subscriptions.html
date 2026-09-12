@@ -200,38 +200,44 @@ body.subscriptions-page .subscriptions-hero .lede{
 body.subscriptions-page .subscriptions-hero-graphic{ display:none; }
 
 body.subscriptions-page .passes-grid{
-  width:min(100%,840px);
-  max-width:840px;
-  margin: 0 auto;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  width:min(100%,1000px);
+  max-width:1000px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(280px,1fr));
   gap:18px;
   align-items:stretch;
   justify-content:center;
 }
 
-/* Deliberate pricing compositions:
-   4 visible cards = 2 x 2; 2 visible cards = 2 across.
-   Cards keep a comfortable width instead of expanding to fill a
-   four-column row when one or more products are hidden by ownership. */
+/* Deliberate modern card compositions:
+   - 4 visible cards: 3 pass cards across the first row, with the
+     Test Credit card centred beneath them.
+   - 2 visible cards: two equal, sensible-width cards in one row.
+   Cards never stretch unnecessarily to fill the whole page. */
 body.subscriptions-page .passes-grid--four{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  width:min(100%,1000px);
+  max-width:1000px;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
 }
-body.subscriptions-page .passes-grid--two{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-body.subscriptions-page .passes-grid--three{
-  max-width:840px;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-body.subscriptions-page .passes-grid--three > :last-child{
-  grid-column:1 / -1;
-  width:calc((100% - 18px) / 2);
+body.subscriptions-page .passes-grid--four > .credits-summary-card{
+  grid-column:2;
+  width:100%;
   justify-self:center;
 }
+body.subscriptions-page .passes-grid--two{
+  width:min(100%,650px);
+  max-width:650px;
+  grid-template-columns:repeat(2,minmax(280px,1fr));
+}
+body.subscriptions-page .passes-grid--three{
+  width:min(100%,1000px);
+  max-width:1000px;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
+}
 body.subscriptions-page .passes-grid--one{
-  max-width:480px;
+  width:min(100%,460px);
+  max-width:460px;
   grid-template-columns:1fr;
 }
 
@@ -360,7 +366,25 @@ body.subscriptions-page .subscriptions-help-banner{
 }
 
 @media (max-width:1100px){
-  body.subscriptions-page .passes-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); max-width:900px; }
+  body.subscriptions-page .passes-grid--four{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column:1 / -1;
+    width:min(100%,360px);
+    justify-self:center;
+  }
+  body.subscriptions-page .passes-grid--three{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--two{
+    width:min(100%,650px);
+    max-width:650px;
+  }
 }
 @media (max-width:700px){
   body.subscriptions-page .subscriptions-hero{ padding:20px 10px 22px; }
@@ -541,9 +565,18 @@ body.subscriptions-page .credits-purchase-label{
 }
 body.subscriptions-page .credits-pack-row-large{
   display:grid !important;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:10px !important;
+  grid-template-columns:repeat(3, minmax(88px, 1fr));
+  gap:8px !important;
   margin-top:11px !important;
+  justify-content:center;
+}
+
+/* Credit choices stay compact on desktop instead of stretching across
+   the full credit-card width. */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  width:100%;
+  max-width:112px;
+  justify-self:center;
 }
 body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
   position:relative;
@@ -644,7 +677,18 @@ body.subscriptions-page .credits-empty-packs{
   body.subscriptions-page .credits-card-title{ font-size:26px; }
   body.subscriptions-page .credits-balance-panel{ align-items:stretch; flex-direction:column; }
   body.subscriptions-page .credits-history-link{ width:100%; }
-  body.subscriptions-page .credits-pack-row-large{ grid-template-columns:1fr; }
+  /* Mobile: 10 + 20 on row one, 30 on row two. Keep each box at
+     content-friendly width rather than filling the whole card. */
+  body.subscriptions-page .credits-pack-row-large{
+    grid-template-columns:repeat(2, max-content);
+    justify-content:center;
+    column-gap:10px !important;
+    row-gap:10px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+    width:104px;
+    max-width:104px;
+  }
   body.subscriptions-page .credits-benefits{ grid-template-columns:1fr 1fr; }
 }
 body.subscriptions-page .subscription-load-error{
@@ -667,6 +711,282 @@ body.subscriptions-page .subscription-load-error{
 body.subscriptions-page .subscription-load-error strong{color:#17224b;font-size:16px;}
 body.subscriptions-page .subscription-load-error span{font-size:13px;}
 body.subscriptions-page .subscription-load-error .btn{margin-top:8px;}
+
+/* ============================================================
+   Pass selector + balanced card sizing
+   Keeps the existing TypeShala card visual language intact.
+   ============================================================ */
+
+body.subscriptions-page .pass-category-header{
+  align-items:center;
+  margin-bottom:14px;
+  gap:12px;
+}
+
+body.subscriptions-page .pass-category-title-wrap{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+body.subscriptions-page .pass-category-toggle{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 6px;
+  border:1px solid rgba(148,163,184,.24);
+  border-radius:999px;
+  background:rgba(255,255,255,.62);
+  box-shadow:0 3px 10px rgba(30,41,59,.05);
+}
+
+body.subscriptions-page .pass-category-option{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:#6d7b9b;
+  font-family:inherit;
+  font-size:10px;
+  line-height:1;
+  font-weight:850;
+  letter-spacing:.05em;
+  padding:5px 6px;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+body.subscriptions-page .pass-category-option.is-selected{
+  color:#172650;
+  background:#fff;
+  box-shadow:0 2px 7px rgba(30,41,59,.09);
+}
+
+body.subscriptions-page .pass-category-option:focus-visible{
+  outline:2px solid rgba(59,130,246,.45);
+  outline-offset:2px;
+}
+
+body.subscriptions-page .pass-category-switch{
+  position:relative;
+  width:22px;
+  height:12px;
+  border-radius:999px;
+  background:#d8deeb;
+  flex:none;
+}
+
+body.subscriptions-page .pass-category-switch-knob{
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 3px rgba(30,41,59,.18);
+  transition:transform .18s ease;
+}
+
+body.subscriptions-page .pass-category-header:has(.pass-category-option[data-pass-category="LEGAL"].is-selected) .pass-category-switch-knob{
+  transform:translateX(10px);
+}
+
+body.subscriptions-page .pass-category-card .best-value-badge{
+  /* Keep the promotional badge on the card edge without competing
+     with the SSC/Legal selector in the header. */
+  top:-10px;
+  right:50%;
+  transform:translateX(50%);
+  z-index:3;
+}
+
+body.subscriptions-page .pass-category-card .pass-category-header{
+  padding-top:2px;
+}
+
+body.subscriptions-page .pass-category-card .pass-card-description{
+  font-size:.8rem;
+  line-height:1.4;
+}
+
+body.subscriptions-page .pass-category-card .plan-features li{
+  font-size:.82rem;
+  margin-bottom:6px;
+  line-height:1.35;
+}
+
+/* The credit card keeps its established appearance, but its internal
+   typography is intentionally more compact so it can share the exact
+   same outer card dimensions as the pass cards. */
+body.subscriptions-page .credits-combined-card{
+  box-sizing:border-box;
+  padding:22px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-topline{
+  gap:8px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-badge{
+  min-height:28px;
+  padding:0 11px;
+  font-size:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-title{
+  margin:10px 0 4px;
+  font-size:25px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{
+  font-size:12px;
+  line-height:1.4;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-panel{
+  margin-top:14px;
+  padding:14px 14px 14px 16px;
+  gap:10px;
+  border-radius:15px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-number{
+  font-size:44px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-main{
+  gap:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-heading{
+  font-size:13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-balance-note{
+  font-size:10px;
+  margin-top:3px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-history-link{
+  min-width:118px;
+  padding:10px 11px;
+  border-radius:11px;
+  gap:7px;
+  font-size:11px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefits{
+  margin-top:13px;
+  padding:2px 0 13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefit{
+  gap:6px;
+  padding:6px 7px;
+  font-size:9.5px;
+  line-height:1.3;
+}
+
+body.subscriptions-page .credits-combined-card .credits-benefit > span{
+  width:28px;
+  height:28px;
+  font-size:15px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-section{
+  margin-top:13px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-title{
+  font-size:17px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-purchase-label{
+  font-size:10px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+  margin-top:9px !important;
+  gap:8px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  min-height:72px;
+  padding:10px 11px !important;
+  border-radius:13px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:12px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  margin-top:6px;
+  font-size:19px !important;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price-original{
+  font-size:10px !important;
+}
+
+/* Keep credit package typography compact enough for the smaller chips. */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:11px;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  font-size:17px !important;
+  margin-top:4px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
+  top:-8px;
+  right:7px;
+  padding:3px 6px;
+  font-size:8px;
+}
+
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{
+  margin-top:10px !important;
+  min-height:44px !important;
+  font-size:13px;
+}
+
+@media (max-width:900px){
+  body.subscriptions-page .passes-grid--three{
+    width:min(100%,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(260px,1fr));
+  }
+  body.subscriptions-page .passes-grid--three > .credits-summary-card{
+    grid-column:1 / -1;
+    width:min(100%,360px);
+    justify-self:center;
+  }
+}
+
+@media (max-width:700px){
+  body.subscriptions-page .pass-category-header{
+    align-items:flex-start;
+  }
+  body.subscriptions-page .pass-category-toggle{
+    margin-top:-2px;
+  }
+}
+
+@media (max-width:560px){
+  body.subscriptions-page .passes-grid--two{
+    width:min(100%,620px);
+    max-width:620px;
+    grid-template-columns:1fr;
+  }
+  body.subscriptions-page .pass-category-option{
+    font-size:9px;
+  }
+  body.subscriptions-page .credits-combined-card{
+    padding:20px !important;
+  }
+}
+
 </style>
 
 
@@ -780,6 +1100,194 @@ body.subscriptions-page .credits-pack-row-large .credit-pack-check{
    name is constrained by the chip's reserved right-side padding. */
 body.subscriptions-page .credits-pack-row-large .credit-pack-chip[data-product-id] .credit-pack-name{
   max-width:100%;
+}
+</style>
+
+
+<style>
+/* ============================================================
+   FINAL SUBSCRIPTION CARD FIXES — 12 Sep 2026
+   ============================================================ */
+body.subscriptions-page .pass-category-header .card-label,
+body.subscriptions-page .pass-card-header .card-label{
+  text-align:left !important;
+}
+
+/* SSC / Legal selector: no artificial switch knob between labels. */
+body.subscriptions-page .pass-category-toggle{
+  gap:2px !important;
+}
+body.subscriptions-page .pass-category-switch{
+  display:none !important;
+}
+
+/* Discount is shown beside the price, not floating over the card header. */
+body.subscriptions-page .pass-price-discounted{
+  display:flex !important;
+  align-items:baseline !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+}
+body.subscriptions-page .pass-discount-inline{
+  display:inline-flex;
+  align-items:center;
+  white-space:nowrap;
+  padding:4px 9px;
+  border-radius:999px;
+  background:rgba(124,58,237,.08);
+  color:#5b35d5;
+  border:1px solid rgba(124,58,237,.16);
+  font-size:11px;
+  line-height:1;
+  font-weight:800;
+}
+
+/* Keep the credit card visually identical in width to the pass cards,
+   while making its internal typography compact enough to breathe. */
+body.subscriptions-page .credits-combined-card .credits-card-title{
+  font-size:24px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{
+  font-size:12px !important;
+  line-height:1.4 !important;
+}
+body.subscriptions-page .credits-combined-card .credits-balance-panel{
+  padding:14px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-balance-number{
+  font-size:42px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-balance-heading{
+  font-size:14px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-balance-note{
+  font-size:10px !important;
+  line-height:1.25 !important;
+}
+body.subscriptions-page .credits-combined-card .credits-history-link{
+  font-size:11px !important;
+  padding:9px 12px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-benefit{
+  padding:8px 6px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-benefit > span{
+  font-size:10px !important;
+  line-height:1.2 !important;
+}
+body.subscriptions-page .credits-combined-card .credits-benefit strong{
+  font-size:11px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-purchase-title{
+  font-size:18px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-purchase-label{
+  font-size:10px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:12px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  font-size:17px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{
+  font-size:12px !important;
+  min-height:42px !important;
+}
+
+/* Three visible cards: equal, sensible widths; no unnecessary stretching. */
+body.subscriptions-page .passes-grid--three{
+  width:min(100%,1000px) !important;
+  max-width:1000px !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+}
+
+/* Two visible cards: same sensible card width. */
+body.subscriptions-page .passes-grid--two{
+  width:min(100%,680px) !important;
+  max-width:680px !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+
+@media (max-width:900px){
+  body.subscriptions-page .passes-grid--three{
+    width:min(100%,760px) !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+  body.subscriptions-page .passes-grid--three > .credits-summary-card{
+    grid-column:1 / -1 !important;
+    width:min(100%,340px) !important;
+    justify-self:center !important;
+  }
+}
+</style>
+
+
+<style>
+/* ============================================================
+   FINAL CARD ALIGNMENT + CREDIT PACKAGE TYPOGRAPHY
+   ============================================================ */
+/* Keep SSC/Legal and Combo title rows on exactly the same vertical
+   starting line. The category selector stays visually on the right
+   without changing the title's position. */
+body.subscriptions-page .pass-card > .pass-card-header,
+body.subscriptions-page .pass-category-card > .pass-category-header{
+  height:40px !important;
+  min-height:40px !important;
+  box-sizing:border-box !important;
+  margin-top:0 !important;
+  margin-bottom:14px !important;
+  padding:0 !important;
+  align-items:flex-start !important;
+}
+body.subscriptions-page .pass-card > .pass-card-header .card-label,
+body.subscriptions-page .pass-category-card > .pass-category-header .card-label{
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1.15 !important;
+  transform:none !important;
+}
+body.subscriptions-page .pass-category-title-wrap{
+  display:flex !important;
+  align-items:flex-start !important;
+  height:100% !important;
+}
+body.subscriptions-page .pass-category-toggle{
+  margin-top:0 !important;
+}
+/* Keep pricing at the same vertical position in both pass cards. */
+body.subscriptions-page .pass-card .pass-price,
+body.subscriptions-page .pass-card .pass-price-discounted{
+  margin-top:0 !important;
+}
+/* Discount badge: smaller and comfortably separated from the price. */
+body.subscriptions-page .pass-price-discounted{
+  gap:12px !important;
+}
+body.subscriptions-page .pass-discount-inline{
+  margin-left:0 !important;
+  padding:3px 8px !important;
+  font-size:9px !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+}
+/* Compact credit package text so all three options fit cleanly. */
+body.subscriptions-page .credits-combined-card .credit-pack-name{
+  font-size:10px !important;
+  line-height:1.15 !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  margin-top:3px !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price-final{
+  font-size:15px !important;
+}
+body.subscriptions-page .credits-combined-card .credit-pack-price-original{
+  font-size:8px !important;
 }
 </style>
 
@@ -1258,52 +1766,139 @@ body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
   box-shadow:0 1px 3px rgba(20,30,60,.06);
 }
 </style>
+<style>
+/* Final visual alignment pass — 12 Sep 2026 */
+body.subscriptions-page .passes-grid .pass-card{
+  box-sizing:border-box;
+}
+/* Keep every pass title at the same visual baseline, regardless of
+   whether the card has a Best Value badge or SSC/Legal selector. */
+body.subscriptions-page .pass-card > .pass-card-header,
+body.subscriptions-page .pass-category-card > .pass-category-header{
+  min-height:40px !important;
+  margin-top:0 !important;
+  margin-bottom:14px !important;
+  padding-top:0 !important;
+  display:flex !important;
+  align-items:center !important;
+}
+body.subscriptions-page .pass-card > .pass-card-header .card-label,
+body.subscriptions-page .pass-category-card > .pass-category-header .card-label{
+  line-height:1.15 !important;
+  text-align:left !important;
+}
+/* The promo badge belongs beside pricing and must have breathing room. */
+body.subscriptions-page .pass-price-discounted{
+  align-items:baseline !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  margin-top:2px !important;
+}
+body.subscriptions-page .pass-discount-inline{
+  margin-left:2px !important;
+  padding:4px 9px !important;
+  font-size:10px !important;
+  letter-spacing:.01em !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+}
+/* Compact the Test Credit internals without changing its card style. */
+body.subscriptions-page .credits-combined-card .credits-card-title{ font-size:22px !important; }
+body.subscriptions-page .credits-combined-card .credits-card-subtitle{ font-size:11px !important; line-height:1.35 !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-panel{ padding:12px 12px 12px 14px !important; margin-top:11px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-number{ font-size:40px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-heading{ font-size:12px !important; }
+body.subscriptions-page .credits-combined-card .credits-balance-note{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-history-link{ min-width:108px !important; padding:9px 9px !important; font-size:10px !important; }
+body.subscriptions-page .credits-combined-card .credits-benefit{ font-size:8.5px !important; line-height:1.2 !important; padding:5px 5px !important; }
+body.subscriptions-page .credits-combined-card .credits-benefit > span{ width:26px !important; height:26px !important; font-size:14px !important; }
+body.subscriptions-page .credits-combined-card .credits-purchase-title{ font-size:15px !important; }
+body.subscriptions-page .credits-combined-card .credits-purchase-label{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{ min-height:66px !important; padding:8px 9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{ font-size:11px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{ font-size:17px !important; margin-top:4px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price-original{ font-size:9px !important; }
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{ font-size:7px !important; padding:3px 6px !important; top:-9px !important; right:6px !important; }
+body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-height:42px !important; font-size:12px !important; }
+</style>
 
 <style>
-/* ============================================================
-   MOBILE WIDTH FIX — subscriptions page
-   The mobile pass card was capped at 620px, which left a visible
-   empty strip on the right on phones wider than that cap.
-   Keep the cards sensible on desktop/tablet, but on phones let the
-   page and grid use the full available viewport width with only the
-   normal page side padding.
-   ============================================================ */
-@media (max-width:700px){
-  body.subscriptions-page .app-body,
-  body.subscriptions-page .app-content{
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-  }
-
-  body.subscriptions-page .app-content .page,
-  body.subscriptions-page .page{
-    width:100% !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-  }
-
+/* FINAL MOBILE CARD LAYOUT
+   Mobile screens always show exactly ONE subscription card per row.
+   Keep the existing card design and use a sensible readable width. */
+@media (max-width: 700px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--one,
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:100% !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-    grid-template-columns:1fr !important;
+    width: min(100% - 24px, 460px) !important;
+    max-width: 460px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  body.subscriptions-page .passes-grid--three > .credits-summary-card,
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
   }
 
   body.subscriptions-page .pass-card,
   body.subscriptions-page .credits-summary-card{
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+</style>
+<style>
+/* TEST CREDIT PACKAGE CHIPS — compact and identical on desktop/mobile */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+  grid-template-columns:repeat(3, 86px) !important;
+  justify-content:center !important;
+  gap:8px !important;
+  width:100% !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  width:86px !important;
+  min-width:86px !important;
+  max-width:86px !important;
+  min-height:62px !important;
+  height:62px !important;
+  padding:7px 8px !important;
+  box-sizing:border-box !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+  font-size:10px !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  margin-top:3px !important;
+}
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
+  font-size:6.5px !important;
+  padding:2px 5px !important;
+  top:-8px !important;
+  right:3px !important;
+}
+@media (max-width:700px){
+  /* Keep all three credit boxes in ONE compact row on mobile too. */
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+    grid-template-columns:repeat(3, 86px) !important;
+    justify-content:center !important;
+    gap:8px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+    width:86px !important;
+    min-width:86px !important;
+    max-width:86px !important;
   }
 }
 </style>

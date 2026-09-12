@@ -307,6 +307,27 @@ function planIconSvg(theme) {
   return icons[theme] || icons.ssc;
 }
 
+function defaultPassFeatures(passType) {
+  const type = (passType || "").toUpperCase();
+  const access = type === "COMBO" ? "All SSC + Legal typing mocks" :
+    type === "SSC" ? "All SSC typing mocks" : "All Legal typing mocks";
+  return [
+    "Unlimited mock tests",
+    access,
+    "Choose test duration: 5 mins / 10 mins",
+    "Access throughout the validity period",
+    "Performance analysis",
+    "Weak key analysis"
+  ];
+}
+
+function passFeaturesHtml(passType, features) {
+  // Pass cards always show the standard product feature set. Admin can
+  // still supply a custom description, but these core features are
+  // guaranteed to appear for both inactive/purchase and active cards.
+  return featuresListHtml(defaultPassFeatures(passType));
+}
+
 function featuresListHtml(features) {
   if (!features || features.length === 0) return "";
   return '<ul class="plan-features">' +
@@ -339,21 +360,19 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   const hasLegal = !!activePassByType.LEGAL;
   const hasCombo = !!activePassByType.COMBO || (hasSSC && hasLegal);
 
-  // No active pass: show all configured purchase cards.
-  // Active SSC: show only SSC, with the Combo upgrade inside the SSC card.
-  // Active Legal: show only Legal, with the Combo upgrade inside the Legal card.
-  // Active Combo: show only Combo as the current plan.
-  // Server-side purchase/eligibility validation remains authoritative.
+  const sscProduct = passProducts.find(p => p.pass_type === "SSC");
+  const legalProduct = passProducts.find(p => p.pass_type === "LEGAL");
+  const comboProduct = passProducts.find(p => p.pass_type === "COMBO");
+
   let passCardsHtml = "";
 
   if (hasCombo) {
-    const comboProduct = passProducts.find(p => p.pass_type === "COMBO");
-    const comboState = activePassByType.COMBO;
-    if (comboProduct && comboState) {
-      passCardsHtml = buildPassCardHtml(comboProduct, comboState);
+    // Once Combo is purchased, show only the active Combo pass + Test Credit.
+    if (comboProduct && activePassByType.COMBO) {
+      passCardsHtml = buildPassCardHtml(comboProduct, activePassByType.COMBO);
     } else if (comboProduct && (hasSSC || hasLegal)) {
-      // Legacy fallback: if both category entitlements exist without a
-      // Combo row, display one full-access Combo card using the latest expiry.
+      // Legacy fallback: if both category entitlements exist without a Combo
+      // row, present one full-access Combo card using the latest expiry.
       const expiryCandidates = [activePassByType.SSC, activePassByType.LEGAL]
         .filter(Boolean)
         .map(state => new Date(state.expiresAt).getTime());
@@ -364,33 +383,58 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
         });
       }
     }
-  } else if (hasSSC) {
-    const sscProduct = passProducts.find(p => p.pass_type === "SSC");
-    const comboProduct = passProducts.find(p => p.pass_type === "COMBO");
-    if (sscProduct) {
-      passCardsHtml = buildOwnedPassCardHtml(sscProduct, activePassByType.SSC, comboProduct);
-    }
-  } else if (hasLegal) {
-    const legalProduct = passProducts.find(p => p.pass_type === "LEGAL");
-    const comboProduct = passProducts.find(p => p.pass_type === "COMBO");
-    if (legalProduct) {
-      passCardsHtml = buildOwnedPassCardHtml(legalProduct, activePassByType.LEGAL, comboProduct);
+  } else if (hasSSC || hasLegal) {
+    // A user with SSC or Legal sees that active category in the shared
+    // SSC/Legal card. The Combo purchase card is intentionally hidden because
+    // the upgrade CTA is already inside the active card.
+    const defaultType = hasLegal && !hasSSC ? "LEGAL" : "SSC";
+    if (sscProduct || legalProduct) {
+      passCardsHtml = buildCombinedCategoryPassCardHtml(
+        sscProduct,
+        legalProduct,
+        activePassByType,
+        defaultType,
+        comboProduct
+      );
     }
   } else {
-    passCardsHtml = passProducts.map(p => buildPassCardHtml(p, null)).join("");
+    // No active pass: show the shared SSC/Legal purchase card AND the
+    // separate Combo purchase card, followed by Test Credit.
+    const defaultType = "SSC";
+    if (sscProduct || legalProduct) {
+      passCardsHtml = buildCombinedCategoryPassCardHtml(
+        sscProduct,
+        legalProduct,
+        activePassByType,
+        defaultType,
+        comboProduct
+      );
+    }
+    if (comboProduct) {
+      passCardsHtml += buildPassCardHtml(comboProduct, null);
+    }
   }
 
-  grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') + buildCreditsSummaryCardHtml(creditBalance, creditProducts);
-  bindCombinedCreditCard(grid, creditProducts);
+  grid.innerHTML = (passCardsHtml || '<div class="empty-state">No plans available right now.</div>') +
+    buildCreditsSummaryCardHtml(creditBalance, creditProducts);
 
-  // Layout is based on the TOTAL visible cards, including the combined
-  // Test Credit card.  This gives the pricing section a deliberate
-  // composition instead of allowing two cards to stretch too wide:
-  //   4 cards -> 2 x 2
-  //   2 cards -> 2 in one row
-  //   3 cards -> 2 + 1 (the last card is centred by CSS)
-  //   1 card  -> single centred card
-  const cardCount = grid.querySelectorAll(':scope > .pass-card, :scope > .credits-summary-card').length;
+  bindCombinedCreditCard(grid, creditProducts);
+  bindPassCategoryToggle(grid, {
+    sscProduct,
+    legalProduct,
+    activePassByType,
+    comboProduct,
+    currentType: (hasLegal && !hasSSC) ? "LEGAL" : "SSC"
+  });
+
+  // Layout is based on the number of visible cards, including Test Credit:
+  //   3 cards -> 3 equal cards in one row
+  //   2 cards -> 2 equal cards in one row
+  //   1 card  -> one centred card
+  const cardCount = grid.querySelectorAll(
+    ':scope > .pass-card, :scope > .credits-summary-card'
+  ).length;
+
   grid.classList.toggle('passes-grid--two', cardCount === 2);
   grid.classList.toggle('passes-grid--four', cardCount === 4);
   grid.classList.toggle('passes-grid--three', cardCount === 3);
@@ -405,6 +449,155 @@ function getDaysLeft(expiresAt) {
   const difference = expiry.getTime() - now.getTime();
   if (difference <= 0) return 0;
   return Math.ceil(difference / (1000 * 60 * 60 * 24));
+}
+
+
+function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassByType, selectedType, comboProduct) {
+  const type = (selectedType || "SSC").toUpperCase() === "LEGAL" ? "LEGAL" : "SSC";
+  const product = type === "LEGAL" ? legalProduct : sscProduct;
+  const activeState = activePassByType[type];
+  const otherType = type === "SSC" ? "LEGAL" : "SSC";
+
+  if (!product) {
+    const fallback = type === "SSC" ? legalProduct : sscProduct;
+    if (!fallback) return "";
+    return buildCombinedCategoryPassCardHtml(
+      sscProduct,
+      legalProduct,
+      activePassByType,
+      otherType,
+      comboProduct
+    );
+  }
+
+  const theme = type.toLowerCase();
+  const catClass = "plan-" + theme;
+  const featured = product.best_value ? " featured" : "";
+  const showBadge = !!product.best_value && !activeState;
+  const defaultBadgeText = "Best Value";
+  const bestValueBadge = showBadge
+    ? '<span class="best-value-badge">' + escapeHtmlLocal(product.badge_text || defaultBadgeText) + '</span>'
+    : "";
+
+  const toggleHtml = `
+    <div class="pass-category-toggle" role="group" aria-label="Choose pass category">
+      <button type="button"
+        class="pass-category-option${type === "SSC" ? " is-selected" : ""}"
+        data-pass-category="SSC"
+        aria-pressed="${type === "SSC" ? "true" : "false"}">SSC</button>
+      <button type="button"
+        class="pass-category-option${type === "LEGAL" ? " is-selected" : ""}"
+        data-pass-category="LEGAL"
+        aria-pressed="${type === "LEGAL" ? "true" : "false"}">LEGAL</button>
+    </div>`;
+
+  const headerHtml = `
+    <div class="pass-card-header pass-category-header">
+      <div class="pass-category-title-wrap">
+        <div class="card-label">${escapeHtmlLocal(product.name || (type + " PASS"))}</div>
+      </div>
+      ${toggleHtml}
+    </div>`;
+
+  if (activeState) {
+    const daysLeft = getDaysLeft(activeState.expiresAt);
+    const upgradePrice = product.upgrade_to_combo_price;
+    const canUpgrade = !!comboProduct && upgradePrice != null;
+
+    const upgradeHtml = canUpgrade ? `
+      <div class="pass-upgrade-box">
+        <div class="pass-upgrade-heading">
+          <span class="pass-upgrade-title">GET UNLIMITED ${otherType} MOCKS</span>
+          <span class="pass-upgrade-price">JUST AT &#8377;${upgradePrice}</span>
+        </div>
+        <div class="pass-upgrade-text">
+          Upgrade to Combo and unlock all ${otherType} typing mocks.
+        </div>
+      </div>
+
+      <button class="btn btn-full pass-upgrade-btn buy-product-btn"
+        data-product-id="${comboProduct.id}"
+        data-is-upgrade="true"
+        data-product-type="PASS"
+        data-pass-type="COMBO">
+        Unlock Unlimited ${otherType} Mocks
+        <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+
+      <div class="pass-upgrade-note">Your current validity will remain the same.</div>
+    ` : `
+      <div class="pass-upgrade-box pass-upgrade-box-unavailable">
+        Combo upgrade is currently unavailable.
+      </div>
+    `;
+
+    return `
+      <div class="card pass-card pass-category-card ${catClass} is-owned${featured}">
+        ${bestValueBadge}
+        ${headerHtml}
+
+        <div class="pass-current-plan-box">
+          <div class="pass-current-plan-title">Your Current Plan</div>
+          <div class="pass-plan-detail-row">
+            <span>Validity</span>
+            <strong>${daysLeft} ${daysLeft === 1 ? "day" : "days"} left</strong>
+          </div>
+          <div class="pass-plan-detail-row">
+            <span>Access</span>
+            <strong>All ${type === "SSC" ? "SSC" : "Legal"} mocks</strong>
+          </div>
+        </div>
+
+        ${passFeaturesHtml(product.pass_type, product.features)}
+        ${upgradeHtml}
+      </div>`;
+  }
+
+  return `
+    <div class="card pass-card pass-category-card ${catClass}${featured}">
+      ${bestValueBadge}
+
+      ${headerHtml}
+
+      ${priceDisplayHtml(product)}
+      <span class="pass-duration-pill">Valid for ${product.validity_days} Days</span>
+      ${product.description ? '<p class="pass-card-description">' + escapeHtmlLocal(product.description) + "</p>" : ""}
+      ${passFeaturesHtml(product.pass_type, product.features)}
+
+      <button class="btn btn-full buy-product-btn"
+        data-product-id="${product.id}"
+        data-product-type="PASS"
+        data-pass-type="${product.pass_type}">
+        Buy Now <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>`;
+}
+
+function bindPassCategoryToggle(grid, state) {
+  const card = grid.querySelector(".pass-category-header")?.closest(".pass-card");
+  if (!card) return;
+
+  card.querySelectorAll("[data-pass-category]").forEach(button => {
+    button.addEventListener("click", () => {
+      const nextType = button.dataset.passCategory;
+      if (!nextType || nextType === state.currentType) return;
+
+      // Re-render only the pass-card, leaving the credit card and its
+      // selected package untouched.
+      const nextHtml = buildCombinedCategoryPassCardHtml(
+        state.sscProduct,
+        state.legalProduct,
+        state.activePassByType,
+        nextType,
+        state.comboProduct
+      );
+
+      card.outerHTML = nextHtml;
+      state.currentType = nextType;
+      bindPassCategoryToggle(grid, state);
+    });
+  });
 }
 
 function buildOwnedPassCardHtml(p, activeState, comboProduct) {
@@ -462,6 +655,8 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
         </div>
       </div>
 
+      ${passFeaturesHtml(p.pass_type, p.features)}
+
       ${upgradeHtml}
     </div>`;
 }
@@ -473,8 +668,8 @@ function buildPassCardHtml(p, activeState) {
   // or neither) — but there is only one badge_text field, so when
   // either applies it shows the same admin-set text, falling back to
   // a sensible default only when the admin left it blank.
-  const showBadge = p.best_value || p.discount_active;
-  const defaultBadgeText = p.best_value ? "Best Value" : discountBadgeFallback(p);
+  const showBadge = !!p.best_value && !activeState;
+  const defaultBadgeText = "Best Value";
   const bestValueBadge = showBadge ? '<span class="best-value-badge">' + escapeHtmlLocal(p.badge_text || defaultBadgeText) + '</span>' : "";
   const theme = (p.pass_type || "ssc").toLowerCase();
   const catClass = "plan-" + theme;
@@ -504,7 +699,7 @@ function buildPassCardHtml(p, activeState) {
         </div>
 
         ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${featuresListHtml(p.features)}
+        ${passFeaturesHtml(p.pass_type, p.features)}
         <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
       </div>`;
   }
@@ -512,14 +707,13 @@ function buildPassCardHtml(p, activeState) {
   return `
     <div class="card pass-card ${catClass}${featured}">
       ${bestValueBadge}
-      <div class="pass-status-row pass-status-row-inactive">
-        <span class="pass-status-text-inactive">Not Active</span>
+      <div class="pass-card-header">
+        <div class="card-label">${escapeHtmlLocal(p.name)}</div>
       </div>
-      <div class="card-label">${escapeHtmlLocal(p.name)}</div>
       ${priceHtml}
       <span class="pass-duration-pill">Valid for ${p.validity_days} Days</span>
       ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-      ${featuresListHtml(p.features)}
+      ${passFeaturesHtml(p.pass_type, p.features)}
       <button class="btn btn-full buy-product-btn" data-product-id="${p.id}" data-product-type="PASS" data-pass-type="${p.pass_type}">Buy Now <span aria-hidden="true">&rarr;</span></button>
     </div>`;
 }
@@ -541,10 +735,12 @@ function priceDisplayHtml(p) {
   if (!p.discount_active) {
     return '<div class="pass-price">&#8377;' + p.price + '</div>';
   }
+  const discountText = escapeHtmlLocal(p.badge_text || discountBadgeFallback(p));
   return (
     '<div class="pass-price pass-price-discounted">' +
       '<span class="pass-price-original">&#8377;' + p.price + '</span>' +
       '<span class="pass-price-final">&#8377;' + p.effective_price + '</span>' +
+      '<span class="pass-discount-inline">' + discountText + '</span>' +
     '</div>'
   );
 }
@@ -641,7 +837,7 @@ let selectedCreditProductId = null;
 // displayed here.
 function creditPackChipHtml(p, selected) {
   const credits = Number(p.credits);
-  const name = p.name || `${credits} Credits`;
+  const name = credits === 10 ? "10 Credits" : (credits === 20 ? "20 Credits" : (credits === 30 ? "30 Credits" : (p.name || `${credits} Credits`)));
   const price = p.discount_active ? p.effective_price : p.price;
   const originalPrice = p.discount_active ? p.price : null;
   const badge = p.badge_text || (p.description && /best offer/i.test(p.description) ? p.description : "");
