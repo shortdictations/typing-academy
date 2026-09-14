@@ -45,7 +45,66 @@
 <div class="ts-landing-main">
 <header class="site-header">
     <div class="container nav-wrap">
-      
+      <a class="lp-brand" href="index.html" aria-label="TypeShala home">
+        <span class="lp-brand-mark">TS</span>
+        <span>
+          <strong>TypeShala</strong>
+          <small>TYPING PRACTICE CENTRE</small>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#platform">Platform</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#pricing">Passes & Credits</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="login-link" href="login.html">Log in</a>
+        <a class="lp-btn lp-btn-gold lp-btn-small" href="register.html">Get Started</a>
+      </div>
+
+      <button class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+
+    <div class="mobile-menu">
+      <a href="#platform">Platform</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#pricing">Passes & Credits</a>
+      <a href="login.html">Log in</a>
+      <a class="lp-btn lp-btn-gold" href="register.html">Get Started</a>
+    </div>
+  </header>
+
+  <!-- Admin-managed announcement ticker — same mechanism as the
+       dashboard (js/announcement-ticker.js), just targeting "home"
+       instead of "dashboard" as its locationKey. Hidden entirely
+       when nothing currently qualifies (active + in date window +
+       show_on includes "home"). -->
+  <div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+
+  <main>
+    <!-- HERO -->
+    <section class="lp-hero">
+      <div class="lp-hero-glow lp-hero-glow-one"></div>
+      <div class="lp-hero-glow lp-hero-glow-two"></div>
+
+      <div class="container lp-hero-grid">
+        <div class="lp-hero-copy">
+          <div class="lp-eyebrow"><span></span> FOR SSC & LEGAL TYPING ASPIRANTS</div>
+          <h1>Practice typing.<br><em>Prepare for the exam.</em></h1>
+          <p class="lp-hero-text">
+            Unlimited Exam-style mock tests, accurate scoring and useful performance insights —
+            all in one focused practice platform.
+          </p>
+
+          <div class="lp-hero-actions">
+            <a class="lp-btn lp-btn-primary" href="register.html">
+              <span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i>
+            </a>
+            <a class="text-btn" href="#platform">Explore TypeShala <i data-lucide="arrow-down"></i></a>
           </div>
 
           <div class="trust-row">
@@ -125,7 +184,7 @@
               <h3>SSC Typing & DEST</h3>
               <p>Practice for SSC typing requirements with timed mock tests and performance scoring.</p>
             </div>
-            <a     href="login.html">Explore SSC <i data-lucide="arrow-up-right"></i></a>
+            <a href="#pricing">Explore SSC <i data-lucide="arrow-up-right"></i></a>
           </article>
 
           <article class="audience-card green-card">
@@ -338,7 +397,7 @@
         <div class="dashboard-preview">
           <div class="dash-head">
             <div><strong>Student Dashboard</strong><small>Welcome back, Aspirant</small></div>
-            <span class="plan-pill">SSC Pass • ACTIVE</span>
+            <span class="plan-pill">SSC PASS • ACTIVE</span>
           </div>
           <div class="dash-stats">
             <div><small>TESTS TAKEN</small><strong>42</strong></div>
@@ -390,7 +449,7 @@
       <div class="container final-inner">
         <span class="section-kicker light">READY WHEN YOU ARE</span>
         <h2>Build speed. Improve accuracy.<br>Get exam-ready.</h2>
-        <p data-free-credits="Start with {n} free credits and experience TypeShala for yourself.">Start with 3 Free Credits and experience TypeShala for yourself.</p>
+        <p data-free-credits="Start with {n} free credits and experience TypeShala for yourself.">Start with 3 free credits and experience TypeShala for yourself.</p>
         <a class="lp-btn lp-btn-gold lp-btn-large" href="register.html"><span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i></a>
       </div>
     </section>
@@ -400,7 +459,7 @@
 <footer class="site-foot">
   <div class="site-foot-inner">
     <div class="site-foot-social" aria-label="Follow TypeShala">
-      <a class="site-foot-social-link"  target="_blank" rel="noopener noreferrer" aria-label="Blogger" href="login.html">
+      <a class="site-foot-social-link" href="https://indianshorthand.blogspot.com" target="_blank" rel="noopener noreferrer" aria-label="Blogger">
         <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
       </a>
       <a class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
