@@ -92,7 +92,7 @@ function renderPasses(passes, grid) {
         <h3>${escapeHtmlLP(p.name)}</h3>
         ${priceHtml}
         <ul>${features}</ul>
-        <a class="lp-btn ${visual.btnClass}" href="login.html">Get Started</a>
+        <a class="lp-btn ${visual.btnClass}" href="register.html">Get Started</a>
       </article>`;
   }).join("");
 
@@ -114,21 +114,10 @@ function renderCredits(credits, container) {
       ? `<span class="price-discounted"><span class="price-original">₹${formatPriceLP(p.price)}</span> ₹${formatPriceLP(p.effective_price)}</span>`
       : `<span>₹${formatPriceLP(p.price)}</span>`;
     return `
-      <div class="${bestClass.trim()}" role="button" tabindex="0" aria-label="Buy ${escapeHtmlLP(p.credits)} test credits" data-credit-login>
+      <div class="${bestClass.trim()}">
         <strong>${p.credits}</strong>${priceHtml}${badge}
       </div>`;
   }).join("");
-
-  container.querySelectorAll("[data-credit-login]").forEach(el => {
-    const goToLogin = () => { window.location.href = "login.html"; };
-    el.addEventListener("click", goToLogin);
-    el.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        goToLogin();
-      }
-    });
-  });
 }
 
 // Only used when the admin left badge_text blank and there's no

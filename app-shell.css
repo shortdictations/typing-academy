@@ -46,7 +46,16 @@ body.app-shell h1, body.app-shell h2{ font-family: var(--ts-font); color: var(--
 body.app-shell .lede{ color: var(--ts-muted); }
 /* Safety net, matching the same reasoning as the public landing
    page: guarantees no page-level horizontal scrollbar regardless of
-   any element's computed size, at any breakpoint. */
+   any element's computed size, at any breakpoint. Both html AND body
+   are needed here, not just body: a position:fixed element (like
+   .mobile-profile-drawer below, parked off-screen via
+   transform:translateX(100%) when closed) is positioned against the
+   viewport, not the body box, so body's own overflow-x:hidden does
+   not reliably clip it — confirmed directly: with only the body rule
+   present, the closed drawer still widened the page's actual
+   scrollable area (html's, not body's) on mobile, showing as a
+   sliver of the surrounding background down the header and page. */
+html{ overflow-x: hidden; }
 body.app-shell{ overflow-x: hidden; }
 
 /* ---------- Header ---------- */
@@ -3871,4 +3880,27 @@ body.app-shell .pass-upgrade-note{
   body.app-shell .pass-upgrade-heading{align-items:flex-start;}
   body.app-shell .pass-upgrade-title{max-width:68%;}
   body.app-shell .pass-upgrade-price{font-size:.72rem;}
+}
+
+/* TypeShala mobile viewport correction: the authenticated shell must
+   occupy the complete viewport. This is intentionally scoped to the
+   mobile shell and does not alter subscription-card dimensions. */
+@media (max-width: 700px){
+  html, body.app-shell{
+    width:100%;
+    min-width:0;
+    max-width:none;
+  }
+  body.app-shell .letterhead,
+  body.app-shell .app-body,
+  body.app-shell .app-content{
+    width:100%;
+    max-width:none;
+    min-width:0;
+    margin-left:0;
+    margin-right:0;
+  }
+  body.app-shell .app-content{
+    flex:0 0 100%;
+  }
 }
