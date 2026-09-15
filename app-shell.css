@@ -4040,3 +4040,249 @@ body.app-shell .pass-upgrade-note{
     overflow: visible !important;
   }
 }
+
+
+/* ============================================================
+   FINAL DESKTOP APP SHELL — FIXED HEADER + FIXED SIDEBAR
+   ------------------------------------------------------------
+   The document is the ONLY vertical scroll surface. The header and
+   desktop sidebar are removed from normal document flow and pinned to
+   the viewport. The main content receives the exact space occupied by
+   those fixed elements, so the existing page/card layout is preserved.
+
+   Sidebar animation is handled by the sidebar width and the content's
+   left offset. Labels/icons also fade/resize smoothly without changing
+   their final collapsed dimensions.
+   ============================================================ */
+@media (min-width: 1024px){
+  :root{
+    --ts-header-height: 79px;
+    --ts-sidebar-open: 240px;
+    --ts-sidebar-closed: 76px;
+    --ts-shell-ease: cubic-bezier(.22,.61,.36,1);
+    --ts-shell-duration: .28s;
+  }
+
+  html,
+  body.app-shell{
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  /* Freeze the header to the viewport. */
+  body.app-shell .letterhead{
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: var(--ts-header-height) !important;
+    min-height: var(--ts-header-height) !important;
+    z-index: 1000 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* The header is no longer in normal flow, so restore exactly its
+     former vertical footprint before the page content begins. */
+  body.app-shell .app-body{
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: var(--ts-header-height) 0 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+
+  /* Freeze the desktop sidebar below the header. */
+  body.app-shell .app-sidebar{
+    position: fixed !important;
+    top: var(--ts-header-height) !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: var(--ts-sidebar-open) !important;
+    min-width: var(--ts-sidebar-open) !important;
+    max-width: var(--ts-sidebar-open) !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    z-index: 900 !important;
+    transition:
+      width var(--ts-shell-duration) var(--ts-shell-ease),
+      min-width var(--ts-shell-duration) var(--ts-shell-ease),
+      max-width var(--ts-shell-duration) var(--ts-shell-ease),
+      padding var(--ts-shell-duration) var(--ts-shell-ease) !important;
+    will-change: width;
+  }
+
+  body.app-shell .app-sidebar.collapsed{
+    width: var(--ts-sidebar-closed) !important;
+    min-width: var(--ts-sidebar-closed) !important;
+    max-width: var(--ts-sidebar-closed) !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* Main content occupies exactly the remaining viewport width. */
+  body.app-shell .app-content{
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin-left: var(--ts-sidebar-open) !important;
+    transition: margin-left var(--ts-shell-duration) var(--ts-shell-ease) !important;
+    box-sizing: border-box !important;
+    will-change: margin-left;
+  }
+
+  body.app-shell.sidebar-collapsed .app-content{
+    margin-left: var(--ts-sidebar-closed) !important;
+  }
+
+  /* Preserve each page's existing readable width rules. The shell only
+     changes the available column; it does not redesign the page. */
+  body.app-shell .app-content > .page{
+    box-sizing: border-box;
+  }
+
+  /* Smooth, modern nav animation. Final icon size/position stays the
+     same as the approved collapsed sidebar. */
+  body.app-shell .app-nav-link{
+    transition:
+      background-color .18s ease,
+      color .18s ease,
+      width var(--ts-shell-duration) var(--ts-shell-ease),
+      padding var(--ts-shell-duration) var(--ts-shell-ease),
+      gap var(--ts-shell-duration) var(--ts-shell-ease);
+  }
+
+  body.app-shell .app-nav-link-label{
+    display: block !important;
+    min-width: 0;
+    max-width: 180px;
+    opacity: 1;
+    transform: translateX(0);
+    overflow: hidden;
+    white-space: nowrap;
+    transition:
+      opacity .16s ease,
+      max-width var(--ts-shell-duration) var(--ts-shell-ease),
+      transform var(--ts-shell-duration) var(--ts-shell-ease);
+  }
+
+  body.app-shell .app-sidebar.collapsed .app-nav-link-label{
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(-5px);
+    pointer-events: none;
+  }
+
+  body.app-shell .app-sidebar .app-nav-link > svg{
+    flex: 0 0 18px;
+    width: 18px !important;
+    height: 18px !important;
+    transition:
+      width var(--ts-shell-duration) var(--ts-shell-ease),
+      height var(--ts-shell-duration) var(--ts-shell-ease),
+      transform var(--ts-shell-duration) var(--ts-shell-ease);
+  }
+
+  body.app-shell .app-sidebar.collapsed .app-nav-link{
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    justify-content: center !important;
+  }
+
+  body.app-shell .app-sidebar.collapsed .app-nav-link > svg{
+    flex: 0 0 20px;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Keep the toggle itself stable while the sidebar animates. */
+  body.app-shell .app-header-sidebar-toggle{
+    transition:
+      background-color .18s ease,
+      transform .18s ease,
+      border-color .18s ease;
+  }
+  body.app-shell .app-header-sidebar-toggle:active{
+    transform: scale(.96);
+  }
+}
+
+/* Tablet desktop-style shell: same fixed behaviour, narrower sidebar. */
+@media (min-width: 701px) and (max-width: 1023px){
+  :root{
+    --ts-header-height: 79px;
+    --ts-sidebar-open: 200px;
+    --ts-sidebar-closed: 76px;
+    --ts-shell-ease: cubic-bezier(.22,.61,.36,1);
+    --ts-shell-duration: .28s;
+  }
+
+  html,
+  body.app-shell{
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body.app-shell .letterhead{
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: var(--ts-header-height) !important;
+    min-height: var(--ts-header-height) !important;
+    z-index: 1000 !important;
+  }
+
+  body.app-shell .app-body{
+    display: block !important;
+    width: 100% !important;
+    margin: var(--ts-header-height) 0 0 !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+  }
+
+  body.app-shell .app-sidebar{
+    position: fixed !important;
+    top: var(--ts-header-height) !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: var(--ts-sidebar-open) !important;
+    min-width: var(--ts-sidebar-open) !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    z-index: 900 !important;
+    transition: width var(--ts-shell-duration) var(--ts-shell-ease), padding var(--ts-shell-duration) var(--ts-shell-ease) !important;
+  }
+
+  body.app-shell .app-sidebar.collapsed{
+    width: var(--ts-sidebar-closed) !important;
+    min-width: var(--ts-sidebar-closed) !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  body.app-shell .app-content{
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin-left: var(--ts-sidebar-open) !important;
+    transition: margin-left var(--ts-shell-duration) var(--ts-shell-ease) !important;
+  }
+
+  body.app-shell.sidebar-collapsed .app-content{
+    margin-left: var(--ts-sidebar-closed) !important;
+  }
+}
