@@ -1962,49 +1962,68 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-he
 }
 </style>
 <style>
-/* TEST CREDIT PACKAGE CHIPS — compact and identical on desktop/mobile */
+/* FINAL CREDIT-PACK RESPONSIVENESS
+   The previous fixed 86px chips could overflow the Test Credit card
+   when the available card width became smaller than 274px. That made
+   the first/last option appear clipped and made the whole card look
+   broken. Let the three options share the actual inner width instead. */
 body.subscriptions-page .credits-combined-card .credits-pack-row-large{
-  grid-template-columns:repeat(3, 86px) !important;
-  justify-content:center !important;
-  gap:8px !important;
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  justify-content:stretch !important;
+  gap:8px !important;
+  box-sizing:border-box !important;
 }
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
-  width:86px !important;
-  min-width:86px !important;
-  max-width:86px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
   min-height:62px !important;
   height:62px !important;
-  padding:7px 8px !important;
+  padding:7px 7px !important;
   box-sizing:border-box !important;
 }
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
   font-size:10px !important;
   line-height:1.15 !important;
   white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
 }
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
   font-size:15px !important;
   line-height:1.05 !important;
   margin-top:3px !important;
+  white-space:nowrap !important;
 }
 body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
-  font-size:6.5px !important;
-  padding:2px 5px !important;
+  font-size:6px !important;
+  padding:2px 4px !important;
   top:-8px !important;
   right:3px !important;
+  max-width:calc(100% - 6px) !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
-@media (max-width:700px){
-  /* Keep all three credit boxes in ONE compact row on mobile too. */
+
+/* On genuinely narrow phones, allow the three options to remain
+   readable by giving the package row a little more inner width. */
+@media (max-width:380px){
   body.subscriptions-page .credits-combined-card .credits-pack-row-large{
-    grid-template-columns:repeat(3, 86px) !important;
-    justify-content:center !important;
-    gap:8px !important;
+    gap:6px !important;
   }
   body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
-    width:86px !important;
-    min-width:86px !important;
-    max-width:86px !important;
+    padding-left:5px !important;
+    padding-right:5px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+    font-size:9px !important;
+  }
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+    font-size:14px !important;
   }
 }
 </style>
