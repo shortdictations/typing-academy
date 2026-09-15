@@ -257,7 +257,11 @@ body.app-shell .app-sidebar{
   position: sticky;
   top: 79px;
   height: calc(100vh - 79px);
-  overflow-y: auto;
+  /* Keep the desktop sidebar stationary while the page content scrolls.
+     The sidebar itself must never become an independent scroll container. */
+  overflow: hidden;
+  overflow-y: hidden;
+  overscroll-behavior: none;
   z-index: 10;
 }
 /* Collapsed: .app-content is already flex:1 1 auto (below), so
