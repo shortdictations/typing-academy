@@ -3908,3 +3908,15 @@ body.app-shell .pass-upgrade-note{
     flex:0 0 100%;
   }
 }
+
+/* Desktop sidebar: fixed/sticky, with no independent sidebar scrolling. */
+@media (min-width: 1024px) {
+  .app-sidebar {
+    position: sticky;
+    top: 79px;
+    height: calc(100vh - 79px);
+    overflow: hidden;
+    overflow-y: hidden;
+    overscroll-behavior: none;
+  }
+}
