@@ -245,7 +245,7 @@ body.app-shell .app-sidebar{
   box-sizing: border-box;
   transition: width 0.22s ease, flex-basis 0.22s ease;
   /* Sticky, positioned right below the sticky header (.letterhead,
-     position:sticky; top:0 — see style.css). 79px is the header's
+top:0 — see style.css). 79px is the header's
      actual measured rendered height (getBoundingClientRect, not the
      60px assumed by this rule's old min-height value, which was
      close enough for min-height's purpose but would have caused a
@@ -254,10 +254,7 @@ body.app-shell .app-sidebar{
      .app-sidebar is display:none (see the existing mobile block
      further down), so mobile is unaffected. mock-test-attempt.html
      never includes this markup at all, so it's unaffected too. */
-  position: sticky;
-  top: 79px;
-  height: calc(100vh - 79px);
-  /* Keep the desktop sidebar stationary while the page content scrolls.
+/* Keep the desktop sidebar stationary while the page content scrolls.
      The sidebar itself must never become an independent scroll container. */
   
   
@@ -3981,5 +3978,101 @@ body.app-shell .pass-upgrade-note{
   body {
     overflow-x: hidden !important;
     overflow-y: auto !important;
+  }
+}
+
+
+/* ============================================================
+   TypeShala FINAL DESKTOP SHELL
+   ------------------------------------------------------------
+   Layout-preserving scroll fix.
+   Do NOT change card/page dimensions here.
+   Desktop only:
+     - header is fixed
+     - sidebar is fixed
+     - document/page is the only vertical scroller
+     - existing 240px sidebar / 76px collapsed geometry preserved
+   ============================================================ */
+@media (min-width: 1024px) {
+
+  html,
+  body.app-shell {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body.app-shell .letterhead {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1000 !important;
+  }
+
+  /*
+   * The header used to occupy normal document space.
+   * Keep that same visual starting position for the page after making
+   * the header fixed.
+   */
+  body.app-shell .app-body {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: calc(100vh - 79px) !important;
+    padding-top: 79px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  /*
+   * Fixed sidebar. Width is exactly the existing expanded width.
+   * No internal scrolling.
+   */
+  body.app-shell .app-body > .app-sidebar {
+    position: fixed !important;
+    top: 79px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 240px !important;
+    height: calc(100vh - 79px) !important;
+    max-height: calc(100vh - 79px) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+    z-index: 900 !important;
+  }
+
+  /*
+   * The sidebar used to occupy 240px of the flex row. Preserve that
+   * exact content position after fixing the sidebar out of document flow.
+   */
+  body.app-shell .app-body > .app-content {
+    display: block !important;
+    width: calc(100% - 240px) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 240px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  /*
+   * Collapsed sidebar keeps its existing 76px geometry and simply
+   * transfers the same 164px of space to the content.
+   */
+  body.app-shell .app-body > .app-sidebar.collapsed + .app-content {
+    width: calc(100% - 76px) !important;
+    margin-left: 76px !important;
+  }
+
+  /*
+   * The document itself is the ONLY vertical scroll surface.
+   * No page shell wrapper is given overflow:auto/scroll.
+   */
+  body.app-shell .app-content,
+  body.app-shell .app-content .page {
+    overflow: visible !important;
   }
 }
