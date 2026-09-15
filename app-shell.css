@@ -3982,19 +3982,15 @@ body.app-shell .pass-upgrade-note{
 }
 
 
+
 /* ============================================================
-   TypeShala FINAL DESKTOP SHELL
+   TypeShala desktop shell — scroll behavior only
    ------------------------------------------------------------
-   Layout-preserving scroll fix.
-   Do NOT change card/page dimensions here.
-   Desktop only:
-     - header is fixed
-     - sidebar is fixed
-     - document/page is the only vertical scroller
-     - existing 240px sidebar / 76px collapsed geometry preserved
+   Keep the EXISTING sidebar collapse JavaScript/CSS in control of
+   sidebar width and visual state. This block only fixes header/sidebar
+   positioning and the page scroll behavior.
    ============================================================ */
 @media (min-width: 1024px) {
-
   html,
   body.app-shell {
     overflow-x: hidden !important;
@@ -4006,38 +4002,25 @@ body.app-shell .pass-upgrade-note{
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    width: 100% !important;
     z-index: 1000 !important;
   }
 
-  /*
-   * The header used to occupy normal document space.
-   * Keep that same visual starting position for the page after making
-   * the header fixed.
-   */
   body.app-shell .app-body {
     position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    min-height: calc(100vh - 79px) !important;
+    overflow: visible !important;
     padding-top: 79px !important;
     box-sizing: border-box !important;
-    overflow: visible !important;
   }
 
   /*
-   * Fixed sidebar. Width is exactly the existing expanded width.
-   * No internal scrolling.
+   * Do NOT set width/height/display on the sidebar here.
+   * Existing sidebar rules and its collapse class remain authoritative.
    */
-  body.app-shell .app-body > .app-sidebar {
+  body.app-shell .app-body .app-sidebar {
     position: fixed !important;
     top: 79px !important;
     left: 0 !important;
     bottom: 0 !important;
-    width: 240px !important;
-    height: calc(100vh - 79px) !important;
-    max-height: calc(100vh - 79px) !important;
-    box-sizing: border-box !important;
     overflow: hidden !important;
     overflow-y: hidden !important;
     overflow-x: hidden !important;
@@ -4045,34 +4028,14 @@ body.app-shell .pass-upgrade-note{
   }
 
   /*
-   * The sidebar used to occupy 240px of the flex row. Preserve that
-   * exact content position after fixing the sidebar out of document flow.
+   * Do NOT change .app-content width/margin here.
+   * The existing layout/collapse CSS remains responsible for those values.
    */
-  body.app-shell .app-body > .app-content {
-    display: block !important;
-    width: calc(100% - 240px) !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    margin-left: 240px !important;
-    box-sizing: border-box !important;
+  body.app-shell .app-body .app-content {
     overflow: visible !important;
   }
 
-  /*
-   * Collapsed sidebar keeps its existing 76px geometry and simply
-   * transfers the same 164px of space to the content.
-   */
-  body.app-shell .app-body > .app-sidebar.collapsed + .app-content {
-    width: calc(100% - 76px) !important;
-    margin-left: 76px !important;
-  }
-
-  /*
-   * The document itself is the ONLY vertical scroll surface.
-   * No page shell wrapper is given overflow:auto/scroll.
-   */
-  body.app-shell .app-content,
-  body.app-shell .app-content .page {
+  body.app-shell .app-body .page {
     overflow: visible !important;
   }
 }
