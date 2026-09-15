@@ -1292,6 +1292,111 @@ body.subscriptions-page .credits-combined-card .credit-pack-price-original{
 </style>
 
 
+
+<style>
+/* ============================================================
+   RESPONSIVE CARD WIDTH SAFETY — FINAL
+   Keeps the existing subscription layout/design intact while
+   preventing cards from becoming too narrow when the desktop
+   browser is resized. Breakpoints account for the 240px sidebar.
+   ============================================================ */
+body.subscriptions-page #passProductsGrid {
+  box-sizing: border-box;
+  min-width: 0;
+  width: min(100%, 1000px);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Three visible cards: keep three across only when the available
+   content area can give each card a sensible desktop width. */
+@media (min-width: 1061px) {
+  body.subscriptions-page #passProductsGrid.passes-grid--three,
+  body.subscriptions-page #passProductsGrid.passes-grid--four {
+    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
+    width: min(100%, 1000px) !important;
+    max-width: 1000px !important;
+  }
+}
+
+/* Below that point, use two columns rather than squeezing three
+   cards into a narrow content area. For four cards the credit card
+   remains centered on the next row, preserving the existing design. */
+@media (min-width: 821px) and (max-width: 1060px) {
+  body.subscriptions-page #passProductsGrid.passes-grid--three,
+  body.subscriptions-page #passProductsGrid.passes-grid--four {
+    width: min(100%, 760px) !important;
+    max-width: 760px !important;
+    grid-template-columns: repeat(2, minmax(260px, 1fr)) !important;
+  }
+
+  body.subscriptions-page #passProductsGrid.passes-grid--three > .credits-summary-card {
+    grid-column: 1 / -1 !important;
+    width: min(100%, 360px) !important;
+    justify-self: center !important;
+  }
+
+  body.subscriptions-page #passProductsGrid.passes-grid--four > .credits-summary-card {
+    grid-column: 1 / -1 !important;
+    width: min(100%, 360px) !important;
+    justify-self: center !important;
+  }
+
+  body.subscriptions-page #passProductsGrid.passes-grid--two {
+    width: min(100%, 680px) !important;
+    max-width: 680px !important;
+    grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+  }
+}
+
+/* At narrower tablet widths there is not enough room beside the
+   desktop sidebar for two sensible cards. Stack them rather than
+   allowing distortion/overflow. */
+@media (max-width: 820px) and (min-width: 701px) {
+  body.subscriptions-page #passProductsGrid,
+  body.subscriptions-page #passProductsGrid.passes-grid--one,
+  body.subscriptions-page #passProductsGrid.passes-grid--two,
+  body.subscriptions-page #passProductsGrid.passes-grid--three,
+  body.subscriptions-page #passProductsGrid.passes-grid--four {
+    width: min(calc(100% - 24px), 460px) !important;
+    max-width: 460px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  body.subscriptions-page #passProductsGrid > .pass-card,
+  body.subscriptions-page #passProductsGrid > .credits-summary-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    grid-column: auto !important;
+    justify-self: stretch !important;
+  }
+}
+
+/* Keep the existing one-card-per-row mobile behaviour. */
+@media (max-width: 700px) {
+  body.subscriptions-page #passProductsGrid,
+  body.subscriptions-page #passProductsGrid.passes-grid--one,
+  body.subscriptions-page #passProductsGrid.passes-grid--two,
+  body.subscriptions-page #passProductsGrid.passes-grid--three,
+  body.subscriptions-page #passProductsGrid.passes-grid--four {
+    width: min(calc(100% - 24px), 460px) !important;
+    max-width: 460px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.subscriptions-page #passProductsGrid > .pass-card,
+  body.subscriptions-page #passProductsGrid > .credits-summary-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+</style>
+
 </head>
 <body class="app-shell subscriptions-page">
 
