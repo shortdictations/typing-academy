@@ -28,14 +28,53 @@ let tsSessionRealtimeChannel = null;
 // OAuth path too, since OAuth never calls loginStudent() directly).
 // Always generates and stores a FRESH session — this is the "newest
 // login replaces the previous one" step.
-async function registerActiveSession() {
-  const { data, error } = await supabaseClient.rpc("register_active_session");
-  if (error || !data) {
-    console.error("registerActiveSession failed:", error);
-    return null;
+function tsSleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Register this browser as the active application session.
+//
+// Login can be followed immediately by a redirect, and Supabase may
+// still be finishing the auth-session persistence/event cycle when the
+// first RPC is attempted. Treat registration as a small, retryable
+// post-login operation instead of allowing a transient timing issue to
+// leave a stale ts_session_id behind.
+async function registerActiveSession(options = {}) {
+  const attempts = Number.isInteger(options.attempts) ? options.attempts : 3;
+  const baseDelay = Number.isInteger(options.baseDelay) ? options.baseDelay : 150;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      // Make sure the authenticated session is actually available to
+      // Supabase before calling the SECURITY DEFINER RPC.
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError) {
+        console.error("registerActiveSession: getSession failed:", sessionError);
+      } else if (sessionData && sessionData.session) {
+        const { data, error } = await supabaseClient.rpc("register_active_session");
+
+        if (!error && data) {
+          localStorage.setItem(TS_SESSION_STORAGE_KEY, data);
+          return data;
+        }
+
+        console.error("registerActiveSession failed:", error || "No session id returned");
+      } else {
+        console.warn("registerActiveSession: auth session not ready yet");
+      }
+    } catch (err) {
+      console.error("registerActiveSession threw:", err);
+    }
+
+    if (attempt < attempts) {
+      await tsSleep(baseDelay * attempt);
+    }
   }
-  localStorage.setItem(TS_SESSION_STORAGE_KEY, data);
-  return data;
+
+  // Fail open here. The protected-page guard will retry registration
+  // when it loads, rather than logging a valid Supabase user out just
+  // because the custom session bookkeeping had a transient failure.
+  return null;
 }
 
 // The central single-session check. Called from requireLogin() (so
@@ -176,21 +215,26 @@ async function registerStudent(fullName, email, password) {
 
 // Log an existing student in
 async function loginStudent(email, password) {
+  // A previous application-level session id may belong to an older
+  // Supabase login. Clear that claim BEFORE authenticating so the
+  // dashboard can never validate a stale id during the redirect.
+  localStorage.removeItem(TS_SESSION_STORAGE_KEY);
+
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: password
   });
   if (error) throw error;
 
-  // Registers this device as the new active session immediately on
-  // login — the "newest login replaces the previous one" step. Await
-  // this before returning so login.html's redirect to dashboard.html
-  // never races ahead of the session actually being registered
-  // (which would make the very first requireLogin() check on the
-  // dashboard see no local session id — harmless, since
-  // checkSingleActiveSession() would just register one then, but
-  // there's no reason to leave that gap open).
-  await registerActiveSession();
+  if (!data || !data.user || !data.session) {
+    throw new Error("Sign in succeeded, but the authentication session was not ready. Please try again.");
+  }
+
+  // Register the new login with a few short retries. This removes the
+  // first-login race where the auth session was valid but the custom
+  // active-session RPC ran before Supabase had finished exposing the
+  // new session to the client.
+  await registerActiveSession({ attempts: 4, baseDelay: 150 });
 
   return data;
 }
