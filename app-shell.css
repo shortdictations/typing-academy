@@ -212,95 +212,89 @@ body.app-shell .user-menu-dropdown.avatar-dropdown .avatar-dropdown-divider{ mar
 body.app-shell .avatar-menu-icon svg{ width: 18px; height: 18px; display: block; }
 body.app-shell .avatar-menu-logout .avatar-menu-icon{ color: var(--ts-red); }
 
-/* ---------- Layout: sidebar + content ---------- */
-body.app-shell .app-body{
-  display: flex;
-  align-items: flex-start;
+/* ---------- Desktop layout: fixed header + fixed sidebar + fluid content ---------- */
+@media (min-width: 701px){
+/*
+   Desktop behaviour is deliberately implemented with FIXED positioning,
+   not nested sticky elements. This gives the app one document scroll area:
+
+     header  = fixed to viewport top
+     sidebar = fixed below header
+     content = normal document flow, offset by current sidebar width
+
+   The sidebar toggle changes one state class on <body>. The same state
+   controls both sidebar width and content offset, so closing the sidebar
+   always gives the page the freed horizontal space and opening it contracts
+   the content again. Mobile remains on the existing bottom-navigation layout.
+*/
+body.app-shell{
+  --ts-header-height: 79px;
+  --ts-sidebar-width: 240px;
+}
+body.app-shell.sidebar-collapsed{
+  --ts-sidebar-width: 76px;
+}
+body.app-shell .letterhead{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  /* Was max-width:1400px; margin:0 auto — which centers this WHOLE
-     row (sidebar + content) as one block. On any viewport wider
-     than 1400px, that leaves equal empty space on both the left
-     AND right of the row, which is exactly what put visible empty
-     space between the true viewport edge and the sidebar. The
-     sidebar itself doesn't need its own left:0 rule to fix this —
-     removing this outer centering is enough, since the sidebar is
-     already this row's first flex child, so it naturally sits flush
-     against whatever edge the row itself starts at. Content
-     readability isn't affected: .page (style.css) already has its
-     own independent max-width:1160px; margin:0 auto, which keeps
-     the actual readable content properly bounded/centered within
-     whatever width .app-content (now wider on large screens) gives
-     it — this was never relying on .app-body's own centering to
-     begin with. */
+  height: var(--ts-header-height);
+  box-sizing: border-box;
+  z-index: 1000;
+}
+body.app-shell .letterhead-inner{
+  height: 100%;
+  box-sizing: border-box;
+}
+body.app-shell .app-body{
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding-top: var(--ts-header-height);
+  box-sizing: border-box;
 }
 body.app-shell .app-sidebar{
-  flex: 0 0 240px;
-  width: 240px;
+  position: fixed;
+  left: 0;
+  top: var(--ts-header-height);
+  bottom: 0;
+  width: var(--ts-sidebar-width);
+  height: calc(100vh - var(--ts-header-height));
+  box-sizing: border-box;
+  flex: none;
   background: #FFFFFF;
   border-right: 1px solid var(--ts-border);
   padding: 20px 14px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-sizing: border-box;
-  transition: width 0.22s ease, flex-basis 0.22s ease;
-  /* Sticky, positioned right below the sticky header (.letterhead,
-top:0 — see style.css). 79px is the header's
-     actual measured rendered height (getBoundingClientRect, not the
-     60px assumed by this rule's old min-height value, which was
-     close enough for min-height's purpose but would have caused a
-     visible ~19px overlap with the header here). Desktop/tablet
-     only — this rule is already unreachable below 700px, where
-     .app-sidebar is display:none (see the existing mobile block
-     further down), so mobile is unaffected. mock-test-attempt.html
-     never includes this markup at all, so it's unaffected too. */
-/* Keep the desktop sidebar stationary while the page content scrolls.
-     The sidebar itself must never become an independent scroll container. */
-  
-  
+  overflow: hidden;
   overscroll-behavior: none;
-  z-index: 10;
+  z-index: 900;
+  transition: width 0.22s ease, padding 0.22s ease;
 }
-/* Collapsed: .app-content is already flex:1 1 auto (below), so
-   shrinking the sidebar's own width automatically lets the content
-   column (and the announcement bar inside it) reflow into the
-   freed space — nothing else needed there, confirmed by not having
-   to touch .app-content at all for this. */
-body.app-shell .app-sidebar.collapsed{ flex: 0 0 76px; width: 76px; padding-left: 10px; padding-right: 10px; }
-/* Text hidden, icon centered — the icon itself is completely
-   untouched (same <svg>, same viewBox, same paths); only its
-   surrounding link layout changes. The native title="" attribute
-   (added to every link, see markup) is what supplies the requested
-   hover tooltip — no custom tooltip CSS/JS needed, and it works
-   identically whether the sidebar is expanded or collapsed. */
-body.app-shell .app-sidebar.collapsed .app-nav-link{ justify-content: center; padding: 12px 0; gap: 0; }
+body.app-shell .app-sidebar.collapsed{
+  width: var(--ts-sidebar-width);
+  padding-left: 10px;
+  padding-right: 10px;
+}
+body.app-shell .app-sidebar.collapsed .app-nav-link{
+  justify-content: center;
+  padding: 12px 0;
+  gap: 0;
+}
 body.app-shell .app-sidebar.collapsed .app-nav-link-label{ display: none; }
 body.app-shell .app-content{
-  flex: 1 1 auto;
+  width: calc(100% - var(--ts-sidebar-width));
+  margin-left: var(--ts-sidebar-width);
   min-width: 0;
+  box-sizing: border-box;
+  transition: width 0.22s ease, margin-left 0.22s ease;
 }
 body.app-shell .app-content .page{ max-width: 1000px; }
-
-body.app-shell .app-nav-link{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  border-radius: var(--ts-radius-sm);
-  color: var(--ts-muted);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-family: var(--ts-font);
 }
-body.app-shell .app-nav-link svg{ width: 18px; height: 18px; flex: none; }
-body.app-shell .app-nav-link:hover{ background: var(--ts-blue-tint); color: var(--ts-blue-dark); }
-body.app-shell .app-nav-link.active{ background: var(--ts-navy); color: #FFFFFF; }
 
 /* ---------- Mobile bottom nav ---------- */
 body.app-shell .app-bottom-nav{
@@ -2423,8 +2417,8 @@ body.app-shell .dash-all-completed-note{
 body.app-shell .dash-all-completed-note a{ color: var(--ts-blue); font-weight: 600; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 900px){
-  body.app-shell .app-sidebar{ flex: 0 0 200px; width: 200px; }
+@media (min-width: 701px) and (max-width: 900px){
+  body.app-shell{ --ts-sidebar-width: 200px; }
 }
 @media (max-width: 700px){
   body.app-shell .app-header-sidebar-toggle{ display: none; }
@@ -3906,136 +3900,3 @@ body.app-shell .pass-upgrade-note{
   }
 }
 
-
-/*
- * TypeShala shared desktop sidebar
- * --------------------------------
- * The DOCUMENT is the only scroll container.
- * The sidebar remains visible while the document scrolls and never gets
- * its own vertical scrollbar.
- */
-@media (min-width: 1024px) {
-  html,
-  body {
-    overflow-y: auto;
-  }
-
-  .app-sidebar {
-    position: sticky !important;
-    top: 79px !important;
-    align-self: flex-start !important;
-    height: calc(100vh - 79px) !important;
-    max-height: calc(100vh - 79px) !important;
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    overflow-x: hidden !important;
-    flex: 0 0 auto;
-    z-index: 100;
-  }
-
-  /* Never let common page-layout wrappers turn into a second scrollbar. */
-  .app-layout,
-  .dashboard-layout,
-  .page-layout,
-  .main-layout,
-  .content-layout {
-    overflow: visible !important;
-  }
-}
-
-
-/*
- * TypeShala desktop scroll behavior — layout preserved.
- *
- * IMPORTANT: This block changes ONLY positioning/overflow behavior.
- * Existing widths, margins, padding, grid, typography and breakpoints remain
- * untouched. The page/document is the scroll surface; header and sidebar
- * remain visible while scrolling.
- */
-@media (min-width: 1024px) {
-  .letterhead {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-  }
-
-  .app-sidebar {
-    position: sticky !important;
-    top: 79px !important;
-    align-self: flex-start !important;
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    overflow-x: hidden !important;
-  }
-
-  .app-body,
-  .app-content,
-  .page {
-    overflow: visible !important;
-  }
-
-  html,
-  body {
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
-}
-
-
-
-/* ============================================================
-   TypeShala desktop shell — scroll behavior only
-   ------------------------------------------------------------
-   Keep the EXISTING sidebar collapse JavaScript/CSS in control of
-   sidebar width and visual state. This block only fixes header/sidebar
-   positioning and the page scroll behavior.
-   ============================================================ */
-@media (min-width: 1024px) {
-  html,
-  body.app-shell {
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
-
-  body.app-shell .letterhead {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1000 !important;
-  }
-
-  body.app-shell .app-body {
-    position: relative !important;
-    overflow: visible !important;
-    padding-top: 79px !important;
-    box-sizing: border-box !important;
-  }
-
-  /*
-   * Do NOT set width/height/display on the sidebar here.
-   * Existing sidebar rules and its collapse class remain authoritative.
-   */
-  body.app-shell .app-body .app-sidebar {
-    position: fixed !important;
-    top: 79px !important;
-    left: 0 !important;
-    bottom: 0 !important;
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    overflow-x: hidden !important;
-    z-index: 900 !important;
-  }
-
-  /*
-   * Do NOT change .app-content width/margin here.
-   * The existing layout/collapse CSS remains responsible for those values.
-   */
-  body.app-shell .app-body .app-content {
-    overflow: visible !important;
-  }
-
-  body.app-shell .app-body .page {
-    overflow: visible !important;
-  }
-}

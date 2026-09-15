@@ -1101,7 +1101,9 @@ function wireSidebarCollapse() {
 
   function applyState(collapsed) {
     sidebar.classList.toggle("collapsed", collapsed);
+    document.body.classList.toggle("sidebar-collapsed", collapsed);
     toggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    toggleBtn.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
   }
 
