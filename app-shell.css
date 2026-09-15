@@ -259,8 +259,8 @@ body.app-shell .app-sidebar{
   height: calc(100vh - 79px);
   /* Keep the desktop sidebar stationary while the page content scrolls.
      The sidebar itself must never become an independent scroll container. */
-  overflow: hidden;
-  overflow-y: hidden;
+  
+  
   overscroll-behavior: none;
   z-index: 10;
 }
@@ -3909,15 +3909,39 @@ body.app-shell .pass-upgrade-note{
   }
 }
 
-/* Desktop sidebar: stays visible while the document/page scrolls. */
+
+/*
+ * TypeShala shared desktop sidebar
+ * --------------------------------
+ * The DOCUMENT is the only scroll container.
+ * The sidebar remains visible while the document scrolls and never gets
+ * its own vertical scrollbar.
+ */
 @media (min-width: 1024px) {
+  html,
+  body {
+    overflow-y: auto;
+  }
+
   .app-sidebar {
-    position: sticky;
-    top: 79px;
-    height: calc(100vh - 79px);
-    align-self: flex-start;
-    overflow: hidden;
-    overflow-y: hidden;
-    overscroll-behavior: none;
+    position: sticky !important;
+    top: 79px !important;
+    align-self: flex-start !important;
+    height: calc(100vh - 79px) !important;
+    max-height: calc(100vh - 79px) !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+    flex: 0 0 auto;
+    z-index: 100;
+  }
+
+  /* Never let common page-layout wrappers turn into a second scrollbar. */
+  .app-layout,
+  .dashboard-layout,
+  .page-layout,
+  .main-layout,
+  .content-layout {
+    overflow: visible !important;
   }
 }
