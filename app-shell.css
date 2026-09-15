@@ -3945,3 +3945,41 @@ body.app-shell .pass-upgrade-note{
     overflow: visible !important;
   }
 }
+
+
+/*
+ * TypeShala desktop scroll behavior — layout preserved.
+ *
+ * IMPORTANT: This block changes ONLY positioning/overflow behavior.
+ * Existing widths, margins, padding, grid, typography and breakpoints remain
+ * untouched. The page/document is the scroll surface; header and sidebar
+ * remain visible while scrolling.
+ */
+@media (min-width: 1024px) {
+  .letterhead {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+  }
+
+  .app-sidebar {
+    position: sticky !important;
+    top: 79px !important;
+    align-self: flex-start !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+  }
+
+  .app-body,
+  .app-content,
+  .page {
+    overflow: visible !important;
+  }
+
+  html,
+  body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
