@@ -97,6 +97,59 @@ let ptsSelectedDuration = 5;
 // and clicks Start Mock Test. Deliberately a plain read query, not
 // the start_or_resume_mock_test RPC: nothing should be created or
 // claimed just from opening this page, only from Start Mock Test.
+function setMockEntryState(state) {
+  const preTestCard = document.getElementById("preTestCard");
+  const unfinishedCard = document.getElementById("unfinishedSessionCard");
+  const setupCard = document.getElementById("setupCard");
+  const testCard = document.getElementById("testCard");
+  const resultCard = document.getElementById("resultCard");
+
+  // Exactly one entry state is visible at a time. Use !important for the
+  // two entry cards because the shared mock-attempt stylesheet deliberately
+  // contains !important display rules for the unfinished state.
+  if (state === "unfinished") {
+    if (preTestCard) {
+      preTestCard.hidden = true;
+      preTestCard.style.setProperty("display", "none", "important");
+      preTestCard.setAttribute("aria-hidden", "true");
+    }
+    if (setupCard) {
+      setupCard.hidden = true;
+      setupCard.style.setProperty("display", "none", "important");
+      setupCard.setAttribute("aria-hidden", "true");
+    }
+    if (testCard) testCard.style.setProperty("display", "none", "important");
+    if (resultCard) resultCard.style.setProperty("display", "none", "important");
+    if (unfinishedCard) {
+      unfinishedCard.hidden = false;
+      unfinishedCard.removeAttribute("aria-hidden");
+      unfinishedCard.style.setProperty("display", "flex", "important");
+    }
+    document.body.classList.add("unfinished-session-active");
+    return;
+  }
+
+  // Fresh selection state: hide the unfinished/setup states completely.
+  document.body.classList.remove("unfinished-session-active");
+  if (unfinishedCard) {
+    unfinishedCard.hidden = true;
+    unfinishedCard.setAttribute("aria-hidden", "true");
+    unfinishedCard.style.setProperty("display", "none", "important");
+  }
+  if (setupCard) {
+    setupCard.hidden = true;
+    setupCard.style.setProperty("display", "none", "important");
+    setupCard.setAttribute("aria-hidden", "true");
+  }
+  if (testCard) testCard.style.setProperty("display", "none", "important");
+  if (resultCard) resultCard.style.setProperty("display", "none", "important");
+  if (preTestCard) {
+    preTestCard.hidden = false;
+    preTestCard.removeAttribute("aria-hidden");
+    preTestCard.style.setProperty("display", "block", "important");
+  }
+}
+
 async function checkForExistingSessionBeforeSelection() {
   const { data: existing, error } = await supabaseClient
     .from("mock_test_sessions")
@@ -129,19 +182,9 @@ async function checkForExistingSessionBeforeSelection() {
 function showInlineUnfinishedSession(sessionRow, mockRow) {
   const card = document.getElementById("unfinishedSessionCard");
   if (!card) return;
-  document.body.classList.add("unfinished-session-active");
-
-  document.getElementById("preTestCard").style.display = "none";
-  // The unfinished state is the complete page state. Do not leave the
-  // generic setup/loading card mounted underneath it.
-  const setupCard = document.getElementById("setupCard");
-  if (setupCard) {
-    setupCard.style.display = "none";
-    setupCard.hidden = true;
-    setupCard.setAttribute("aria-hidden", "true");
-  }
-  document.getElementById("testCard").style.display = "none";
-  document.getElementById("resultCard").style.display = "none";
+  // The unfinished state is the complete page state. Hide the normal
+  // Mock Settings state and every other entry/result state first.
+  setMockEntryState("unfinished");
   // app-shell.css forces this card to `display: flex !important` on
   // this page (its layout rule has no visibility condition of its
   // own — see the CSS comment there) — a plain style.display from JS
@@ -197,7 +240,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
 }
 
 function initPreTestSelection() {
-  document.getElementById("preTestCard").style.display = "block";
+  setMockEntryState("selection");
 
   document.getElementById("ptsSscOption").addEventListener("click", () => selectPtsType("ssc"));
   document.getElementById("ptsLegalOption").addEventListener("click", () => selectPtsType("legal"));
