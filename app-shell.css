@@ -89,6 +89,15 @@ body.app-shell .seal{
   font-family: var(--ts-font);
   font-weight: 700;
 }
+body.app-shell .seal.logo-mark{
+  display:block;
+  width:38px; height:38px;
+  border:0;
+  border-radius:0;
+  object-fit:contain;
+  background:transparent;
+  flex:none;
+}
 body.app-shell .brand-text .title{
   font-family: var(--ts-font);
   font-weight: 700;
@@ -4284,31 +4293,5 @@ body.app-shell .pass-upgrade-note{
 
   body.app-shell.sidebar-collapsed .app-content{
     margin-left: var(--ts-sidebar-closed) !important;
-  }
-}
-
-/*
- * FINAL SIDEBAR HEIGHT OVERRIDE
- * -----------------------------
- * The desktop shell uses a viewport-fixed sidebar.  Do not let the
- * sidebar's height be determined by .app-body or by the number of
- * navigation links.  The header remains fixed at the top; the sidebar
- * occupies every pixel from the bottom edge of that header to the
- * bottom edge of the viewport.
- *
- * This is deliberately limited to the authenticated app shell and
- * does not change sidebar width, icons, spacing, animation, or page
- * content layout.
- */
-@media (min-width: 701px){
-  body.app-shell .app-sidebar{
-    position: fixed !important;
-    top: var(--ts-header-height, 79px) !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    align-self: auto !important;
   }
 }

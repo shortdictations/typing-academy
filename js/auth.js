@@ -772,10 +772,9 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   const footer = document.createElement("div");
   footer.className = "mobile-sidebar-footer";
   footer.innerHTML =
-    '<span class="mobile-sidebar-footer-seal">TS</span>' +
+    '<img class="mobile-sidebar-footer-seal" src="favicon.png" alt="TypeShala">' +
     '<span class="mobile-sidebar-footer-text">' +
       '<span class="mobile-sidebar-footer-name">TypeShala</span>' +
-      '<span class="mobile-sidebar-footer-tagline">Typing Practice Centre</span>' +
     '</span>';
   sidebar.appendChild(footer);
 

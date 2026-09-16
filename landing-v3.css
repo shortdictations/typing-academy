@@ -43,10 +43,10 @@ button,input{font:inherit}
 .nav-wrap{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .lp-brand{display:flex;align-items:center;gap:11px}
 .lp-brand-mark{
-  width:39px;height:39px;border-radius:50%;
-  display:grid;place-items:center;
-  border:2px solid var(--gold);color:var(--gold);
-  font-size:13px;font-weight:800;
+  width:39px;height:39px;border-radius:0;
+  display:block;
+  object-fit:contain;
+  flex:none;
 }
 .lp-brand strong{display:block;font-size:18px;letter-spacing:-.5px;color:var(--navy)}
 .lp-brand small{display:block;margin-top:1px;color:var(--gold);font-size:9px;font-weight:800;letter-spacing:1.5px}

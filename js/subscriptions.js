@@ -778,6 +778,9 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
             <div class="credits-balance-note">1 credit = 1 test attempt</div>
           </div>
         </div>
+        <a class="credits-history-link" href="purchase-history.html">
+          <span>View History</span><span aria-hidden="true">&rarr;</span>
+        </a>
       </div>
 
       <div class="credits-benefits">

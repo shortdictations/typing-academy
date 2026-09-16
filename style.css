@@ -708,11 +708,10 @@ html.sidebar-scroll-lock, body.sidebar-scroll-lock{
 }
 .mobile-sidebar-footer-seal{
   width: 30px; height: 30px; flex: none;
-  border-radius: 50%;
-  border: 1px solid var(--brass);
-  color: var(--brass);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
+  display: block;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
 }
 .mobile-sidebar-footer-text{ display: flex; flex-direction: column; }
 .mobile-sidebar-footer-name{ font-family: var(--font-display); font-weight: 700; color: var(--paper); font-size: 0.9rem; }
