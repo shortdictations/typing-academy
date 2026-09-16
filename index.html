@@ -1,19 +1,20 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=3">
-<meta name="theme-color" content="#0b1e41">
-<link rel="icon" type="image/png" href="/icons/icon-1024.png?v=3">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="shortcut icon" href="/favicon.ico">
-<meta name="description" content="TypeShala — exam-ready typing practice for SSC, legal and court typing aspirants.">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="/manifest.webmanifest" rel="manifest"/>
+<link href="/icons/apple-touch-icon.png?v=3" rel="apple-touch-icon" sizes="180x180"/>
+<meta content="#0b1e41" name="theme-color"/>
+<link href="/icons/icon-1024.png?v=3" rel="icon" type="image/png"/>
+<link href="/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="/favicon.ico" rel="shortcut icon"/>
+<meta content="TypeShala — exam-ready typing practice for SSC, legal and court typing aspirants." name="description"/>
 <title>TypeShala — Exam-Ready Typing Practice</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
 <!-- Supabase client — this page now reads live product/pricing/
      free-credits data (all public, RLS-gated: active products only,
@@ -40,642 +41,318 @@
      "lp-" prefix (lp-btn, lp-brand, lp-eyebrow, lp-hero*), so even if
      style.css is ever reintroduced here for some other reason, it
      cannot silently collide with this page's own styling again. -->
-<link rel="stylesheet" href="landing-v3.css?v=2">
-<link rel="stylesheet" href="landing.css?v=2">
+<link href="landing-v3.css?v=2" rel="stylesheet"/>
+<link href="landing.css?v=2" rel="stylesheet"/>
 </head>
 <body class="landing-v2">
-
 <div class="ts-landing-main">
 <header class="site-header">
-    <div class="container nav-wrap">
-      <a class="lp-brand" href="index.html" aria-label="TypeShala home">
-        <img class="lp-brand-mark" src="favicon.png" alt="TypeShala">
-        <span>
-          <strong>TypeShala</strong>
-          
-        </span>
-      </a>
-
-      <nav class="desktop-nav" aria-label="Main navigation">
-        <a href="#platform">Platform</a>
-        <a href="#pricing">Passes & Credits</a>
-      </nav>
-
-      <div class="nav-actions">
-        
-        <a class="lp-btn lp-btn-gold lp-btn-small" href="login.html">Get Started</a>
-      </div>
-
-      <button class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
-        <i data-lucide="menu"></i>
-      </button>
-    </div>
-
-    <div class="mobile-menu">
-      <a href="#platform">Platform</a>
-      <a href="#pricing">Passes & Credits</a>
-      
-      <a class="lp-btn lp-btn-gold" href="login.html">Get Started</a>
-    </div>
-  </header>
-
-  <!-- Admin-managed announcement ticker — same mechanism as the
+<div class="container nav-wrap">
+<a aria-label="TypeShala home" class="lp-brand" href="index.html">
+<img alt="TypeShala" class="lp-brand-mark" src="favicon.png"/>
+<span>
+<strong>TypeShala</strong>
+</span>
+</a>
+<nav aria-label="Main navigation" class="desktop-nav">
+<a href="#platform">Platform</a>
+<a href="#pricing">Passes &amp; Credits</a>
+</nav>
+<div class="nav-actions">
+<a class="lp-btn lp-btn-gold lp-btn-small" href="login.html">Get Started</a>
+</div>
+<button aria-expanded="false" aria-label="Open menu" class="mobile-menu-btn">
+<i data-lucide="menu"></i>
+</button>
+</div>
+<div class="mobile-menu">
+<a href="#platform">Platform</a>
+<a href="#pricing">Passes &amp; Credits</a>
+<a class="lp-btn lp-btn-gold" href="login.html">Get Started</a>
+</div>
+</header>
+<!-- Admin-managed announcement ticker — same mechanism as the
        dashboard (js/announcement-ticker.js), just targeting "home"
        instead of "dashboard" as its locationKey. Hidden entirely
        when nothing currently qualifies (active + in date window +
        show_on includes "home"). -->
-  <div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
-
-  <main>
-    <!-- HERO -->
-    <section class="lp-hero">
-      <div class="lp-hero-glow lp-hero-glow-one"></div>
-      <div class="lp-hero-glow lp-hero-glow-two"></div>
-
-      <div class="container lp-hero-grid">
-        <div class="lp-hero-copy">
-          <div class="lp-eyebrow"><span></span> FOR SSC & LEGAL TYPING ASPIRANTS</div>
-          <h1>Practice typing.<br><em>Prepare for the exam.</em></h1>
-          <p class="lp-hero-text">
+<div class="announcement-ticker" id="homeAnnouncementTicker" style="display:none;"></div>
+<main>
+<!-- HERO -->
+<section class="lp-hero">
+<div class="lp-hero-glow lp-hero-glow-one"></div>
+<div class="lp-hero-glow lp-hero-glow-two"></div>
+<div class="container lp-hero-grid">
+<div class="lp-hero-copy">
+<div class="lp-eyebrow"><span></span> FOR SSC &amp; LEGAL TYPING ASPIRANTS</div>
+<h1>Practice typing.<br/><em>Prepare for the exam.</em></h1>
+<p class="lp-hero-text">
             Unlimited Exam-style mock tests, accurate scoring and useful performance insights —
             all in one focused practice platform.
           </p>
-
-          <div class="lp-hero-actions">
-            <a class="lp-btn lp-btn-primary" href="register.html">
-              <span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i>
-            </a>
-            <a class="text-btn" href="#platform">Explore TypeShala <i data-lucide="arrow-down"></i></a>
-          </div>
-
-          <div class="trust-row">
-            <span><i data-lucide="check-circle-2"></i> <span data-free-credits="{n} free credits for new users">3 free credits for new users</span></span>
-            <span><i data-lucide="check-circle-2"></i> 5 & 10 minute tests</span>
-          </div>
-        </div>
-
-        <div class="lp-hero-demo">
-          <div class="demo-window">
-            <div class="demo-top">
-              <div class="window-dots"><span></span><span></span><span></span></div>
-              <span class="demo-label">LIVE TEST PREVIEW</span>
-            </div>
-
-            <div class="demo-body">
-              <div class="demo-stats">
-                <div><small>TIME LEFT</small><strong>08:42</strong></div>
-                <div><small>NET WPM</small><strong class="blue">42</strong></div>
-                <div><small>ACCURACY</small><strong class="green">97%</strong></div>
-              </div>
-
-              <div class="passage-label">PASSAGE</div>
-              <div class="typing-passage">
+<div class="lp-hero-actions">
+<a class="lp-btn lp-btn-primary" href="register.html">
+<span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i>
+</a>
+<a class="text-btn" href="#platform">Explore TypeShala <i data-lucide="arrow-down"></i></a>
+</div>
+<div class="trust-row">
+<span><i data-lucide="check-circle-2"></i> <span data-free-credits="{n} free credits for new users">3 free credits for new users</span></span>
+<span><i data-lucide="check-circle-2"></i> 5 &amp; 10 minute tests</span>
+</div>
+</div>
+<div class="lp-hero-demo">
+<div class="demo-window">
+<div class="demo-top">
+<div class="window-dots"><span></span><span></span><span></span></div>
+<span class="demo-label">LIVE TEST PREVIEW</span>
+</div>
+<div class="demo-body">
+<div class="demo-stats">
+<div><small>TIME LEFT</small><strong>08:42</strong></div>
+<div><small>NET WPM</small><strong class="blue">42</strong></div>
+<div><small>ACCURACY</small><strong class="green">97%</strong></div>
+</div>
+<div class="passage-label">PASSAGE</div>
+<div class="typing-passage">
                 The civil services form an important part of the administrative
                 structure and help the government deliver public services efficiently.
               </div>
-
-              <div class="input-label">YOUR TYPING</div>
-              <div class="typing-input">
+<div class="input-label">YOUR TYPING</div>
+<div class="typing-input">
                 The civil services form an important part of the administrative<span class="cursor"></span>
-              </div>
-
-              <div class="demo-footer">
-                <span><i data-lucide="shield-check"></i> Exam-style evaluation</span>
-                <span>TEST • 10:00</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="floating-score">
-            <span class="score-icon"><i data-lucide="trending-up"></i></span>
-            <div><strong>Ready to improve?</strong><small>Track every attempt</small></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHO IT IS FOR -->
-    <section class="section audience" id="platform">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-kicker">WHO IT'S FOR</span>
-          <h2>Built around the exams you are preparing for.</h2>
-          <p>Choose your target and practice with passages designed for that category.</p>
-        </div>
-
-        <div class="audience-grid">
-          <article class="audience-card blue-card">
-            <div class="icon-box"><img src="assets/ssc-logo.png" alt="SSC logo" style="width:26px;height:26px;"></div>
-            <div>
-              <span class="card-tag">SSC</span>
-              <h3>SSC Typing & DEST</h3>
-              <p>Practice for SSC typing requirements with timed mock tests and performance scoring.</p>
-            </div>
-            <a href="#pricing">Explore SSC <i data-lucide="arrow-up-right"></i></a>
-          </article>
-
-          <article class="audience-card green-card">
-            <div class="icon-box"><i data-lucide="scale"></i></div>
-            <div>
-              <span class="card-tag">LEGAL</span>
-              <h3>High Court & Legal Typing</h3>
-              <p>Practice legal and court-style passages for candidates preparing for court typing tests.</p>
-            </div>
-            <a href="#pricing">Explore Legal <i data-lucide="arrow-up-right"></i></a>
-          </article>
-
-          <article class="audience-card gold-card">
-            <div class="icon-box"><i data-lucide="keyboard"></i></div>
-            <div>
-              <span class="card-tag">PRACTICE</span>
-              <h3>Serious Typing Practice</h3>
-              <p>Build speed, improve accuracy and identify the areas that are holding your score back.</p>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHY TYPESHAlA -->
-    <section class="section why-section">
-      <div class="container">
-        <div class="section-heading compact">
-          <span class="section-kicker">WHY TYPESHAlA</span>
-          <h2>Practice with a purpose.</h2>
-          <p>Simple tools that help you know where you stand and what to improve next.</p>
-        </div>
-
-        <div class="feature-bento">
-          <article class="feature-card feature-large">
-            <div class="feature-icon"><i data-lucide="timer"></i></div>
-            <div>
-              <span>01</span>
-              <h3>Real exam-style tests</h3>
-              <p>Choose 5-minute or 10-minute practice tests and experience a focused, timed typing environment.</p>
-            </div>
-            <div class="mini-test">
-              <div><span>TIME</span><strong>05:00</strong></div>
-              <div><span>WPM</span><strong class="blue">35</strong></div>
-              <div><span>ACC.</span><strong class="green">95%</strong></div>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon"><i data-lucide="sparkles"></i></div>
-            <span>02</span>
-            <h3>Fresh passages</h3>
-            <p>TypeShala prioritizes passages you have not attempted in your active category.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon"><i data-lucide="bar-chart-3"></i></div>
-            <span>03</span>
-            <h3>Useful results</h3>
-            <p>See speed, accuracy, errors and your pass/fail outcome after the test.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon"><i data-lucide="keyboard"></i></div>
-            <span>04</span>
-            <h3>Weak-key insights</h3>
-            <p>Find the keys that repeatedly cause mistakes and focus your practice where it matters.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon"><i data-lucide="trending-up"></i></div>
-            <span>05</span>
-            <h3>Progress tracking</h3>
-            <p>Keep your practice history and watch your speed and accuracy improve over time.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- PROGRESS -->
-    <section class="section progress-section">
-      <div class="container split-grid reverse-mobile">
-        <div class="progress-card">
-          <div class="progress-top"><span>YOUR PROGRESS</span><b>Last 30 days</b></div>
-          <div class="chart">
-            <div class="chart-line"></div>
-            <div class="chart-point p1"><span>31</span></div>
-            <div class="chart-point p2"><span>34</span></div>
-            <div class="chart-point p3"><span>37</span></div>
-            <div class="chart-point p4"><span>39</span></div>
-            <div class="chart-point p5"><span>42</span></div>
-          </div>
-          <div class="chart-labels"><span>Day 1</span><span>Day 7</span><span>Day 14</span><span>Day 21</span><span>Day 30</span></div>
-          <div class="progress-footer"><span>Average speed <strong>36 WPM</strong></span><span>Best <strong class="blue">42 WPM</strong></span></div>
-        </div>
-
-        <div class="split-copy">
-          <span class="section-kicker">YOUR JOURNEY</span>
-          <h2>Small improvements become a big advantage.</h2>
-          <p>
+</div>
+<div class="demo-footer">
+<span><i data-lucide="shield-check"></i> Exam-style evaluation</span>
+<span>TEST • 10:00</span>
+</div>
+</div>
+</div>
+<div class="floating-score">
+<span class="score-icon"><i data-lucide="trending-up"></i></span>
+<div><strong>Ready to improve?</strong><small>Track every attempt</small></div>
+</div>
+</div>
+</div>
+</section>
+<!-- WHO IT IS FOR -->
+<section class="section audience" id="platform">
+<div class="container">
+<div class="section-heading">
+<span class="section-kicker">WHO IT'S FOR</span>
+<h2>Built around the exams you are preparing for.</h2>
+<p>Choose your target and practice with passages designed for that category.</p>
+</div>
+<div class="audience-grid">
+<article class="audience-card blue-card">
+<div class="icon-box"><img alt="SSC logo" src="assets/ssc-logo.png" style="width:26px;height:26px;"/></div>
+<div>
+<span class="card-tag">SSC</span>
+<h3>SSC Typing &amp; DEST</h3>
+<p>Practice for SSC typing requirements with timed mock tests and performance scoring.</p>
+</div>
+<a href="#pricing">Explore SSC <i data-lucide="arrow-up-right"></i></a>
+</article>
+<article class="audience-card green-card">
+<div class="icon-box"><i data-lucide="scale"></i></div>
+<div>
+<span class="card-tag">LEGAL</span>
+<h3>High Court &amp; Legal Typing</h3>
+<p>Practice legal and court-style passages for candidates preparing for court typing tests.</p>
+</div>
+<a href="#pricing">Explore Legal <i data-lucide="arrow-up-right"></i></a>
+</article>
+<article class="audience-card gold-card">
+<div class="icon-box"><i data-lucide="keyboard"></i></div>
+<div>
+<span class="card-tag">PRACTICE</span>
+<h3>Serious Typing Practice</h3>
+<p>Build speed, improve accuracy and identify the areas that are holding your score back.</p>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- WHY TYPESHAlA -->
+<section class="section why-section">
+<div class="container">
+<div class="section-heading compact">
+<span class="section-kicker">WHY TYPESHAlA</span>
+<h2>Practice with a purpose.</h2>
+<p>Simple tools that help you know where you stand and what to improve next.</p>
+</div>
+<div class="feature-bento">
+<article class="feature-card feature-large">
+<div class="feature-icon"><i data-lucide="timer"></i></div>
+<div>
+<span>01</span>
+<h3>Real exam-style tests</h3>
+<p>Choose 5-minute or 10-minute practice tests and experience a focused, timed typing environment.</p>
+</div>
+<div class="mini-test">
+<div><span>TIME</span><strong>05:00</strong></div>
+<div><span>WPM</span><strong class="blue">35</strong></div>
+<div><span>ACC.</span><strong class="green">95%</strong></div>
+</div>
+</article>
+<article class="feature-card">
+<div class="feature-icon"><i data-lucide="sparkles"></i></div>
+<span>02</span>
+<h3>Fresh passages</h3>
+<p>TypeShala prioritizes passages you have not attempted in your active category.</p>
+</article>
+<article class="feature-card">
+<div class="feature-icon"><i data-lucide="bar-chart-3"></i></div>
+<span>03</span>
+<h3>Useful results</h3>
+<p>See speed, accuracy, errors and your pass/fail outcome after the test.</p>
+</article>
+<article class="feature-card">
+<div class="feature-icon"><i data-lucide="keyboard"></i></div>
+<span>04</span>
+<h3>Weak-key insights</h3>
+<p>Find the keys that repeatedly cause mistakes and focus your practice where it matters.</p>
+</article>
+<article class="feature-card">
+<div class="feature-icon"><i data-lucide="trending-up"></i></div>
+<span>05</span>
+<h3>Progress tracking</h3>
+<p>Keep your practice history and watch your speed and accuracy improve over time.</p>
+</article>
+</div>
+</div>
+</section>
+<!-- PROGRESS -->
+<section class="section progress-section">
+<div class="container split-grid reverse-mobile">
+<div class="progress-card">
+<div class="progress-top"><span>YOUR PROGRESS</span><b>Last 30 days</b></div>
+<div class="chart">
+<div class="chart-line"></div>
+<div class="chart-point p1"><span>31</span></div>
+<div class="chart-point p2"><span>34</span></div>
+<div class="chart-point p3"><span>37</span></div>
+<div class="chart-point p4"><span>39</span></div>
+<div class="chart-point p5"><span>42</span></div>
+</div>
+<div class="chart-labels"><span>Day 1</span><span>Day 7</span><span>Day 14</span><span>Day 21</span><span>Day 30</span></div>
+<div class="progress-footer"><span>Average speed <strong>36 WPM</strong></span><span>Best <strong class="blue">42 WPM</strong></span></div>
+</div>
+<div class="split-copy">
+<span class="section-kicker">YOUR JOURNEY</span>
+<h2>Small improvements become a big advantage.</h2>
+<p>
             Your practice history gives you a clear picture of whether you are moving
             towards your target. Keep practicing, compare results and build consistency.
           </p>
-          <div class="metric-pair">
-            <div><small>START</small><strong>31 WPM</strong></div>
-            <i data-lucide="arrow-right"></i>
-            <div><small>NOW</small><strong class="blue">42 WPM</strong></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DASHBOARD -->
-    <section class="section dashboard-section">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-kicker">YOUR DASHBOARD</span>
-          <h2>Your practice, organised in one place.</h2>
-          <p>Keep your active pass, credits, test history and key performance numbers within reach.</p>
-        </div>
-
-        <div class="dashboard-preview">
-          <div class="dash-head">
-            <div><strong>Student Dashboard</strong><small>Welcome back, Aspirant</small></div>
-            <span class="plan-pill">SSC PASS • ACTIVE</span>
-          </div>
-          <div class="dash-stats">
-            <div><small>TESTS TAKEN</small><strong>42</strong></div>
-            <div><small>BEST SPEED</small><strong class="blue">48 WPM</strong></div>
-            <div><small>BEST ACCURACY</small><strong class="green">99%</strong></div>
-            <div><small>CREDITS</small><strong>3</strong></div>
-          </div>
-          <div class="dash-bottom">
-            <div class="dash-history">
-              <span>RECENT TESTS</span>
-              <div><b>SSC Mock #42</b><em>48 WPM • 99%</em></div>
-              <div><b>SSC Mock #41</b><em>45 WPM • 97%</em></div>
-              <div><b>SSC Mock #40</b><em>43 WPM • 96%</em></div>
-            </div>
-            <div class="dash-ready"><i data-lucide="target"></i><strong>Keep your target in sight.</strong><span>Practice consistently to build exam confidence.</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRICING -->
-    <section class="section pricing-section" id="pricing">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-kicker">SIMPLE ACCESS</span>
-          <h2>Choose how you want to practice.</h2>
-          <p>Use a Pass for unlimited practice or Credits when you only need individual mock tests.</p>
-        </div>
-
-        <div class="pricing-grid" id="pricingGrid">
-          <p class="plans-unavailable">Loading plans…</p>
-        </div>
-
-        <div class="credits-box">
-          <div>
-            <span class="section-kicker">CREDIT WALLET</span>
-            <h3>Need only a few mock tests?</h3>
-            <p>1 Credit = 1 test attempt. Credits are valid for 365 days.</p>
-          </div>
-          <div class="credit-options" id="creditOptions"></div>
-        </div>
-
-        <div class="free-credit-note"><i data-lucide="gift"></i><strong data-free-credits="New users get {n} free credits automatically.">New users get 3 free credits automatically.</strong><span>Try TypeShala before choosing a plan.</span></div>
-      </div>
-    </section>
-
-    <!-- FINAL CTA -->
-    <section class="final-cta">
-      <div class="container final-inner">
-        <span class="section-kicker light">READY WHEN YOU ARE</span>
-        <h2>Build speed. Improve accuracy.<br>Get exam-ready.</h2>
-        <p data-free-credits="Start with {n} free credits and experience TypeShala for yourself.">Start with 3 free credits and experience TypeShala for yourself.</p>
-        <a class="lp-btn lp-btn-gold lp-btn-large" href="register.html"><span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i></a>
-      </div>
-    </section>
-  </main>
+<div class="metric-pair">
+<div><small>START</small><strong>31 WPM</strong></div>
+<i data-lucide="arrow-right"></i>
+<div><small>NOW</small><strong class="blue">42 WPM</strong></div>
 </div>
-
+</div>
+</div>
+</section>
+<!-- DASHBOARD -->
+<section class="section dashboard-section">
+<div class="container">
+<div class="section-heading">
+<span class="section-kicker">YOUR DASHBOARD</span>
+<h2>Your practice, organised in one place.</h2>
+<p>Keep your active pass, credits, test history and key performance numbers within reach.</p>
+</div>
+<div class="dashboard-preview">
+<div class="dash-head">
+<div><strong>Student Dashboard</strong><small>Welcome back, Aspirant</small></div>
+<span class="plan-pill">SSC PASS • ACTIVE</span>
+</div>
+<div class="dash-stats">
+<div><small>TESTS TAKEN</small><strong>42</strong></div>
+<div><small>BEST SPEED</small><strong class="blue">48 WPM</strong></div>
+<div><small>BEST ACCURACY</small><strong class="green">99%</strong></div>
+<div><small>CREDITS</small><strong>3</strong></div>
+</div>
+<div class="dash-bottom">
+<div class="dash-history">
+<span>RECENT TESTS</span>
+<div><b>SSC Mock #42</b><em>48 WPM • 99%</em></div>
+<div><b>SSC Mock #41</b><em>45 WPM • 97%</em></div>
+<div><b>SSC Mock #40</b><em>43 WPM • 96%</em></div>
+</div>
+<div class="dash-ready"><i data-lucide="target"></i><strong>Keep your target in sight.</strong><span>Practice consistently to build exam confidence.</span></div>
+</div>
+</div>
+</div>
+</section>
+<!-- PRICING -->
+<section class="section pricing-section" id="pricing">
+<div class="container">
+<div class="section-heading">
+<span class="section-kicker">SIMPLE ACCESS</span>
+<h2>Choose how you want to practice.</h2>
+<p>Use a Pass for unlimited practice or Credits when you only need individual mock tests.</p>
+</div>
+<div class="pricing-grid" id="pricingGrid">
+<p class="plans-unavailable">Loading plans…</p>
+</div>
+<div class="credits-box">
+<div>
+<span class="section-kicker">CREDIT WALLET</span>
+<h3>Need only a few mock tests?</h3>
+<p>1 Credit = 1 test attempt. Credits are valid for 365 days.</p>
+</div>
+<div class="credit-options" id="creditOptions"></div>
+</div>
+<div class="free-credit-note"><i data-lucide="gift"></i><strong data-free-credits="New users get {n} free credits automatically.">New users get 3 free credits automatically.</strong><span>Try TypeShala before choosing a plan.</span></div>
+</div>
+</section>
+<!-- FINAL CTA -->
+<section class="final-cta">
+<div class="container final-inner">
+<span class="section-kicker light">READY WHEN YOU ARE</span>
+<h2>Build speed. Improve accuracy.<br/>Get exam-ready.</h2>
+<p data-free-credits="Start with {n} free credits and experience TypeShala for yourself.">Start with 3 free credits and experience TypeShala for yourself.</p>
+<a class="lp-btn lp-btn-gold lp-btn-large" href="register.html"><span data-free-credits="Start Free with {n} Credits">Start Free with 3 Credits</span> <i data-lucide="arrow-right"></i></a>
+</div>
+</section>
+</main>
+</div>
 <footer class="site-foot">
-  <div class="site-foot-inner">
-    <div class="site-foot-social" aria-label="Follow TypeShala">
-      <a class="site-foot-social-link" href="https://indianshorthand.blogspot.com" target="_blank" rel="noopener noreferrer" aria-label="Blogger">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M13.5 21v-7h2.3l.35-2.7h-2.65v-1.73c0-.78.22-1.32 1.34-1.32h1.43V5.85c-.25-.03-1.1-.1-2.1-.1-2.08 0-3.5 1.27-3.5 3.6v2h-2.35v2.7h2.35v7h2.83Z" fill="#fff"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://www.youtube.com/@shortdictations" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#000"/><path d="M10 9.3v5.4l5-2.7-5-2.7Z" fill="#fff"/></svg>
-      </a>
-      <a class="site-foot-social-link" href="https://t.me/shorthandjournals" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
-        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M6 12.2l11.2-4.4c.5-.2 1 .2.8.8l-1.9 9c-.1.6-.7.8-1.2.5l-3-2.2-1.5 1.4c-.2.2-.4.2-.6.1l.3-2.6 5.6-5-6.6 4.1-2.6-.8c-.6-.2-.6-.6.1-.9Z" fill="#fff"/></svg>
-      </a>
-    </div>
-
-    <div class="site-foot-divider"></div>
-
-    <div class="site-foot-bottom">
-      <div class="site-foot-copyright">&copy; TypeShala 2026. All rights reserved.</div>
-      <nav class="site-foot-links" aria-label="Footer">
-        <button type="button" class="site-foot-link-btn" data-modal-open="privacyModal">Privacy Policy</button>
-        <span class="site-foot-sep" aria-hidden="true">|</span>
-        <button type="button" class="site-foot-link-btn" data-modal-open="termsModal">Terms and Conditions</button>
-        <span class="site-foot-sep" aria-hidden="true">|</span>
-        <button type="button" class="site-foot-link-btn" data-modal-open="aboutModal">About Us</button>
-      </nav>
-    </div>
-  </div>
+<div class="site-foot-inner">
+<div aria-label="Follow TypeShala" class="site-foot-social">
+<a aria-label="Blogger" class="site-foot-social-link" href="https://indianshorthand.blogspot.com" rel="noopener noreferrer" target="_blank">
+<svg fill="none" viewbox="0 0 24 24"><rect fill="#000" height="20" rx="6" width="20" x="2" y="2"></rect><path d="M9 8h4a2 2 0 0 1 0 4H9V8Z" stroke="#fff" stroke-linejoin="round" stroke-width="1.6"></path><path d="M9 12h5a2.2 2.2 0 0 1 0 4.4H9V12Z" stroke="#fff" stroke-linejoin="round" stroke-width="1.6"></path></svg>
+</a>
+<a aria-label="Facebook" class="site-foot-social-link" href="https://www.facebook.com/Shorthand-Dictations-101543991717541" rel="noopener noreferrer" target="_blank">
+<svg fill="none" viewbox="0 0 24 24"><circle cx="12" cy="12" fill="#000" r="10"></circle><path d="M13.5 21v-7h2.3l.35-2.7h-2.65v-1.73c0-.78.22-1.32 1.34-1.32h1.43V5.85c-.25-.03-1.1-.1-2.1-.1-2.08 0-3.5 1.27-3.5 3.6v2h-2.35v2.7h2.35v7h2.83Z" fill="#fff"></path></svg>
+</a>
+<a aria-label="YouTube" class="site-foot-social-link" href="https://www.youtube.com/@shortdictations" rel="noopener noreferrer" target="_blank">
+<svg fill="none" viewbox="0 0 24 24"><rect fill="#000" height="14" rx="4" width="20" x="2" y="5"></rect><path d="M10 9.3v5.4l5-2.7-5-2.7Z" fill="#fff"></path></svg>
+</a>
+<a aria-label="Telegram" class="site-foot-social-link" href="https://t.me/shorthandjournals" rel="noopener noreferrer" target="_blank">
+<svg fill="none" viewbox="0 0 24 24"><circle cx="12" cy="12" fill="#000" r="10"></circle><path d="M6 12.2l11.2-4.4c.5-.2 1 .2.8.8l-1.9 9c-.1.6-.7.8-1.2.5l-3-2.2-1.5 1.4c-.2.2-.4.2-.6.1l.3-2.6 5.6-5-6.6 4.1-2.6-.8c-.6-.2-.6-.6.1-.9Z" fill="#fff"></path></svg>
+</a>
+</div>
+<div class="site-foot-divider"></div>
+<div class="site-foot-bottom">
+<div class="site-foot-copyright">© TypeShala 2026. All rights reserved.</div>
+<nav aria-label="Footer" class="site-foot-links">
+<a class="site-foot-link-btn" href="privacy-policy.html">Privacy Policy</a>
+<span aria-hidden="true" class="site-foot-sep">|</span>
+<a class="site-foot-link-btn" href="terms-and-conditions.html">Terms and Conditions</a>
+<span aria-hidden="true" class="site-foot-sep">|</span>
+<a class="site-foot-link-btn" href="about-us.html">About Us</a>
+</nav>
+</div>
+</div>
 </footer>
 
-<div class="info-modal-overlay" id="infoModalOverlay" hidden></div>
-<div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" hidden>
-  <div class="info-modal-header">
-    <h2 class="info-modal-title" id="infoModalTitle"></h2>
-    <button type="button" class="info-modal-close" id="infoModalCloseBtn" aria-label="Close">&times;</button>
-  </div>
-  <div class="info-modal-body" id="infoModalBody"></div>
-</div>
 
-<template id="privacyModalContent">
-  <p><em>Last Updated: 24 August 2026</em></p>
 
-  <h3>1. Introduction</h3>
-  <p>Welcome to TypeShala.</p>
-  <p>TypeShala is an online typing practice and mock-test platform. We respect the privacy of our users and are committed to handling personal information responsibly.</p>
-  <p>This Privacy Policy explains what information may be collected when you use TypeShala, how that information may be used, and the choices available to you.</p>
-  <p>By using TypeShala, you acknowledge this Privacy Policy.</p>
 
-  <h3>2. Information We Collect</h3>
-  <p>Depending on how you use the platform, TypeShala may collect or process information such as:</p>
-  <p><strong>Account Information:</strong></p>
-  <ul>
-    <li>Name</li>
-    <li>Email address</li>
-    <li>Login and authentication information</li>
-    <li>Account-related information</li>
-  </ul>
-  <p><strong>Typing and Performance Information:</strong></p>
-  <ul>
-    <li>Typing speed</li>
-    <li>Accuracy</li>
-    <li>Gross WPM</li>
-    <li>Net WPM</li>
-    <li>Test results</li>
-    <li>Test history</li>
-    <li>Typing errors</li>
-    <li>Weak-key information</li>
-    <li>Practice and performance statistics</li>
-  </ul>
-  <p><strong>Purchase and Access Information:</strong></p>
-  <ul>
-    <li>Purchased product</li>
-    <li>Transaction status</li>
-    <li>Amount paid</li>
-    <li>Purchase date</li>
-    <li>Pass or credit status</li>
-    <li>Expiry information</li>
-  </ul>
-  <p>Payments are processed through Razorpay. TypeShala does not intend to store complete card, UPI, banking or other sensitive payment credentials on its own servers.</p>
-
-  <h3>3. How We Use Information</h3>
-  <p>Information may be used to:</p>
-  <ul>
-    <li>Create and manage accounts</li>
-    <li>Authenticate users</li>
-    <li>Provide typing tests and practice</li>
-    <li>Store and display test history</li>
-    <li>Calculate performance statistics</li>
-    <li>Provide weak-key and performance analysis</li>
-    <li>Manage credits and passes</li>
-    <li>Process and verify purchases</li>
-    <li>Provide customer support</li>
-    <li>Detect misuse or fraudulent activity</li>
-    <li>Maintain and improve TypeShala</li>
-    <li>Communicate important service information</li>
-  </ul>
-
-  <h3>4. Typing and Performance Data</h3>
-  <p>TypeShala may retain typing-test and practice information associated with a user's account.</p>
-  <p>This may include speed, accuracy, errors, test attempts and other performance statistics.</p>
-  <p>This information is used for test results, performance history, progress tracking, weak-key analysis and targeted practice.</p>
-
-  <h3>5. Payment Processing</h3>
-  <p>Payments may be processed through Razorpay.</p>
-  <p>When making a payment, users may interact with Razorpay's payment infrastructure. Razorpay may collect and process payment information according to its own privacy policy and terms.</p>
-  <p>TypeShala generally receives transaction-related information necessary to confirm payment and provide the purchased service.</p>
-
-  <h3>6. Third-Party Services</h3>
-  <p>TypeShala uses third-party technology and service providers, including:</p>
-  <p><strong>Supabase:</strong> Used for authentication, database and backend functionality.</p>
-  <p><strong>Razorpay:</strong> Used for payment processing.</p>
-  <p><strong>Vercel:</strong> Used for website hosting and deployment.</p>
-  <p><strong>GitHub:</strong> Used for software development, source-code management and deployment-related workflows.</p>
-  <p>These providers may process information as necessary to provide their respective services and are subject to their own policies and terms.</p>
-
-  <h3>7. Cookies and Local Storage</h3>
-  <p>TypeShala may use cookies, local storage or similar technologies for:</p>
-  <ul>
-    <li>Authentication</li>
-    <li>Maintaining sessions</li>
-    <li>Saving preferences</li>
-    <li>Application functionality</li>
-    <li>Improving user experience</li>
-  </ul>
-
-  <h3>8. Data Security</h3>
-  <p>Reasonable measures are taken to protect information handled through TypeShala against unauthorized access, misuse, alteration or disclosure.</p>
-  <p>However, no internet-based service can guarantee absolute security.</p>
-
-  <h3>9. Data Retention</h3>
-  <p>Information may be retained as reasonably necessary to provide services, maintain records, comply with applicable legal requirements, resolve disputes, prevent fraud or enforce our terms.</p>
-
-  <h3>10. Your Rights</h3>
-  <p>Depending on applicable law, users may have rights relating to their personal information, including:</p>
-  <ul>
-    <li>Requesting access</li>
-    <li>Requesting correction</li>
-    <li>Requesting deletion where applicable</li>
-    <li>Raising privacy concerns</li>
-    <li>Withdrawing consent where applicable</li>
-  </ul>
-  <p>Privacy requests can be sent to: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-
-  <h3>11. Children's Privacy</h3>
-  <p>TypeShala is intended for students, learners and competitive-examination aspirants.</p>
-  <p>Users should provide accurate information when creating an account.</p>
-  <p>Where applicable law requires parental or guardian involvement, applicable requirements will be followed.</p>
-
-  <h3>12. Changes to This Privacy Policy</h3>
-  <p>This Privacy Policy may be updated from time to time. The updated version will contain a revised "Last Updated" date.</p>
-
-  <h3>13. Contact</h3>
-  <p>For privacy-related questions: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<template id="termsModalContent">
-  <p><em>Last Updated: 24 August 2026</em></p>
-
-  <h3>1. Acceptance of Terms</h3>
-  <p>By accessing or using TypeShala, you agree to these Terms &amp; Conditions.</p>
-  <p>If you do not agree, please do not use the service.</p>
-
-  <h3>2. About TypeShala</h3>
-  <p>TypeShala is an online typing practice and mock-test platform designed to help users improve typing speed, accuracy and examination readiness.</p>
-
-  <h3>3. User Accounts</h3>
-  <p>Users are responsible for:</p>
-  <ul>
-    <li>Providing accurate information</li>
-    <li>Maintaining account security</li>
-    <li>Keeping login credentials confidential</li>
-    <li>Using the account legitimately</li>
-    <li>Complying with these Terms</li>
-  </ul>
-
-  <h3>4. Typing Tests and Practice</h3>
-  <p>TypeShala provides typing tests and practice tools for educational and examination-preparation purposes.</p>
-  <p>Results may include:</p>
-  <ul>
-    <li>Gross WPM</li>
-    <li>Net WPM</li>
-    <li>Accuracy</li>
-    <li>Time taken</li>
-    <li>Errors</li>
-    <li>Weak keys</li>
-    <li>Other performance statistics</li>
-  </ul>
-  <p>TypeShala does not guarantee examination selection, qualification, employment or success.</p>
-
-  <h3>5. Credits</h3>
-  <p>Unless otherwise specified: 1 Credit = 1 Test Attempt.</p>
-  <p>Credits may be used for eligible typing mock tests according to the rules displayed on the platform.</p>
-  <p>New users may receive free credits according to the offer displayed at registration.</p>
-
-  <h3>6. Passes and Paid Access</h3>
-  <p>TypeShala may offer paid access plans such as:</p>
-  <ul>
-    <li>SSC Pass</li>
-    <li>Legal Pass</li>
-    <li>Combo Pass</li>
-    <li>Other plans introduced in the future</li>
-  </ul>
-  <p>Duration, price, features and eligible tests will be displayed before purchase.</p>
-  <p>Unless explicitly stated otherwise, paid passes are time-bound and do not automatically renew.</p>
-
-  <h3>7. Payments</h3>
-  <p>Payments may be processed through Razorpay.</p>
-  <p>The applicable price will be displayed before purchase.</p>
-  <p>A purchase is considered successful after appropriate payment confirmation is received.</p>
-  <p>For payment issues: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-
-  <h3>8. Refund and Cancellation Policy</h3>
-  <p>Because TypeShala provides digital services such as test credits and time-bound digital access, users should carefully review the product, price, validity and features before purchase.</p>
-  <p>Refunds are not automatically available simply because a user changes their mind after purchasing or activating a digital product.</p>
-  <p>Refunds may be considered for:</p>
-  <ul>
-    <li>Duplicate payments</li>
-    <li>Payment deducted but service not delivered</li>
-    <li>Technical errors resulting in incorrect charges</li>
-    <li>Other genuine payment-related issues determined by TypeShala</li>
-  </ul>
-  <p>If a credit or pass has already been substantially used, a refund may not be available except where required by applicable law.</p>
-  <p><strong>Failed Transactions:</strong> If money is deducted but the transaction is unsuccessful and the service has not been activated, contact <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a>.</p>
-  <p>Include where available:</p>
-  <ul>
-    <li>Registered email address</li>
-    <li>Transaction ID/order ID</li>
-    <li>Date of payment</li>
-    <li>Amount paid</li>
-    <li>Description of the issue</li>
-  </ul>
-  <p>Approved refunds will generally be processed through the original payment method, subject to payment-provider procedures.</p>
-
-  <h3>9. Intellectual Property</h3>
-  <p>TypeShala's original website design, software, branding, logos, typing passages, mock-test content, practice materials, graphics, text and analysis systems are protected by applicable intellectual-property laws.</p>
-  <p>Users must not copy, redistribute, resell, publish, scrape or commercially exploit protected TypeShala content without permission.</p>
-
-  <h3>10. Prohibited Activities</h3>
-  <p>Users must not:</p>
-  <ul>
-    <li>Bypass credits or paid access</li>
-    <li>Circumvent authentication</li>
-    <li>Manipulate test results</li>
-    <li>Use fraudulent payment methods</li>
-    <li>Share accounts in violation of access rules</li>
-    <li>Copy or redistribute protected content</li>
-    <li>Attempt unauthorized access</li>
-    <li>Scrape content without permission</li>
-    <li>Interfere with the platform</li>
-    <li>Use the service unlawfully</li>
-  </ul>
-
-  <h3>11. Account Suspension or Termination</h3>
-  <p>TypeShala may suspend or terminate accounts involved in fraud, abuse, unauthorized access, payment misuse, circumvention of access controls or serious violations of these Terms.</p>
-
-  <h3>12. Service Availability</h3>
-  <p>TypeShala aims to provide continuous service, but interruptions may occur because of maintenance, technical problems, hosting issues, network failures, third-party service outages, security incidents or circumstances beyond reasonable control.</p>
-
-  <h3>13. Third-Party Services</h3>
-  <p>TypeShala uses Razorpay for payments, Supabase for authentication, database and backend services, Vercel for hosting/deployment, and GitHub for software development and source-code management.</p>
-  <p>Third-party services are governed by their respective terms and policies.</p>
-
-  <h3>14. Changes to TypeShala</h3>
-  <p>TypeShala may modify, add, suspend or discontinue features, tests, plans, credits or other services. Prices and offerings may also change.</p>
-
-  <h3>15. Disclaimer</h3>
-  <p>TypeShala is an educational and examination-preparation platform. We do not guarantee examination success, a particular typing speed, employment, selection, or endorsement by any examination authority.</p>
-  <p>Users should always verify official examination requirements and notifications.</p>
-
-  <h3>16. Limitation of Liability</h3>
-  <p>To the extent permitted by applicable law, TypeShala will not be responsible for losses resulting from circumstances beyond its reasonable control, including third-party service interruptions, internet failures or temporary technical issues.</p>
-  <p>Nothing in these Terms excludes liability that cannot legally be excluded.</p>
-
-  <h3>17. Changes to These Terms</h3>
-  <p>These Terms may be updated from time to time. The latest version will display the updated date.</p>
-
-  <h3>18. Governing Law</h3>
-  <p>These Terms shall be governed by the applicable laws of India, subject to applicable legal requirements.</p>
-
-  <h3>19. Contact</h3>
-  <p>For questions regarding these Terms, payments, refunds or TypeShala services: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<template id="aboutModalContent">
-  <p>TypeShala is an online typing practice and mock-test platform designed to help students and competitive-examination aspirants improve their typing speed, accuracy and overall performance.</p>
-  <p>The platform is particularly useful for candidates preparing for typing and stenography-related examinations, including SSC, Stenographer, Legal/Court Typing and similar competitive examinations.</p>
-
-  <h3>What TypeShala Offers</h3>
-  <p>Depending on the services available on the platform, users may have access to:</p>
-  <ul>
-    <li>Typing practice</li>
-    <li>Mock typing tests</li>
-    <li>SSC typing tests</li>
-    <li>Legal/Court typing tests</li>
-    <li>Typing speed and accuracy analysis</li>
-    <li>Test history</li>
-    <li>Performance tracking</li>
-    <li>Weak-key analysis</li>
-    <li>Targeted typing practice</li>
-    <li>Credits and test passes</li>
-    <li>Other typing-related learning features</li>
-  </ul>
-
-  <h3>Our Purpose</h3>
-  <p>Our aim is to make typing practice simple, accessible and useful for competitive-examination preparation.</p>
-  <p>TypeShala is designed to help users understand where they are making typing mistakes and gradually improve their speed and accuracy through structured practice and performance analysis.</p>
-
-  <h3>Continuous Improvement</h3>
-  <p>TypeShala is continuously being developed and improved. New features, practice materials and improvements may be introduced from time to time.</p>
-
-  <h3>Contact</h3>
-  <p>For questions, suggestions or support: <a href="mailto:shortdictations@gmail.com">shortdictations@gmail.com</a></p>
-</template>
-
-<script src="js/landing-footer.js?v=2"></script>
 
 
 <script src="js/landing-v3.js?v=2"></script>
-
 <!-- Dynamic commercial content — products/pricing/free-credits copy
      and the home announcement ticker. Both read-only against
      Supabase, both admin-controlled from admin-products.html and
@@ -686,6 +363,5 @@
 <script>
   initAnnouncementTicker("homeAnnouncementTicker", "home"); // not awaited — independent of everything else on the page, same pattern as dashboard.js
 </script>
-
 </body>
 </html>

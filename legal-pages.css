@@ -1,0 +1,63 @@
+/* TypeShala standalone information pages */
+body.landing-v2 .legal-page-main{
+  flex: 1 0 auto;
+  background: #f8fafc;
+  padding: 64px 24px 80px;
+}
+body.landing-v2 .legal-page-container{
+  max-width: 900px;
+  margin: 0 auto;
+}
+body.landing-v2 .legal-page-card{
+  background: #fff;
+  border: 1px solid var(--ts-border);
+  border-radius: 18px;
+  padding: 48px 52px 56px;
+  box-shadow: 0 12px 32px rgba(16,24,40,0.05);
+}
+body.landing-v2 .legal-page-eyebrow{
+  margin: 0 0 10px;
+  color: var(--ts-blue);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+body.landing-v2 .legal-page-title{
+  margin: 0 0 8px;
+  color: var(--ts-text);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+  font-weight: 800;
+}
+body.landing-v2 .legal-page-updated{
+  margin: 0 0 34px;
+  color: var(--ts-muted);
+  font-size: .86rem;
+}
+body.landing-v2 .legal-page-content{
+  color: var(--ts-muted);
+  font-size: .95rem;
+  line-height: 1.75;
+}
+body.landing-v2 .legal-page-content h3{
+  margin: 30px 0 9px;
+  color: var(--ts-text);
+  font-size: 1.02rem;
+  line-height: 1.4;
+  font-weight: 800;
+}
+body.landing-v2 .legal-page-content h3:first-child{margin-top:0}
+body.landing-v2 .legal-page-content p{margin:0 0 12px}
+body.landing-v2 .legal-page-content ul{margin:0 0 14px;padding-left:22px}
+body.landing-v2 .legal-page-content li{margin-bottom:5px}
+body.landing-v2 .legal-page-content strong{color:var(--ts-text)}
+body.landing-v2 .legal-page-content em{font-style:normal;font-size:.84rem;color:var(--ts-muted)}
+body.landing-v2 .legal-page-content a{color:var(--ts-blue)}
+body.landing-v2 .legal-page-content a:hover{text-decoration:underline}
+@media (max-width:640px){
+  body.landing-v2 .legal-page-main{padding:32px 16px 48px}
+  body.landing-v2 .legal-page-card{padding:30px 22px 36px;border-radius:14px}
+  body.landing-v2 .legal-page-title{font-size:2rem}
+  body.landing-v2 .legal-page-content{font-size:.9rem}
+}
