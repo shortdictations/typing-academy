@@ -81,7 +81,7 @@ body.app-shell .app-header-sidebar-toggle{
 }
 body.app-shell .app-header-sidebar-toggle:hover{ background: rgba(255,255,255,0.14); }
 body.app-shell .app-header-sidebar-toggle svg{ width: 19px; height: 19px; }
-body.app-shell .brand{ gap: 12px; align-items: center; }
+body.app-shell .brand{ gap: 12px; }
 body.app-shell .seal{
   width: 38px; height: 38px;
   border: 2px solid var(--ts-gold);
@@ -4093,6 +4093,11 @@ body.app-shell .pass-upgrade-note{
 
   /* The header is no longer in normal flow, so restore exactly its
      former vertical footprint before the page content begins. */
+  body.app-shell .letterhead-inner{
+    height: 100%;
+    box-sizing: border-box;
+  }
+
   body.app-shell .app-body{
     display: block !important;
     width: 100% !important;
@@ -4252,6 +4257,11 @@ body.app-shell .pass-upgrade-note{
     height: var(--ts-header-height) !important;
     min-height: var(--ts-header-height) !important;
     z-index: 1000 !important;
+  }
+
+  body.app-shell .letterhead-inner{
+    height: 100%;
+    box-sizing: border-box;
   }
 
   body.app-shell .app-body{
