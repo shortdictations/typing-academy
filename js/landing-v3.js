@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }, { threshold: 0.08 });
 
-    document.querySelectorAll(".section-heading, .audience-card, .feature-card, .mock-shell, .progress-card, .smart-flow > div, .dashboard-preview, .price-card, .credits-box").forEach(el => {
+    document.querySelectorAll(".section-heading, .audience-card, .feature-card, .progress-card, .smart-flow > div, .dashboard-preview, .price-card, .credits-box").forEach(el => {
       el.classList.add("reveal-on-scroll");
       observer.observe(el);
     });
