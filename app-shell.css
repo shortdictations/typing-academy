@@ -4123,12 +4123,12 @@ body.app-shell .pass-upgrade-note{
     position: fixed !important;
     top: var(--ts-header-height) !important;
     left: 0 !important;
-    bottom: 0 !important;
+    bottom: auto !important;
     width: var(--ts-sidebar-open) !important;
     min-width: var(--ts-sidebar-open) !important;
     max-width: var(--ts-sidebar-open) !important;
-    height: auto !important;
-    max-height: none !important;
+    height: calc(100vh - var(--ts-header-height)) !important;
+    max-height: calc(100vh - var(--ts-header-height)) !important;
     margin: 0 !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
