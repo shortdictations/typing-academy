@@ -22,7 +22,7 @@
 // not in this list, so a new one added later in admin-products.html
 // still renders instead of breaking.
 const PASS_VISUALS = {
-  SSC:   { icon: "graduation-cap", bg: "blue-bg",   btnClass: "lp-btn-outline" },
+  SSC:   { iconImage: "assets/ssc-logo.png", bg: "blue-bg",   btnClass: "lp-btn-outline" },
   LEGAL: { icon: "scale",          bg: "green-bg",  btnClass: "lp-btn-green" },
   COMBO: { icon: "layers-2",       bg: "purple-bg", btnClass: "lp-btn-purple" }
 };
@@ -88,7 +88,7 @@ function renderPasses(passes, grid) {
     return `
       <article class="price-card${featuredClass}">
         ${badge}
-        <div class="price-top"><span class="price-icon ${visual.bg}"><i data-lucide="${visual.icon}"></i></span><span>${escapeHtmlLP(p.pass_type || "")}</span></div>
+        <div class="price-top"><span class="price-icon ${visual.bg}">${visual.iconImage ? `<img src="${visual.iconImage}" alt="SSC logo">` : `<i data-lucide="${visual.icon}"></i>`}</span><span>${escapeHtmlLP(p.pass_type || "")}</span></div>
         <h3>${escapeHtmlLP(p.name)}</h3>
         ${priceHtml}
         <ul>${features}</ul>
