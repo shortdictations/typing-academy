@@ -81,7 +81,7 @@ body.app-shell .app-header-sidebar-toggle{
 }
 body.app-shell .app-header-sidebar-toggle:hover{ background: rgba(255,255,255,0.14); }
 body.app-shell .app-header-sidebar-toggle svg{ width: 19px; height: 19px; }
-body.app-shell .brand{ gap: 12px; }
+body.app-shell .brand{ gap: 12px; align-items: center; }
 body.app-shell .seal{
   width: 38px; height: 38px;
   border: 2px solid var(--ts-gold);
