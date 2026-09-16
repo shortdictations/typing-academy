@@ -4078,6 +4078,12 @@ body.app-shell .pass-upgrade-note{
     overflow-y: auto !important;
   }
 
+  /* The app shell owns the viewport edge on desktop.  Reset the page
+     margin explicitly so the fixed header is flush with the viewport. */
+  body.app-shell{
+    margin: 0 !important;
+  }
+
   /* Freeze the header to the viewport. */
   body.app-shell .letterhead{
     position: fixed !important;
@@ -4088,6 +4094,16 @@ body.app-shell .pass-upgrade-note{
     height: var(--ts-header-height) !important;
     min-height: var(--ts-header-height) !important;
     z-index: 1000 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* The header is 79px tall, while the base inner row is only 62px
+     tall (38px control + 24px vertical padding). Give the row the
+     same height as the fixed header so align-items:center centres all
+     header controls in the actual header, not in a shorter row. */
+  body.app-shell .letterhead-inner{
+    height: var(--ts-header-height) !important;
+    min-height: var(--ts-header-height) !important;
     box-sizing: border-box !important;
   }
 
@@ -4242,6 +4258,10 @@ body.app-shell .pass-upgrade-note{
     overflow-y: auto !important;
   }
 
+  body.app-shell{
+    margin: 0 !important;
+  }
+
   body.app-shell .letterhead{
     position: fixed !important;
     top: 0 !important;
@@ -4251,6 +4271,12 @@ body.app-shell .pass-upgrade-note{
     height: var(--ts-header-height) !important;
     min-height: var(--ts-header-height) !important;
     z-index: 1000 !important;
+  }
+
+  body.app-shell .letterhead-inner{
+    height: var(--ts-header-height) !important;
+    min-height: var(--ts-header-height) !important;
+    box-sizing: border-box !important;
   }
 
 
