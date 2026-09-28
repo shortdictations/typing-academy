@@ -50,15 +50,19 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = await req.json();
+    const supabaseAdmin = getAdminClient();
+    const { data: rateAllowed, error: rateError } = await supabaseAdmin.rpc("check_edge_rate_limit", { p_rate_key: `verify-payment:${user.id}`, p_limit: 20, p_window_seconds: 60 });
+    if (rateError || rateAllowed !== true) {
+      return new Response(JSON.stringify({ error: "Too many payment verification requests. Please try again shortly." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" } });
+    }
+
+    const { razorpay_payment_idazorpay_order_id, razorpay_signature } = await req.json();
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return new Response(JSON.stringify({ error: "Missing payment details" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const supabaseAdmin = getAdminClient();
 
     // Confirm this order actually belongs to the calling user before
     // doing anything else — a student must never be able to verify
