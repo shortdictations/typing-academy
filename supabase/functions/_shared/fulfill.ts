@@ -114,26 +114,15 @@ export async function fulfillOrder(
       });
       if (passError) throw passError;
     } else if (claimed.product_type === "CREDIT") {
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + claimed.validity_days);
-
-      const { error: creditError } = await supabaseAdmin.from("wallet_credits").insert({
-        user_id: claimed.user_id,
-        credit_type: "purchased",
-        credits_total: claimed.credits,
-        credits_remaining: claimed.credits,
-        expires_at: expiresAt.toISOString(),
+      // Credit fulfillment is atomic in PostgreSQL. The RPC creates the
+      // wallet lot, ledger entry, and marks the purchase fulfilled in one
+      // transaction, so a retry cannot create a second credit lot.
+      const { error: creditError } = await supabaseAdmin.rpc("fulfill_credit_purchase", {
+        p_purchase_transaction_id: claimed.id,
       });
       if (creditError) throw creditError;
-
-      const { error: ledgerError } = await supabaseAdmin.from("credit_transactions").insert({
-        user_id: claimed.user_id,
-        transaction_type: "credit_purchase",
-        credits: claimed.credits,
-        source: product ? product.name : "Credit package purchase",
-      });
-      if (ledgerError) throw ledgerError;
     }
+
   } catch (grantError) {
     const { error: revertError } = await supabaseAdmin
       .from("purchase_transactions")
