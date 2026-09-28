@@ -56,7 +56,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "Too many payment verification requests. Please try again shortly." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" } });
     }
 
-    const { razorpay_payment_idazorpay_order_id, razorpay_signature } = await req.json();
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = await req.json();
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return new Response(JSON.stringify({ error: "Missing payment details" }), {
         status: 400,
