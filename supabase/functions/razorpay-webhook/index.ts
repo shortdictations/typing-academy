@@ -45,6 +45,12 @@ Deno.serve(async (req: Request) => {
       return new Response("Invalid signature", { status: 400 });
     }
 
+    const supabaseAdmin = getAdminClient();
+    const { data: rateAllowed, error: rateError } = await supabaseAdmin.rpc("check_edge_rate_limit", { p_rate_key: "razorpay-webhook", p_limit: 120, p_window_seconds: 60 });
+    if (rateError || rateAllowed !== true) {
+      return new Response("Rate limit exceeded", { status: 429, headers: { "Retry-After": "60" } });
+    }
+
     const event = JSON.parse(rawBody);
 
     // Refund lifecycle: record every refund separately so repeated partial refunds
@@ -58,7 +64,6 @@ Deno.serve(async (req: Request) => {
         return new Response("Malformed refund payload", { status: 400 });
       }
 
-      const supabaseAdmin = getAdminClient();
       const { data: result, error } = await supabaseAdmin.rpc("record_purchase_refund", {
         p_refund_gateway_id: refund.id,
         p_payment_gateway_id: paymentId,
@@ -98,8 +103,6 @@ Deno.serve(async (req: Request) => {
     if (!payment || !payment.order_id || !payment.id) {
       return new Response("Malformed payload", { status: 400 });
     }
-
-    const supabaseAdmin = getAdminClient();
 
     // Validate the signed Razorpay payload against our own transaction
     // record before granting anything. Signature authenticity alone does
