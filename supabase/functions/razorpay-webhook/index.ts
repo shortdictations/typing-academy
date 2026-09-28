@@ -47,9 +47,77 @@ Deno.serve(async (req: Request) => {
 
     const event = JSON.parse(rawBody);
 
-    // Only act on a captured payment; ignore everything else (order
-    // creation notifications, refund events, etc. — those aren't
-    // fulfillment triggers here).
+    // Refund lifecycle: record a completed full refund so the
+    // transaction no longer appears as a normal paid purchase.
+    // Partial refunds are recorded in metadata but do not revoke access
+    // automatically because the product may already have been consumed.
+    if (event.event === "refund.processed") {
+      const refund = event.payload?.refund?.entity;
+      const payment = event.payload?.payment?.entity;
+      const paymentId = refund?.payment_id || payment?.id;
+
+      if (!refund || !paymentId || !refund.id) {
+        return new Response("Malformed refund payload", { status: 400 });
+      }
+
+      const supabaseAdmin = getAdminClient();
+      const { data: txn, error: txnError } = await supabaseAdmin
+        .from("purchase_transactions")
+        .select("id, amount, status, fulfilled, metadata")
+        .eq("payment_gateway_id", paymentId)
+        .maybeSingle();
+
+      if (txnError) throw txnError;
+      if (!txn) {
+        return new Response(JSON.stringify({ received: true, ignored: "unknown_payment" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const refundAmount = Number(refund.amount || 0);
+      const transactionAmountInPaise = Math.round(Number(txn.amount) * 100);
+      const existingMetadata = txn.metadata && typeof txn.metadata === "object"
+        ? txn.metadata
+        : {};
+
+      if (refundAmount >= transactionAmountInPaise) {
+        const { error: updateError } = await supabaseAdmin
+          .from("purchase_transactions")
+          .update({
+            status: "refunded",
+            metadata: {
+              ...existingMetadata,
+              refund_id: refund.id,
+              refund_amount: refundAmount,
+              refund_status: "processed",
+            },
+          })
+          .eq("id", txn.id);
+
+        if (updateError) throw updateError;
+      } else {
+        const { error: updateError } = await supabaseAdmin
+          .from("purchase_transactions")
+          .update({
+            metadata: {
+              ...existingMetadata,
+              last_refund_id: refund.id,
+              last_refund_amount: refundAmount,
+              last_refund_status: "processed",
+            },
+          })
+          .eq("id", txn.id);
+
+        if (updateError) throw updateError;
+      }
+
+      return new Response(JSON.stringify({ received: true, refund_recorded: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only act on a captured payment. Other signed Razorpay events do not
+    // grant entitlements.
     if (event.event !== "payment.captured") {
       return new Response(JSON.stringify({ received: true, ignored: event.event }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
