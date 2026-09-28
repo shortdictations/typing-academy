@@ -35,7 +35,7 @@ export async function fulfillOrder(
   for (let attempt = 0; attempt < 25; attempt++) {
     const { data: claim, error: claimError } = await supabaseAdmin
       .from("purchase_transactions")
-      .update({ status: "paid" })
+      .update({ status: "paid", payment_gateway_id: paymentId })
       .eq("order_id", orderId)
       .eq("status", "created")
       .eq("fulfilled", false)
