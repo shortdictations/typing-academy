@@ -47,10 +47,8 @@ Deno.serve(async (req: Request) => {
 
     const event = JSON.parse(rawBody);
 
-    // Refund lifecycle: record a completed full refund so the
-    // transaction no longer appears as a normal paid purchase.
-    // Partial refunds are recorded in metadata but do not revoke access
-    // automatically because the product may already have been consumed.
+    // Refund lifecycle: record every refund separately so repeated partial refunds
+    // are accumulated correctly and duplicate webhook deliveries are idempotent.
     if (event.event === "refund.processed") {
       const refund = event.payload?.refund?.entity;
       const payment = event.payload?.payment?.entity;
@@ -61,57 +59,29 @@ Deno.serve(async (req: Request) => {
       }
 
       const supabaseAdmin = getAdminClient();
-      const { data: txn, error: txnError } = await supabaseAdmin
-        .from("purchase_transactions")
-        .select("id, amount, status, fulfilled, metadata")
-        .eq("payment_gateway_id", paymentId)
-        .maybeSingle();
+      const { data: result, error } = await supabaseAdmin.rpc("record_purchase_refund", {
+        p_refund_gateway_id: refund.id,
+        p_payment_gateway_id: paymentId,
+        p_amount: Number(refund.amount || 0) / 100,
+        p_metadata: {
+          speed_processed: refund.speed_processed || null,
+          status: refund.status || "processed",
+        },
+      });
 
-      if (txnError) throw txnError;
-      if (!txn) {
+      if (error) throw error;
+
+      if (result?.reason === "unknown_payment") {
         return new Response(JSON.stringify({ received: true, ignored: "unknown_payment" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const refundAmount = Number(refund.amount || 0);
-      const transactionAmountInPaise = Math.round(Number(txn.amount) * 100);
-      const existingMetadata = txn.metadata && typeof txn.metadata === "object"
-        ? txn.metadata
-        : {};
-
-      if (refundAmount >= transactionAmountInPaise) {
-        const { error: updateError } = await supabaseAdmin
-          .from("purchase_transactions")
-          .update({
-            status: "refunded",
-            metadata: {
-              ...existingMetadata,
-              refund_id: refund.id,
-              refund_amount: refundAmount,
-              refund_status: "processed",
-            },
-          })
-          .eq("id", txn.id);
-
-        if (updateError) throw updateError;
-      } else {
-        const { error: updateError } = await supabaseAdmin
-          .from("purchase_transactions")
-          .update({
-            metadata: {
-              ...existingMetadata,
-              last_refund_id: refund.id,
-              last_refund_amount: refundAmount,
-              last_refund_status: "processed",
-            },
-          })
-          .eq("id", txn.id);
-
-        if (updateError) throw updateError;
-      }
-
-      return new Response(JSON.stringify({ received: true, refund_recorded: true }), {
+      return new Response(JSON.stringify({
+        received: true,
+        refund_recorded: result?.recorded === true,
+        fully_refunded: result?.fully_refunded === true,
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
