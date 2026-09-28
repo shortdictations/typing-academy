@@ -1,0 +1,5 @@
+-- Refund status is already supported by purchase_transactions.
+-- Refund webhook bookkeeping stores refund identifiers/amounts in
+-- purchase_transactions.metadata. Full refunds become status='refunded';
+-- partial refunds remain paid because automatic entitlement revocation
+-- is intentionally not performed without a product refund policy.
