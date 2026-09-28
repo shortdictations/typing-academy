@@ -40,6 +40,12 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const supabaseAdmin = getAdminClient();
+    const { data: rateAllowed, error: rateError } = await supabaseAdmin.rpc("check_edge_rate_limit", { p_rate_key: `create-order:${user.id}`, p_limit: 10, p_window_seconds: 60 });
+    if (rateError || rateAllowed !== true) {
+      return new Response(JSON.stringify({ error: "Too many payment requests. Please try again shortly." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" } });
+    }
+
     const { product_id, is_upgrade } = await req.json();
     if (!product_id) {
       return new Response(JSON.stringify({ error: "product_id is required" }), {
@@ -55,8 +61,6 @@ Deno.serve(async (req: Request) => {
     // re-validates whether an upgrade is actually valid for this user
     // and rejects outright if not, rather than silently reinterpreting
     // it as a normal purchase or vice versa).
-    const supabaseAdmin = getAdminClient();
-
     const { data: product, error: productError } = await supabaseAdmin
       .from("products")
       .select("*")
