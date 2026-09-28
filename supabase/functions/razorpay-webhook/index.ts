@@ -63,6 +63,38 @@ Deno.serve(async (req: Request) => {
 
     const supabaseAdmin = getAdminClient();
 
+    // Validate the signed Razorpay payload against our own transaction
+    // record before granting anything. Signature authenticity alone does
+    // not replace our application-level amount/currency invariant.
+    const { data: txn, error: txnError } = await supabaseAdmin
+      .from("purchase_transactions")
+      .select("amount, currency")
+      .eq("order_id", payment.order_id)
+      .maybeSingle();
+
+    if (txnError) throw txnError;
+    if (!txn) {
+      return new Response(JSON.stringify({ error: "Unknown order" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const expectedAmountInPaise = Math.round(Number(txn.amount) * 100);
+    const expectedCurrency = (txn.currency || "INR").toUpperCase();
+    if (
+      payment.amount !== expectedAmountInPaise ||
+      String(payment.currency || "").toUpperCase() !== expectedCurrency
+    ) {
+      console.error(
+        `Webhook amount mismatch for order ${payment.order_id}: expected ${expectedAmountInPaise} ${expectedCurrency}, Razorpay reports ${payment.amount} ${payment.currency}`
+      );
+      return new Response(JSON.stringify({ error: "Payment amount does not match the expected order amount" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Reuses the EXACT same atomic-claim fulfillment function as
     // verify-razorpay-payment. If the browser callback already
     // fulfilled this order, this call finds fulfilled = true and
