@@ -549,18 +549,42 @@ function wireTestInputHandlers() {
   testInputHandlersWired = true;
 
   const input = document.getElementById("typeInput");
+  const status = document.getElementById("keyboardInputStatus");
+  const requirePhysicalKeyboard = window.matchMedia("(max-width: 700px)").matches;
+  let physicalKeydownKey = null;
+  input.setAttribute("inputmode", "none");
   input.addEventListener("input", onTypingInput);
-  // Informational only: this listener does not alter the typing buffer,
-  // validation, Backspace handling, scoring, or submission behaviour.
   input.addEventListener("input", () => {
-    const status = document.getElementById("keyboardInputStatus");
-    if (status) status.textContent = "Typing input received. TypeShala is using the standard test rules and scoring.";
+    if (status) status.textContent = requirePhysicalKeyboard
+      ? "Physical keyboard input detected. Type your passage using the connected keyboard."
+      : "Typing input received. TypeShala is using the standard test rules and scoring.";
+  });
+
+  // On phones, accept text only when it follows a real hardware keydown.
+  // inputmode=none suppresses the touchscreen keyboard; this additional
+  // beforeinput guard prevents soft-keyboard text from entering the test.
+  input.addEventListener("beforeinput", e => {
+    if (!requirePhysicalKeyboard || !testScreenOpen) return;
+    const type = e.inputType || "";
+    const isTextKey = typeof physicalKeydownKey === "string" && physicalKeydownKey.length === 1;
+    const isBackspace = physicalKeydownKey === "Backspace" && type === "deleteContentBackward";
+    const isDelete = physicalKeydownKey === "Delete" && type === "deleteContentForward";
+    const isMatchingText = type === "insertText" && isTextKey &&
+      (e.data || "").toLowerCase() === physicalKeydownKey.toLowerCase();
+    if (!isBackspace && !isDelete && !isMatchingText) {
+      e.preventDefault();
+      if (status) status.textContent = "Touchscreen typing is disabled. Connect a Bluetooth or USB-OTG physical keyboard to start the test.";
+    }
+    physicalKeydownKey = null;
   });
   input.addEventListener("paste", e => e.preventDefault());
   input.addEventListener("drop", e => e.preventDefault());
 
   input.addEventListener("keydown", e => {
     if (!testScreenOpen) return;
+    if (requirePhysicalKeyboard && (e.key === "Backspace" || e.key === "Delete" || e.key.length === 1)) {
+      physicalKeydownKey = e.key;
+    }
 
     if (e.key === "Backspace") {
       if (input.selectionStart <= wordStartPos || input.selectionEnd <= wordStartPos) {
