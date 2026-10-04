@@ -100,6 +100,7 @@
     <div class="pts-header">
       <h1 class="pts-title">Mock Settings</h1>
       <p class="pts-subtitle">Choose passage type and duration</p>
+      <p class="pts-mobile-keyboard-note">Using a phone? Connect a Bluetooth keyboard or a USB keyboard with an OTG adapter, then rotate your phone to landscape.</p>
     </div>
 
     <div class="pts-section pts-type-section">
@@ -237,7 +238,8 @@
 
     <div class="passage-box" id="passageBox"></div>
 
-    <textarea class="type-input" id="typeInput" rows="4" placeholder="Click here and start typing to begin the timer..."></textarea>
+    <textarea class="type-input" id="typeInput" rows="4" placeholder="Click here and start typing to begin the timer..." enterkeyhint="none" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
+    <p class="keyboard-input-status" id="keyboardInputStatus" role="status" aria-live="polite">Tip: Connect a Bluetooth or USB-OTG keyboard for phone typing practice. Tap the typing area if it loses focus.</p>
     <p class="test-rules-note">Pasting and right-click are disabled during the mock test. Typing is locked the moment time runs out. Press Esc key to exit the test.</p>
   </div>
 
