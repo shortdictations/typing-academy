@@ -550,6 +550,12 @@ function wireTestInputHandlers() {
 
   const input = document.getElementById("typeInput");
   input.addEventListener("input", onTypingInput);
+  // Informational only: this listener does not alter the typing buffer,
+  // validation, Backspace handling, scoring, or submission behaviour.
+  input.addEventListener("input", () => {
+    const status = document.getElementById("keyboardInputStatus");
+    if (status) status.textContent = "Typing input received. TypeShala is using the standard test rules and scoring.";
+  });
   input.addEventListener("paste", e => e.preventDefault());
   input.addEventListener("drop", e => e.preventDefault());
 
