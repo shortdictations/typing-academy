@@ -11,7 +11,7 @@ let countdownTimerId = null;
 let allHistoryResults = [];
 let sessionByResultId = new Map();
 let currentHistoryPage = 1;
-const HISTORY_PAGE_SIZE = 10;
+let historyPageSize = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -62,11 +62,11 @@ function renderHistory() {
     return;
   }
 
-  const totalPages = Math.max(1, Math.ceil(allHistoryResults.length / HISTORY_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(allHistoryResults.length / historyPageSize));
   currentHistoryPage = Math.min(Math.max(currentHistoryPage, 1), totalPages);
 
-  const start = (currentHistoryPage - 1) * HISTORY_PAGE_SIZE;
-  const pageResults = allHistoryResults.slice(start, start + HISTORY_PAGE_SIZE);
+  const start = (currentHistoryPage - 1) * historyPageSize;
+  const pageResults = allHistoryResults.slice(start, start + historyPageSize);
 
   const rows = pageResults.map((r, pageIndex) => {
     const absoluteIndex = start + pageIndex;
@@ -178,8 +178,10 @@ function renderHistoryFooter(totalPages, startIndex, visibleCount) {
   const lastShown = startIndex + visibleCount;
   return `<div class="mh-history-footer">
     <div class="mh-entry-summary">
-      <span>Show</span>
-      <span class="mh-entry-select">10 <span aria-hidden="true">⌄</span></span>
+      <label for="mhEntriesPerPage">Show</label>
+      <select class="mh-entry-select" id="mhEntriesPerPage" aria-label="Entries per page" onchange="changeHistoryPageSize(this.value)">
+        ${[10,25,50,100].map(size => `<option value="${size}" ${historyPageSize === size ? "selected" : ""}>${size}</option>`).join("")}
+      </select>
       <span>entries per page</span>
     </div>
     <div class="mh-footer-right">
@@ -211,8 +213,16 @@ function renderPagination(totalPages) {
   </nav>`;
 }
 
+function changeHistoryPageSize(value) {
+  const nextSize = Number(value);
+  if (![10, 25, 50, 100].includes(nextSize)) return;
+  historyPageSize = nextSize;
+  currentHistoryPage = 1;
+  renderHistory();
+}
+
 function goToHistoryPage(page) {
-  const totalPages = Math.max(1, Math.ceil(allHistoryResults.length / HISTORY_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(allHistoryResults.length / historyPageSize));
   if (page < 1 || page > totalPages || page === currentHistoryPage) return;
   currentHistoryPage = page;
   renderHistory();
