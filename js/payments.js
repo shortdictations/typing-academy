@@ -69,7 +69,7 @@ async function startPurchase(productId, options) {
       const { data: userData, error: userError } = await supabaseClient.auth.getUser();
       if (!userError && userData && userData.user) {
         const rawPhone = userData.user.user_metadata && userData.user.user_metadata.phone;
-        const digits = String(rawPhone || "").replace(/\\D/g, "");
+        const digits = String(rawPhone || "").replace(/\D/g, "");
         if (digits.length === 10) checkoutContact = "+91" + digits;
         else if (digits.length === 12 && digits.startsWith("91")) checkoutContact = "+" + digits;
         else if (digits.length > 0) checkoutContact = String(rawPhone).trim();
