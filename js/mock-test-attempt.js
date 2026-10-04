@@ -323,7 +323,7 @@ async function showInlineUnfinishedSession(sessionRow, mockRow) {
   startResumeCountdown(resumeInfo.status);
 }
 
-function initPreTestSelection {
+function initPreTestSelection() {
   document.getElementById("preTestCard").style.display = "block";
 
   document.getElementById("ptsSscOption").addEventListener("click", () => selectPtsType("ssc"));
