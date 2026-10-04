@@ -1,3 +1,30 @@
+function setOnboardingVisibility(isVisible) {
+  const overlay = document.getElementById("onboardingOverlay");
+  if (!overlay) return;
+
+  overlay.style.display = isVisible ? "flex" : "none";
+
+  // Keep the welcome flow as the only interactive part of the page.
+  // The overlay is a direct child of body, so these application
+  // regions can safely be made inert without disabling the modal.
+  [
+    document.querySelector(".letterhead"),
+    document.querySelector(".app-body"),
+    document.querySelector(".app-bottom-nav")
+  ].forEach((region) => {
+    if (region) region.inert = isVisible;
+  });
+
+  document.body.classList.toggle("onboarding-open", isVisible);
+
+  if (isVisible) {
+    const firstAction = overlay.querySelector(
+      "#continueWelcomeBackBtn, #welcomeNextBtn, #saveTargetBtn, #beginSessionBtn"
+    );
+    if (firstAction) requestAnimationFrame(() => firstAction.focus());
+  }
+}
+
 /* ============================================================
    dashboard.js
    ------------------------------------------------------------
@@ -165,7 +192,7 @@ function openWelcomeBackModal(user) {
   const card = document.getElementById("welcomeBackCard");
   showSlide(card, false); // first thing shown this modal-open, so no exit animation needed
 
-  document.getElementById("onboardingOverlay").style.display = "flex";
+  setOnboardingVisibility(true);
 
   document.getElementById("continueWelcomeBackBtn").addEventListener("click", () => {
     showCompleteSlide({ withBackLink: false }); // returning flow has no "target" slide to go back to
@@ -259,7 +286,7 @@ function openTargetModal(isFirstLogin) {
   updateWpmProgressFill(startValue);
 
   hideOnboardingError();
-  document.getElementById("onboardingOverlay").style.display = "flex";
+  setOnboardingVisibility(true);
   startWordmarkTyping(); // guarded to run only once per session, regardless of entry point
 
   // "Back to welcome" only makes sense as part of the sequential
@@ -468,12 +495,12 @@ function wireOnboardingControls(userId) {
     } else {
       // "Change Speed" from the dashboard: save and close directly —
       // no completion slide.
-      document.getElementById("onboardingOverlay").style.display = "none";
+      setOnboardingVisibility(false);
     }
   });
 
   document.getElementById("beginSessionBtn").addEventListener("click", () => {
-    document.getElementById("onboardingOverlay").style.display = "none";
+    setOnboardingVisibility(false);
     stopAutoAdvance();
   });
 }
