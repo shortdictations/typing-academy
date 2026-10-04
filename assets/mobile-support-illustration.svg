@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 650" role="img" aria-labelledby="title desc">
+<title id="title">TypeShala mobile typing test on a phone with an external keyboard</title>
+<desc id="desc">A landscape smartphone showing a TypeShala legal typing mock test beside a compact physical keyboard.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#e4efff"/></linearGradient>
+ <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#34445c"/><stop offset=".5" stop-color="#070e1d"/><stop offset="1" stop-color="#65748b"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="15"/></filter>
+ <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#f5f8fc"/></linearGradient>
+</defs>
+<rect width="920" height="650" rx="34" fill="url(#bg)"/>
+<circle cx="830" cy="60" r="170" fill="#d4e5ff" opacity=".55"/><circle cx="60" cy="590" r="150" fill="#e9e5ff" opacity=".55"/>
+<ellipse cx="550" cy="555" rx="340" ry="45" fill="#142b50" opacity=".15" filter="url(#shadow)"/>
+<!-- phone -->
+<g transform="translate(250 70) rotate(-5 320 210)">
+ <rect x="0" y="0" width="650" height="410" rx="42" fill="url(#phone)" stroke="#718096" stroke-width="4"/>
+ <rect x="16" y="16" width="618" height="378" rx="29" fill="#081a38"/>
+ <rect x="27" y="28" width="596" height="354" rx="20" fill="url(#screen)"/>
+ <path d="M27 48q0-20 20-20h556q20 0 20 20v47H27z" fill="#0b1c40"/>
+ <circle cx="57" cy="60" r="13" fill="#1673ef"/><path d="M50 61h14M57 54v14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+ <text x="80" y="66" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#fff">TypeShala</text>
+ <text x="55" y="125" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#697891">LEGAL MOCK 23 · 5 MIN</text>
+ <g font-family="Arial,sans-serif" text-anchor="middle"><text x="385" y="119" font-size="22" font-weight="700" fill="#101b30">0</text><text x="385" y="136" font-size="9" fill="#75839a">WPM</text><text x="455" y="119" font-size="22" font-weight="700" fill="#101b30">100%</text><text x="455" y="136" font-size="9" fill="#75839a">ACCURACY</text><text x="525" y="119" font-size="22" font-weight="700" fill="#101b30">0</text><text x="525" y="136" font-size="9" fill="#75839a">MISTAKES</text></g>
+ <rect x="555" y="104" width="52" height="36" rx="5" fill="#fff" stroke="#356be8" stroke-width="1.5"/><text x="581" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#356be8">05:00</text>
+ <rect x="48" y="157" width="555" height="145" rx="8" fill="#f7f9fc" stroke="#e1e7f0"/>
+ <g font-family="monospace" font-size="15" fill="#65738b"><text x="67" y="190"><tspan fill="#2365e8" font-weight="700">Challenge</tspan><tspan> in this appeal is the judgment of</tspan></text><text x="67" y="218">the learned Single Judge of the High Court</text><text x="67" y="246">holding that the appellants were not entitled</text><text x="67" y="274">to a decree for specific performance...</text></g>
+ <rect x="48" y="316" width="555" height="47" rx="7" fill="#fff" stroke="#356be8" stroke-width="2"/>
+ <text x="66" y="345" font-family="Arial,sans-serif" font-size="14" fill="#8b96a8">Connect a physical keyboard and start typing...</text>
+</g>
+<!-- keyboard -->
+<g transform="translate(210 480) rotate(-4 330 65)">
+ <rect x="0" y="0" width="650" height="140" rx="18" fill="#202a3a" stroke="#111827" stroke-width="5"/>
+ <g fill="#39465a" stroke="#111827" stroke-width="2">
+  <rect x="20" y="17" width="50" height="27" rx="5"/><rect x="80" y="17" width="50" height="27" rx="5"/><rect x="140" y="17" width="50" height="27" rx="5"/><rect x="200" y="17" width="50" height="27" rx="5"/><rect x="260" y="17" width="50" height="27" rx="5"/><rect x="320" y="17" width="50" height="27" rx="5"/><rect x="380" y="17" width="50" height="27" rx="5"/><rect x="440" y="17" width="50" height="27" rx="5"/><rect x="500" y="17" width="50" height="27" rx="5"/><rect x="560" y="17" width="65" height="27" rx="5"/>
+  <rect x="20" y="53" width="68" height="27" rx="5"/><rect x="98" y="53" width="50" height="27" rx="5"/><rect x="158" y="53" width="50" height="27" rx="5"/><rect x="218" y="53" width="50" height="27" rx="5"/><rect x="278" y="53" width="50" height="27" rx="5"/><rect x="338" y="53" width="50" height="27" rx="5"/><rect x="398" y="53" width="50" height="27" rx="5"/><rect x="458" y="53" width="50" height="27" rx="5"/><rect x="518" y="53" width="107" height="27" rx="5"/>
+  <rect x="20" y="89" width="90" height="27" rx="5"/><rect x="120" y="89" width="50" height="27" rx="5"/><rect x="180" y="89" width="50" height="27" rx="5"/><rect x="240" y="89" width="210" height="27" rx="5"/><rect x="460" y="89" width="50" height="27" rx="5"/><rect x="520" y="89" width="105" height="27" rx="5"/>
+ </g>
+ <g fill="#dce5f3" font-family="Arial,sans-serif" font-size="12" text-anchor="middle"><text x="45" y="36">Q</text><text x="105" y="36">W</text><text x="165" y="36">E</text><text x="225" y="36">R</text><text x="285" y="36">T</text><text x="345" y="36">Y</text><text x="405" y="36">U</text><text x="465" y="36">I</text><text x="525" y="36">O</text><text x="45" y="72">A</text><text x="123" y="72">S</text><text x="183" y="72">D</text><text x="243" y="72">F</text><text x="303" y="72">G</text><text x="363" y="72">H</text><text x="423" y="72">J</text><text x="483" y="72">K</text><text x="65" y="108">Shift</text><text x="145" y="108">Ctrl</text><text x="285" y="108">Space</text><text x="485" y="108">Alt</text></g>
+</g>
+</svg>
