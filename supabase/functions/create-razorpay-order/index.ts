@@ -87,7 +87,11 @@ Deno.serve(async (req: Request) => {
       // source pass's own upgrade_to_combo_price for an upgrade) all
       // decided here, from the database, independently of anything
       // the client believes about its own state.
-      const { data: resolved, error: resolveError } = await supabaseAdmin
+      // This RPC relies on auth.uid() and is granted to authenticated
+      // users only. Call it with the student's JWT-backed client, not the
+      // service-role client (whose auth.uid() is NULL). The Edge Function
+      // has already validated this JWT with auth.getUser() above.
+      const { data: resolved, error: resolveError } = await supabaseUser
         .rpc("resolve_pass_purchase", { p_product_id: product_id, p_is_upgrade: !!is_upgrade })
         .single();
       if (resolveError) throw resolveError;
