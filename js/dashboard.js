@@ -302,12 +302,12 @@ function openTargetModal(isFirstLogin) {
   // go back to.
   document.getElementById("backToWelcomeBtn").style.display = isFirstLogin ? "" : "none";
 
-  // First login walks through Welcome (with auto-advance) -> Target;
-  // reopening later via "Change"/"Set Target" jumps straight to the
-  // slider — no need to replay the welcome message every time.
+  // First login stays on the Welcome step until the student chooses
+  // to continue. Reopening later via "Change"/"Set Target" jumps
+  // straight to the slider — no need to replay the welcome message.
   if (isFirstLogin) {
+    stopAutoAdvance();
     goToStep(1, false);
-    startAutoAdvance();
   } else {
     stopAutoAdvance();
     goToStep(2, false);
