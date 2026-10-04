@@ -677,7 +677,12 @@ async function handleStartClick(options = {}) {
 
 
 function startMockTest() {
+  // A resumed session must leave the unfinished-state page completely
+  // before the live typing screen is shown. The body class has its own
+  // CSS display rule, so clear it here for both fresh and resumed tests.
   document.body.classList.remove("unfinished-session-active");
+  const unfinishedCard = document.getElementById("unfinishedSessionCard");
+  if (unfinishedCard) unfinishedCard.style.setProperty("display", "none", "important");
   testResultSaved = false;
   passageChars = selectedPassage.content.split("");
   wordRanges = computeWordRanges(selectedPassage.content);
