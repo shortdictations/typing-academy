@@ -169,6 +169,18 @@
         <div><span>Status</span><strong>In Progress</strong></div>
       </div>
 
+      <div class="unfinished-resume-countdown" id="unfinishedResumeCountdownBar" role="status" aria-live="polite">
+        <span class="unfinished-resume-clock" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3 2"></path>
+          </svg>
+        </span>
+        <span class="unfinished-resume-label" id="unfinishedResumeLabel">TIME LEFT TO RESUME</span>
+        <span class="unfinished-resume-divider" aria-hidden="true"></span>
+        <strong id="unfinishedResumeCountdown">--:--:--</strong>
+      </div>
+
       <div class="unfinished-session-actions">
         <button type="button" class="btn" id="unfinishedContinueBtn">Resume Test <span aria-hidden="true">→</span></button>
       </div>
