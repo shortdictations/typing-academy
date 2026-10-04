@@ -164,6 +164,15 @@ function setResumeSessionExpired() {
     button.innerHTML = "Start New Test <span aria-hidden=\"true\">→</span>";
     button.onclick = () => window.location.reload();
   }
+  const setupCard = document.getElementById("setupCard");
+  if (setupCard) {
+    setupCard.style.display = "none";
+    setupCard.hidden = true;
+    setupCard.setAttribute("aria-hidden", "true");
+  }
+  const preTestCard = document.getElementById("preTestCard");
+  if (preTestCard) preTestCard.style.display = "none";
+  document.body.classList.add("unfinished-session-active");
   if (card) card.style.setProperty("display", "flex", "important");
 }
 
