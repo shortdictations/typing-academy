@@ -1729,7 +1729,7 @@ footer.site-foot{
 .onboarding-overlay{
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: center;
