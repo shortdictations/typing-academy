@@ -108,77 +108,6 @@
            IDs, same dashboard.js wiring. Shown only when the student
            has no completed user_preferences row yet, or again when
            they click "Change"/"Set Target". -->
-      <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" style="display:none;">
-        <div class="onboarding-grid-bg"></div>
-        <div class="onboarding-modal">
-          <div class="onboarding-card">
-            <div class="onboarding-wordmark" id="onboardingWordmark">
-              <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
-            </div>
-
-            <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
-
-              <div class="onboarding-slide" id="welcomeCard" data-step="1">
-                <div class="onboarding-slide-content">
-                  <p class="onboarding-eyebrow">A little context before we begin</p>
-                  <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
-                  <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
-                  <div class="onboarding-goal-box">
-                    <div class="onboarding-goal-title">Build your baseline</div>
-                    <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
-                  </div>
-                </div>
-                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
-                <div class="onboarding-autoadvance">
-                  <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
-                </div>
-              </div>
-
-              <div class="onboarding-slide" id="targetCard" data-step="2">
-                <div class="onboarding-slide-content">
-                  <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
-                  <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
-                  <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
-
-                  <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
-                  <div class="onboarding-progress-slider">
-                    <div class="onboarding-progress-slider-track"><div class="onboarding-progress-slider-fill" id="wpmProgressFill"></div></div>
-                    <input type="range" id="targetWpmSlider" min="20" max="120" step="1" value="55">
-                  </div>
-                  <div class="onboarding-slider-labels">
-                    <span>Easy pace</span>
-                    <span>Fast flow</span>
-                  </div>
-                </div>
-
-                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing</button>
-                <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
-              </div>
-
-              <div class="onboarding-slide" id="completeCard" data-step="3">
-                <div class="onboarding-slide-content">
-                  <p class="onboarding-eyebrow">Your space is ready</p>
-                  <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
-                  <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
-                </div>
-                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
-                <button type="button" class="onboarding-back-link" id="backToTargetBtn">&larr; Back</button>
-              </div>
-
-              <div class="onboarding-slide" id="welcomeBackCard">
-                <div class="onboarding-slide-content">
-                  <p class="onboarding-eyebrow">Good to see you</p>
-                  <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
-                  <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
-                </div>
-                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="app-greeting-row app-greeting-row-with-plan">
         <div>
           <h1 class="dashboard-h1">Hey, <span id="welcomeName">there</span>! &#128075;</h1>
@@ -353,6 +282,78 @@
     </main>
   </div>
 </div>
+
+      <div class="onboarding-overlay onboarding-dark" id="onboardingOverlay" role="dialog" aria-modal="true" aria-label="TypeShala welcome" style="display:none;">
+        <div class="onboarding-grid-bg"></div>
+        <div class="onboarding-modal">
+          <div class="onboarding-card">
+            <div class="onboarding-wordmark" id="onboardingWordmark">
+              <span id="wordmarkText"></span><span class="wordmark-cursor" id="wordmarkCursor">|</span>
+            </div>
+
+            <div class="onboarding-slide-viewport" id="onboardingSlideViewport">
+
+              <div class="onboarding-slide" id="welcomeCard" data-step="1">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">A little context before we begin</p>
+                  <h2>Welcome back,<br><span id="welcomeUserName" class="onboarding-highlight">there</span>.</h2>
+                  <p class="onboarding-body">Your practice is a blank page. Set a pace that feels like yours, then let consistency do the rest.</p>
+                  <div class="onboarding-goal-box">
+                    <div class="onboarding-goal-title">Build your baseline</div>
+                    <div class="onboarding-goal-sub">We'll track speed and accuracy as you grow.</div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="welcomeNextBtn">Set my pace &rarr;</button>
+                <div class="onboarding-autoadvance">
+                  <div class="onboarding-autoadvance-track"><div class="onboarding-autoadvance-fill" id="autoAdvanceFill"></div></div>
+                </div>
+              </div>
+
+              <div class="onboarding-slide" id="targetCard" data-step="2">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow" id="targetEyebrow">Your starting point</p>
+                  <h2 id="targetCardHeading">Choose your<br><span class="onboarding-highlight">target speed.</span></h2>
+                  <p class="onboarding-body">A gentle target keeps your focus on flow, not pressure. You can change this anytime.</p>
+
+                  <div class="onboarding-wpm-display"><span id="wpmSliderValue">55</span><span class="onboarding-wpm-unit">WPM</span></div>
+                  <div class="onboarding-progress-slider">
+                    <div class="onboarding-progress-slider-track"><div class="onboarding-progress-slider-fill" id="wpmProgressFill"></div></div>
+                    <input type="range" id="targetWpmSlider" min="20" max="120" step="1" value="55">
+                  </div>
+                  <div class="onboarding-slider-labels">
+                    <span>Easy pace</span>
+                    <span>Fast flow</span>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="saveTargetBtn">Start practicing</button>
+                <button type="button" class="onboarding-back-link" id="backToWelcomeBtn">&larr; Back to welcome</button>
+              </div>
+
+              <div class="onboarding-slide" id="completeCard" data-step="3">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">Your space is ready</p>
+                  <h2>Let's find<br><span class="onboarding-highlight">your rhythm.</span></h2>
+                  <p class="onboarding-body">Your first practice session is waiting whenever you are.</p>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="beginSessionBtn">Begin a session &rarr;</button>
+                <button type="button" class="onboarding-back-link" id="backToTargetBtn">&larr; Back</button>
+              </div>
+
+              <div class="onboarding-slide" id="welcomeBackCard">
+                <div class="onboarding-slide-content">
+                  <p class="onboarding-eyebrow">Good to see you</p>
+                  <h2>Welcome back,<br><span id="welcomeBackName" class="onboarding-highlight">there</span>.</h2>
+                  <p class="onboarding-body">Your target and progress are right where you left them. Ready to keep building?</p>
+                </div>
+                <button type="button" class="btn btn-full onboarding-btn onboarding-primary-action" id="continueWelcomeBackBtn">Continue &rarr;</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
 
 <!-- Mobile bottom nav — real pages only, matches the sidebar's first
      four items. Hidden on desktop (see app-shell.css). -->
