@@ -181,7 +181,11 @@ async function registerStudent(fullName, email, password) {
     email: email,
     password: password,
     options: {
-      data: { full_name: fullName } // stored on the auth user itself
+      data: { full_name: fullName }, // stored on the auth user itself
+      // After the user confirms their email, Supabase returns the
+      // authenticated session to the dashboard. The dashboard's
+      // existing auth guard then registers the active app session.
+      emailRedirectTo: window.location.origin + "/dashboard.html"
     }
   });
 
