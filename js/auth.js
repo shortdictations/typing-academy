@@ -6,6 +6,26 @@
    Requires supabase-config.js to be loaded first.
    ============================================================ */
 
+/* ---------- Email-confirmation session handoff ----------
+// Supabase returns the newly verified user to this URL. Clear any
+// stale app-level device-session claim BEFORE requireLogin() runs;
+// otherwise the old claim can be mistaken for a replaced login and
+// trigger forceSessionLogout() immediately after successful signup.
+try {
+  const confirmationParams = new URLSearchParams(window.location.search);
+  if (confirmationParams.get("email_confirmed") === "1") {
+    localStorage.removeItem("ts_session_id");
+    confirmationParams.delete("email_confirmed");
+    const cleanQuery = confirmationParams.toString();
+    const cleanUrl = window.location.pathname +
+      (cleanQuery ? "?" + cleanQuery : "") +
+      window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+} catch (err) {
+  console.error("Could not clear stale app session after email confirmation:", err);
+}
+
 /* ---------- Single active session (one device at a time) ----------
    localStorage (NOT sessionStorage) is deliberate: it's shared
    across every tab of the same browser/device, which is exactly
@@ -191,7 +211,7 @@ async function registerStudent(fullName, email, password) {
       // After the user confirms their email, Supabase returns the
       // authenticated session to the dashboard. The dashboard's
       // existing auth guard then registers the active app session.
-      emailRedirectTo: window.location.origin + "/dashboard.html"
+      emailRedirectTo: window.location.origin + "/dashboard.html?email_confirmed=1"
     }
   });
 
