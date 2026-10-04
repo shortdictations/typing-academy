@@ -125,10 +125,10 @@ async function checkForExistingSessionBeforeSelection() {
   if (!loaded) return;
 
   wireTestInputHandlers();
-  showInlineUnfinishedSession(currentSession, mockTest);
+  await showInlineUnfinishedSession(currentSession, mockTest);
 }
 
-async async function getMockSessionResumeStatus(sessionId) {
+async function getMockSessionResumeStatus(sessionId) {
   const { data, error } = await supabaseClient.rpc("get_mock_session_resume_status", {
     p_session_id: sessionId
   });
@@ -219,9 +219,13 @@ function startResumeCountdown(resumeStatus) {
   if (!resumeSessionExpired) resumeCountdownInterval = setInterval(tick, 1000);
 }
 
-function showInlineUnfinishedSession(sessionRow, mockRow) {
+async function showInlineUnfinishedSession(sessionRow, mockRow) {
   const card = document.getElementById("unfinishedSessionCard");
   if (!card) return;
+  if (resumeCountdownInterval) {
+    clearInterval(resumeCountdownInterval);
+    resumeCountdownInterval = null;
+  }
   document.body.classList.add("unfinished-session-active");
 
   document.getElementById("preTestCard").style.display = "none";
@@ -283,8 +287,6 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
     setResumeSessionExpired();
     return;
   }
-
-  startResumeCountdown(resumeInfo.status);
 
   // This card can be shown again after a student exits a resumed test.
   // Reset the button state so a previous in-flight click cannot leave
