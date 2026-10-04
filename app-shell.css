@@ -2345,9 +2345,16 @@ body.mock-test-active #appSidebar{ display: none; }
    test card in the full viewport once the sidebar is removed. */
 body.app-shell.mock-attempt-page.mock-test-active .app-header-sidebar-toggle{ display: none !important; }
 body.app-shell.mock-attempt-page.mock-test-active .app-content{
-  width: 100%;
+  /* The desktop shell reserves a left gutter for the sidebar. The sidebar
+     is hidden during a live mock, so reclaim that space and centre the
+     test card against the full browser viewport instead. */
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   display: flex;
   justify-content: center;
+  box-sizing: border-box;
 }
 body.app-shell.mock-attempt-page.mock-test-active .test-mode-main{
   width: min(1200px, calc(100% - 48px));
