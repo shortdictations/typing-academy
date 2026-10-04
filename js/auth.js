@@ -177,6 +177,12 @@ function startSingleSessionMonitoring(userId) {
 
 // Register a brand-new student account
 async function registerStudent(fullName, email, password) {
+  // A previous app-level session claim may be left in this browser
+  // from an older login (for example, after an interrupted logout).
+  // Email confirmation creates a fresh Supabase session, so never let
+  // the dashboard validate that stale claim and sign the new user out.
+  localStorage.removeItem(TS_SESSION_STORAGE_KEY);
+
   const { data, error } = await supabaseClient.auth.signUp({
     email: email,
     password: password,
