@@ -103,7 +103,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("initTargetWpm failed:", err);
   }
-  maybeShowWelcomeBack(user, onboardingCompleted);
+  // Returning users go straight to the dashboard. The welcome/mobile
+  // onboarding flow is reserved exclusively for accounts that have not
+  // completed their first-time setup (handled inside initTargetWpm).
 
   showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
   initAnnouncementTicker("announcementBoard", "dashboard"); // not awaited — independent of everything else on the page
