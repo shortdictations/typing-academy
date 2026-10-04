@@ -4406,6 +4406,22 @@ body.app-shell.mock-attempt-page.mock-test-active{
   overflow: hidden;
 }
 @media (orientation: landscape) and (max-height: 600px) and (max-width: 950px){
+  /* The shared desktop shell normally offsets content by the sidebar width.
+     The sidebar is hidden during a mock, so remove that reserved gutter too. */
+  body.app-shell.mock-attempt-page.mock-test-active .app-body{
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active .app-content{
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
   body.app-shell.mock-attempt-page.mock-test-active .letterhead{
     display: none !important;
   }
