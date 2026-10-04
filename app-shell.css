@@ -4435,7 +4435,7 @@ body.app-shell.mock-attempt-page.mock-test-active{
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     overflow: hidden;
   }
