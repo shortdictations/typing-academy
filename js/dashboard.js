@@ -624,6 +624,24 @@ function renderTargetWpmCard() {
   }
 }
 
+function updateDashboardTimeGreeting() {
+  const greetingEl = document.getElementById("welcomeGreeting");
+  if (!greetingEl) return;
+
+  // Use the student's device-local time so the greeting follows their
+  // own timezone rather than a fixed server timezone.
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    greetingEl.textContent = "Good morning ☀️";
+  } else if (hour >= 12 && hour < 17) {
+    greetingEl.textContent = "Good afternoon 👋";
+  } else {
+    // "Good evening" also feels more natural than "Good night" for
+    // students who are starting a late-night practice session.
+    greetingEl.textContent = "Good evening 🌆";
+  }
+}
+
 function showStudentName(user) {
   // Display-only — the stored full_name in Supabase is never
   // touched, only the greeting shows a shortened version of it.
@@ -632,6 +650,13 @@ function showStudentName(user) {
 
   const el = document.getElementById("welcomeName");
   if (el) el.textContent = firstName || "there"; // graceful fallback if no name is set at all
+
+  updateDashboardTimeGreeting();
+  // Keep the greeting correct if the dashboard remains open across a
+  // morning/afternoon/evening boundary.
+  if (!window.dashboardGreetingInterval) {
+    window.dashboardGreetingInterval = window.setInterval(updateDashboardTimeGreeting, 60 * 1000);
+  }
 }
 
 // Onboarding modal greeting uses just the first name — never the
