@@ -1950,6 +1950,8 @@ body.app-shell .onboarding-card h2{
 
 /* Auto-advance timer */
 .onboarding-autoadvance{ margin-top: 18px; }
+/* Hide the timer line on the welcome step without removing its DOM or timer logic. */
+#welcomeCard .onboarding-autoadvance{ visibility: hidden; }
 .onboarding-autoadvance-track{
   width: 100%;
   height: 3px;
