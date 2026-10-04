@@ -752,7 +752,10 @@ function enterFullscreen() {
     const result = req.call(el);
     if (result && typeof result.catch === "function") {
       result
-        .then(hideFullscreenFallback)
+        .then(() => {
+          hideFullscreenFallback();
+          requestLandscapeOrientation();
+        })
         .catch(showFullscreenFallback); // e.g. a popup blocker, an iframe without allow="fullscreen", or any other browser policy that rejects an automatic request
     } else {
       hideFullscreenFallback();
@@ -767,6 +770,32 @@ function enterFullscreen() {
 // attempt above couldn't — this is the actual, working recovery
 // path, not just a dead-end message. Focused so Enter/Space works
 // immediately without the student needing to move the mouse first.
+// Installed Android PWAs can lock orientation while fullscreen is active.
+// The manifest stays orientation-neutral so the rest of TypeShala can open
+// in portrait; landscape is requested only for the live mock-test screen.
+function requestLandscapeOrientation() {
+  const orientation = window.screen && window.screen.orientation;
+  if (!orientation || typeof orientation.lock !== "function") return;
+  try {
+    const lockResult = orientation.lock("landscape");
+    if (lockResult && typeof lockResult.catch === "function") {
+      lockResult.catch(() => {
+        // Unsupported browsers/devices can still rotate manually; the
+        // responsive landscape layout remains available through CSS.
+      });
+    }
+  } catch (err) {
+    // Orientation locking is an enhancement, never a reason to block a test.
+  }
+}
+
+function unlockScreenOrientation() {
+  const orientation = window.screen && window.screen.orientation;
+  if (orientation && typeof orientation.unlock === "function") {
+    try { orientation.unlock(); } catch (err) { /* ignore unsupported devices */ }
+  }
+}
+
 function showFullscreenFallback() {
   const btn = document.getElementById("fsRetryBtn");
   btn.style.display = "inline-block";
@@ -791,6 +820,7 @@ function hideFullscreenFallback() {
 }
 
 function exitFullscreen() {
+  unlockScreenOrientation();
   const isFs = document.fullscreenElement || document.webkitFullscreenElement;
   if (!isFs) return;
   const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
@@ -803,7 +833,10 @@ function handleFullscreenChange() {
   const isFs = document.fullscreenElement || document.webkitFullscreenElement;
   if (isFs) {
     hideFullscreenFallback();
-  } else if (testActive) {
+    requestLandscapeOrientation();
+  } else {
+    unlockScreenOrientation();
+    if (testActive) {
     // Student left full-screen mid-test — the required duration was
     // NOT completed, so this must never become a scored result (spec:
     // exit ≠ fail). The session stays exactly as it already is in the
@@ -811,13 +844,14 @@ function handleFullscreenChange() {
     // was never marked anything else to begin with; only the local,
     // in-memory test state needs cleaning up here.
     abandonMockTest();
-  } else if (testScreenOpen) {
-    // Left full-screen (ESC or otherwise) before typing anything —
-    // the test was never started, so this must never be treated as a
-    // submission. cancelUnstartedTest() is idempotent (guarded by
-    // testCancelled) since the keydown-based Escape handler below can
-    // also reach it for the same keystroke.
-    cancelUnstartedTest();
+    } else if (testScreenOpen) {
+      // Left full-screen (ESC or otherwise) before typing anything —
+      // the test was never started, so this must never be treated as a
+      // submission. cancelUnstartedTest() is idempotent (guarded by
+      // testCancelled) since the keydown-based Escape handler below can
+      // also reach it for the same keystroke.
+      cancelUnstartedTest();
+    }
   }
 }
 
