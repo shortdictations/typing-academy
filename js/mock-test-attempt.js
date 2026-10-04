@@ -552,7 +552,15 @@ function wireTestInputHandlers() {
   const status = document.getElementById("keyboardInputStatus");
   const requirePhysicalKeyboard = window.matchMedia("(max-width: 700px)").matches;
   let physicalKeydownKey = null;
-  input.setAttribute("inputmode", "none");
+  if (requirePhysicalKeyboard) {
+    input.setAttribute("inputmode", "none");
+    input.placeholder = "Connect a physical keyboard and start typing...";
+    if (status) status.hidden = false;
+  } else {
+    input.removeAttribute("inputmode");
+    input.placeholder = "Click here and start typing to begin the timer...";
+    if (status) status.hidden = true;
+  }
   input.addEventListener("input", onTypingInput);
   input.addEventListener("input", () => {
     if (status) status.textContent = requirePhysicalKeyboard
