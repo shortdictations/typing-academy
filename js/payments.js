@@ -61,6 +61,23 @@ async function startPurchase(productId, options) {
     if (btn) { btn.disabled = true; btn.textContent = "Starting payment..."; }
 
     const order = await callEdgeFunction("create-razorpay-order", { product_id: productId, is_upgrade: !!options.isUpgrade });
+
+    // Reuse the mobile number collected in onboarding or edited in Settings.
+    // The profile value is metadata (not an OTP-verified sign-in number).
+    let checkoutContact = "";
+    try {
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+      if (!userError && userData && userData.user) {
+        const rawPhone = userData.user.user_metadata && userData.user.user_metadata.phone;
+        const digits = String(rawPhone || "").replace(/\\D/g, "");
+        if (digits.length === 10) checkoutContact = "+91" + digits;
+        else if (digits.length === 12 && digits.startsWith("91")) checkoutContact = "+" + digits;
+        else if (digits.length > 0) checkoutContact = String(rawPhone).trim();
+      }
+    } catch (profileError) {
+      console.warn("Could not load saved mobile number for Razorpay prefill:", profileError);
+    }
+
     await loadRazorpayScript();
 
     const rzp = new Razorpay({
@@ -70,6 +87,7 @@ async function startPurchase(productId, options) {
       name: "TypeShala",
       description: order.product_name,
       order_id: order.order_id,
+      prefill: checkoutContact ? { contact: checkoutContact } : {},
       handler: async function (response) {
         try {
           const result = await callEdgeFunction("verify-razorpay-payment", {
