@@ -25,6 +25,65 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
 <script>
+  // Google One Tap is shown only to visitors who do not already have
+  // a Supabase session. Existing users continue straight to dashboard.
+  const TYPESHALA_GOOGLE_CLIENT_ID = "225123818352-mvb4g9g865i8lh1hdnrb5ncljd8u53ng.apps.googleusercontent.com";
+  let typeShalaLandingSessionChecked = false;
+  let typeShalaLandingHasSession = false;
+  let typeShalaGoogleOneTapStarted = false;
+
+  function typeShalaRandomNonce() {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function typeShalaSha256(value) {
+    const encoded = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-256", encoded);
+    return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function startTypeShalaGoogleOneTap() {
+    if (typeShalaGoogleOneTapStarted || !typeShalaLandingSessionChecked ||
+        typeShalaLandingHasSession || !window.google?.accounts?.id) return;
+    typeShalaGoogleOneTapStarted = true;
+
+    try {
+      const rawNonce = typeShalaRandomNonce();
+      const hashedNonce = await typeShalaSha256(rawNonce);
+
+      google.accounts.id.initialize({
+        client_id: TYPESHALA_GOOGLE_CLIENT_ID,
+        nonce: hashedNonce,
+        context: "signin",
+        ux_mode: "popup",
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        callback: async (response) => {
+          if (!response || !response.credential) return;
+          try {
+            const { data, error } = await supabaseClient.auth.signInWithIdToken({
+              provider: "google",
+              token: response.credential,
+              nonce: rawNonce
+            });
+            if (error) throw error;
+            if (data && data.session) {
+              window.location.replace("dashboard.html");
+            }
+          } catch (err) {
+            console.error("TypeShala Google One Tap sign-in failed:", err);
+          }
+        }
+      });
+
+      google.accounts.id.prompt();
+    } catch (err) {
+      console.error("Could not initialise TypeShala Google One Tap:", err);
+    }
+  }
+
   // Returning users with a saved Supabase session should go straight
   // to their dashboard instead of seeing the public landing page.
   (async function redirectSignedInVisitors() {
@@ -32,11 +91,28 @@
       const { data, error } = await supabaseClient.auth.getSession();
       if (error) throw error;
       if (data && data.session && data.session.user) {
+        typeShalaLandingHasSession = true;
         window.location.replace("dashboard.html");
+        return;
       }
     } catch (err) {
       console.error("Could not check the saved TypeShala session:", err);
     }
+    typeShalaLandingSessionChecked = true;
+    startTypeShalaGoogleOneTap();
+  })();
+
+  // Load Google's Identity Services library. If the session check
+  // finishes first, onload starts One Tap; otherwise the session
+  // check will start it once it completes.
+  (function loadGoogleIdentityServices() {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = startTypeShalaGoogleOneTap;
+    script.onerror = () => console.warn("Google One Tap could not be loaded.");
+    document.head.appendChild(script);
   })();
 </script>
 <!-- style.css (this project's shared base stylesheet for logged-in
