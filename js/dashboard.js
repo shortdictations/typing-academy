@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // logging in and seeing the welcome slides.
   let onboardingCompleted = false;
   try {
-    onboardingCompleted = await initTargetWpm(user.id);
+    onboardingCompleted = await initTargetWpm(user.id, user);
   } catch (err) {
     console.error("initTargetWpm failed:", err);
   }
@@ -180,6 +180,7 @@ function openWelcomeBackModal(user) {
     ? user.user_metadata.full_name.trim().split(/\s+/)[0]
     : "there";
   document.getElementById("welcomeBackName").textContent = firstName;
+  setOnboardingMobileInput("welcomeBackMobileInput", currentMobileNumber);
 
   startWordmarkTyping();
 
@@ -188,9 +189,16 @@ function openWelcomeBackModal(user) {
 
   setOnboardingVisibility(true);
 
-  document.getElementById("continueWelcomeBackBtn").addEventListener("click", () => {
-    showCompleteSlide({ withBackLink: false }); // returning flow has no "target" slide to go back to
-  }, { once: true });
+  const continueBtn = document.getElementById("continueWelcomeBackBtn");
+  continueBtn.addEventListener("click", async () => {
+    continueBtn.disabled = true;
+    const originalText = continueBtn.textContent;
+    continueBtn.textContent = "Saving...";
+    const saved = await saveOnboardingMobile("welcomeBackMobileInput", "welcomeBackMobileError");
+    continueBtn.disabled = false;
+    continueBtn.textContent = originalText;
+    if (saved) showCompleteSlide({ withBackLink: false });
+  }, { once: false });
 }
 
 /* ---------------- Target WPM: onboarding modal + persistence ----------------
@@ -202,12 +210,15 @@ function openWelcomeBackModal(user) {
    modal is closed. */
 
 let currentTargetWpm = null;
+let currentMobileNumber = "";
 let currentAvgWpm = 0; // populated once dashboard stats load; renderTargetWpmCard() reads this directly instead of taking it as a parameter, so the onboarding modal can open before stats are fetched
 let autoAdvanceInterval = null;
 let wordmarkTyped = false; // ensures the TypeShala typing animation runs at most once per page load
 let openedAsFirstLogin = false; // tracks which flow the target slide was opened from, so Save/Back behave correctly for each
 
-async function initTargetWpm(userId) {
+async function initTargetWpm(userId, user) {
+  currentMobileNumber = (user && user.user_metadata && user.user_metadata.phone) || "";
+  setOnboardingMobileInput("welcomeMobileInput", currentMobileNumber);
   // Load onboarding state BEFORE showing anything, so a completed
   // user never even briefly sees the modal.
   const { data, error } = await supabaseClient
@@ -237,7 +248,7 @@ async function initTargetWpm(userId) {
   } else {
     console.error("changeTargetBtn not found — Set Target/Change button will not respond.");
   }
-  wireOnboardingControls(userId);
+  wireOnboardingControls(userId, user);
 
   // No row at all, or a row that was never completed -> first-login
   // onboarding. This is the ONLY case the modal opens automatically;
@@ -309,6 +320,9 @@ const AUTO_ADVANCE_SECONDS = 5;
 
 function startAutoAdvance() {
   stopAutoAdvance();
+  // Do not auto-skip the welcome step when a student still needs to
+  // provide a mobile number.
+  if (!getIndianMobileDigits(document.getElementById("welcomeMobileInput")?.value)) return;
   const fill = document.getElementById("autoAdvanceFill");
   fill.style.transition = "none";
   fill.style.width = "0%";
@@ -429,16 +443,80 @@ function showCompleteSlide(options) {
   showSlide(document.getElementById("completeCard"), true);
 }
 
-function wireOnboardingControls(userId) {
+
+function getIndianMobileDigits(value) {
+  let digits = String(value || "").replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+  if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+  return /^\d{10}$/.test(digits) ? digits : "";
+}
+
+function setOnboardingMobileInput(inputId, storedValue) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.value = getIndianMobileDigits(storedValue);
+}
+
+async function saveOnboardingMobile(inputId, errorId) {
+  const input = document.getElementById(inputId);
+  const errorEl = document.getElementById(errorId);
+  if (!input || !errorEl) return false;
+
+  const digits = getIndianMobileDigits(input.value);
+  errorEl.style.display = "none";
+  if (!digits) {
+    errorEl.textContent = "Please enter a valid 10-digit Indian mobile number.";
+    errorEl.style.display = "block";
+    input.focus();
+    return false;
+  }
+
+  const formatted = "+91" + digits;
+  if (formatted === String(currentMobileNumber || "").replace(/\s/g, "")) {
+    currentMobileNumber = formatted;
+    return true;
+  }
+
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ data: { phone: formatted } });
+    if (error) throw error;
+    currentMobileNumber = formatted;
+    setOnboardingMobileInput("welcomeMobileInput", formatted);
+    setOnboardingMobileInput("welcomeBackMobileInput", formatted);
+    return true;
+  } catch (err) {
+    errorEl.textContent = err.message || "Could not save your mobile number. Please try again.";
+    errorEl.style.display = "block";
+    return false;
+  }
+}
+
+function wireOnboardingControls(userId, user) {
   const slider = document.getElementById("targetWpmSlider");
   const valueEl = document.getElementById("wpmSliderValue");
   const saveBtn = document.getElementById("saveTargetBtn");
 
   // "Set my pace" advances immediately and cancels the timer — the
   // student is never made to wait once they've acted.
-  document.getElementById("welcomeNextBtn").addEventListener("click", () => {
+  const welcomeMobileInput = document.getElementById("welcomeMobileInput");
+  setOnboardingMobileInput("welcomeMobileInput", currentMobileNumber);
+  if (welcomeMobileInput) {
+    welcomeMobileInput.addEventListener("input", () => {
+      const errorEl = document.getElementById("welcomeMobileError");
+      if (errorEl) errorEl.style.display = "none";
+    });
+  }
+
+  document.getElementById("welcomeNextBtn").addEventListener("click", async () => {
     stopAutoAdvance();
-    goToStep(2, true);
+    const nextBtn = document.getElementById("welcomeNextBtn");
+    nextBtn.disabled = true;
+    const originalText = nextBtn.textContent;
+    nextBtn.textContent = "Saving...";
+    const saved = await saveOnboardingMobile("welcomeMobileInput", "welcomeMobileError");
+    nextBtn.disabled = false;
+    nextBtn.textContent = originalText;
+    if (saved) goToStep(2, true);
   });
 
   document.getElementById("backToWelcomeBtn").addEventListener("click", () => {
