@@ -17,11 +17,6 @@ function setOnboardingVisibility(isVisible) {
 
   document.body.classList.toggle("onboarding-open", isVisible);
 
-  if (isVisible) {
-    const activeSlide = overlay.querySelector(".onboarding-slide.slide-active");
-    const firstAction = activeSlide && activeSlide.querySelector("button:not([disabled])");
-    if (firstAction) requestAnimationFrame(() => firstAction.focus());
-  }
 }
 
 /* ============================================================
