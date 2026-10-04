@@ -2735,3 +2735,50 @@ body.dashboard-page{
   .admin-passage-row{ flex-wrap: wrap; }
   .admin-passage-attempts{ margin-left: 44px; }
 }
+
+
+/* ---------- Onboarding mobile-number field ---------- */
+.onboarding-mobile-field{
+  width: min(100%, 340px);
+  margin: 12px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  text-align: left;
+  flex: none;
+}
+.onboarding-mobile-field label{
+  color: rgba(255,255,255,0.88);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+.onboarding-mobile-field label span{
+  color: rgba(255,255,255,0.48);
+  font-weight: 400;
+}
+.onboarding-mobile-field input{
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  outline: none;
+  background: rgba(255,255,255,0.96);
+  color: #17233D;
+  font: 500 0.88rem var(--font-body);
+  letter-spacing: 0.03em;
+}
+.onboarding-mobile-field input:focus{
+  border-color: var(--ts-gold, #F5B301);
+  box-shadow: 0 0 0 3px rgba(245,179,1,0.16);
+}
+.onboarding-mobile-field small{
+  color: rgba(255,255,255,0.52);
+  font-size: 0.67rem;
+  line-height: 1.4;
+}
+.onboarding-mobile-field .onboarding-mobile-error{
+  color: #FFC0B8;
+  font-size: 0.72rem;
+}
