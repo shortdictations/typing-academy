@@ -4321,3 +4321,75 @@ body.app-shell .pass-upgrade-note{
     margin-left: var(--ts-sidebar-closed) !important;
   }
 }
+
+
+/* Resume countdown strip — matches the existing unfinished-session card. */
+body.app-shell.mock-attempt-page .unfinished-resume-countdown{
+  width:100%;
+  min-height:50px;
+  margin:0 0 14px;
+  padding:9px 14px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border-radius:9px;
+  background:#EEF6FF;
+  color:var(--ts-text);
+}
+body.app-shell.mock-attempt-page .unfinished-resume-clock{
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--ts-blue);
+}
+body.app-shell.mock-attempt-page .unfinished-resume-clock svg{
+  width:22px;
+  height:22px;
+}
+body.app-shell.mock-attempt-page .unfinished-resume-label{
+  color:var(--ts-muted);
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+body.app-shell.mock-attempt-page .unfinished-resume-divider{
+  width:1px;
+  height:25px;
+  flex:0 0 1px;
+  background:#C9DCF5;
+}
+body.app-shell.mock-attempt-page .unfinished-resume-countdown strong{
+  color:var(--ts-text);
+  font-size:1.2rem;
+  font-weight:800;
+  letter-spacing:.025em;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-resume-countdown{
+  background:#162A46;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-resume-divider{
+  background:#304A6D;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-resume-countdown strong{
+  color:var(--ts-text);
+}
+@media (max-width:700px){
+  body.app-shell.mock-attempt-page .unfinished-resume-countdown{
+    min-height:46px;
+    gap:8px;
+    padding:8px 7px;
+  }
+  body.app-shell.mock-attempt-page .unfinished-resume-label{font-size:.59rem;}
+  body.app-shell.mock-attempt-page .unfinished-resume-countdown strong{font-size:1rem;}
+  body.app-shell.mock-attempt-page .unfinished-resume-clock,
+  body.app-shell.mock-attempt-page .unfinished-resume-clock svg{width:19px;height:19px;}
+  body.app-shell.mock-attempt-page .unfinished-resume-clock{flex-basis:19px;}
+}
