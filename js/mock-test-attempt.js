@@ -582,7 +582,8 @@ function wireTestInputHandlers() {
 
   input.addEventListener("keydown", e => {
     if (!testScreenOpen) return;
-    if (requirePhysicalKeyboard && (e.key === "Backspace" || e.key === "Delete" || e.key.length === 1)) {
+    physicalKeydownKey = null;
+    if (requirePhysicalKeyboard && (e.key === "Backspace" || e.key === "Delete" || e.key.length === 1) && !e.ctrlKey && !e.metaKey && !e.altKey) {
       physicalKeydownKey = e.key;
     }
 
