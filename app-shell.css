@@ -3186,21 +3186,25 @@ body.app-shell.mock-history-page .mh-footer-right{
   font-size:.76rem;
   white-space:nowrap;
 }
-body.app-shell.mock-history-page .mh-entry-select{
-  min-width:52px;
+body.app-shell.mock-history-page select.mh-entry-select{
+  min-width:64px;
   height:34px;
-  padding:0 9px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  padding:0 26px 0 10px;
+  display:inline-block;
   border:1px solid var(--ts-border);
   border-radius:8px;
-  background:var(--ts-surface);
+  background-color:var(--ts-surface);
   color:var(--ts-text);
-  font-weight:650;
+  font:650 .76rem/1 var(--ts-font);
+  cursor:pointer;
+  appearance:auto;
+  -webkit-appearance:menulist;
 }
-body.app-shell.mock-history-page .mh-entry-select span{color:var(--ts-muted);font-size:.9rem;}
+body.app-shell.mock-history-page select.mh-entry-select:focus{
+  outline:2px solid rgba(47,95,236,.22);
+  outline-offset:1px;
+  border-color:var(--ts-blue);
+}
 body.app-shell.mock-history-page .mh-showing-count{color:var(--ts-muted);}
 body.app-shell.mock-history-page .mh-pagination{display:flex;align-items:center;justify-content:center;gap:6px;}
 
