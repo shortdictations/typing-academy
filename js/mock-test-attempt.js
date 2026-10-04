@@ -51,6 +51,8 @@ let wordResults = [];
 // finishes typing the exact instant the timer also expires. Reset at
 // the start of every new attempt, set the moment finalization begins.
 let testResultSaved = false;
+let resumeCountdownInterval = null;
+let resumeSessionExpired = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -77,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // in-progress session. Show the inline resume state immediately.
   // A normal new/re-attempt session still uses the regular setup card.
   if (params.get("resume") === "1") {
-    showInlineUnfinishedSession(currentSession, mockTest);
+    await showInlineUnfinishedSession(currentSession, mockTest);
     return;
   }
 
@@ -126,6 +128,97 @@ async function checkForExistingSessionBeforeSelection() {
   showInlineUnfinishedSession(currentSession, mockTest);
 }
 
+async async function getMockSessionResumeStatus(sessionId) {
+  const { data, error } = await supabaseClient.rpc("get_mock_session_resume_status", {
+    p_session_id: sessionId
+  });
+  if (error) return { error };
+  const status = Array.isArray(data) ? data[0] : data;
+  if (!status) return { error: new Error("Resume status was not returned by the server.") };
+  return { status };
+}
+
+function setResumeSessionExpired() {
+  resumeSessionExpired = true;
+  if (resumeCountdownInterval) {
+    clearInterval(resumeCountdownInterval);
+    resumeCountdownInterval = null;
+  }
+
+  const card = document.getElementById("unfinishedSessionCard");
+  const label = document.getElementById("unfinishedResumeLabel");
+  const countdown = document.getElementById("unfinishedResumeCountdown");
+  const button = document.getElementById("unfinishedContinueBtn");
+  const note = document.querySelector("#unfinishedSessionCard .unfinished-progress-note span:last-child");
+
+  if (label) label.textContent = "SESSION EXPIRED";
+  if (countdown) countdown.textContent = "00:00:00";
+  const title = document.getElementById("unfinishedSessionTitle");
+  const message = document.getElementById("unfinishedSessionMessage");
+  if (title) title.textContent = "Session Expired";
+  if (message) message.textContent = "The 6-hour resume window has ended.";
+  if (note) note.textContent = "Start a new mock test to continue.";
+
+  if (button) {
+    button.disabled = false;
+    button.innerHTML = "Start New Test <span aria-hidden=\"true\">→</span>";
+    button.onclick = () => window.location.reload();
+  }
+  if (card) card.style.setProperty("display", "flex", "important");
+}
+
+function startResumeCountdown(resumeStatus) {
+  if (resumeCountdownInterval) clearInterval(resumeCountdownInterval);
+
+  const label = document.getElementById("unfinishedResumeLabel");
+  const countdown = document.getElementById("unfinishedResumeCountdown");
+  const button = document.getElementById("unfinishedContinueBtn");
+  const note = document.querySelector("#unfinishedSessionCard .unfinished-progress-note span:last-child");
+
+  const expiresAt = Date.parse(resumeStatus.resume_expires_at);
+  const serverNow = Date.parse(resumeStatus.server_now);
+  if (!Number.isFinite(expiresAt) || !Number.isFinite(serverNow)) {
+    if (countdown) countdown.textContent = "--:--:--";
+    if (button) button.disabled = true;
+    if (note) note.textContent = "Unable to verify the resume window. Refresh the page to try again.";
+    return;
+  }
+
+  // Convert the server-provided remaining time into a monotonic local
+  // deadline. The countdown therefore does not depend on the device clock.
+  const deadline = performance.now() + Math.max(0, expiresAt - serverNow);
+
+  const tick = () => {
+    const remainingSeconds = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = remainingSeconds % 60;
+    if (countdown) {
+      countdown.textContent = [hours, minutes, seconds]
+        .map(value => String(value).padStart(2, "0"))
+        .join(":");
+    }
+
+    if (remainingSeconds <= 0) {
+      clearInterval(resumeCountdownInterval);
+      resumeCountdownInterval = null;
+      setResumeSessionExpired();
+      // This server call changes the session status to "expired".
+      // If it fails transiently, a page refresh will re-check it.
+      supabaseClient.rpc("get_mock_session_resume_status", {
+        p_session_id: currentSession?.id
+      }).then(({ error }) => {
+        if (error) console.error("Could not finalize expired resume session:", error);
+      });
+    }
+  };
+
+  if (label) label.textContent = "TIME LEFT TO RESUME";
+  if (button) button.disabled = false;
+  tick();
+  if (!resumeSessionExpired) resumeCountdownInterval = setInterval(tick, 1000);
+}
+
 function showInlineUnfinishedSession(sessionRow, mockRow) {
   const card = document.getElementById("unfinishedSessionCard");
   if (!card) return;
@@ -172,6 +265,27 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
   const continueBtn = document.getElementById("unfinishedContinueBtn");
   if (!continueBtn) return;
 
+  resumeSessionExpired = false;
+  const resumeInfo = await getMockSessionResumeStatus(sessionRow.id);
+  if (resumeInfo.error) {
+    const label = document.getElementById("unfinishedResumeLabel");
+    const countdown = document.getElementById("unfinishedResumeCountdown");
+    const note = document.querySelector("#unfinishedSessionCard .unfinished-progress-note span:last-child");
+    if (label) label.textContent = "TIME LEFT TO RESUME";
+    if (countdown) countdown.textContent = "--:--:--";
+    continueBtn.disabled = true;
+    if (note) note.textContent = "Unable to verify the resume window. Refresh the page to try again.";
+    console.error("Could not load resume countdown:", resumeInfo.error);
+    return;
+  }
+
+  if (resumeInfo.status.session_status !== "in_progress") {
+    setResumeSessionExpired();
+    return;
+  }
+
+  startResumeCountdown(resumeInfo.status);
+
   // This card can be shown again after a student exits a resumed test.
   // Reset the button state so a previous in-flight click cannot leave
   // the page showing "Please wait..." when the unfinished state returns.
@@ -187,7 +301,7 @@ function showInlineUnfinishedSession(sessionRow, mockRow) {
       card.style.setProperty("display", "none", "important");
       await handleStartClick();
     } finally {
-      if (!document.body.classList.contains("mock-test-active")) {
+      if (!document.body.classList.contains("mock-test-active") && !resumeSessionExpired) {
         continueBtn.disabled = false;
         continueBtn.innerHTML = "Resume Test <span aria-hidden=\"true\">→</span>";
         card.style.setProperty("display", "flex", "important");
@@ -520,7 +634,23 @@ async function handleStartClick(options = {}) {
   // banner or access decision depends on it.
   if (currentSession) {
     const { error } = await supabaseClient.rpc("mark_test_started", { p_session_id: currentSession.id });
-    if (error) console.error("mark_test_started RPC error:", error);
+    if (error) {
+      console.error("mark_test_started RPC error:", error);
+      if (String(error.message || "").includes("SESSION_EXPIRED")) {
+        const { error: statusError } = await supabaseClient.rpc("get_mock_session_resume_status", {
+          p_session_id: currentSession.id
+        });
+        if (statusError) console.error("Could not update expired session status:", statusError);
+        setResumeSessionExpired();
+      } else {
+        const setupInfo = document.getElementById("setupInfo");
+        if (setupInfo) setupInfo.textContent = "We could not verify this test session. Please refresh and try again.";
+      }
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      return;
+    }
   }
 
   startMockTest();
