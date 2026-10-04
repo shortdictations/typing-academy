@@ -38,7 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }, { threshold: 0.08 });
 
-    document.querySelectorAll(".section-heading, .audience-card, .feature-card, .mock-shell, .progress-card, .smart-flow > div, .dashboard-preview, .price-card, .credits-box").forEach(el => {
+    document.querySelectorAll([
+      ".lp-hero-demo",
+      ".intro-inner > *",
+      ".section-heading",
+      ".audience-card",
+      ".feature-card",
+      ".split-copy",
+      ".mock-shell",
+      ".smart-copy > *",
+      ".smart-flow > div",
+      ".ts-mobile-support-copy > *",
+      ".ts-mobile-features article",
+      ".ts-mobile-note",
+      ".ts-mobile-visual",
+      ".price-card",
+      ".credits-box",
+      ".credit-options > div",
+      ".free-credit-note",
+      ".final-inner > *",
+      ".footer-main > *",
+      ".footer-bottom"
+    ].join(", ")).forEach(el => {
       el.classList.add("reveal-on-scroll");
       observer.observe(el);
     });
