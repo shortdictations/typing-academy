@@ -4397,3 +4397,130 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-resume-coun
   body.app-shell.mock-attempt-page .unfinished-resume-clock svg{width:19px;height:19px;}
   body.app-shell.mock-attempt-page .unfinished-resume-clock{flex-basis:19px;}
 }
+
+
+/* ---------- Mobile external-keyboard mock test layout ---------- */
+/* Keep the existing desktop test engine and markup. These rules only
+   rearrange the same live test UI for a short landscape phone viewport. */
+body.app-shell.mock-attempt-page.mock-test-active{
+  overflow: hidden;
+}
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 950px){
+  body.app-shell.mock-attempt-page.mock-test-active .letterhead{
+    display: none !important;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active .app-content{
+    width: 100%;
+    min-height: 100svh;
+    display: block;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active .test-mode-main{
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active .test-mode-main .page{
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard{
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100svh;
+    height: 100svh;
+    margin: 0;
+    padding: 10px 14px 8px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .test-header{
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto auto;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0 0 8px;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .live-stats{
+    gap: clamp(10px, 3vw, 24px);
+    justify-content: center;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .live-stats .val{
+    font-size: clamp(1rem, 3.2vw, 1.35rem);
+    line-height: 1.1;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .live-stats .lab{
+    font-size: 0.58rem;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .timer-box{
+    min-width: 72px;
+    padding: 3px 8px;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .passage-box{
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    padding: 10px 12px;
+    font-size: clamp(0.88rem, 2.35vw, 1.08rem);
+    line-height: 1.65;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .type-input{
+    flex: 0 0 auto;
+    height: clamp(68px, 17svh, 104px);
+    min-height: 68px;
+    margin-top: 8px;
+    padding: 9px 11px;
+    font-size: clamp(0.9rem, 2.5vw, 1.08rem);
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .keyboard-input-status{
+    flex: 0 0 auto;
+    margin: 4px 0 0;
+    font-size: 0.66rem;
+    line-height: 1.25;
+  }
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .test-rules-note{
+    flex: 0 0 auto;
+    margin: 3px 0 0;
+    font-size: 0.62rem;
+    line-height: 1.2;
+  }
+}
+/* The orientation/setup hint is intentionally shown only on narrow
+   touch layouts; desktop keeps its existing pre-test screen unchanged. */
+.pts-mobile-keyboard-note{ display: none; }
+.keyboard-input-status{
+  color: var(--ts-muted, #68758b);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  margin: 7px 0 0;
+}
+@media (max-width: 700px){
+  .pts-mobile-keyboard-note{
+    display: block;
+    margin: 8px 0 0;
+    color: var(--ts-muted, #68758b);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+}
+@media (orientation: portrait) and (max-width: 700px){
+  body.app-shell.mock-attempt-page.mock-test-active #testCard::before{
+    content: "For the best keyboard experience, rotate your phone to landscape.";
+    display: block;
+    margin: 0 0 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: #fff7e5;
+    color: #73520a;
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+}
