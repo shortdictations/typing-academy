@@ -24,6 +24,21 @@
      same as every other page in this project. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
+<script>
+  // Returning users with a saved Supabase session should go straight
+  // to their dashboard instead of seeing the public landing page.
+  (async function redirectSignedInVisitors() {
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      if (data && data.session && data.session.user) {
+        window.location.replace("dashboard.html");
+      }
+    } catch (err) {
+      console.error("Could not check the saved TypeShala session:", err);
+    }
+  })();
+</script>
 <!-- style.css (this project's shared base stylesheet for logged-in
      app pages) is deliberately NOT loaded here. It was the actual
      source of a real, confirmed bug: it defines generic classes like
