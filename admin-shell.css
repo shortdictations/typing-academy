@@ -455,3 +455,46 @@ body.admin-detail-modal-open{overflow:hidden;}
   .admin-analytics-detail-head h2{font-size:1.12rem;}
   .admin-analytics-detail-body{padding:0 10px 14px;}
 }
+
+
+/* Promotions — student email picker */
+.promotion-user-results-label{
+  margin:8px 0 6px;
+  color:var(--ink-soft,#66758f);
+  font-size:.72rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.045em;
+}
+.promotion-user-results-list{
+  max-height:220px;
+  overflow-y:auto;
+  border:1px solid var(--paper-line,#e5e7eb);
+  border-radius:8px;
+  background:#fff;
+}
+.promotion-user-result{
+  display:block;
+  width:100%;
+  padding:9px 11px;
+  border:0;
+  border-bottom:1px solid #edf0f4;
+  background:#fff;
+  color:var(--ink,#1f2937);
+  text-align:left;
+  font:inherit;
+  font-size:.84rem;
+  cursor:pointer;
+}
+.promotion-user-result:last-child{border-bottom:0;}
+.promotion-user-result:hover,
+.promotion-user-result:focus-visible{
+  background:#f5f8ff;
+  color:#1d4ed8;
+  outline:none;
+}
+.promotion-user-list-loading{
+  padding:10px 12px;
+  color:var(--ink-soft,#66758f);
+  font-size:.82rem;
+}
