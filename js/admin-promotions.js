@@ -133,6 +133,7 @@ function toggleSelectedUser(id, email) {
   if (index >= 0) selectedStudents.splice(index, 1);
   else selectedStudents.push({ id, email });
   renderSelectedUsers();
+}
 
 function renderSelectedUsers() {
   const el = document.getElementById("cSelectedUser");
@@ -284,11 +285,11 @@ async function loadCampaigns() {
   let rows = "";
   campaigns.forEach(c => {
     const benefitLabel = c.benefit_type === "CREDITS" ? c.credits + " credits" : c.benefit_type + " pass";
+    const counts = countsByCampaign[c.id] || { granted: 0, failed: 0 };
+    const campaignUsers = (grants || []).filter(g => g.campaign_id === c.id && g.status === "GRANTED").map(g => availableStudents.find(u => u.id === g.user_id)).filter(Boolean);
     const recipientLabel = c.recipient_type === "ALL_EXISTING" ? "All existing"
       : c.recipient_type === "ALL_NEW" ? "All new signups"
       : (campaignUsers.length > 1 ? campaignUsers.length + " specific students" : "Specific student");
-    const counts = countsByCampaign[c.id] || { granted: 0, failed: 0 };
-    const campaignUsers = (grants || []).filter(g => g.campaign_id === c.id && g.status === "GRANTED").map(g => availableStudents.find(u => u.id === g.user_id)).filter(Boolean);
     const specificStudent = c.recipient_type === "SPECIFIC" ? campaignUsers[0] : null;
     const recipientCell = c.recipient_type === "SPECIFIC" && campaignUsers.length
       ? campaignUsers.map(u => escapeHtml(u.email)).join("<br>")
