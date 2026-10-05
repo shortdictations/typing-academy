@@ -685,3 +685,71 @@ body.admin-detail-modal-open{overflow:hidden;}
 @media(max-width:600px){
   .promotion-recipients-dialog{margin:5vh auto 0;}
 }
+
+/* Selected promotion students — compact removable chips */
+#cSelectedUser{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+  padding:0;
+  background:transparent;
+  border:0;
+}
+.promotion-selected-label{
+  flex:0 0 100%;
+  margin-bottom:1px;
+  color:var(--ink-soft,#66758f);
+  font-size:.72rem;
+  font-weight:700;
+}
+.promotion-selected-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  width:100%;
+}
+.promotion-selected-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  max-width:100%;
+  padding:6px 7px 6px 10px;
+  border:1px solid #d8e0eb;
+  border-radius:999px;
+  background:#f7f9fc;
+  color:#24324a;
+  font-size:.78rem;
+  line-height:1.2;
+}
+.promotion-selected-chip-email{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.promotion-selected-chip-remove{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:19px;
+  height:19px;
+  flex:0 0 19px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#e7ebf1;
+  color:#52627c;
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+}
+.promotion-selected-chip-remove:hover{
+  background:#d9e0ea;
+  color:#1d4ed8;
+}
+.promotion-selected-chip-remove:focus-visible{
+  outline:2px solid rgba(29,78,216,.25);
+  outline-offset:1px;
+}
