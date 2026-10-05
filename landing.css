@@ -290,3 +290,9 @@ a.announcement-ticker-item:hover{ color: var(--gold); text-decoration: underline
   body.landing-v2 .site-foot-links{order:1}
   body.landing-v2 .site-foot-copyright{order:2}
 }
+
+/* Footer legal links: modern hover treatment without underlines. */
+.site-foot-link-btn:hover,
+.site-foot-link-btn:focus-visible{
+  text-decoration:none;
+}
