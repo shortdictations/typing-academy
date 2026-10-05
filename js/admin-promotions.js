@@ -24,7 +24,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateBenefitFields();
   updateRecipientFields();
 
-  document.getElementById("cUserSearch").addEventListener("input", handleUserSearchInput);
+  const userSearch = document.getElementById("cUserSearch");
+  userSearch.addEventListener("input", handleUserSearchInput);
+  userSearch.addEventListener("focus", () => renderUserResults(userSearch.value.trim()));
   document.getElementById("campaignForm").addEventListener("submit", handleSubmit);
 
   await Promise.all([loadStudentEmails(), loadCampaigns()]);
@@ -73,12 +75,12 @@ function renderUserResults(query) {
   );
 
   if (!matches.length) {
-    resultsEl.innerHTML = '<p style="font-size:0.85rem; color:var(--ink-soft);">No matching students.</p>';
+    resultsEl.innerHTML = '<div class="promotion-user-dropdown-empty">No matching student email IDs.</div>';
+    resultsEl.classList.add("is-open");
     return;
   }
 
   resultsEl.innerHTML = `
-    <div class="promotion-user-results-label">${query ? "Matching student email IDs" : "Available student email IDs"}</div>
     <div class="promotion-user-results-list">
       ${matches.map(u => `
         <button type="button" class="promotion-user-result" data-user-id="${escapeHtml(u.id)}" data-user-email="${escapeHtml(u.email)}">
@@ -87,6 +89,7 @@ function renderUserResults(query) {
       `).join("")}
     </div>`;
 
+  resultsEl.classList.add("is-open");
   resultsEl.querySelectorAll(".promotion-user-result").forEach(button => {
     button.addEventListener("click", () => {
       selectUser(button.dataset.userId, button.dataset.userEmail);
@@ -96,7 +99,9 @@ function renderUserResults(query) {
 
 function selectUser(id, email) {
   document.getElementById("cSpecificUserId").value = id;
-  document.getElementById("cUserResults").innerHTML = "";
+  const resultsEl = document.getElementById("cUserResults");
+  resultsEl.innerHTML = "";
+  resultsEl.classList.remove("is-open");
   document.getElementById("cUserSearch").value = email;
   const selectedEl = document.getElementById("cSelectedUser");
   selectedEl.style.display = "block";
@@ -107,6 +112,7 @@ function clearSelectedUser() {
   document.getElementById("cSpecificUserId").value = "";
   document.getElementById("cSelectedUser").style.display = "none";
   document.getElementById("cSelectedUser").textContent = "";
+  document.getElementById("cUserResults").classList.remove("is-open");
 }
 
 /* ---------------- Submit ---------------- */
