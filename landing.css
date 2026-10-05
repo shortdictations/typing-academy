@@ -296,3 +296,10 @@ a.announcement-ticker-item:hover{ color: var(--gold); text-decoration: underline
 .site-foot-link-btn:focus-visible{
   text-decoration:none;
 }
+
+/* Final override: footer legal links never underline on hover/focus. */
+body.landing-v2 .site-foot .site-foot-link-btn:hover,
+body.landing-v2 .site-foot .site-foot-link-btn:focus,
+body.landing-v2 .site-foot .site-foot-link-btn:focus-visible{
+  text-decoration: none !important;
+}
