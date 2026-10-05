@@ -12,6 +12,7 @@
 
 let searchDebounceTimer = null;
 let availableStudents = [];
+let selectedStudents = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
@@ -84,7 +85,6 @@ async function loadStudentEmails() {
 }
 
 function handleUserSearchInput() {
-  clearSelectedUser();
   renderUserResults(document.getElementById("cUserSearch").value.trim());
 }
 
@@ -123,26 +123,28 @@ function renderUserResults(query) {
   document.getElementById("cUserPickerToggle")?.classList.add("is-open");
   resultsEl.querySelectorAll(".promotion-user-result").forEach(button => {
     button.addEventListener("click", () => {
-      selectUser(button.dataset.userId, button.dataset.userEmail);
+      toggleSelectedUser(button.dataset.userId, button.dataset.userEmail);
     });
   });
 }
 
-function selectUser(id, email) {
-  document.getElementById("cSpecificUserId").value = id;
-  const resultsEl = document.getElementById("cUserResults");
-  resultsEl.innerHTML = "";
-  resultsEl.classList.remove("is-open");
-  document.getElementById("cUserSearch").value = email;
-  const selectedEl = document.getElementById("cSelectedUser");
-  selectedEl.style.display = "block";
-  selectedEl.textContent = "Selected: " + email;
+function toggleSelectedUser(id, email) {
+  const index = selectedStudents.findIndex(s => s.id === id);
+  if (index >= 0) selectedStudents.splice(index, 1);
+  else selectedStudents.push({ id, email });
+  renderSelectedUsers();
+
+function renderSelectedUsers() {
+  const el = document.getElementById("cSelectedUser");
+  if (!selectedStudents.length) { el.style.display = "none"; el.textContent = ""; return; }
+  el.style.display = "block";
+  el.textContent = "Selected " + selectedStudents.length + " student" + (selectedStudents.length === 1 ? "" : "s") + ": " + selectedStudents.map(s => s.email).join(", ");
 }
 
 function clearSelectedUser() {
+  selectedStudents = [];
   document.getElementById("cSpecificUserId").value = "";
-  document.getElementById("cSelectedUser").style.display = "none";
-  document.getElementById("cSelectedUser").textContent = "";
+  renderSelectedUsers();
   document.getElementById("cUserResults").classList.remove("is-open");
 }
 
@@ -179,7 +181,8 @@ async function handleSubmit(e) {
   const benefitType = document.getElementById("cBenefitType").value;
   const validityDays = parseInt(document.getElementById("cValidityDays").value, 10);
   const recipientType = document.getElementById("cRecipientType").value;
-  const specificUserId = document.getElementById("cSpecificUserId").value || null;
+  const specificUserId = selectedStudents.length === 1 ? selectedStudents[0].id : null;
+  const specificUserIds = selectedStudents.map(s => s.id);
 
   let credits = null;
   if (benefitType === "CREDITS") {
@@ -195,8 +198,8 @@ async function handleSubmit(e) {
     return;
   }
 
-  if (recipientType === "SPECIFIC" && !specificUserId) {
-    showFormError("Please search for and select a student.");
+  if (recipientType === "SPECIFIC" && !specificUserIds.length) {
+    showFormError("Please search for and select at least one student.");
     return;
   }
 
@@ -219,7 +222,8 @@ async function handleSubmit(e) {
       p_credits: credits,
       p_validity_days: validityDays,
       p_recipient_type: recipientType,
-      p_specific_user_id: specificUserId
+      p_specific_user_id: specificUserId,
+      p_specific_user_ids: specificUserIds
     });
     if (error) throw error;
 
@@ -282,7 +286,7 @@ async function loadCampaigns() {
     const benefitLabel = c.benefit_type === "CREDITS" ? c.credits + " credits" : c.benefit_type + " pass";
     const recipientLabel = c.recipient_type === "ALL_EXISTING" ? "All existing"
       : c.recipient_type === "ALL_NEW" ? "All new signups"
-      : "Specific student";
+      : (campaignUsers.length > 1 ? campaignUsers.length + " specific students" : "Specific student");
     const counts = countsByCampaign[c.id] || { granted: 0, failed: 0 };
     const campaignUsers = (grants || []).filter(g => g.campaign_id === c.id && g.status === "GRANTED").map(g => availableStudents.find(u => u.id === g.user_id)).filter(Boolean);
     const specificStudent = c.recipient_type === "SPECIFIC" ? campaignUsers[0] : null;
