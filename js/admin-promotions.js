@@ -81,7 +81,9 @@ async function loadStudentEmails() {
   }
 
   availableStudents = Array.isArray(data) ? data : [];
-  renderUserResults("");
+  // Keep the student dropdown closed by default. It opens only when the
+  // admin clicks the arrow or starts searching in the field.
+  resultsEl.innerHTML = "";
 }
 
 function handleUserSearchInput() {
