@@ -436,6 +436,7 @@ async function initAuthHeader(user) {
   wireBottomNavActiveState();
   wireMobileProfileDrawer(user);
   wireSidebarCollapse();
+  ensureAdminNavigation(user);
 
   const trigger = document.getElementById("userMenuTrigger");
   const dropdown = document.getElementById("userMenuDropdown");
@@ -919,7 +920,61 @@ function wireBottomNavActiveState() {
     const linkPage = (link.getAttribute("href") || "").split("?")[0];
     link.classList.toggle("active", linkPage === currentPage);
   });
+}\n
+/* ============================================================
+   Admin navigation
+   ------------------------------------------------------------
+   Admin access is exposed through the existing authenticated
+   navigation only. The destination remains admin.html; visibility
+   is determined by the existing admins table check.
+   ============================================================ */
+async function ensureAdminNavigation(user) {
+  if (!user || document.body.classList.contains("admin-page")) return;
+
+  try {
+    const admin = await isAdminUser(user.id);
+    if (!admin) return;
+
+    // Desktop: add Admin Panel to the existing sidebar, after Settings.
+    const sidebar = document.getElementById("appSidebar");
+    if (sidebar && !sidebar.querySelector('[data-admin-nav="true"]')) {
+      const link = document.createElement("a");
+      link.className = "app-nav-link";
+      link.href = "admin.html";
+      link.title = "Admin Panel";
+      link.dataset.adminNav = "true";
+      link.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <path d="M8 8h8M8 12h8M8 16h5"/>
+        </svg>
+        <span class="app-nav-link-label">Admin Panel</span>`;
+      sidebar.appendChild(link);
+    }
+
+    // Mobile: add Admin Panel to the existing Profile drawer.
+    const drawerNav = document.querySelector("#mobileProfileDrawer .mobile-profile-drawer-nav");
+    if (drawerNav && !drawerNav.querySelector('[data-admin-nav="true"]')) {
+      const link = document.createElement("a");
+      link.className = "mobile-profile-drawer-link";
+      link.href = "admin.html";
+      link.dataset.adminNav = "true";
+      link.innerHTML = `
+        <span class="mobile-profile-drawer-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M8 8h8M8 12h8M8 16h5"/>
+          </svg>
+        </span>
+        Admin Panel`;
+      drawerNav.appendChild(link);
+    }
+  } catch (err) {
+    console.error("Could not determine admin navigation visibility:", err);
+  }
 }
+
+
 
 /* ============================================================
    Mobile Profile drawer
