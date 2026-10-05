@@ -569,3 +569,119 @@ body.admin-detail-modal-open{overflow:hidden;}
 #cUserResults{
   margin-top:4px !important;
 }
+
+
+/* Campaign recipient viewer */
+.promotion-view-recipients{
+  border:0;
+  background:none;
+  padding:0;
+  color:#1d4ed8;
+  font:inherit;
+  font-size:.82rem;
+  font-weight:600;
+  cursor:pointer;
+}
+.promotion-view-recipients:hover{text-decoration:underline;}
+
+.promotion-recipients-modal{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+}
+.promotion-recipients-modal[hidden]{display:none;}
+.promotion-recipients-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(15,23,42,.42);
+  backdrop-filter:blur(2px);
+}
+.promotion-recipients-dialog{
+  position:relative;
+  width:min(520px,calc(100% - 32px));
+  max-height:min(680px,calc(100vh - 48px));
+  margin:8vh auto 0;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #dce3ee;
+  border-radius:14px;
+  box-shadow:0 24px 60px rgba(15,23,42,.22);
+}
+.promotion-recipients-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:20px 20px 14px;
+  border-bottom:1px solid #edf0f4;
+}
+.promotion-recipients-kicker{
+  font-size:.7rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft,#66758f);
+}
+.promotion-recipients-header h2{
+  margin:4px 0 0;
+  font-size:1.05rem;
+}
+.promotion-recipients-close{
+  width:32px;
+  height:32px;
+  border:0;
+  border-radius:8px;
+  background:#f4f6f9;
+  color:var(--ink,#1f2937);
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+}
+.promotion-recipients-summary{
+  padding:12px 20px;
+  background:#f8fafc;
+  color:var(--ink-soft,#66758f);
+  font-size:.82rem;
+}
+.promotion-recipients-list{
+  max-height:430px;
+  overflow-y:auto;
+  padding:8px 20px 16px;
+}
+.promotion-recipient-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 0;
+  border-bottom:1px solid #edf0f4;
+}
+.promotion-recipient-check{
+  width:22px;
+  flex:0 0 22px;
+  text-align:center;
+  font-weight:700;
+}
+.promotion-recipient-email{
+  min-width:0;
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:.84rem;
+}
+.promotion-recipient-status{
+  font-size:.7rem;
+  font-weight:700;
+  text-transform:uppercase;
+}
+.promotion-recipient-status.granted{color:#15803d;}
+.promotion-recipient-status.failed{color:#b42318;}
+.promotion-recipient-empty{
+  padding:24px 0;
+  text-align:center;
+  color:var(--ink-soft,#66758f);
+  font-size:.84rem;
+}
+@media(max-width:600px){
+  .promotion-recipients-dialog{margin:5vh auto 0;}
+}
