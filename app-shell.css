@@ -3657,7 +3657,11 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .unfinished-session-met
 }
 
 @media (max-width: 700px){
-  body.app-shell.mock-attempt-page .unfinished-session-card{
+  /* Only show the unfinished/resume card when JS has explicitly
+     activated the unfinished-session state. Keeping the default
+     hidden state allows the normal Start Test picker to remain the
+     only visible screen when there is no active session. */
+  body.app-shell.mock-attempt-page.unfinished-session-active .unfinished-session-card{
     display:flex !important;
     flex-direction:column !important;
     align-items:stretch !important;
