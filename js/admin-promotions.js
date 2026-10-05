@@ -300,9 +300,11 @@ async function loadCampaigns() {
       : c.recipient_type === "ALL_NEW" ? "All new signups"
       : (campaignUsers.length > 1 ? campaignUsers.length + " specific students" : "Specific student");
     const specificStudent = c.recipient_type === "SPECIFIC" ? campaignUsers[0] : null;
-    const recipientCell = c.recipient_type === "SPECIFIC" && campaignUsers.length
-      ? campaignUsers.map(u => escapeHtml(u.email)).join("<br>")
-      : escapeHtml(recipientLabel);
+    const recipientCell = c.recipient_type !== "SPECIFIC"
+      ? escapeHtml(recipientLabel)
+      : campaignUsers.length === 1
+        ? escapeHtml(specificStudent.email)
+        : '<button type="button" class="promotion-view-recipients" data-campaign-id="' + escapeHtml(c.id) + '">' + campaignUsers.length + ' students · View recipients</button>';
     const countLabel = counts.failed > 0
       ? counts.granted + " granted, " + counts.failed + " failed"
       : counts.granted + " granted";
@@ -327,7 +329,56 @@ async function loadCampaigns() {
       </thead>
       <tbody>${rows}</tbody>
     </table>
+
+  container.querySelectorAll(".promotion-view-recipients").forEach(button => {
+    button.addEventListener("click", () => {
+      const campaign = campaigns.find(item => item.id === button.dataset.campaignId);
+      if (!campaign) return;
+      const campaignGrants = (grants || []).filter(g => g.campaign_id === campaign.id);
+      const recipients = campaignGrants.map(g => {
+        const student = availableStudents.find(u => u.id === g.user_id);
+        return student ? { email: student.email, status: g.status } : null;
+      }).filter(Boolean);
+      showRecipientsModal(campaign, recipients);
+    });
+  });
+}
+
+function showRecipientsModal(campaign, recipients) {
+  let modal = document.getElementById("promotionRecipientsModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "promotionRecipientsModal";
+    modal.className = "promotion-recipients-modal";
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="promotion-recipients-backdrop" data-close-promotion-modal></div>
+    <div class="promotion-recipients-dialog" role="dialog" aria-modal="true" aria-labelledby="promotionRecipientsTitle">
+      <div class="promotion-recipients-header">
+        <div>
+          <div class="promotion-recipients-kicker">Campaign Recipients</div>
+          <h2 id="promotionRecipientsTitle">${escapeHtml(campaign.name)}</h2>
+        </div>
+        <button type="button" class="promotion-recipients-close" data-close-promotion-modal aria-label="Close">×</button>
+      </div>
+      <div class="promotion-recipients-summary"><strong>${recipients.length}</strong> recipient${recipients.length === 1 ? "" : "s"} · <strong>${recipients.filter(r => r.status === "GRANTED").length}</strong> granted</div>
+      <div class="promotion-recipients-list">
+        ${recipients.length ? recipients.map(r => `
+          <div class="promotion-recipient-row">
+            <span class="promotion-recipient-check">${r.status === "GRANTED" ? "✓" : "!"}</span>
+            <span class="promotion-recipient-email">${escapeHtml(r.email)}</span>
+            <span class="promotion-recipient-status ${r.status === "GRANTED" ? "granted" : "failed"}">${escapeHtml(r.status)}</span>
+          </div>`).join("") : '<div class="promotion-recipient-empty">No recipient records found.</div>'}
+      </div>
     </div>`;
+  modal.hidden = false;
+  modal.querySelectorAll("[data-close-promotion-modal]").forEach(el => el.addEventListener("click", closeRecipientsModal));
+}
+
+function closeRecipientsModal() {
+  const modal = document.getElementById("promotionRecipientsModal");
+  if (modal) modal.hidden = true;
 }
 
 /* ---------------- Helpers ---------------- */
