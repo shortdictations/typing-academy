@@ -4565,3 +4565,273 @@ body.app-shell.mock-attempt-page.mock-test-active{
     line-height: 1.35;
   }
 }
+
+
+/* ============================================================
+   LANDSCAPE PHONE DASHBOARD
+   ------------------------------------------------------------
+   Landscape phones have ample width but very limited height.
+   Treat them as a compact mobile layout instead of a miniature
+   desktop: the sidebar becomes an off-canvas drawer, the header
+   gets shorter, and dashboard cards use the available width.
+   ============================================================ */
+@media (orientation: landscape) and (max-height: 700px) and (max-width: 1100px){
+  html,
+  body.app-shell{
+    width:100%;
+    min-width:0;
+    max-width:none;
+    overflow-x:hidden !important;
+  }
+
+  /* Compact fixed header */
+  body.app-shell .letterhead{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    width:100% !important;
+    height:60px !important;
+    min-height:60px !important;
+    z-index:1100 !important;
+  }
+  body.app-shell .letterhead-inner{
+    height:60px !important;
+    min-height:60px !important;
+    padding:8px 14px !important;
+    box-sizing:border-box !important;
+  }
+  body.app-shell .app-header-sidebar-toggle{
+    width:36px !important;
+    height:36px !important;
+    margin-right:10px !important;
+    border-radius:9px !important;
+  }
+  body.app-shell .app-header-sidebar-toggle svg{
+    width:19px !important;
+    height:19px !important;
+  }
+  body.app-shell .brand{gap:9px !important;}
+  body.app-shell .seal.logo-mark{
+    width:34px !important;
+    height:34px !important;
+  }
+  body.app-shell .brand-text .title{
+    font-size:.98rem !important;
+  }
+  body.app-shell .nav-links{gap:8px !important;}
+  body.app-shell .credit-badge{
+    padding:5px 10px !important;
+    min-height:34px !important;
+    font-size:.72rem !important;
+  }
+  body.app-shell .user-menu-trigger{
+    width:36px !important;
+    height:36px !important;
+  }
+
+  /* Sidebar is an off-canvas drawer on landscape phones.
+     It is opened by the same header hamburger. */
+  body.app-shell .app-sidebar{
+    position:fixed !important;
+    top:60px !important;
+    left:0 !important;
+    bottom:0 !important;
+    width:240px !important;
+    min-width:240px !important;
+    max-width:240px !important;
+    height:calc(100vh - 60px) !important;
+    max-height:calc(100vh - 60px) !important;
+    transform:translateX(-100%) !important;
+    transition:transform .22s ease !important;
+    z-index:1050 !important;
+    box-shadow:8px 0 24px rgba(15,23,42,.14);
+  }
+  body.app-shell:not(.sidebar-collapsed) .app-sidebar{
+    transform:translateX(0) !important;
+  }
+  body.app-shell .app-sidebar.collapsed{
+    width:240px !important;
+    min-width:240px !important;
+    max-width:240px !important;
+    transform:translateX(-100%) !important;
+  }
+  body.app-shell .app-sidebar.collapsed .app-nav-link-label{
+    max-width:180px !important;
+    opacity:1 !important;
+    transform:none !important;
+    pointer-events:auto !important;
+  }
+  body.app-shell .app-sidebar.collapsed .app-nav-link{
+    width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:44px !important;
+    margin:0 !important;
+    padding:11px 14px !important;
+    gap:12px !important;
+    justify-content:flex-start !important;
+  }
+  body.app-shell .app-sidebar.collapsed .app-nav-link > svg{
+    width:18px !important;
+    height:18px !important;
+    flex:0 0 18px !important;
+  }
+
+  /* Main content uses the complete landscape viewport. */
+  body.app-shell .app-body{
+    display:block !important;
+    width:100% !important;
+    margin:60px 0 0 !important;
+    padding:0 !important;
+    min-width:0 !important;
+  }
+  body.app-shell .app-content,
+  body.app-shell.sidebar-collapsed .app-content{
+    width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+  }
+  body.app-shell .app-content > .page{
+    width:calc(100% - 28px) !important;
+    max-width:none !important;
+    margin:0 auto !important;
+    box-sizing:border-box !important;
+  }
+  body.app-shell .announcement-ticker{
+    margin-left:14px !important;
+    margin-right:14px !important;
+  }
+
+  /* Compact greeting + current plan row */
+  body.dashboard-page .app-greeting-row-with-plan{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:14px !important;
+    flex-wrap:nowrap !important;
+    margin-top:12px !important;
+    margin-bottom:10px !important;
+  }
+  body.dashboard-page .dashboard-h1{
+    font-size:1.15rem !important;
+    line-height:1.15 !important;
+    margin:0 !important;
+  }
+  body.dashboard-page .dashboard-greeting-sub{
+    font-size:.72rem !important;
+    margin:3px 0 0 !important;
+  }
+  body.dashboard-page .dash-current-plan-card{
+    padding:9px 12px !important;
+    gap:9px !important;
+    border-radius:12px !important;
+    box-shadow:0 3px 12px rgba(15,23,42,.06) !important;
+    flex:0 1 auto !important;
+    min-width:0 !important;
+  }
+  body.dashboard-page .dash-current-plan-icon{
+    width:32px !important;
+    height:32px !important;
+  }
+  body.dashboard-page .dash-current-plan-body{
+    min-width:0 !important;
+  }
+  body.dashboard-page .dash-current-plan-lab{
+    font-size:.62rem !important;
+  }
+  body.dashboard-page .dash-current-plan-name{
+    font-size:.84rem !important;
+    white-space:nowrap !important;
+  }
+  body.dashboard-page .dash-current-plan-btn{
+    font-size:.68rem !important;
+    padding:7px 10px !important;
+    border-radius:8px !important;
+    box-shadow:none !important;
+  }
+  body.dashboard-page .dash-current-plan-expiry{
+    padding-left:9px !important;
+  }
+  body.dashboard-page .dash-current-plan-date{
+    font-size:.72rem !important;
+  }
+
+  /* Two compact columns make better use of landscape width. */
+  body.app-shell .dash-stats-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+  body.app-shell .dash-stat-card{
+    min-height:96px !important;
+    padding:11px !important;
+    border-radius:12px !important;
+  }
+  body.app-shell .dash-stat-icon{
+    width:34px !important;
+    height:34px !important;
+  }
+  body.app-shell .dash-stat-icon svg{
+    width:17px !important;
+    height:17px !important;
+  }
+  body.app-shell .dash-stat-text .lab{
+    font-size:.65rem !important;
+  }
+  body.app-shell .dash-stat-text .big{
+    font-size:1.35rem !important;
+    line-height:1.05 !important;
+  }
+  body.app-shell .dash-stat-sub{
+    font-size:.62rem !important;
+  }
+
+  /* Practice CTA stays useful but loses excess vertical padding. */
+  body.app-shell .dash-practice-cta{
+    min-height:100px !important;
+    margin-top:10px !important;
+    padding:13px 16px !important;
+    border-radius:12px !important;
+  }
+  body.app-shell .dash-practice-cta h2{
+    font-size:1rem !important;
+    margin-bottom:3px !important;
+  }
+  body.app-shell .dash-practice-cta p{
+    font-size:.68rem !important;
+    margin-bottom:8px !important;
+  }
+  body.app-shell .dash-practice-cta .dash-btn-primary{
+    padding:7px 12px !important;
+    font-size:.7rem !important;
+  }
+  body.app-shell .dash-practice-cta-illustration{
+    max-width:150px !important;
+    max-height:100px !important;
+  }
+
+  /* Target card and lower dashboard sections remain accessible without
+     wasting the short landscape viewport. */
+  body.app-shell .dash-target-card{
+    margin-top:10px !important;
+    padding:11px 14px !important;
+    border-radius:12px !important;
+  }
+  body.app-shell .app-dash-split{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+    margin-top:10px !important;
+  }
+  body.app-shell .app-overview-card,
+  body.app-shell .app-recent-card{
+    padding:12px 14px !important;
+  }
+
+  /* Landscape phone has no bottom navigation; the compact header
+     hamburger/profile controls are the navigation entry points. */
+  body.app-shell .app-bottom-nav{
+    display:none !important;
+  }
+}
