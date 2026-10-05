@@ -37,6 +37,184 @@ const STAT_ICONS = {
 
 let analyticsLoading = false;
 
+const DETAIL_TITLES = {
+  total_students: "All Students",
+  active_students: "Active Students",
+  mock_tests_taken: "Mock Tests Taken",
+  credits_consumed: "Credits Consumed",
+  pass_sales: "Pass Sales",
+  revenue: "Revenue"
+};
+
+document.addEventListener("click", (event) => {
+  const card = event.target.closest("[data-detail-view]");
+  if (!card) return;
+  openAnalyticsDetail(card.dataset.detailView);
+});
+
+function ensureAnalyticsDetailModal() {
+  let modal = document.getElementById("adminAnalyticsDetailModal");
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "adminAnalyticsDetailModal";
+  modal.className = "admin-analytics-detail-modal";
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="admin-analytics-detail-backdrop" data-detail-close></div>
+    <section class="admin-analytics-detail-panel" role="dialog" aria-modal="true" aria-labelledby="adminAnalyticsDetailTitle">
+      <header class="admin-analytics-detail-head">
+        <div>
+          <p class="eyebrow">Admin Only</p>
+          <h2 id="adminAnalyticsDetailTitle">Details</h2>
+          <p id="adminAnalyticsDetailMeta" class="admin-analytics-detail-meta"></p>
+        </div>
+        <button type="button" class="admin-analytics-detail-close" data-detail-close aria-label="Close details">×</button>
+      </header>
+      <div id="adminAnalyticsDetailBody" class="admin-analytics-detail-body">
+        <div class="loading-strip">Loading details...</div>
+      </div>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener("click", (event) => {
+    if (event.target.closest("[data-detail-close]")) closeAnalyticsDetail();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeAnalyticsDetail();
+  });
+  return modal;
+}
+
+async function openAnalyticsDetail(view) {
+  const modal = ensureAnalyticsDetailModal();
+  const title = document.getElementById("adminAnalyticsDetailTitle");
+  const meta = document.getElementById("adminAnalyticsDetailMeta");
+  const body = document.getElementById("adminAnalyticsDetailBody");
+  const period = document.getElementById("analyticsPeriodSelect").value;
+
+  title.textContent = DETAIL_TITLES[view] || "Details";
+  meta.textContent = view === "total_students"
+    ? "Every registered student account, excluding admin accounts."
+    : view === "active_students"
+      ? "Students with activity in the last 30 days."
+      : period === "all" ? "All recorded activity." : `Showing activity for: ${periodLabel(period)}`;
+
+  body.innerHTML = '<div class="loading-strip">Loading details...</div>';
+  modal.hidden = false;
+  document.body.classList.add("admin-detail-modal-open");
+
+  try {
+    const { data, error } = await supabaseClient.rpc("admin_get_detail_data", {
+      p_view: view,
+      p_period: period
+    });
+    if (error) throw error;
+    renderAnalyticsDetailTable(view, Array.isArray(data) ? data : [], body);
+  } catch (error) {
+    console.error("Admin detail error:", error);
+    body.innerHTML = '<div class="empty-state">Unable to load these details. Please try again.</div>';
+  }
+}
+
+function closeAnalyticsDetail() {
+  const modal = document.getElementById("adminAnalyticsDetailModal");
+  if (!modal) return;
+  modal.hidden = true;
+  document.body.classList.remove("admin-detail-modal-open");
+}
+
+function periodLabel(period) {
+  return ({
+    today: "Today",
+    last_7: "Last 7 Days",
+    last_30: "Last 30 Days",
+    this_month: "This Month",
+    this_year: "This Year",
+    all: "All Time"
+  })[period] || period;
+}
+
+function detailCell(value) {
+  return `<td>${escapeHtmlAdminAnalytics(value == null || value === "" ? "—" : String(value))}</td>`;
+}
+
+function detailDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
+function renderAnalyticsDetailTable(view, rows, body) {
+  if (!rows.length) {
+    body.innerHTML = '<div class="empty-state">No records found for this selection.</div>';
+    return;
+  }
+
+  let columns = [];
+  let rowHtml = "";
+
+  if (view === "total_students" || view === "active_students") {
+    columns = ["Name", "Email", "Phone", view === "active_students" ? "Last activity" : "Joined"];
+    rowHtml = rows.map(r => `
+      <tr>
+        ${detailCell(r.full_name)}
+        ${detailCell(r.email)}
+        ${detailCell(r.phone)}
+        ${detailCell(detailDate(view === "active_students" ? r.last_activity : r.created_at))}
+      </tr>`).join("");
+  } else if (view === "pass_sales" || view === "revenue") {
+    columns = ["Name", "Email", "Phone", "Product", "Type", "Amount", "Date"];
+    rowHtml = rows.map(r => `
+      <tr>
+        ${detailCell(r.full_name)}
+        ${detailCell(r.email)}
+        ${detailCell(r.phone)}
+        ${detailCell(r.product)}
+        ${detailCell(r.transaction_type)}
+        ${detailCell(formatIndianCurrency(r.amount))}
+        ${detailCell(detailDate(r.paid_at))}
+      </tr>`).join("");
+  } else if (view === "credits_consumed") {
+    columns = ["Name", "Email", "Phone", "Credits", "Source", "Test", "Date"];
+    rowHtml = rows.map(r => `
+      <tr>
+        ${detailCell(r.full_name)}
+        ${detailCell(r.email)}
+        ${detailCell(r.phone)}
+        ${detailCell(r.credits_used)}
+        ${detailCell(r.source)}
+        ${detailCell(r.test_name)}
+        ${detailCell(detailDate(r.created_at))}
+      </tr>`).join("");
+  } else if (view === "mock_tests_taken") {
+    columns = ["Name", "Email", "Test", "Category", "Net WPM", "Accuracy", "Date"];
+    rowHtml = rows.map(r => `
+      <tr>
+        ${detailCell(r.full_name)}
+        ${detailCell(r.email)}
+        ${detailCell(r.test_name)}
+        ${detailCell(r.category)}
+        ${detailCell(r.net_wpm == null ? "—" : r.net_wpm)}
+        ${detailCell(r.accuracy == null ? "—" : r.accuracy + "%")}
+        ${detailCell(detailDate(r.created_at))}
+      </tr>`).join("");
+  }
+
+  body.innerHTML = `
+    <div class="admin-analytics-detail-table-wrap">
+      <table class="admin-analytics-detail-table">
+        <thead><tr>${columns.map(c => `<th>${escapeHtmlAdminAnalytics(c)}</th>`).join("")}</tr></thead>
+        <tbody>${rowHtml}</tbody>
+      </table>
+    </div>
+    <div class="admin-analytics-detail-count">${formatIndianNumber(rows.length)} record${rows.length === 1 ? "" : "s"}</div>`;
+}
+
+
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
   if (!user) return;
@@ -138,12 +316,13 @@ function renderStatCards(data) {
       ? formatIndianCurrency(rawValue)
       : formatIndianNumber(rawValue);
     return `
-      <div class="admin-stat-card">
+      <button type="button" class="admin-stat-card admin-stat-card-clickable" data-detail-view="${card.key}" aria-label="View ${card.label} details">
         <span class="admin-stat-icon">${STAT_ICONS[card.icon]}</span>
         <div class="admin-stat-label">${card.label}</div>
         <div class="admin-stat-value">${value}</div>
         ${card.note ? `<div class="admin-stat-note">${card.note}</div>` : ""}
-      </div>`;
+        <span class="admin-stat-card-hint" aria-hidden="true">View details <span>→</span></span>
+      </button>`;
   }).join("");
 }
 
