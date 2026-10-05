@@ -259,7 +259,7 @@ button,input{font:inherit}
 }
 @media(max-width:720px){
   .container{width:min(100% - 28px,1160px)}
-  .nav-wrap{height:68px}.nav-actions{display:none}
+  .nav-wrap{height:68px}.nav-actions{display:flex;margin-left:auto}
   .mobile-menu-btn{display:grid;place-items:center;width:40px;height:40px}
   .mobile-menu{padding:10px 14px 16px;border-top:1px solid var(--line);background:#fff}
   .mobile-menu.open{display:grid;gap:3px}.mobile-menu>a:not(.lp-btn){padding:12px 8px;font-size:13px;font-weight:700;color:#56647b}
