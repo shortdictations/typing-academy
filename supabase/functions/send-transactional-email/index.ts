@@ -232,6 +232,46 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ success: true, sent, pending: Math.max(0, (grants || []).length - sent) }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (type === "my_gifts") {
+      if (ctx.kind !== "user" || !ctx.user) {
+        return new Response(JSON.stringify({ error: "User login required" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const { data: grants, error: grantsError } = await admin
+        .from("promotional_grants")
+        .select("id, user_id, email_sent_at, status, campaign_id")
+        .eq("user_id", ctx.user.id)
+        .eq("status", "GRANTED")
+        .is("email_sent_at", null)
+        .limit(20);
+      if (grantsError) throw grantsError;
+
+      let sent = 0;
+      if (grants?.length && ctx.user.email) {
+        for (const grant of grants) {
+          const { data: campaign, error: campaignError } = await admin
+            .from("promotional_campaigns")
+            .select("*")
+            .eq("id", grant.campaign_id)
+            .maybeSingle();
+          if (campaignError || !campaign) continue;
+          try {
+            await sendEmail(ctx.user.email, "You've received a TypeShala gift 🎁", giftEmailHtml(displayName(ctx.user), campaign), `gift/${grant.id}`);
+            const { error: markError } = await admin
+              .from("promotional_grants")
+              .update({ email_sent_at: new Date().toISOString() })
+              .eq("id", grant.id)
+              .is("email_sent_at", null);
+            if (!markError) sent++;
+          } catch (emailError) {
+            console.error("Pending gift email failed:", emailError);
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, sent, pending: Math.max(0, (grants || []).length - sent) }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(JSON.stringify({ error: "Unknown email type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("send-transactional-email error:", error);
