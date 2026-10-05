@@ -458,25 +458,28 @@ body.admin-detail-modal-open{overflow:hidden;}
 
 
 /* Promotions — student email picker */
-.promotion-user-results-label{
-  margin:8px 0 6px;
-  color:var(--ink-soft,#66758f);
-  font-size:.72rem;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:.045em;
+.field:has(#cUserResults){position:relative;}
+#cUserResults{
+  position:relative;
+  z-index:20;
 }
+#cUserResults:not(.is-open){display:none;}
 .promotion-user-results-list{
+  position:absolute;
+  left:0;
+  right:0;
+  top:4px;
   max-height:220px;
   overflow-y:auto;
-  border:1px solid var(--paper-line,#e5e7eb);
-  border-radius:8px;
+  border:1px solid #dce3ee;
+  border-radius:9px;
   background:#fff;
+  box-shadow:0 10px 28px rgba(15,23,42,.12);
 }
 .promotion-user-result{
   display:block;
   width:100%;
-  padding:9px 11px;
+  padding:10px 12px;
   border:0;
   border-bottom:1px solid #edf0f4;
   background:#fff;
@@ -493,8 +496,16 @@ body.admin-detail-modal-open{overflow:hidden;}
   color:#1d4ed8;
   outline:none;
 }
-.promotion-user-list-loading{
-  padding:10px 12px;
+.promotion-user-dropdown-empty{
+  position:absolute;
+  left:0;
+  right:0;
+  top:4px;
+  padding:11px 12px;
+  border:1px solid #dce3ee;
+  border-radius:9px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(15,23,42,.12);
   color:var(--ink-soft,#66758f);
   font-size:.82rem;
 }
