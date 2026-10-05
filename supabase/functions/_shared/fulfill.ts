@@ -17,6 +17,35 @@ interface FulfillResult {
   transactionType?: string;
 }
 
+async function sendPurchaseConfirmationEmail(supabaseAdmin: SupabaseClient, transactionId: string): Promise<void> {
+  const projectUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!projectUrl || !serviceKey) return;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const response = await fetch(projectUrl + "/functions/v1/send-transactional-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": serviceKey,
+      },
+      body: JSON.stringify({
+        type: "purchase",
+        purchase_transaction_id: transactionId,
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!response.ok) {
+      console.error("Purchase confirmation email failed:", await response.text());
+    }
+  } catch (error) {
+    console.error("Purchase confirmation email request failed:", error);
+  }
+}
+
 export async function fulfillOrder(
   supabaseAdmin: SupabaseClient,
   orderId: string,
@@ -60,6 +89,10 @@ export async function fulfillOrder(
     if (!current) return { alreadyFulfilled: true };
 
     if (current.fulfilled === true && current.status === "paid") {
+      // The entitlement is already complete. The email sender is idempotent,
+      // so retry it here in case the previous fulfillment completed but the
+      // transactional email provider was temporarily unavailable.
+      await sendPurchaseConfirmationEmail(supabaseAdmin, current.id);
       return {
         alreadyFulfilled: true,
         productType: current.product_type,
@@ -176,6 +209,11 @@ export async function fulfillOrder(
     // manual inspection rather than risking a duplicate grant.
     throw completeError;
   }
+
+  // Email is deliberately sent only after the entitlement and the
+  // purchase transaction are fully committed. A mail-provider failure
+  // must never turn a successful payment into a failed payment.
+  await sendPurchaseConfirmationEmail(supabaseAdmin, claimed.id);
 
   return {
     alreadyFulfilled: false,
