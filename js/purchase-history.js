@@ -76,13 +76,22 @@ async function loadPage(replace) {
     return;
   }
 
-  if (replace && data.length === 0) {
+  // Promotional benefits are displayed as FREE history entries.
+  let promotions = [];
+  if (replace) {
+    const { data: promotionData, error: promotionsError } = await supabaseClient.rpc("get_my_promotional_history");
+    if (promotionsError) console.warn("Could not load promotional history:", promotionsError);
+    else promotions = promotionData || [];
+  }
+
+  if (replace && data.length === 0 && promotions.length === 0) {
     renderEmptyState(listEl, loadMoreWrap);
     return;
   }
 
+  const promotionHtml = replace ? promotions.map(buildPromotionCardHtml).join("") : "";
   const cardsHtml = data.map(buildTransactionCardHtml).join("");
-  listEl.innerHTML = replace ? cardsHtml : listEl.innerHTML + cardsHtml;
+  listEl.innerHTML = replace ? promotionHtml + cardsHtml : listEl.innerHTML + cardsHtml;
 
   currentOffset += data.length;
   reachedEnd = data.length < PAGE_SIZE;
@@ -166,4 +175,29 @@ function escapeHtmlPH(str) {
   const div = document.createElement("div");
   div.textContent = str == null ? "" : str;
   return div.innerHTML;
+}
+
+
+function buildPromotionCardHtml(g) {
+  const date = new Date(g.granted_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const benefit = String(g.benefit_type || "").toUpperCase() === "CREDITS"
+    ? ((g.credits || 0) + " Test Credits")
+    : (g.name || "Promotional Pass");
+  return `
+    <div class="ph-txn-card ph-promotion-card">
+      <div class="ph-txn-top">
+        <span class="ph-txn-icon ph-promotion-icon">🎁</span>
+        <span class="ph-txn-name">${escapeHtmlPH(g.name || "Promotional Offer")}</span>
+        <span class="ph-txn-amount">FREE</span>
+      </div>
+      <div class="ph-txn-meta">Promotional Benefit &middot; ${escapeHtmlPH(benefit)}${g.validity_days ? " &middot; " + g.validity_days + " Days" : ""}</div>
+      <div class="ph-txn-row2">
+        <span class="ph-txn-date">${date}</span>
+        <span class="ph-txn-status ph-status-success"><span class="ph-status-dot"></span>Granted</span>
+      </div>
+      <div class="ph-txn-row3">
+        <span class="ph-txn-order">Promotional Offer</span>
+        <span class="ph-txn-view">No payment required</span>
+      </div>
+    </div>`;
 }
