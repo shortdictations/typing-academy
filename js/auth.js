@@ -1136,11 +1136,31 @@ function wireSidebarCollapse() {
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
   }
 
-  applyState(localStorage.getItem("typeshala-sidebar-collapsed") === "1");
+  const isLandscapePhone = () =>
+    window.matchMedia("(orientation: landscape) and (max-height: 700px) and (max-width: 1100px)").matches;
+
+  function syncResponsiveState() {
+    // Landscape phones use the sidebar as an off-canvas drawer. Keep it
+    // closed by default regardless of the desktop preference, but do not
+    // overwrite the saved desktop preference.
+    if (isLandscapePhone()) {
+      applyState(true);
+    } else {
+      applyState(localStorage.getItem("typeshala-sidebar-collapsed") === "1");
+    }
+  }
+
+  syncResponsiveState();
 
   toggleBtn.addEventListener("click", () => {
     const collapsed = !sidebar.classList.contains("collapsed");
     applyState(collapsed);
-    localStorage.setItem("typeshala-sidebar-collapsed", collapsed ? "1" : "0");
+    // Only persist the preference for the normal desktop/tablet shell.
+    if (!isLandscapePhone()) {
+      localStorage.setItem("typeshala-sidebar-collapsed", collapsed ? "1" : "0");
+    }
   });
+
+  window.addEventListener("resize", syncResponsiveState);
+  window.addEventListener("orientationchange", syncResponsiveState);
 }
