@@ -1288,6 +1288,7 @@ body.dashboard-page .dash-current-plan-btn{
   border: 1px solid var(--ts-blue);
   border-radius: 10px;
   white-space: nowrap;
+  text-decoration: none !important;
   box-shadow: 0 5px 14px rgba(47,95,236,.16);
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
 }
