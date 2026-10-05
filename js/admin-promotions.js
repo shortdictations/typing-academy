@@ -113,6 +113,7 @@ function renderUserResults(query) {
     <div class="promotion-user-results-list">
       ${matches.map(u => `
         <button type="button" class="promotion-user-result" data-user-id="${escapeHtml(u.id)}" data-user-email="${escapeHtml(u.email)}">
+          <input type="checkbox" class="promotion-user-checkbox" ${selectedStudents.some(s => s.id === u.id) ? "checked" : ""} tabindex="-1" aria-hidden="true">
           <span>${escapeHtml(u.email)}</span>
         </button>
       `).join("")}
