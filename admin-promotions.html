@@ -135,7 +135,12 @@
 
       <div class="field" id="cSpecificWrap">
         <label for="cUserSearch">Find Student (by email)</label>
-        <input type="text" id="cUserSearch" placeholder="Start typing an email address...">
+        <div class="promotion-user-picker">
+          <input type="text" id="cUserSearch" placeholder="Select or search an email address..." autocomplete="off" aria-haspopup="listbox" aria-expanded="false">
+          <button type="button" class="promotion-user-picker-toggle" id="cUserPickerToggle" aria-label="Show student email IDs" tabindex="-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
         <div id="cUserResults" style="margin-top:6px;"></div>
         <input type="hidden" id="cSpecificUserId">
         <div id="cSelectedUser" style="display:none; margin-top:8px; padding:8px 12px; background:var(--paper); border:1px solid var(--paper-line); border-radius:6px; font-size:0.9rem;"></div>
