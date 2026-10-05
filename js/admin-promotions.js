@@ -26,8 +26,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const userSearch = document.getElementById("cUserSearch");
   userSearch.addEventListener("input", handleUserSearchInput);
-  userSearch.addEventListener("focus", () => renderUserResults(userSearch.value.trim()));
-  userSearch.addEventListener("click", () => renderUserResults(userSearch.value.trim()));
+  const userPickerToggle = document.getElementById("cUserPickerToggle");
+  userPickerToggle?.addEventListener("click", (event) => {
+    event.preventDefault();
+    const results = document.getElementById("cUserResults");
+    if (results.classList.contains("is-open")) {
+      closeUserDropdown();
+    } else {
+      renderUserResults(userSearch.value.trim());
+      userSearch.focus();
+    }
+  });
+  userSearch.addEventListener("focus", () => {
+    if (userSearch.value.trim()) renderUserResults(userSearch.value.trim());
+  });
+  userSearch.addEventListener("click", () => {
+    if (userSearch.value.trim()) renderUserResults(userSearch.value.trim());
+  });
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#cSpecificWrap")) closeUserDropdown();
   });
@@ -74,7 +89,10 @@ function handleUserSearchInput() {
 }
 
 function closeUserDropdown() {
-  document.getElementById("cUserResults")?.classList.remove("is-open");
+  const results = document.getElementById("cUserResults");
+  results?.classList.remove("is-open");
+  document.getElementById("cUserSearch")?.setAttribute("aria-expanded", "false");
+  document.getElementById("cUserPickerToggle")?.classList.remove("is-open");
 }
 
 function renderUserResults(query) {
@@ -101,6 +119,8 @@ function renderUserResults(query) {
     </div>`;
 
   resultsEl.classList.add("is-open");
+  document.getElementById("cUserSearch")?.setAttribute("aria-expanded", "true");
+  document.getElementById("cUserPickerToggle")?.classList.add("is-open");
   resultsEl.querySelectorAll(".promotion-user-result").forEach(button => {
     button.addEventListener("click", () => {
       selectUser(button.dataset.userId, button.dataset.userEmail);
