@@ -196,7 +196,7 @@ function buildPromotionCardHtml(g) {
         <span class="ph-txn-status ph-status-success"><span class="ph-status-dot"></span>Granted</span>
       </div>
       <div class="ph-txn-row3">
-        <span class="ph-txn-order">Promotional Offer</span>
+        <span class="ph-txn-order">${escapeHtmlPH(g.name || "Promotional Benefit")}</span>
         <span class="ph-txn-view">No payment required</span>
       </div>
     </div>`;
