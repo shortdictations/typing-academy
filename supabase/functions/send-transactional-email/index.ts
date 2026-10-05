@@ -51,7 +51,9 @@ async function sendEmail(to: string, subject: string, html: string, idempotencyK
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data?.message || data?.error || `Resend returned HTTP ${response.status}`);
+    throw new Error(
+      `Resend HTTP ${response.status}: ${JSON.stringify(data)}`
+    );
   }
   return data;
 }
@@ -217,6 +219,7 @@ Deno.serve(async (req: Request) => {
       if (grantsError) throw grantsError;
 
       let sent = 0;
+      const failures: Array<{ grant_id: string; error: string }> = [];
       for (const grant of grants || []) {
         const { data: user, error: userError } = await admin.auth.admin.getUserById(grant.user_id);
         if (userError || !user?.user?.email) continue;
@@ -225,11 +228,13 @@ Deno.serve(async (req: Request) => {
           const { error: markError } = await admin.from("promotional_grants").update({ email_sent_at: new Date().toISOString() }).eq("id", grant.id).is("email_sent_at", null);
           if (!markError) sent++;
         } catch (emailError) {
-          console.error("Gift email failed:", emailError);
+          const message = emailError instanceof Error ? emailError.message : String(emailError);
+          console.error("Gift email failed:", { grant_id: grant.id, error: message });
+          failures.push({ grant_id: grant.id, error: message });
         }
       }
 
-      return new Response(JSON.stringify({ success: true, sent, pending: Math.max(0, (grants || []).length - sent) }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ success: failures.length === 0, sent, pending: Math.max(0, (grants || []).length - sent), failures }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (type === "my_gifts") {
@@ -247,6 +252,7 @@ Deno.serve(async (req: Request) => {
       if (grantsError) throw grantsError;
 
       let sent = 0;
+      const failures: Array<{ grant_id: string; error: string }> = [];
       if (grants?.length && ctx.user.email) {
         for (const grant of grants) {
           const { data: campaign, error: campaignError } = await admin
@@ -264,12 +270,14 @@ Deno.serve(async (req: Request) => {
               .is("email_sent_at", null);
             if (!markError) sent++;
           } catch (emailError) {
-            console.error("Pending gift email failed:", emailError);
+            const message = emailError instanceof Error ? emailError.message : String(emailError);
+            console.error("Pending gift email failed:", { grant_id: grant.id, error: message });
+            failures.push({ grant_id: grant.id, error: message });
           }
         }
       }
 
-      return new Response(JSON.stringify({ success: true, sent, pending: Math.max(0, (grants || []).length - sent) }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ success: failures.length === 0, sent, pending: Math.max(0, (grants || []).length - sent), failures }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ error: "Unknown email type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
