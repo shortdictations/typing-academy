@@ -287,7 +287,7 @@ async function loadCampaigns() {
     const campaignUsers = (grants || []).filter(g => g.campaign_id === c.id && g.status === "GRANTED").map(g => availableStudents.find(u => u.id === g.user_id)).filter(Boolean);
     const specificStudent = c.recipient_type === "SPECIFIC" ? campaignUsers[0] : null;
     const recipientCell = c.recipient_type === "SPECIFIC" && specificStudent
-      ? `<button type="button" class="promotion-recipient-btn" data-email="${escapeHtml(specificStudent.email)}">${escapeHtml("Specific student")}</button><div class="promotion-recipient-email" style="display:none;">${escapeHtml(specificStudent.email)}</div>`
+      ? escapeHtml(specificStudent.email)
       : escapeHtml(recipientLabel);
     const countLabel = counts.failed > 0
       ? counts.granted + " granted, " + counts.failed + " failed"
