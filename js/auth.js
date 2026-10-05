@@ -25,6 +25,7 @@ try {
 } catch (err) {
   console.error("Could not clear stale app session after email confirmation:", err);
 }
+*/
 
 /* ---------- Single active session (one device at a time) ----------
    localStorage (NOT sessionStorage) is deliberate: it's shared
