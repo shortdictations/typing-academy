@@ -31,7 +31,7 @@ body{
 }
 a{text-decoration:none;color:inherit}
 button,input{font:inherit}
-.container{width:min(1160px,calc(100% - 40px));margin:0 auto}
+.container{width:min(1380px,calc(100% - 64px));margin:0 auto}
 
 /* Header */
 .site-header{
