@@ -27,6 +27,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userSearch = document.getElementById("cUserSearch");
   userSearch.addEventListener("input", handleUserSearchInput);
   userSearch.addEventListener("focus", () => renderUserResults(userSearch.value.trim()));
+  userSearch.addEventListener("click", () => renderUserResults(userSearch.value.trim()));
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest("#cSpecificWrap")) closeUserDropdown();
+  });
+  userSearch.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeUserDropdown();
+  });
   document.getElementById("campaignForm").addEventListener("submit", handleSubmit);
 
   await Promise.all([loadStudentEmails(), loadCampaigns()]);
@@ -64,6 +71,10 @@ async function loadStudentEmails() {
 function handleUserSearchInput() {
   clearSelectedUser();
   renderUserResults(document.getElementById("cUserSearch").value.trim());
+}
+
+function closeUserDropdown() {
+  document.getElementById("cUserResults")?.classList.remove("is-open");
 }
 
 function renderUserResults(query) {
