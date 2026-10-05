@@ -509,3 +509,43 @@ body.admin-detail-modal-open{overflow:hidden;}
   color:var(--ink-soft,#66758f);
   font-size:.82rem;
 }
+
+
+/* Searchable student email picker */
+.promotion-user-picker{
+  position:relative;
+}
+.promotion-user-picker #cUserSearch{
+  padding-right:42px;
+}
+.promotion-user-picker-toggle{
+  position:absolute;
+  top:50%;
+  right:8px;
+  width:30px;
+  height:30px;
+  transform:translateY(-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--ink-soft,#66758f);
+  cursor:pointer;
+}
+.promotion-user-picker-toggle:hover{
+  background:#f1f4f8;
+  color:#1d4ed8;
+}
+.promotion-user-picker-toggle svg{
+  width:16px;
+  height:16px;
+  transition:transform .18s ease;
+}
+.promotion-user-picker-toggle.is-open svg{
+  transform:rotate(180deg);
+}
+#cUserResults{
+  margin-top:4px !important;
+}
