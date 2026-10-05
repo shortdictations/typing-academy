@@ -1276,13 +1276,30 @@ body.dashboard-page .dash-current-plan-name{
 }
 body.dashboard-page .dash-current-plan-btn{
   flex: none;
-  background: var(--ts-blue-tint);
-  color: var(--ts-blue);
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 7px 14px;
-  border-radius: var(--ts-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--ts-blue);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  border: 1px solid var(--ts-blue);
+  border-radius: 10px;
   white-space: nowrap;
+  box-shadow: 0 5px 14px rgba(47,95,236,.16);
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+body.dashboard-page .dash-current-plan-btn:hover{
+  background: var(--ts-blue-dark);
+  border-color: var(--ts-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(47,95,236,.22);
+}
+body.dashboard-page .dash-current-plan-btn span{
+  font-size: 0.9rem;
+  line-height: 1;
 }
 body.dashboard-page .dash-current-plan-expiry{
   flex: none;
