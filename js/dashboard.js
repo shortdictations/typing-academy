@@ -132,7 +132,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // onboarding flow is reserved exclusively for accounts that have not
   // completed their first-time setup (handled inside initTargetWpm).
 
-  showAdminLinkIfApplicable(user); // not awaited — doesn't block anything visual
   initAnnouncementTicker("announcementBoard", "dashboard"); // not awaited — independent of everything else on the page
   renderPassCreditsCard(user); // not awaited — independent card, uses the same fetchActivePasses/fetchTotalCredits helpers as the header dropdown (js/auth.js); internally guarded too, see below
 
@@ -693,11 +692,7 @@ function showOnboardingWelcomeName(user) {
   el.textContent = fullName ? fullName.trim().split(/\s+/)[0] : "there";
 }
 
-async function showAdminLinkIfApplicable(user) {
-  const admin = await isAdminUser(user.id);
-  const link = document.getElementById("adminLink");
-  if (link && admin) link.style.display = "inline-block";
-}
+
 
 function renderSummary(results) {
   const testsTaken = results.length;
