@@ -1,4 +1,4 @@
-// Production deployment marker: keeps the latest gift-email flow active on the live admin page.\n/* ============================================================
+/* ============================================================
    admin-promotions.js
    ------------------------------------------------------------
    Lets an admin grant free credits or a pass directly to a
@@ -200,6 +200,10 @@ async function handleSubmit(e) {
     return;
   }
 
+  // A confirm() dialog here is deliberate friction for the two
+  // recipient types that reach many/unknown-future students at once
+  // — a specific-student grant is low-blast-radius and doesn't need
+  // the same pause.
   if (recipientType === "ALL_EXISTING" && !confirm("Grant this to every existing student right now? This cannot be undone from this page.")) {
     return;
   }
