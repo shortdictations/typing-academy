@@ -11,6 +11,7 @@
    ============================================================ */
 
 let searchDebounceTimer = null;
+let availableStudents = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await requireAdmin();
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("cUserSearch").addEventListener("input", handleUserSearchInput);
   document.getElementById("campaignForm").addEventListener("submit", handleSubmit);
 
-  await loadCampaigns();
+  await Promise.all([loadStudentEmails(), loadCampaigns()]);
 });
 
 function updateBenefitFields() {
@@ -43,41 +44,60 @@ function updateRecipientFields() {
 
 /* ---------------- User search ---------------- */
 
-function handleUserSearchInput() {
-  clearSelectedUser();
-  clearTimeout(searchDebounceTimer);
-  const query = document.getElementById("cUserSearch").value.trim();
+async function loadStudentEmails() {
   const resultsEl = document.getElementById("cUserResults");
+  resultsEl.innerHTML = '<div class="promotion-user-list-loading">Loading student email IDs...</div>';
 
-  if (query.length < 3) {
-    resultsEl.innerHTML = "";
+  const { data, error } = await supabaseClient.rpc("admin_list_student_emails");
+  if (error) {
+    console.error("Could not load student emails:", error);
+    resultsEl.innerHTML = '<p style="font-size:0.85rem; color:var(--danger, #b42318);">Could not load student email IDs.</p>';
     return;
   }
 
-  // Debounced — admin_search_users() is a real RPC call; no reason to
-  // fire one on every keystroke.
-  searchDebounceTimer = setTimeout(async () => {
-    const { data, error } = await supabaseClient.rpc("admin_search_users", { p_query: query });
-    if (error) {
-      resultsEl.innerHTML = '<p style="font-size:0.85rem; color:var(--danger, #b42318);">Search failed.</p>';
-      return;
-    }
-    if (!data || data.length === 0) {
-      resultsEl.innerHTML = '<p style="font-size:0.85rem; color:var(--ink-soft);">No matching students.</p>';
-      return;
-    }
-    resultsEl.innerHTML = data.map(u =>
-      '<button type="button" class="btn btn-ghost" style="display:block; width:100%; text-align:left; padding:8px 10px; font-size:0.85rem; margin-bottom:4px;" onclick="selectUser(\'' + u.id + '\', \'' + escapeHtml(u.email) + '\')">' +
-        escapeHtml(u.email) +
-      '</button>'
-    ).join("");
-  }, 350);
+  availableStudents = Array.isArray(data) ? data : [];
+  renderUserResults("");
+}
+
+function handleUserSearchInput() {
+  clearSelectedUser();
+  renderUserResults(document.getElementById("cUserSearch").value.trim());
+}
+
+function renderUserResults(query) {
+  const resultsEl = document.getElementById("cUserResults");
+  const normalized = query.toLowerCase();
+
+  const matches = availableStudents.filter(u =>
+    (u.email || "").toLowerCase().includes(normalized)
+  );
+
+  if (!matches.length) {
+    resultsEl.innerHTML = '<p style="font-size:0.85rem; color:var(--ink-soft);">No matching students.</p>';
+    return;
+  }
+
+  resultsEl.innerHTML = `
+    <div class="promotion-user-results-label">${query ? "Matching student email IDs" : "Available student email IDs"}</div>
+    <div class="promotion-user-results-list">
+      ${matches.map(u => `
+        <button type="button" class="promotion-user-result" data-user-id="${escapeHtml(u.id)}" data-user-email="${escapeHtml(u.email)}">
+          <span>${escapeHtml(u.email)}</span>
+        </button>
+      `).join("")}
+    </div>`;
+
+  resultsEl.querySelectorAll(".promotion-user-result").forEach(button => {
+    button.addEventListener("click", () => {
+      selectUser(button.dataset.userId, button.dataset.userEmail);
+    });
+  });
 }
 
 function selectUser(id, email) {
   document.getElementById("cSpecificUserId").value = id;
   document.getElementById("cUserResults").innerHTML = "";
-  document.getElementById("cUserSearch").value = "";
+  document.getElementById("cUserSearch").value = email;
   const selectedEl = document.getElementById("cSelectedUser");
   selectedEl.style.display = "block";
   selectedEl.textContent = "Selected: " + email;
