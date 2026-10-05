@@ -329,6 +329,7 @@ async function loadCampaigns() {
       </thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>`;
 
   container.querySelectorAll(".promotion-view-recipients").forEach(button => {
     button.addEventListener("click", () => {
