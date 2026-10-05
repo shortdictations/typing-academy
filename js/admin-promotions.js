@@ -148,9 +148,44 @@ function toggleSelectedUser(id, email) {
 
 function renderSelectedUsers() {
   const el = document.getElementById("cSelectedUser");
-  if (!selectedStudents.length) { el.style.display = "none"; el.textContent = ""; return; }
-  el.style.display = "block";
-  el.textContent = "Selected " + selectedStudents.length + " student" + (selectedStudents.length === 1 ? "" : "s") + ": " + selectedStudents.map(s => s.email).join(", ");
+  if (!selectedStudents.length) {
+    el.style.display = "none";
+    el.innerHTML = "";
+    return;
+  }
+
+  el.style.display = "flex";
+  el.innerHTML = `
+    <span class="promotion-selected-label">Selected students</span>
+    <div class="promotion-selected-chips">
+      ${selectedStudents.map(student => `
+        <span class="promotion-selected-chip">
+          <span class="promotion-selected-chip-email">${escapeHtml(student.email)}</span>
+          <button type="button" class="promotion-selected-chip-remove" data-user-id="${escapeHtml(student.id)}" aria-label="Remove ${escapeHtml(student.email)}" title="Remove">
+            ×
+          </button>
+        </span>
+      `).join("")}
+    </div>`;
+
+  el.querySelectorAll(".promotion-selected-chip-remove").forEach(button => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      removeSelectedUser(button.dataset.userId);
+    });
+  });
+}
+
+function removeSelectedUser(id) {
+  selectedStudents = selectedStudents.filter(student => student.id !== id);
+  renderSelectedUsers();
+
+  // If the dropdown is open, immediately refresh its checkbox state.
+  const results = document.getElementById("cUserResults");
+  if (results?.classList.contains("is-open")) {
+    renderUserResults(document.getElementById("cUserSearch").value.trim());
+  }
 }
 
 function clearSelectedUser() {
