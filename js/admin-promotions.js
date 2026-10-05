@@ -148,6 +148,28 @@ function clearSelectedUser() {
 
 /* ---------------- Submit ---------------- */
 
+async function sendCampaignGiftEmails(campaignId) {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return { sent: 0, pending: 0 };
+
+    const response = await fetch(SUPABASE_URL + "/functions/v1/send-transactional-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token,
+      },
+      body: JSON.stringify({ type: "campaign", campaign_id: campaignId }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Could not send gift emails.");
+    return data;
+  } catch (error) {
+    console.error("Campaign gift email request failed:", error);
+    return { sent: 0, pending: 0, error: error.message || "Could not send gift emails." };
+  }
+}
+
 async function handleSubmit(e) {
   e.preventDefault();
   hideFormMessages();
@@ -191,7 +213,7 @@ async function handleSubmit(e) {
 
   submitBtn.disabled = true;
   try {
-    const { error } = await supabaseClient.rpc("admin_create_promotional_campaign", {
+    const { data: campaignId, error } = await supabaseClient.rpc("admin_create_promotional_campaign", {
       p_name: name,
       p_benefit_type: benefitType,
       p_credits: credits,
@@ -201,7 +223,14 @@ async function handleSubmit(e) {
     });
     if (error) throw error;
 
-    showFormSuccess("Campaign created" + (recipientType === "ALL_NEW" ? ". It will apply automatically to future signups." : "."));
+    const emailResult = await sendCampaignGiftEmails(campaignId);
+    if (emailResult.error) {
+      showFormSuccess("Campaign created, but gift emails are waiting to be sent.");
+    } else if (emailResult.sent > 0) {
+      showFormSuccess("Campaign created. Gift email sent to " + emailResult.sent + " student" + (emailResult.sent === 1 ? "" : "s") + ".");
+    } else {
+      showFormSuccess("Campaign created" + (recipientType === "ALL_NEW" ? ". It will apply automatically to future signups." : "."));
+    }
     document.getElementById("campaignForm").reset();
     updateBenefitFields();
     updateRecipientFields();
