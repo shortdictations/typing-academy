@@ -920,7 +920,8 @@ function wireBottomNavActiveState() {
     const linkPage = (link.getAttribute("href") || "").split("?")[0];
     link.classList.toggle("active", linkPage === currentPage);
   });
-}\n
+}
+
 /* ============================================================
    Admin navigation
    ------------------------------------------------------------
