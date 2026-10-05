@@ -284,3 +284,9 @@ a.announcement-ticker-item:hover{ color: var(--gold); text-decoration: underline
   opacity: 0.6;
   font-size: 14px;
 }
+
+/* Mobile landing-footer order: links first, copyright below. */
+@media (max-width: 640px){
+  body.landing-v2 .site-foot-links{order:1}
+  body.landing-v2 .site-foot-copyright{order:2}
+}
