@@ -266,10 +266,11 @@ async function loadCampaigns() {
 
   const { data: grants } = await supabaseClient
     .from("promotional_grants")
-    .select("campaign_id, status")
+    .select("campaign_id, user_id, status")
     .in("campaign_id", campaigns.map(c => c.id));
 
   const countsByCampaign = {};
+  const usersByCampaign = {};
   (grants || []).forEach(g => {
     if (!countsByCampaign[g.campaign_id]) countsByCampaign[g.campaign_id] = { granted: 0, failed: 0 };
     if (g.status === "GRANTED") countsByCampaign[g.campaign_id].granted++;
@@ -283,6 +284,11 @@ async function loadCampaigns() {
       : c.recipient_type === "ALL_NEW" ? "All new signups"
       : "Specific student";
     const counts = countsByCampaign[c.id] || { granted: 0, failed: 0 };
+    const campaignUsers = (grants || []).filter(g => g.campaign_id === c.id && g.status === "GRANTED").map(g => availableStudents.find(u => u.id === g.user_id)).filter(Boolean);
+    const specificStudent = c.recipient_type === "SPECIFIC" ? campaignUsers[0] : null;
+    const recipientCell = c.recipient_type === "SPECIFIC" && specificStudent
+      ? `<button type="button" class="promotion-recipient-btn" data-email="${escapeHtml(specificStudent.email)}">${escapeHtml("Specific student")}</button><div class="promotion-recipient-email" style="display:none;">${escapeHtml(specificStudent.email)}</div>`
+      : escapeHtml(recipientLabel);
     const countLabel = counts.failed > 0
       ? counts.granted + " granted, " + counts.failed + " failed"
       : counts.granted + " granted";
@@ -293,7 +299,7 @@ async function loadCampaigns() {
         <td>${escapeHtml(c.name)}</td>
         <td><span class="pill">${escapeHtml(benefitLabel)}</span></td>
         <td>${c.validity_days} days</td>
-        <td>${escapeHtml(recipientLabel)}</td>
+        <td>${recipientCell}</td>
         <td>${dateStr}</td>
         <td>${escapeHtml(countLabel)}</td>
       </tr>`;
