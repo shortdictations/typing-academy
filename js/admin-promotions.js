@@ -123,16 +123,24 @@ function renderUserResults(query) {
   document.getElementById("cUserSearch")?.setAttribute("aria-expanded", "true");
   document.getElementById("cUserPickerToggle")?.classList.add("is-open");
   resultsEl.querySelectorAll(".promotion-user-result").forEach(button => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       toggleSelectedUser(button.dataset.userId, button.dataset.userEmail);
+      // Keep the dropdown open and immediately refresh checkbox states,
+      // allowing consecutive multi-selection without reopening it.
+      renderUserResults(document.getElementById("cUserSearch").value.trim());
     });
   });
 }
 
 function toggleSelectedUser(id, email) {
   const index = selectedStudents.findIndex(s => s.id === id);
-  if (index >= 0) selectedStudents.splice(index, 1);
-  else selectedStudents.push({ id, email });
+  if (index >= 0) {
+    selectedStudents.splice(index, 1);
+  } else {
+    selectedStudents.push({ id, email });
+  }
   renderSelectedUsers();
 }
 
