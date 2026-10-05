@@ -38,6 +38,27 @@ function setOnboardingVisibility(isVisible) {
 // Always refresh the pass/credit summary when the dashboard becomes visible
 // again. This reads the same authoritative user_passes data as the rest of the
 // app and does not alter payment or entitlement logic.
+async function sendPendingGiftEmails(user) {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !user) return;
+
+    const response = await fetch(SUPABASE_URL + "/functions/v1/send-transactional-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token,
+      },
+      body: JSON.stringify({ type: "my_gifts" }),
+    });
+    if (!response.ok) {
+      console.warn("Could not send pending gift email:", await response.text());
+    }
+  } catch (error) {
+    console.warn("Pending gift email check failed:", error);
+  }
+}
+
 let dashboardCurrentUser = null;
 let dashboardRefreshInFlight = false;
 
@@ -79,6 +100,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!user) return;
   dashboardCurrentUser = user;
   if (!user) return;
+
+  // If an ALL_NEW promotional campaign granted a benefit during signup,
+  // deliver the corresponding gift email once the student's account is active.
+  sendPendingGiftEmails(user);
 
   showStudentName(user);
   showOnboardingWelcomeName(user);
