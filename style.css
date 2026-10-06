@@ -2813,9 +2813,14 @@ body.dashboard-page{
   align-items:center;
   justify-content:center;
   gap:5px;
+  white-space:nowrap;
 }
 .access-grid .pass-card .plan-features{
-  margin-bottom: 20px;
+  margin-bottom: 26px;
+}
+.access-grid .pass-card .plan-features li{
+  line-height: 1.45;
+  margin-bottom: 6px;
 }
 .access-grid .pass-card .pass-upgrade-box,
 .access-grid .pass-card .pass-upgrade-box-compact{
@@ -2824,15 +2829,14 @@ body.dashboard-page{
 .access-grid .credit-card .credits-purchase-section{
   margin-top:auto;
 }
-@media (min-width: 769px){
-  .access-grid > .pass-card,
-  .access-grid > .credit-card{
-    min-height: 620px;
-  }
+
+
+
+/* Natural equal-height access cards */
+.access-grid{
+  align-items:stretch;
 }
-@media (max-width: 768px){
-  .access-grid > .pass-card,
-  .access-grid > .credit-card{
-    min-height: 0;
-  }
+.access-grid > .pass-card,
+.access-grid > .credit-card{
+  align-self:stretch;
 }
