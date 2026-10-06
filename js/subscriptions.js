@@ -329,8 +329,9 @@ function passFeaturesHtml(passType, features) {
 
 function featuresListHtml(features) {
   if (!features || features.length === 0) return "";
+  const checkIcon = '<svg class="feature-check-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21.8 10.1A10 10 0 1 1 17 3.3"/><path d="m9 11 3 3L22 4"/></svg>';
   return '<ul class="plan-features">' +
-    features.map(f => "<li>" + escapeHtmlLocal(f) + "</li>").join("") +
+    features.map(f => "<li>" + checkIcon + "<span>" + escapeHtmlLocal(f) + "</span></li>").join("") +
     "</ul>";
 }
 
