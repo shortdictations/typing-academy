@@ -545,7 +545,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
           </div>
         </div>
 
-        ${passFeaturesHtml(product.pass_type, product.features)}
+        ${featuresListHtml(defaultPassFeatures(product.pass_type).filter((feature) => !/^All (SSC|Legal)( \+ Legal)? typing mocks$/i.test(feature)))}
         ${upgradeHtml}
       </div>`;
   }
