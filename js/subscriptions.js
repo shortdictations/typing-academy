@@ -799,10 +799,10 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
         </div>
       </div>
 
-      <div class="credits-benefits">
-        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#10003;</span><strong>Use for SSC or Legal mocks</strong></div>
-        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#10003;</span><strong>Credits valid for 365 days</strong></div>
-      </div>
+      <ul class="plan-features credits-benefits-list">
+        <li>Use for SSC or Legal mocks</li>
+        <li>Credits valid for 365 days</li>
+      </ul>
 
       <div class="credits-purchase-section">
         <div class="credits-purchase-title">Buy Test Credits</div>
