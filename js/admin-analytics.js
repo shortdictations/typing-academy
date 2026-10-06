@@ -403,7 +403,7 @@ function renderPassBreakdown(breakdown) {
   const upgradeRows = upgrades.length
     ? upgrades.map(r => `
         <tr>
-          <td>${escapeHtmlAdminAnalytics(r.pass_type)} &rarr; Combo</td>
+          <td>${escapeHtmlAdminAnalytics(r.source_pass_type || r.pass_type || "Unknown")} &rarr; Combo</td>
           <td>${formatIndianNumber(r.count)}</td>
           <td>${formatIndianCurrency(r.revenue)}</td>
         </tr>`).join("")
