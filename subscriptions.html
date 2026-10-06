@@ -1860,49 +1860,141 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-he
 }
 </style>
 <style>
-/* TEST CREDIT PACKAGE CHIPS — compact and identical on desktop/mobile */
-body.subscriptions-page .credits-combined-card .credits-pack-row-large{
-  grid-template-columns:repeat(3, 86px) !important;
-  justify-content:center !important;
-  gap:8px !important;
-  width:100% !important;
+/* ============================================================
+   SUBSCRIPTIONS — FINAL RESPONSIVE CARD SYSTEM
+   Single source of truth for pass-card responsiveness.
+   ============================================================ */
+
+body.subscriptions-page .passes-grid{
+  width:min(100%, 1000px);
+  max-width:1000px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  align-items:stretch;
+  justify-content:center;
 }
-body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
-  width:86px !important;
-  min-width:86px !important;
-  max-width:86px !important;
-  min-height:62px !important;
-  height:62px !important;
-  padding:7px 8px !important;
-  box-sizing:border-box !important;
+
+body.subscriptions-page .passes-grid > .pass-card,
+body.subscriptions-page .passes-grid > .credits-summary-card{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  min-height:0;
+  height:100%;
+  box-sizing:border-box;
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
 }
-body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
-  font-size:10px !important;
-  line-height:1.15 !important;
-  white-space:nowrap !important;
+
+/* Three/four-card desktop composition */
+body.subscriptions-page .passes-grid--three,
+body.subscriptions-page .passes-grid--four{
+  width:min(100%,1000px);
+  max-width:1000px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
 }
-body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
-  font-size:15px !important;
-  line-height:1.05 !important;
-  margin-top:3px !important;
+
+body.subscriptions-page .passes-grid--four > .credits-summary-card{
+  grid-column:2;
+  width:100%;
+  justify-self:center;
 }
-body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-badge{
-  font-size:6.5px !important;
-  padding:2px 5px !important;
-  top:-8px !important;
-  right:3px !important;
+
+/* One-card state */
+body.subscriptions-page .passes-grid--one{
+  width:min(100%,460px);
+  max-width:460px;
+  grid-template-columns:1fr;
 }
-@media (max-width:700px){
-  /* Keep all three credit boxes in ONE compact row on mobile too. */
-  body.subscriptions-page .credits-combined-card .credits-pack-row-large{
-    grid-template-columns:repeat(3, 86px) !important;
-    justify-content:center !important;
-    gap:8px !important;
+
+/* Keep bottom actions aligned inside equal-height cards */
+body.subscriptions-page .passes-grid .pass-upgrade-btn,
+body.subscriptions-page .passes-grid .pass-card > .btn,
+body.subscriptions-page .passes-grid .credits-combined-buy-btn{
+  margin-top:auto;
+}
+
+body.subscriptions-page .passes-grid .pass-upgrade-btn{
+  white-space:normal;
+}
+
+/* Tablet */
+@media (max-width:999px){
+  body.subscriptions-page .passes-grid,
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four{
+    width:min(100% - 32px,760px);
+    max-width:760px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
+
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column:1 / -1;
+    width:min(100%,360px);
+    justify-self:center;
+  }
+}
+
+/* Mobile: one fluid card per row */
+@media (max-width:700px){
+  body.subscriptions-page .passes-grid,
+  body.subscriptions-page .passes-grid--one,
+  body.subscriptions-page .passes-grid--two,
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four{
+    width:min(100% - 24px,460px);
+    max-width:460px;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  body.subscriptions-page .passes-grid--four > .credits-summary-card,
+  body.subscriptions-page .passes-grid--three > .credits-summary-card{
+    grid-column:auto;
+    width:100%;
+    max-width:none;
+    justify-self:stretch;
+  }
+
+  body.subscriptions-page .pass-card:hover{
+    transform:none;
+  }
+
+  body.subscriptions-page .passes-grid > .pass-card,
+  body.subscriptions-page .passes-grid > .credits-summary-card{
+    width:100%;
+    min-width:0;
+    height:auto;
+  }
+
+  body.subscriptions-page .pass-upgrade-btn{
+    white-space:normal !important;
+  }
+}
+
+/* Small phones */
+@media (max-width:380px){
+  body.subscriptions-page .passes-grid{
+    width:calc(100% - 20px);
+    gap:14px;
+  }
+
+  body.subscriptions-page .credits-combined-card{
+    padding:17px !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+  }
+
   body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
-    width:86px !important;
-    min-width:86px !important;
-    max-width:86px !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
   }
 }
 </style>
