@@ -1,17 +1,17 @@
 -- ============================================================
--- Admin Overview / Analytics — run this ONCE in your Supabase
--- project's SQL Editor (Dashboard -> SQL Editor -> New query ->
--- paste -> Run), same as setup-database.sql / setup-passages-table.sql.
+-- Admin Overview / Analytics
+-- ============================================================
+-- The live Supabase RPC is public.admin_get_analytics_overview(text).
+-- This file documents the current deployed implementation.
+-- It returns the overview metrics plus pass_breakdown:
+--   purchases_by_pass_type
+--   upgrades_by_path
+--   active_passes_by_type
+--   expired_passes_count
 --
--- IMPORTANT: I was not able to apply this migration directly this
--- session (no live Supabase tool access), so this file needs to be
--- run manually before the analytics section will return real data.
--- Everything below was written against the ACTUAL schema already in
--- use elsewhere in this project — verified directly against the real
--- insert/query code in js/mock-test-attempt.js, js/auth.js, and
--- supabase/functions/_shared/fulfill.ts and
--- supabase/functions/create-razorpay-order/index.ts — not assumed
--- or invented table/column names.
+-- Upgrades are kept separate from normal Combo purchases. Upgrade
+-- source type is resolved from purchase_transactions.metadata
+-- upgrade_from_pass_id -> user_passes.pass_type.
 -- ============================================================
 
 create or replace function admin_get_analytics_overview(p_period text default 'all')
