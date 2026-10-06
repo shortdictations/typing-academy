@@ -2785,3 +2785,54 @@ body.dashboard-page{
   color: #FFC0B8;
   font-size: 0.72rem;
 }
+
+
+/* Pass + credit card symmetry */
+.access-grid > .pass-card,
+.access-grid > .credit-card,
+.access-grid .pass-card,
+.access-grid .credit-card{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.access-grid .pass-card .pass-upgrade-btn,
+.access-grid .pass-card > .btn,
+.access-grid .credit-card > .btn,
+.access-grid .credits-combined-buy-btn{
+  min-height: 50px;
+  height: 50px;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+.access-grid .pass-card .pass-upgrade-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+.access-grid .pass-card .plan-features{
+  margin-bottom: 20px;
+}
+.access-grid .pass-card .pass-upgrade-box,
+.access-grid .pass-card .pass-upgrade-box-compact{
+  margin-top:auto;
+}
+.access-grid .credit-card .credits-purchase-section{
+  margin-top:auto;
+}
+@media (min-width: 769px){
+  .access-grid > .pass-card,
+  .access-grid > .credit-card{
+    min-height: 620px;
+  }
+}
+@media (max-width: 768px){
+  .access-grid > .pass-card,
+  .access-grid > .credit-card{
+    min-height: 0;
+  }
+}
