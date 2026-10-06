@@ -504,7 +504,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
       <div class="pass-category-title-wrap">
         <div class="card-label">${escapeHtmlLocal(product.name || (type + " PASS"))}</div>
       </div>
-      ${toggleHtml}
+      ${showCategoryToggle ? toggleHtml : '<span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>'}
     </div>`;
 
   if (activeState) {
@@ -533,19 +533,14 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
         ${bestValueBadge}
         ${headerHtml}
 
-        <div class="pass-current-plan-box">
-          <div class="pass-current-plan-title">Your Current Plan</div>
-          <div class="pass-plan-detail-row">
-            <span>Validity</span>
-            <strong>${daysLeft} ${daysLeft === 1 ? "day" : "days"} left</strong>
-          </div>
-          <div class="pass-plan-detail-row">
-            <span>Access</span>
-            <strong>All ${type === "SSC" ? "SSC" : "Legal"} mocks</strong>
-          </div>
-        </div>
-
-        ${featuresListHtml(defaultPassFeatures(product.pass_type).filter((feature) => !/^All (SSC|Legal)( \+ Legal)? typing mocks$/i.test(feature)))}
+        ${featuresListHtml([
+          `All ${type === "SSC" ? "SSC" : "Legal"} mocks`,
+          `Validity: ${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`,
+          "Unlimited mock tests",
+          "Choose test duration: 5 mins / 10 mins",
+          "Performance analysis",
+          "Weak key analysis"
+        ])}
         ${upgradeHtml}
       </div>`;
   }
@@ -670,20 +665,14 @@ function buildPassCardHtml(p, activeState) {
           <span class="pass-active-badge"><span class="pass-status-dot"></span>ACTIVE</span>
         </div>
 
-        <div class="pass-current-plan-box">
-          <div class="pass-current-plan-title">Your Current Plan</div>
-          <div class="pass-plan-detail-row">
-            <span>Validity</span>
-            <strong>${daysLeft} ${daysLeft === 1 ? "day" : "days"} left</strong>
-          </div>
-          <div class="pass-plan-detail-row">
-            <span>Access</span>
-            <strong>${accessText}</strong>
-          </div>
-        </div>
-
-        ${p.description ? '<p class="pass-card-description">' + escapeHtmlLocal(p.description) + "</p>" : ""}
-        ${passFeaturesHtml(p.pass_type, p.features)}
+        ${featuresListHtml([
+          `${accessText}`,
+          `Validity: ${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`,
+          "Unlimited mock tests",
+          "Choose test duration: 5 mins / 10 mins",
+          "Performance analysis",
+          "Weak key analysis"
+        ])}
         <a class="btn btn-full" href="${viewTestsHref(p.pass_type)}">View Tests <span aria-hidden="true">&rarr;</span></a>
       </div>`;
   }
