@@ -419,13 +419,17 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
     buildCreditsSummaryCardHtml(creditBalance, creditProducts);
 
   bindCombinedCreditCard(grid, creditProducts);
-  bindPassCategoryToggle(grid, {
-    sscProduct,
-    legalProduct,
-    activePassByType,
-    comboProduct,
-    currentType: (hasLegal && !hasSSC) ? "LEGAL" : "SSC"
-  });
+  // Category switching is only available for users without an active
+  // SSC/Legal entitlement. Active users get a single owned-plan card.
+  if (!hasSSC && !hasLegal) {
+    bindPassCategoryToggle(grid, {
+      sscProduct,
+      legalProduct,
+      activePassByType,
+      comboProduct,
+      currentType: "SSC"
+    });
+  }
 
   // Layout is based on the number of visible cards, including Test Credit:
   //   3 cards -> 3 equal cards in one row
@@ -479,7 +483,12 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
     ? '<span class="best-value-badge">' + escapeHtmlLocal(product.badge_text || defaultBadgeText) + '</span>'
     : "";
 
-  const toggleHtml = `
+  // The SSC/Legal selector is useful only when the user has no active
+  // category pass. Once SSC or Legal is active, showing a selector that
+  // allows switching away from the user's owned plan is confusing; the
+  // only relevant action is upgrading to Combo.
+  const showCategoryToggle = !activeState;
+  const toggleHtml = showCategoryToggle ? `
     <div class="pass-category-toggle" role="group" aria-label="Choose pass category">
       <button type="button"
         class="pass-category-option${type === "SSC" ? " is-selected" : ""}"
@@ -489,10 +498,10 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
         class="pass-category-option${type === "LEGAL" ? " is-selected" : ""}"
         data-pass-category="LEGAL"
         aria-pressed="${type === "LEGAL" ? "true" : "false"}">LEGAL</button>
-    </div>`;
+    </div>` : "";
 
   const headerHtml = `
-    <div class="pass-card-header pass-category-header">
+    <div class="pass-card-header pass-category-header${showCategoryToggle ? "" : " no-category-toggle"}">
       <div class="pass-category-title-wrap">
         <div class="card-label">${escapeHtmlLocal(product.name || (type + " PASS"))}</div>
       </div>
