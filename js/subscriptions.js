@@ -315,7 +315,6 @@ function defaultPassFeatures(passType) {
     "Unlimited mock tests",
     access,
     "Choose test duration: 5 mins / 10 mins",
-    "Access throughout the validity period",
     "Performance analysis",
     "Weak key analysis"
   ];
@@ -766,14 +765,6 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
         <a class="credits-history-link" href="purchase-history.html">
           <span>View History</span><span aria-hidden="true">&rarr;</span>
         </a>
-      </div>
-
-      <div class="credits-benefits">
-        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#8734;</span><strong>Use for SSC or Legal mocks</strong></div>
-        <div class="credits-benefit"><span class="credits-benefit-icon" aria-hidden="true">&#43;</span><strong>Buy multiple credits anytime</strong></div>
-        <div class="credits-benefit"><span class="credits-benefit-icon credits-calendar-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"/></svg>
-        </span><strong>Valid for 365 days</strong></div>
       </div>
 
       <div class="credits-purchase-section">
