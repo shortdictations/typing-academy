@@ -2239,3 +2239,71 @@ body.subscriptions-page .pass-upgrade-btn{
   margin-top:0;
 }
 </style>
+
+<style>
+/* Modern checkmarks across every subscription card.
+   Replace plain text ticks with a compact circular UI marker. */
+body.subscriptions-page .plan-features li{
+  position:relative;
+  padding-left:27px !important;
+  list-style:none !important;
+}
+body.subscriptions-page .plan-features li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:.38em;
+  width:15px;
+  height:15px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#eef4ff,#dce8ff);
+  border:1px solid rgba(59,96,180,.20);
+  box-shadow:0 2px 5px rgba(35,65,130,.10);
+}
+body.subscriptions-page .plan-features li::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:.59em;
+  width:5px;
+  height:3px;
+  border-left:2px solid #3568d4;
+  border-bottom:2px solid #3568d4;
+  transform:rotate(-45deg);
+}
+body.subscriptions-page .credits-benefits-list{
+  margin-top:14px !important;
+  margin-bottom:16px !important;
+}
+body.subscriptions-page .credits-benefits-list li{
+  margin-bottom:8px !important;
+  color:#40527d !important;
+}
+body.subscriptions-page .pass-upgrade-info > div{
+  position:relative;
+  padding-left:24px;
+}
+body.subscriptions-page .pass-upgrade-info > div::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:.38em;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#f1eaff,#e5d9ff);
+  border:1px solid rgba(124,58,237,.20);
+  box-shadow:0 2px 5px rgba(91,53,213,.10);
+}
+body.subscriptions-page .pass-upgrade-info > div::after{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:.57em;
+  width:5px;
+  height:3px;
+  border-left:2px solid #6b3fe0;
+  border-bottom:2px solid #6b3fe0;
+  transform:rotate(-45deg);
+}
+</style>
