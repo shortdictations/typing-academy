@@ -2307,3 +2307,95 @@ body.subscriptions-page .pass-upgrade-info > div::after{
   transform:rotate(-45deg);
 }
 </style>
+
+<style>
+/* ============================================================
+   Modern circular check icon — inspired by the Lucide
+   circle-check / circle-check-big family.
+   Use the SVG itself so it remains crisp and theme-aware.
+   ============================================================ */
+body.subscriptions-page .plan-features li{
+  position:relative;
+  display:flex !important;
+  align-items:flex-start;
+  gap:9px;
+  padding-left:0 !important;
+  list-style:none !important;
+}
+body.subscriptions-page .plan-features li::before,
+body.subscriptions-page .plan-features li::after{
+  content:none !important;
+  display:none !important;
+}
+body.subscriptions-page .feature-check-icon{
+  flex:0 0 19px;
+  width:19px;
+  height:19px;
+  margin-top:1px;
+  fill:none;
+  stroke:#3568D4;
+  stroke-width:2.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+body.subscriptions-page .plan-legal .feature-check-icon{
+  stroke:#168A69;
+}
+body.subscriptions-page .plan-combo .feature-check-icon{
+  stroke:#6B3FE0;
+}
+body.subscriptions-page .plan-credit .feature-check-icon{
+  stroke:#D98500;
+}
+body.subscriptions-page .plan-features li > span{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+/* Upgrade-benefit checks use the same visual language. */
+body.subscriptions-page .pass-upgrade-info > div{
+  position:relative;
+  padding-left:28px;
+}
+body.subscriptions-page .pass-upgrade-info > div::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:1px;
+  width:19px;
+  height:19px;
+  border:0;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+}
+body.subscriptions-page .pass-upgrade-info > div::after{
+  content:"";
+  position:absolute;
+  left:0;
+  top:1px;
+  width:19px;
+  height:19px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21.8 10.1A10 10 0 1 1 17 3.3' fill='none' stroke='%236B3FE0' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m9 11 3 3L22 4' fill='none' stroke='%236B3FE0' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  transform:none;
+}
+
+/* Dark theme: brighter strokes for contrast without changing the
+   shape or size of the icon. */
+html[data-theme="dark"] body.subscriptions-page .feature-check-icon{
+  stroke:#8FB3FF;
+}
+html[data-theme="dark"] body.subscriptions-page .plan-legal .feature-check-icon{
+  stroke:#63D4B0;
+}
+html[data-theme="dark"] body.subscriptions-page .plan-combo .feature-check-icon{
+  stroke:#B99AFF;
+}
+html[data-theme="dark"] body.subscriptions-page .plan-credit .feature-check-icon{
+  stroke:#FFC45C;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info > div::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21.8 10.1A10 10 0 1 1 17 3.3' fill='none' stroke='%23B99AFF' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m9 11 3 3L22 4' fill='none' stroke='%23B99AFF' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+</style>
