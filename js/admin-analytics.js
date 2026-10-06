@@ -321,7 +321,7 @@ function renderStatCards(data) {
         <div class="admin-stat-label">${card.label}</div>
         <div class="admin-stat-value">${value}</div>
         ${card.note ? `<div class="admin-stat-note">${card.note}</div>` : ""}
-        <span class="admin-stat-card-hint" aria-hidden="true">View details <span>→</span></span>
+
       </button>`;
   }).join("");
 }
