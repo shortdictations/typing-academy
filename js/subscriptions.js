@@ -514,16 +514,6 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
     const canUpgrade = !!comboProduct && upgradePrice != null;
 
     const upgradeHtml = canUpgrade ? `
-      <div class="pass-upgrade-box">
-        <div class="pass-upgrade-heading">
-          <span class="pass-upgrade-title">GET UNLIMITED ${otherType} MOCKS</span>
-          <span class="pass-upgrade-price">JUST AT &#8377;${upgradePrice}</span>
-        </div>
-        <div class="pass-upgrade-text">
-          Upgrade to Combo and unlock all ${otherType} typing mocks.
-        </div>
-      </div>
-
       <button class="btn btn-full pass-upgrade-btn buy-product-btn"
         data-product-id="${comboProduct.id}"
         data-is-upgrade="true"
@@ -533,8 +523,6 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
         <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
         <span aria-hidden="true">&rarr;</span>
       </button>
-
-      <div class="pass-upgrade-note">Your current validity will remain the same.</div>
     ` : `
       <div class="pass-upgrade-box pass-upgrade-box-unavailable">
         Combo upgrade is currently unavailable.
@@ -618,16 +606,6 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
   const canUpgrade = !!comboProduct && upgradePrice != null;
 
   const upgradeHtml = canUpgrade ? `
-    <div class="pass-upgrade-box">
-      <div class="pass-upgrade-heading">
-        <span class="pass-upgrade-title">GET UNLIMITED ${unlockedCategory.toUpperCase()} MOCKS</span>
-        <span class="pass-upgrade-price">JUST AT &#8377;${upgradePrice}</span>
-      </div>
-      <div class="pass-upgrade-text">
-        Upgrade to Combo and unlock all ${unlockedCategory} typing mocks.
-      </div>
-    </div>
-
     <button class="btn btn-full pass-upgrade-btn buy-product-btn"
       data-product-id="${comboProduct.id}"
       data-is-upgrade="true"
@@ -637,8 +615,6 @@ function buildOwnedPassCardHtml(p, activeState, comboProduct) {
       <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
       <span aria-hidden="true">&rarr;</span>
     </button>
-
-    <div class="pass-upgrade-note">Your current validity will remain the same.</div>
   ` : `
     <div class="pass-upgrade-box pass-upgrade-box-unavailable">
       Combo upgrade is currently unavailable.
