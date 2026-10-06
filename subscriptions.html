@@ -2145,6 +2145,20 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   box-sizing:border-box;
 }
 
+/* Keep active-pass upgrade CTA on one line and align the bottom
+   actions across the paired cards. */
+body.subscriptions-page .passes-grid--two > .pass-card{
+  min-height:0;
+}
+body.subscriptions-page .passes-grid--two .pass-upgrade-box{
+  margin-top:auto;
+}
+body.subscriptions-page .passes-grid--two .pass-upgrade-btn{
+  white-space:nowrap !important;
+  min-width:0;
+  font-size:12px;
+}
+
 /* The content area, not the browser viewport, determines when two
    cards stop being comfortable side-by-side. */
 @container subscriptions-content (max-width:839px){
