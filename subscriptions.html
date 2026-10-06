@@ -1861,8 +1861,8 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-he
 </style>
 <style>
 /* ============================================================
-   SUBSCRIPTIONS — FINAL RESPONSIVE CARD SYSTEM
-   Single source of truth for pass-card responsiveness.
+   TYPE SHALA SUBSCRIPTIONS — FINAL RESPONSIVE SYSTEM
+   One authoritative layout for pass + credit cards.
    ============================================================ */
 
 body.subscriptions-page .passes-grid{
@@ -1874,6 +1874,7 @@ body.subscriptions-page .passes-grid{
   gap:18px;
   align-items:stretch;
   justify-content:center;
+  box-sizing:border-box;
 }
 
 body.subscriptions-page .passes-grid > .pass-card,
@@ -1889,7 +1890,7 @@ body.subscriptions-page .passes-grid > .credits-summary-card{
   flex-direction:column;
 }
 
-/* Three/four-card desktop composition */
+/* 3 visible cards: three columns on wide screens. */
 body.subscriptions-page .passes-grid--three,
 body.subscriptions-page .passes-grid--four{
   width:min(100%,1000px);
@@ -1903,32 +1904,50 @@ body.subscriptions-page .passes-grid--four > .credits-summary-card{
   justify-self:center;
 }
 
-/* One-card state */
+/* 1-card state. */
 body.subscriptions-page .passes-grid--one{
   width:min(100%,460px);
   max-width:460px;
   grid-template-columns:1fr;
 }
 
-/* Keep bottom actions aligned inside equal-height cards */
+/* Bottom actions stay aligned to the bottom of their own card. */
 body.subscriptions-page .passes-grid .pass-upgrade-btn,
 body.subscriptions-page .passes-grid .pass-card > .btn,
 body.subscriptions-page .passes-grid .credits-combined-buy-btn{
   margin-top:auto;
 }
 
+/* Never force desktop nowrap into a narrow card. */
 body.subscriptions-page .passes-grid .pass-upgrade-btn{
   white-space:normal;
 }
 
-/* Tablet */
-@media (max-width:999px){
+/* Credit packages must always fit the card. */
+body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+  width:100% !important;
+  max-width:100% !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:8px !important;
+  box-sizing:border-box;
+}
+
+body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  box-sizing:border-box;
+}
+
+/* ---------- Narrow desktop / tablet ---------- */
+@media (max-width:899px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:min(100% - 32px,760px);
+    width:min(100% - 28px,760px);
     max-width:760px;
     grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
   }
 
   body.subscriptions-page .passes-grid--four > .credits-summary-card{
@@ -1938,21 +1957,28 @@ body.subscriptions-page .passes-grid .pass-upgrade-btn{
   }
 }
 
-/* Mobile: one fluid card per row */
-@media (max-width:700px){
+/* ---------- Mobile ---------- */
+@media (max-width:599px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--one,
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:min(100% - 24px,460px);
+    width:calc(100% - 24px);
     max-width:460px;
     grid-template-columns:1fr;
     gap:16px;
   }
 
-  body.subscriptions-page .passes-grid--four > .credits-summary-card,
-  body.subscriptions-page .passes-grid--three > .credits-summary-card{
+  body.subscriptions-page .passes-grid > .pass-card,
+  body.subscriptions-page .passes-grid > .credits-summary-card{
+    width:100%;
+    min-width:0;
+    height:auto;
+  }
+
+  body.subscriptions-page .passes-grid--three > .credits-summary-card,
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
     grid-column:auto;
     width:100%;
     max-width:none;
@@ -1963,38 +1989,59 @@ body.subscriptions-page .passes-grid .pass-upgrade-btn{
     transform:none;
   }
 
-  body.subscriptions-page .passes-grid > .pass-card,
-  body.subscriptions-page .passes-grid > .credits-summary-card{
-    width:100%;
-    min-width:0;
-    height:auto;
-  }
-
-  body.subscriptions-page .pass-upgrade-btn{
+  body.subscriptions-page .passes-grid .pass-upgrade-btn{
     white-space:normal !important;
   }
-}
 
-/* Small phones */
-@media (max-width:380px){
-  body.subscriptions-page .passes-grid{
-    width:calc(100% - 20px);
-    gap:14px;
-  }
-
-  body.subscriptions-page .credits-combined-card{
-    padding:17px !important;
-  }
-
+  /* Three packages remain on one row and shrink with the card. */
   body.subscriptions-page .credits-combined-card .credits-pack-row-large{
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:6px !important;
+    gap:8px !important;
   }
 
   body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
     width:100% !important;
     min-width:0 !important;
     max-width:none !important;
+    min-height:62px !important;
+    height:62px !important;
+    padding:7px 6px !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+    font-size:10px !important;
+    line-height:1.15 !important;
+    white-space:normal !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+    font-size:15px !important;
+  }
+}
+
+/* ---------- Very narrow phones ---------- */
+@media (max-width:380px){
+  body.subscriptions-page .passes-grid{
+    width:calc(100% - 16px);
+    gap:14px;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large{
+    gap:5px !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-chip{
+    min-height:60px !important;
+    height:60px !important;
+    padding:6px 4px !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-name{
+    font-size:9px !important;
+  }
+
+  body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-pack-price{
+    font-size:14px !important;
   }
 }
 </style>
