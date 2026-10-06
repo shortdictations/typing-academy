@@ -587,7 +587,7 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
           "Performance analysis",
           "Weak key analysis"
         ])}
-        <div class="pass-upgrade-box">${upgradeHtml}</div>
+        <div class="pass-bottom-action">${upgradeHtml}</div>
       </div>`;
   }
 
