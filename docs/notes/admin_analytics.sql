@@ -55,13 +55,12 @@ begin
     else null -- 'all'
   end;
 
-  -- 1. TOTAL STUDENTS (all-time, admins excluded via the existing
-  -- admins table — profiles has no role column, confirmed directly
-  -- against setup-database.sql and the actual profile-insert in
-  -- js/auth.js).
+  -- 1. TOTAL STUDENTS (all-time, real Supabase Auth accounts, admins excluded).
+  -- This project does not have a public.profiles table, so auth.users is the
+  -- authoritative source for registered accounts.
   select count(*) into v_total_students
-  from profiles p
-  where not exists (select 1 from admins a where a.user_id = p.id);
+  from auth.users u
+  where not exists (select 1 from admins a where a.user_id = u.id);
 
   -- 2. ACTIVE STUDENTS — meaningful activity in the last 30 days,
   -- defined here as: completed a mock test, made a successful
