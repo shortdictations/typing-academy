@@ -1527,6 +1527,113 @@ body.subscriptions-page .credits-combined-card .credit-pack-price-original{
   <button type="button" class="btn btn-ghost avatar-picker-cancel" id="avatarPickerCancelBtn">Cancel</button>
 </div>
 
+
+<style>
+/* FINAL SUBSCRIPTION CHECKMARK POLISH
+   One consistent circular-check treatment for upgrade benefits and
+   Test Credit benefits. */
+body.subscriptions-page .pass-upgrade-info > div{
+  position:relative !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:9px !important;
+  padding-left:0 !important;
+}
+body.subscriptions-page .pass-upgrade-info > div::before{
+  content:"" !important;
+  position:relative !important;
+  left:auto !important;
+  top:auto !important;
+  flex:0 0 19px !important;
+  width:19px !important;
+  height:19px !important;
+  margin-top:0 !important;
+  box-sizing:border-box !important;
+  border:2.7px solid #6B3FE0 !important;
+  border-radius:50% !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+body.subscriptions-page .pass-upgrade-info > div::after{
+  content:"" !important;
+  position:absolute !important;
+  left:5px !important;
+  top:5px !important;
+  width:8px !important;
+  height:4px !important;
+  box-sizing:border-box !important;
+  border-left:2.7px solid #6B3FE0 !important;
+  border-bottom:2.7px solid #6B3FE0 !important;
+  border-radius:1px !important;
+  background:none !important;
+  transform:rotate(-45deg) !important;
+}
+body.subscriptions-page .pass-upgrade-info > div > span{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info > div::before{
+  border-color:#B99AFF !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info > div::after{
+  border-left-color:#B99AFF !important;
+  border-bottom-color:#B99AFF !important;
+}
+
+/* Test Credit benefits use the exact same visual check language. */
+body.subscriptions-page .credits-benefits-list li{
+  position:relative !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:9px !important;
+  padding-left:0 !important;
+  list-style:none !important;
+}
+body.subscriptions-page .credits-benefits-list li::before{
+  content:"" !important;
+  flex:0 0 19px !important;
+  width:19px !important;
+  height:19px !important;
+  margin-top:0 !important;
+  box-sizing:border-box !important;
+  border:2.7px solid #D98500 !important;
+  border-radius:50% !important;
+  background:transparent !important;
+}
+body.subscriptions-page .credits-benefits-list li::after{
+  content:"" !important;
+  position:absolute !important;
+  left:5px !important;
+  top:5px !important;
+  width:8px !important;
+  height:4px !important;
+  box-sizing:border-box !important;
+  border-left:2.7px solid #D98500 !important;
+  border-bottom:2.7px solid #D98500 !important;
+  border-radius:1px !important;
+  transform:rotate(-45deg) !important;
+}
+body.subscriptions-page .credits-benefits-list li > span{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefits-list li::before{
+  border-color:#FFC45C !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefits-list li::after{
+  border-left-color:#FFC45C !important;
+  border-bottom-color:#FFC45C !important;
+}
+
+/* Make the upgrade panel quieter so the CTA remains the visual focus. */
+body.subscriptions-page .pass-upgrade-info{
+  margin-bottom:10px !important;
+  padding:10px 13px !important;
+  border-color:rgba(124,58,237,.13) !important;
+  background:rgba(124,58,237,.045) !important;
+  border-radius:12px !important;
+}
+</style>
 </body>
 </html>
 
