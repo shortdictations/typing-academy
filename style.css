@@ -2840,3 +2840,24 @@ body.dashboard-page{
 .access-grid > .credit-card{
   align-self:stretch;
 }
+
+
+/* Final pass-grid equal-height alignment */
+body.subscriptions-page .passes-grid{
+  align-items:stretch;
+}
+body.subscriptions-page .passes-grid > .pass-card,
+body.subscriptions-page .passes-grid > .credits-summary-card{
+  height:100%;
+  min-height:0;
+  box-sizing:border-box;
+  align-self:stretch;
+}
+body.subscriptions-page .passes-grid > .pass-card,
+body.subscriptions-page .passes-grid > .credits-summary-card{
+  display:flex;
+  flex-direction:column;
+}
+body.subscriptions-page .passes-grid .credits-summary-card .credits-purchase-section{
+  margin-top:auto;
+}
