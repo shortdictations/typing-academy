@@ -4655,7 +4655,9 @@ body.app-shell.mock-attempt-page.mock-test-active{
     -webkit-overflow-scrolling:touch !important;
     overscroll-behavior:contain !important;
   }
-  body.app-shell:not(.sidebar-collapsed) .app-sidebar{
+  /* Landscape drawer is closed by default. JS adds
+     .sidebar-drawer-open when the hamburger explicitly opens it. */
+  body.app-shell.sidebar-drawer-open .app-sidebar{
     transform:translateX(0) !important;
   }
   body.app-shell .app-sidebar.collapsed{
