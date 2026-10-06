@@ -1861,17 +1861,18 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{ min-he
 </style>
 <style>
 /* ============================================================
-   TYPE SHALA SUBSCRIPTIONS — FINAL RESPONSIVE SYSTEM
-   One authoritative layout for pass + credit cards.
+   TYPE SHALA SUBSCRIPTIONS — FINAL CARD WIDTH / RESPONSIVE SYSTEM
+   Keep cards at a comfortable product width; never squeeze or
+   unnecessarily stretch them.
    ============================================================ */
 
 body.subscriptions-page .passes-grid{
-  width:min(100%, 1000px);
-  max-width:1000px;
+  width:min(100%, 860px);
+  max-width:860px;
   margin:0 auto;
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px;
+  gap:22px;
   align-items:stretch;
   justify-content:center;
   box-sizing:border-box;
@@ -1890,12 +1891,13 @@ body.subscriptions-page .passes-grid > .credits-summary-card{
   flex-direction:column;
 }
 
-/* 3 visible cards: three columns on wide screens. */
+/* Three visible cards use a wider, balanced desktop container. */
 body.subscriptions-page .passes-grid--three,
 body.subscriptions-page .passes-grid--four{
-  width:min(100%,1000px);
+  width:min(100%, 1000px);
   max-width:1000px;
   grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
 }
 
 body.subscriptions-page .passes-grid--four > .credits-summary-card{
@@ -1904,26 +1906,26 @@ body.subscriptions-page .passes-grid--four > .credits-summary-card{
   justify-self:center;
 }
 
-/* 1-card state. */
+/* One-card state: don't stretch the card across a huge desktop screen. */
 body.subscriptions-page .passes-grid--one{
-  width:min(100%,460px);
+  width:min(100%, 460px);
   max-width:460px;
   grid-template-columns:1fr;
 }
 
-/* Bottom actions stay aligned to the bottom of their own card. */
+/* Keep action buttons at the bottom of equal-height cards. */
 body.subscriptions-page .passes-grid .pass-upgrade-btn,
 body.subscriptions-page .passes-grid .pass-card > .btn,
 body.subscriptions-page .passes-grid .credits-combined-buy-btn{
   margin-top:auto;
 }
 
-/* Never force desktop nowrap into a narrow card. */
 body.subscriptions-page .passes-grid .pass-upgrade-btn{
   white-space:normal;
 }
 
-/* Credit packages must always fit the card. */
+/* Credit packages fill the available credit-card content area,
+   without imposing a fixed pixel width. */
 body.subscriptions-page .credits-combined-card .credits-pack-row-large{
   width:100% !important;
   max-width:100% !important;
@@ -1939,42 +1941,42 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   box-sizing:border-box;
 }
 
-/* ---------- Narrow desktop / tablet ---------- */
+/* Narrow desktop / tablet:
+   keep the two-card layout while cards still have a comfortable width. */
 @media (max-width:899px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:min(100% - 28px,760px);
-    max-width:760px;
+    width:calc(100% - 32px);
+    max-width:860px;
+    gap:18px;
+  }
+
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four{
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px;
   }
 
   body.subscriptions-page .passes-grid--four > .credits-summary-card{
     grid-column:1 / -1;
-    width:min(100%,360px);
+    width:min(100%,380px);
     justify-self:center;
   }
 }
 
-/* ---------- Mobile ---------- */
-@media (max-width:599px){
+/* Once two columns would make the cards too narrow, stack them.
+   This gives mobile/tablet cards a proper, useful width instead of
+   squeezing two cards into a narrow viewport. */
+@media (max-width:819px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--one,
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:calc(100% - 24px);
-    max-width:460px;
+    width:calc(100% - 32px);
+    max-width:620px;
     grid-template-columns:1fr;
     gap:16px;
-  }
-
-  body.subscriptions-page .passes-grid > .pass-card,
-  body.subscriptions-page .passes-grid > .credits-summary-card{
-    width:100%;
-    min-width:0;
-    height:auto;
   }
 
   body.subscriptions-page .passes-grid--three > .credits-summary-card,
@@ -1985,6 +1987,19 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
     justify-self:stretch;
   }
 
+  body.subscriptions-page .passes-grid > .pass-card,
+  body.subscriptions-page .passes-grid > .credits-summary-card{
+    height:auto;
+  }
+}
+
+/* Mobile: comfortable card width with consistent side margins. */
+@media (max-width:599px){
+  body.subscriptions-page .passes-grid{
+    width:calc(100% - 24px);
+    max-width:600px;
+  }
+
   body.subscriptions-page .pass-card:hover{
     transform:none;
   }
@@ -1993,7 +2008,6 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
     white-space:normal !important;
   }
 
-  /* Three packages remain on one row and shrink with the card. */
   body.subscriptions-page .credits-combined-card .credits-pack-row-large{
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
     gap:8px !important;
@@ -2019,11 +2033,11 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   }
 }
 
-/* ---------- Very narrow phones ---------- */
+/* Very narrow phones: preserve card width while allowing package
+   contents to shrink instead of causing horizontal overflow. */
 @media (max-width:380px){
   body.subscriptions-page .passes-grid{
-    width:calc(100% - 16px);
-    gap:14px;
+    width:calc(100% - 20px);
   }
 
   body.subscriptions-page .credits-combined-card .credits-pack-row-large{
