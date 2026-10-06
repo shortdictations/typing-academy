@@ -4660,7 +4660,8 @@ body.app-shell.mock-attempt-page.mock-test-active{
   /* Open state wins even if the desktop collapsed class is still
      present during the toggle transition. */
   body.app-shell.sidebar-drawer-open .app-sidebar,
-  body.app-shell.sidebar-drawer-open .app-sidebar.collapsed{
+  body.app-shell.sidebar-drawer-open .app-sidebar.collapsed,
+  body.app-shell.sidebar-drawer-open .app-sidebar.collapsed.collapsed{
     transform:translateX(0) !important;
   }
   body.app-shell .app-sidebar.collapsed{
