@@ -1185,6 +1185,13 @@ function wireSidebarCollapse() {
   const toggleBtn = document.getElementById("sidebarToggleBtn");
   if (!sidebar || !toggleBtn) return;
 
+  // Admin pages can call initAuthHeader() after requireAdmin(), while
+  // requireLogin() has already called it once. Make the shared sidebar
+  // wiring idempotent so the hamburger never receives two click
+  // handlers (which would open and immediately close the drawer).
+  if (toggleBtn.dataset.sidebarWired === "1") return;
+  toggleBtn.dataset.sidebarWired = "1";
+
   const isLandscapePhone = () =>
     window.matchMedia("(orientation: landscape) and (max-height: 700px) and (max-width: 1100px)").matches;
 
