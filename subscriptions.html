@@ -1689,6 +1689,45 @@ body.subscriptions-page .pass-upgrade-info{
   border-color:rgba(124,58,237,.13) !important;
 }
 </style>
+
+<style>
+/* FINAL CREDIT PACKAGE BADGE
+   Keep BEST OFFER inside the package chip. One authoritative rule
+   prevents older responsive overrides from pushing it outside. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
+  position:relative !important;
+  overflow:visible !important;
+}
+body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
+  position:absolute !important;
+  top:6px !important;
+  right:7px !important;
+  bottom:auto !important;
+  left:auto !important;
+  transform:none !important;
+  z-index:5 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:3px 6px !important;
+  min-height:0 !important;
+  border-radius:999px !important;
+  background:#eafaf0 !important;
+  border:1px solid #c6efd6 !important;
+  color:#16834a !important;
+  font-size:7px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+  letter-spacing:.01em !important;
+  white-space:nowrap !important;
+  box-shadow:0 1px 3px rgba(20,30,60,.06) !important;
+  pointer-events:none !important;
+}
+/* Give the labelled package enough top breathing room. */
+body.subscriptions-page .credits-pack-row-large .credit-pack-chip:has(.credit-pack-badge){
+  padding-top:27px !important;
+}
+</style>
 </body>
 </html>
 
