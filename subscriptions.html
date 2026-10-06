@@ -1634,6 +1634,61 @@ body.subscriptions-page .pass-upgrade-info{
   border-radius:12px !important;
 }
 </style>
+
+<style>
+/* AUTHORITATIVE BENEFIT CHECKMARKS
+   Upgrade benefits and Test Credit benefits use the exact same inline
+   SVG circle-check used by the main plan feature list. */
+body.subscriptions-page .pass-upgrade-info > div.upgrade-benefit,
+body.subscriptions-page .credits-benefits-list li{
+  position:relative !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:9px !important;
+  padding-left:0 !important;
+  list-style:none !important;
+}
+body.subscriptions-page .pass-upgrade-info > div.upgrade-benefit::before,
+body.subscriptions-page .pass-upgrade-info > div.upgrade-benefit::after,
+body.subscriptions-page .credits-benefits-list li::before,
+body.subscriptions-page .credits-benefits-list li::after{
+  content:none !important;
+  display:none !important;
+}
+body.subscriptions-page .pass-upgrade-info .feature-check-icon,
+body.subscriptions-page .credits-benefits-list .feature-check-icon{
+  flex:0 0 19px !important;
+  width:19px !important;
+  height:19px !important;
+  margin-top:1px !important;
+  fill:none !important;
+  stroke:#6B3FE0 !important;
+  stroke-width:2.7 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+}
+body.subscriptions-page .credits-benefits-list .feature-check-icon{
+  stroke:#D98500 !important;
+}
+body.subscriptions-page .pass-upgrade-info .upgrade-benefit > span,
+body.subscriptions-page .credits-benefits-list li > span{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info .feature-check-icon{
+  stroke:#B99AFF !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefits-list .feature-check-icon{
+  stroke:#FFC45C !important;
+}
+
+/* Keep the upgrade panel subtle; the CTA remains the strongest element. */
+body.subscriptions-page .pass-upgrade-info{
+  padding:10px 13px !important;
+  background:rgba(124,58,237,.045) !important;
+  border-color:rgba(124,58,237,.13) !important;
+}
+</style>
 </body>
 </html>
 
