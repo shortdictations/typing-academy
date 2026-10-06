@@ -567,15 +567,15 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
       <div class="pass-upgrade-info">
         <div class="upgrade-benefit">${circleCheckIconHtml()}<span>Get Unlimited ${otherType === "LEGAL" ? "Legal" : "SSC"} mocks</span></div>
         <div class="upgrade-benefit">${circleCheckIconHtml()}<span>Your current validity will remain the same</span></div>
+        <button class="btn btn-full pass-upgrade-btn buy-product-btn"
+          data-product-id="${comboProduct.id}"
+          data-is-upgrade="true"
+          data-product-type="PASS"
+          data-pass-type="COMBO">
+          Upgrade to Combo <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
+          <span aria-hidden="true">&rarr;</span>
+        </button>
       </div>
-      <button class="btn btn-full pass-upgrade-btn buy-product-btn"
-        data-product-id="${comboProduct.id}"
-        data-is-upgrade="true"
-        data-product-type="PASS"
-        data-pass-type="COMBO">
-        Upgrade to Combo <span class="pass-upgrade-btn-price">&#183; &#8377;${upgradePrice}</span>
-        <span aria-hidden="true">&rarr;</span>
-      </button>
     ` : `
       <div class="pass-upgrade-box pass-upgrade-box-unavailable">
         Combo upgrade is currently unavailable.
