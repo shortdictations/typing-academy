@@ -1728,6 +1728,34 @@ body.subscriptions-page .credits-pack-row-large .credit-pack-chip:has(.credit-pa
   padding-top:27px !important;
 }
 </style>
+
+<style>
+/* FINAL COMBO UPGRADE PANEL
+   Benefits and CTA are one unified action box. */
+body.subscriptions-page .pass-upgrade-info{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+  margin-bottom:0 !important;
+  padding:12px !important;
+  border:1px solid rgba(124,58,237,.15) !important;
+  border-radius:14px !important;
+  background:rgba(124,58,237,.045) !important;
+  box-sizing:border-box !important;
+}
+body.subscriptions-page .pass-upgrade-info .upgrade-benefit + .upgrade-benefit{
+  margin-top:6px !important;
+}
+body.subscriptions-page .pass-upgrade-info .pass-upgrade-btn{
+  width:100% !important;
+  margin-top:11px !important;
+  box-sizing:border-box !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info{
+  background:rgba(139,92,246,.10) !important;
+  border-color:rgba(167,139,250,.20) !important;
+}
+</style>
 </body>
 </html>
 
