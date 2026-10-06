@@ -354,6 +354,41 @@ function viewTestsHref(passType) {
 //
 // resolve_pass_purchase() remains the server-authoritative eligibility/price
 // check. This rendering logic is never trusted to authorize a payment.
+function equalizeStackedSubscriptionCards(grid) {
+  if (!grid) return;
+
+  const cards = Array.from(grid.querySelectorAll(
+    ':scope > .pass-card, :scope > .credits-summary-card'
+  ));
+  if (cards.length < 2) return;
+
+  cards.forEach(card => {
+    card.style.minHeight = "";
+  });
+
+  const columns = getComputedStyle(grid).gridTemplateColumns
+    .split(" ")
+    .filter(Boolean);
+  if (columns.length !== 1) return;
+
+  const maxHeight = Math.max(
+    ...cards.map(card => card.getBoundingClientRect().height)
+  );
+
+  if (maxHeight > 0) {
+    cards.forEach(card => {
+      card.style.minHeight = Math.ceil(maxHeight) + "px";
+    });
+  }
+}
+
+function scheduleSubscriptionCardEqualization(grid) {
+  if (!grid) return;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => equalizeStackedSubscriptionCards(grid));
+  });
+}
+
 function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, creditProducts = []) {
   const hasSSC = !!activePassByType.SSC;
   const hasLegal = !!activePassByType.LEGAL;
@@ -442,7 +477,18 @@ function renderAccessGrid(passProducts, activePassByType, creditBalance, grid, c
   grid.classList.toggle('passes-grid--four', cardCount === 4);
   grid.classList.toggle('passes-grid--three', cardCount === 3);
   grid.classList.toggle('passes-grid--one', cardCount === 1);
+  scheduleSubscriptionCardEqualization(grid);
 }
+
+let subscriptionCardResizeTimer = null;
+window.addEventListener("resize", () => {
+  const grid = document.getElementById("passProductsGrid");
+  if (!grid) return;
+  clearTimeout(subscriptionCardResizeTimer);
+  subscriptionCardResizeTimer = setTimeout(() => {
+    scheduleSubscriptionCardEqualization(grid);
+  }, 80);
+});
 
 // Active SSC/Legal users see their current plan and the upgrade CTA in the
 // SAME card. The separate Combo card is hidden for these users.
