@@ -1211,12 +1211,33 @@ function wireSidebarCollapse() {
   syncResponsiveState();
 
   toggleBtn.addEventListener("click", () => {
+    // Landscape phones use a true off-canvas drawer. Handle that state
+    // explicitly instead of deriving it from the desktop collapsed
+    // width state, so the hamburger always has a deterministic
+    // open/close toggle even when responsive CSS is active.
+    if (isLandscapePhone()) {
+      const isOpen = document.body.classList.contains("sidebar-drawer-open");
+      if (isOpen) {
+        sidebar.classList.add("collapsed");
+        document.body.classList.remove("sidebar-drawer-open");
+        document.body.classList.add("sidebar-collapsed");
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.setAttribute("aria-label", "Expand sidebar");
+        toggleBtn.title = "Expand sidebar";
+      } else {
+        sidebar.classList.remove("collapsed");
+        document.body.classList.remove("sidebar-collapsed");
+        document.body.classList.add("sidebar-drawer-open");
+        toggleBtn.setAttribute("aria-expanded", "true");
+        toggleBtn.setAttribute("aria-label", "Close sidebar");
+        toggleBtn.title = "Close sidebar";
+      }
+      return;
+    }
+
     const collapsed = !sidebar.classList.contains("collapsed");
     applyState(collapsed);
-    // Only persist the preference for the normal desktop/tablet shell.
-    if (!isLandscapePhone()) {
-      localStorage.setItem("typeshala-sidebar-collapsed", collapsed ? "1" : "0");
-    }
+    localStorage.setItem("typeshala-sidebar-collapsed", collapsed ? "1" : "0");
   });
 
   // Do not re-close the drawer on ordinary landscape resize events
