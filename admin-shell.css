@@ -87,7 +87,15 @@ body.app-shell.admin-page .admin-stat-grid{
   margin-bottom: 24px;
 }
 @media (max-width: 480px){
-  body.app-shell.admin-page .admin-stat-grid{ grid-template-columns: 1fr; }
+  /* Portrait phones: 6 overview cards in 2 columns × 3 rows.
+     Landscape and larger breakpoints keep their existing layout. */
+  body.app-shell.admin-page .admin-stat-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  body.app-shell.admin-page .admin-stat-card{
+    padding: 13px;
+  }
 }
 body.app-shell.admin-page .admin-stat-card{
   background: #FFFFFF;
