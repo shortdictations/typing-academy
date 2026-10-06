@@ -560,8 +560,8 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
 
     const upgradeHtml = canUpgrade ? `
       <div class="pass-upgrade-info">
-        <div>✓ Get Unlimited ${otherType === "LEGAL" ? "Legal" : "SSC"} mocks</div>
-        <div>✓ Your current validity will remain the same</div>
+        <div>Get Unlimited ${otherType === "LEGAL" ? "Legal" : "SSC"} mocks</div>
+        <div>Your current validity will remain the same</div>
       </div>
       <button class="btn btn-full pass-upgrade-btn buy-product-btn"
         data-product-id="${comboProduct.id}"
