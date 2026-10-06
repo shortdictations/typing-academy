@@ -327,9 +327,13 @@ function passFeaturesHtml(passType, features) {
   return featuresListHtml(defaultPassFeatures(passType));
 }
 
+function circleCheckIconHtml() {
+  return '<svg class="feature-check-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21.8 10.1A10 10 0 1 1 17 3.3"/><path d="m9 11 3 3L22 4"/></svg>';
+}
+
 function featuresListHtml(features) {
   if (!features || features.length === 0) return "";
-  const checkIcon = '<svg class="feature-check-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21.8 10.1A10 10 0 1 1 17 3.3"/><path d="m9 11 3 3L22 4"/></svg>';
+  const checkIcon = circleCheckIconHtml();
   return '<ul class="plan-features">' +
     features.map(f => "<li>" + checkIcon + "<span>" + escapeHtmlLocal(f) + "</span></li>").join("") +
     "</ul>";
@@ -561,8 +565,8 @@ function buildCombinedCategoryPassCardHtml(sscProduct, legalProduct, activePassB
 
     const upgradeHtml = canUpgrade ? `
       <div class="pass-upgrade-info">
-        <div>Get Unlimited ${otherType === "LEGAL" ? "Legal" : "SSC"} mocks</div>
-        <div>Your current validity will remain the same</div>
+        <div class="upgrade-benefit">${circleCheckIconHtml()}<span>Get Unlimited ${otherType === "LEGAL" ? "Legal" : "SSC"} mocks</span></div>
+        <div class="upgrade-benefit">${circleCheckIconHtml()}<span>Your current validity will remain the same</span></div>
       </div>
       <button class="btn btn-full pass-upgrade-btn buy-product-btn"
         data-product-id="${comboProduct.id}"
@@ -804,8 +808,8 @@ function buildCreditsSummaryCardHtml(creditBalance, products = []) {
       </div>
 
       <ul class="plan-features credits-benefits-list">
-        <li>Use for SSC or Legal mocks</li>
-        <li>Credits valid for 365 days</li>
+        <li>${circleCheckIconHtml()}<span>Use for SSC or Legal mocks</span></li>
+        <li>${circleCheckIconHtml()}<span>Credits valid for 365 days</span></li>
       </ul>
 
       <div class="credits-purchase-section">
