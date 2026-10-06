@@ -2060,3 +2060,55 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   }
 }
 </style>
+
+<style>
+/* ============================================================
+   SUBSCRIPTIONS — CONTENT-WIDTH RESPONSIVE BREAKPOINT
+   The sidebar reduces the actual content width even when the
+   browser viewport is wide. Use container queries so cards stack
+   based on the space they really have.
+   ============================================================ */
+
+body.subscriptions-page .app-content{
+  container-type:inline-size;
+  container-name:subscriptions-content;
+}
+
+/* Two cards only while the content area is wide enough to give
+   each card a comfortable product width. */
+@container subscriptions-content (max-width: 839px){
+  body.subscriptions-page .passes-grid,
+  body.subscriptions-page .passes-grid--two,
+  body.subscriptions-page .passes-grid--three,
+  body.subscriptions-page .passes-grid--four{
+    width:min(calc(100% - 32px), 520px) !important;
+    max-width:520px !important;
+    grid-template-columns:1fr !important;
+    gap:16px !important;
+  }
+
+  body.subscriptions-page .passes-grid--three > .credits-summary-card,
+  body.subscriptions-page .passes-grid--four > .credits-summary-card{
+    grid-column:auto !important;
+    width:100% !important;
+    max-width:none !important;
+    justify-self:stretch !important;
+  }
+
+  body.subscriptions-page .passes-grid > .pass-card,
+  body.subscriptions-page .passes-grid > .credits-summary-card{
+    width:100% !important;
+    max-width:none !important;
+    height:auto !important;
+  }
+}
+
+/* On genuinely narrow screens, use the available width rather than
+   allowing a card to become wider than the phone needs. */
+@container subscriptions-content (max-width: 559px){
+  body.subscriptions-page .passes-grid{
+    width:calc(100% - 24px) !important;
+    max-width:520px !important;
+  }
+}
+</style>
