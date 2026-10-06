@@ -1185,16 +1185,17 @@ function wireSidebarCollapse() {
   const toggleBtn = document.getElementById("sidebarToggleBtn");
   if (!sidebar || !toggleBtn) return;
 
+  const isLandscapePhone = () =>
+    window.matchMedia("(orientation: landscape) and (max-height: 700px) and (max-width: 1100px)").matches;
+
   function applyState(collapsed) {
     sidebar.classList.toggle("collapsed", collapsed);
     document.body.classList.toggle("sidebar-collapsed", collapsed);
+    document.body.classList.toggle("sidebar-drawer-open", !collapsed && isLandscapePhone());
     toggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
     toggleBtn.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
   }
-
-  const isLandscapePhone = () =>
-    window.matchMedia("(orientation: landscape) and (max-height: 700px) and (max-width: 1100px)").matches;
 
   function syncResponsiveState() {
     // Landscape phones use the sidebar as an off-canvas drawer. Keep it
