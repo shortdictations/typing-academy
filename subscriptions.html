@@ -2152,7 +2152,10 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
-    width:420px !important;
+    /* Do not let stacking make the cards wider than they were just before
+       the breakpoint. Keep a stable product width, then shrink only when
+       the content area itself becomes too narrow. */
+    width:390px !important;
     max-width:calc(100% - 32px) !important;
     grid-template-columns:1fr !important;
     gap:16px !important;
@@ -2177,7 +2180,7 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
 @container subscriptions-content (max-width:559px){
   body.subscriptions-page .passes-grid{
     width:calc(100% - 24px) !important;
-    max-width:420px !important;
+    max-width:390px !important;
   }
 }
 </style>
