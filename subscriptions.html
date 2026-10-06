@@ -1964,17 +1964,17 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   }
 }
 
-/* Once two columns would make the cards too narrow, stack them.
-   This gives mobile/tablet cards a proper, useful width instead of
-   squeezing two cards into a narrow viewport. */
-@media (max-width:819px){
+/* Stack before the two-column cards become visibly narrow.
+   The stacked cards keep a comfortable product width instead of
+   stretching to fill a large screen. */
+@media (max-width:840px){
   body.subscriptions-page .passes-grid,
   body.subscriptions-page .passes-grid--one,
   body.subscriptions-page .passes-grid--two,
   body.subscriptions-page .passes-grid--three,
   body.subscriptions-page .passes-grid--four{
     width:calc(100% - 32px);
-    max-width:620px;
+    max-width:520px;
     grid-template-columns:1fr;
     gap:16px;
   }
@@ -1993,11 +1993,12 @@ body.subscriptions-page .credits-combined-card .credits-pack-row-large .credit-p
   }
 }
 
-/* Mobile: comfortable card width with consistent side margins. */
+/* Mobile: retain the same comfortable card width, but allow the
+   card to shrink only when the viewport itself requires it. */
 @media (max-width:599px){
   body.subscriptions-page .passes-grid{
     width:calc(100% - 24px);
-    max-width:600px;
+    max-width:520px;
   }
 
   body.subscriptions-page .pass-card:hover{
