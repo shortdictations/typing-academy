@@ -452,6 +452,22 @@ body.app-shell.admin-page #pContent{
 }
 body.admin-detail-modal-open{overflow:hidden;}
 
+@media (max-width:480px){
+  /* Keep the supporting note and View Details link from overlapping
+     in the 2-column portrait overview cards. */
+  body.app-shell.admin-page .admin-stat-card-clickable{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  body.app-shell.admin-page .admin-stat-card-hint{
+    position:static;
+    align-self:flex-end;
+    margin-top:8px;
+    transform:none;
+  }
+}
+
 @media (max-width:700px){
   .admin-stat-card-hint{opacity:1;transform:none;}
   .admin-analytics-detail-panel{
