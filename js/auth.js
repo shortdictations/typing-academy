@@ -1218,6 +1218,8 @@ function wireSidebarCollapse() {
     }
   });
 
-  window.addEventListener("resize", syncResponsiveState);
+  // Do not re-close the drawer on ordinary landscape resize events
+  // (mobile browser chrome can trigger resize while the user is using
+  // the drawer). Re-sync only when the orientation changes.
   window.addEventListener("orientationchange", syncResponsiveState);
 }
