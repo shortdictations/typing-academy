@@ -1295,6 +1295,18 @@ body.subscriptions-page .credits-combined-card .credit-pack-price-original{
 </style>
 
 
+  <style>
+    /* Center payment result messages within the same content column as the subscription cards. */
+    body.subscriptions-page #purchaseError,
+    body.subscriptions-page #purchaseSuccess{
+      display:none;
+      width:100% !important;
+      max-width:520px !important;
+      margin:0 auto 14px !important;
+      box-sizing:border-box;
+      text-align:center;
+    }
+  </style>
 </head>
 <body class="app-shell subscriptions-page">
 
