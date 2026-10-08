@@ -2465,14 +2465,15 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
     gap: 16px;
   }
   .dash-target-left{
-    width: 25%;
-    flex: 0 0 25%;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
     align-items: center;
   }
   .dash-target-divider{ display: block; }
   .dash-target-right{
-    width: 75%;
-    flex: 1 1 75%;
+    width: 0;
+    flex: 1 1 0;
     min-width: 0;
   }
   .dash-target-icon{ width: 38px; height: 38px; font-size: 1.05rem; }
