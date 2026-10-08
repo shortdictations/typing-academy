@@ -60,6 +60,10 @@ body.app-shell{ overflow-x: hidden; }
 
 /* ---------- Header ---------- */
 body.app-shell .letterhead{ background: var(--ts-navy); border-bottom: none; }
+html[data-theme="dark"] body.app-shell .letterhead{
+  background:#131A28;
+  border-bottom:1px solid #2A3346;
+}
 body.app-shell .letterhead-inner{ max-width: none; padding: 12px 24px; justify-content: flex-start; }
 body.app-shell .nav-links{ margin-left: auto; }
 
