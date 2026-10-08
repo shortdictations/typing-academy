@@ -324,21 +324,21 @@ button,input{font:inherit}
 
 /* ---------- Landing-page theme toggle + dark theme ---------- */
 .lp-theme-toggle{
-  width:36px;
-  height:36px;
+  width:32px;
+  height:32px;
   padding:0;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  border:1px solid #d8dfeb;
-  border-radius:10px;
-  background:#fff;
+  border:0;
+  border-radius:50%;
+  background:transparent;
   color:#53617a;
   cursor:pointer;
-  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+  transition:color .18s ease,transform .18s ease;
 }
-.lp-theme-toggle:hover{border-color:#b9c7df;color:var(--blue);background:#f7faff;transform:translateY(-1px)}
-.lp-theme-toggle-icon,.lp-theme-toggle-icon svg{width:17px;height:17px;display:block}
+.lp-theme-toggle:hover{color:var(--blue);background:transparent;transform:none}
+.lp-theme-toggle-icon,.lp-theme-toggle-icon svg{width:19px;height:19px;display:block}
 html[data-theme="dark"] body.landing-v2{
   --navy:#E8ECF4;
   --navy-2:#D5DDEB;
@@ -374,13 +374,13 @@ html[data-theme="dark"] body.landing-v2 .login-link{color:#A7B3C8}
 html[data-theme="dark"] body.landing-v2 .desktop-nav a:hover,
 html[data-theme="dark"] body.landing-v2 .login-link:hover{color:#fff}
 html[data-theme="dark"] body.landing-v2 .lp-theme-toggle{
-  background:#171F2E;
-  border-color:#3A465C;
+  background:transparent;
+  border:0;
   color:#AFC4FF;
 }
 html[data-theme="dark"] body.landing-v2 .lp-theme-toggle:hover{
-  background:#202A3C;
-  border-color:#5B8CFF;
+  background:transparent;
+  border:0;
   color:#D5E1FF;
 }
 html[data-theme="dark"] body.landing-v2 .lp-hero{
