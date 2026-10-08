@@ -334,6 +334,21 @@ html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg rect,
 html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg circle{
   fill:#E8ECF4;
 }
+/* Blogger mark: explicitly invert the original black/white logo in dark mode. */
+html[data-theme="dark"] body.landing-v2 .site-foot-social-link[aria-label="Blogger"] svg rect{
+  fill:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.landing-v2 .site-foot-social-link[aria-label="Blogger"] svg path{
+  fill:none !important;
+  stroke:#090F1B !important;
+}
+html[data-theme="dark"] body.landing-v2 .site-foot-social-link[aria-label="Blogger"]:hover svg rect{
+  fill:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.landing-v2 .site-foot-social-link[aria-label="Blogger"]:hover svg path{
+  fill:none !important;
+  stroke:#090F1B !important;
+}
 html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg path{
   fill:#090F1B;
 }
