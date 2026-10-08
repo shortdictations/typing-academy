@@ -394,7 +394,7 @@ function applyQuickThemeToggle() {
   document.querySelectorAll(".theme-toggle-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.themeChoice === next);
   });
-  document.querySelectorAll(".app-theme-quick-toggle, .mobile-theme-quick-toggle").forEach(btn => {
+  document.querySelectorAll(".app-header-theme-quick-toggle, .app-theme-quick-toggle, .mobile-theme-quick-toggle").forEach(btn => {
     const isDark = next === "dark";
     btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
     btn.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
