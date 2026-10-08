@@ -718,7 +718,7 @@ function wireSidebarThemeToggle() {
   if (!sidebar || document.getElementById("sidebarThemeQuickToggle")) return;
   const controlWrap = document.createElement("div");
   controlWrap.className = "app-sidebar-theme-wrap";
-  wireQuickThemeToggle(controlWrap, "app-theme-quick-toggle", "sidebarThemeQuickToggle");
+  wireQuickThemeToggle(controlWrap, "app-theme-quick-toggle", "sidebarThemeQuickToggle", true);
   sidebar.appendChild(controlWrap);
 }
 
