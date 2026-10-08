@@ -2374,15 +2374,39 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
 }
 .dash-change-link{
   margin-top: 3px;
-  background: none; border: none; padding: 0;
+  background: transparent;
+  border: 0;
+  padding: 3px 6px;
+  margin-left: -6px;
   color: #3B5BDB;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.70rem;
+  font-weight: 650;
+  line-height: 1.2;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
   font-family: var(--font-body);
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  transition: color .15s ease, background-color .15s ease;
 }
+.dash-change-link::before{
+  content: "✎";
+  font-size: 0.70rem;
+  line-height: 1;
+  opacity: .78;
+}
+.dash-change-link:hover{
+  color: #254FC8;
+  background: #EAF1FE;
+  text-decoration: none;
+}
+.dash-change-link:focus-visible{
+  outline: 2px solid rgba(47,95,236,.35);
+  outline-offset: 1px;
+}
+
 .dash-target-divider{
   width: 1px;
   align-self: stretch;
