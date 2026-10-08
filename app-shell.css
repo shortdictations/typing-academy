@@ -5491,43 +5491,51 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn:focus-vis
 }
 
 
-/* ---------- Quick theme controls: sidebar + mobile drawer ---------- */
-body.app-shell .app-sidebar{
-  justify-content:flex-start;
-}
-body.app-shell .app-sidebar-theme-wrap{
-  margin-top:auto;
-  padding-top:14px;
-  border-top:1px solid var(--ts-border);
-}
-body.app-shell .app-theme-quick-toggle{
-  width:42px;
-  height:42px;
-  min-width:42px;
-  min-height:42px;
+/* ---------- Quick theme control: desktop/tablet header ---------- */
+body.app-shell .app-header-theme-wrap{
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  width:34px;
+  height:34px;
+  margin:0;
+  padding:0;
+  flex:none;
+}
+
+body.app-shell .app-header-theme-quick-toggle{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
   padding:0;
   border:0 !important;
   border-radius:50%;
   background:transparent !important;
-  color:var(--ts-muted);
-  font-family:var(--ts-font);
+  color:rgba(255,255,255,.86);
   cursor:pointer;
   box-shadow:none !important;
-  transition:background-color .15s ease,color .15s ease,transform .15s ease;
+  outline:none;
+  transition:color .15s ease, opacity .15s ease;
 }
-body.app-shell .app-theme-quick-toggle:hover{
-  background:var(--ts-blue-tint) !important;
+
+body.app-shell .app-header-theme-quick-toggle:hover{
+  background:transparent !important;
   border:0 !important;
-  color:var(--ts-blue);
+  color:#FFFFFF;
+  opacity:1;
 }
-body.app-shell .app-theme-quick-toggle:focus-visible{
-  outline:2px solid rgba(47,140,236,.45);
+
+body.app-shell .app-header-theme-quick-toggle:focus-visible{
+  outline:2px solid rgba(255,255,255,.45);
   outline-offset:2px;
 }
-body.app-shell .theme-quick-icon{
+
+body.app-shell .app-header-theme-quick-toggle .theme-quick-icon{
   width:24px;
   height:24px;
   display:inline-flex;
@@ -5535,32 +5543,25 @@ body.app-shell .theme-quick-icon{
   justify-content:center;
   flex:none;
 }
-body.app-shell .theme-quick-icon svg{
+
+body.app-shell .app-header-theme-quick-toggle .theme-quick-icon svg{
   width:21px;
   height:21px;
 }
-body.app-shell .theme-quick-label{display:none !important;}
-body.app-shell .app-sidebar.collapsed .app-sidebar-theme-wrap{
-  padding-top:12px;
-}
-body.app-shell .app-sidebar.collapsed .app-theme-quick-toggle{
-  width:42px;
-  min-width:42px;
-  padding:0;
-}
-body.app-shell .mobile-sidebar .mobile-theme-quick-toggle{display:none !important;}
 
-html[data-theme="dark"] body.app-shell .app-theme-quick-toggle{
-  background:transparent !important;
-  border:0 !important;
-  color:#AFC4FF !important;
-}
-html[data-theme="dark"] body.app-shell .app-theme-quick-toggle:hover{
-  background:#1B2334 !important;
-  border:0 !important;
-  color:#D5E1FF !important;
+body.app-shell .app-header-theme-quick-toggle .theme-quick-label{
+  display:none !important;
 }
 
+/* The mobile Profile drawer remains the mobile home for the quick
+   theme control; do not duplicate it in the compact header. */
+@media (max-width:700px){
+  body.app-shell .app-header-theme-wrap{
+    display:none !important;
+  }
+}
+
+/* ---------- Mobile drawer theme control ---------- */
 /* Legacy mobile drawer pages: place the toggle above Logout and make
    it part of the drawer's bottom action area. */
 @media (max-width:700px){
