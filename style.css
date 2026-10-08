@@ -2473,6 +2473,7 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
   }
   .dash-target-left > div:last-child{
     min-width: 0;
+    text-align: center;
   }
   .dash-change-link::before{
     content: none;
