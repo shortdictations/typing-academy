@@ -5221,3 +5221,48 @@ html[data-theme="dark"] body.app-shell.reattempt-page .rt-summary{
   color: var(--ts-text) !important;
   border-color: var(--ts-border) !important;
 }
+
+
+/* ---------- Dashboard dark-mode refinement: Current Plan + Credits ---------- */
+html[data-theme="dark"] body.dashboard-page .dash-current-plan-card{
+  background: var(--ts-surface) !important;
+  border-color: var(--ts-border) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-current-plan-icon{
+  background: var(--ts-blue-tint) !important;
+  color: var(--ts-blue) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-current-plan-expiry{
+  border-left-color: var(--ts-border) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-current-plan-btn{
+  color: #fff !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-wave-icon{
+  background: var(--ts-surface-2) !important;
+  color: var(--ts-text) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.28) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-stat-card{
+  background: var(--ts-surface) !important;
+  border-color: var(--ts-border) !important;
+  color: var(--ts-text) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-stat-text .lab,
+html[data-theme="dark"] body.dashboard-page .dash-stat-text .big{
+  color: var(--ts-text) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-stat-sub{
+  color: var(--ts-muted) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-tile-blue{ background: var(--ts-blue-tint) !important; color: var(--ts-blue) !important; }
+html[data-theme="dark"] body.dashboard-page .dash-tile-green{ background: var(--ts-green-tint) !important; color: var(--ts-green) !important; }
+html[data-theme="dark"] body.dashboard-page .dash-tile-purple{ background: var(--ts-purple-tint) !important; color: var(--ts-purple) !important; }
+html[data-theme="dark"] body.dashboard-page .dash-tile-orange{ background: var(--ts-orange-tint) !important; color: var(--ts-orange) !important; }
+@media (max-width: 699px){
+  html[data-theme="dark"] body.dashboard-page .dash-current-plan-card{
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
