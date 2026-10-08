@@ -145,7 +145,7 @@ async function forceSessionLogout(message) {
   localStorage.removeItem(TS_SESSION_STORAGE_KEY);
   stopSingleSessionMonitoring();
   try {
-    await supabaseClient.auth.signOut();
+    await supabaseClient.auth.signOut({ scope: 'local' });
   } catch (err) {
     console.error("forceSessionLogout: signOut failed:", err);
   }
