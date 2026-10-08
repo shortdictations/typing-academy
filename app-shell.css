@@ -5493,73 +5493,72 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn:focus-vis
 
 /* ---------- Quick theme controls: sidebar + mobile drawer ---------- */
 body.app-shell .app-sidebar{
-  /* Theme control sits at the bottom without becoming part of navigation. */
-  justify-content: flex-start;
+  justify-content:flex-start;
 }
 body.app-shell .app-sidebar-theme-wrap{
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid var(--ts-border);
+  margin-top:auto;
+  padding-top:14px;
+  border-top:1px solid var(--ts-border);
 }
-body.app-shell .app-theme-quick-toggle,
-body.app-shell .mobile-theme-quick-toggle{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  min-height: 42px;
-  padding: 9px 12px;
-  border: 1px solid var(--ts-border);
-  border-radius: 10px;
-  background: var(--ts-background);
-  color: var(--ts-muted);
-  font-family: var(--ts-font);
-  font-size: .82rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+body.app-shell .app-theme-quick-toggle{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  border:0 !important;
+  border-radius:50%;
+  background:transparent !important;
+  color:var(--ts-muted);
+  font-family:var(--ts-font);
+  cursor:pointer;
+  box-shadow:none !important;
+  transition:background-color .15s ease,color .15s ease,transform .15s ease;
 }
-body.app-shell .app-theme-quick-toggle:hover,
-body.app-shell .mobile-theme-quick-toggle:hover{
-  background: var(--ts-blue-tint);
-  border-color: var(--ts-blue);
-  color: var(--ts-blue);
+body.app-shell .app-theme-quick-toggle:hover{
+  background:var(--ts-blue-tint) !important;
+  border:0 !important;
+  color:var(--ts-blue);
+}
+body.app-shell .app-theme-quick-toggle:focus-visible{
+  outline:2px solid rgba(47,140,236,.45);
+  outline-offset:2px;
 }
 body.app-shell .theme-quick-icon{
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
+  width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
 }
-body.app-shell .theme-quick-icon svg{ width: 18px; height: 18px; }
-body.app-shell .theme-quick-label{ line-height: 1; }
+body.app-shell .theme-quick-icon svg{
+  width:21px;
+  height:21px;
+}
+body.app-shell .theme-quick-label{display:none !important;}
 body.app-shell .app-sidebar.collapsed .app-sidebar-theme-wrap{
-  padding-top: 12px;
+  padding-top:12px;
 }
 body.app-shell .app-sidebar.collapsed .app-theme-quick-toggle{
-  justify-content: center;
-  padding: 9px 0;
+  width:42px;
+  min-width:42px;
+  padding:0;
 }
-body.app-shell .app-sidebar.collapsed .theme-quick-label{ display: none; }
+body.app-shell .mobile-sidebar .mobile-theme-quick-toggle{display:none !important;}
 
-/* The legacy mobile drawer is hidden on app-shell pages, but remains
-   the active mobile navigation on pages that still use it. */
-body.app-shell .mobile-sidebar .mobile-theme-quick-toggle{ display:none !important; }
-
-html[data-theme="dark"] body.app-shell .app-theme-quick-toggle,
-html[data-theme="dark"] body.app-shell .mobile-theme-quick-toggle{
-  background: #131A28 !important;
-  border-color: #3A465C !important;
-  color: #AFC4FF !important;
+html[data-theme="dark"] body.app-shell .app-theme-quick-toggle{
+  background:transparent !important;
+  border:0 !important;
+  color:#AFC4FF !important;
 }
-html[data-theme="dark"] body.app-shell .app-theme-quick-toggle:hover,
-html[data-theme="dark"] body.app-shell .mobile-theme-quick-toggle:hover{
-  background: #1B2334 !important;
-  border-color: #5B8CFF !important;
-  color: #D5E1FF !important;
+html[data-theme="dark"] body.app-shell .app-theme-quick-toggle:hover{
+  background:#1B2334 !important;
+  border:0 !important;
+  color:#D5E1FF !important;
 }
 
 /* Legacy mobile drawer pages: place the toggle above Logout and make
