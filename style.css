@@ -2603,6 +2603,33 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
   white-space: nowrap;
 }
 
+/* Stack Target WPM action below the WPM value whenever horizontal space
+   is available. Portrait phones keep the compact inline treatment. */
+@media (min-width: 481px){
+  body.dashboard-page .dash-target-sub{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  body.dashboard-page .dash-target-sub .dash-change-link{
+    margin: 0;
+  }
+}
+
+/* Mobile landscape: keep the same stacked treatment. */
+@media (max-width: 768px) and (orientation: landscape){
+  body.dashboard-page .dash-target-sub{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  body.dashboard-page .dash-target-sub .dash-change-link{
+    margin: 0;
+  }
+}
+
 /* Softer background rule lines specifically on the dashboard — same
    pattern, lower contrast, so it doesn't compete with the cards. */
 body.dashboard-page{
