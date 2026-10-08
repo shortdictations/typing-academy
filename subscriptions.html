@@ -991,6 +991,205 @@ body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{
   }
 }
 
+
+/* ============================================================
+   FINAL DARK THEME — SUBSCRIPTIONS PAGE
+   Authoritative dark surface/contrast layer. Light mode untouched.
+   ============================================================ */
+html[data-theme="dark"] body.subscriptions-page{
+  background:
+    radial-gradient(circle at 8% 5%, rgba(59,130,246,.08), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(139,92,246,.08), transparent 26%),
+    linear-gradient(135deg,#0F1521 0%,#101827 52%,#0F1521 100%) !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .app-content{background:transparent !important;}
+html[data-theme="dark"] body.subscriptions-page .subscriptions-hero h1{color:#F1F5FC !important;}
+html[data-theme="dark"] body.subscriptions-page .pricing-eyebrow,
+html[data-theme="dark"] body.subscriptions-page .subscriptions-hero .lede{color:#93A0B8 !important;}
+
+html[data-theme="dark"] body.subscriptions-page .pass-card,
+html[data-theme="dark"] body.subscriptions-page .credits-summary-card{
+  background:#171F2E !important;
+  border:1px solid #2A3346 !important;
+  color:#E8ECF4 !important;
+  box-shadow:0 14px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-card::before{background:rgba(255,255,255,.025) !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-card:hover{
+  box-shadow:0 20px 44px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-card.plan-ssc,
+html[data-theme="dark"] body.subscriptions-page .pass-card.plan-legal,
+html[data-theme="dark"] body.subscriptions-page .pass-card.plan-combo{
+  background:#171F2E !important;
+}
+html[data-theme="dark"] body.subscriptions-page .card-label,
+html[data-theme="dark"] body.subscriptions-page .pass-card .pass-price,
+html[data-theme="dark"] body.subscriptions-page .pass-card .pass-price-final{
+  color:#F1F5FC !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-price-original{color:#71809A !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-discount-inline{color:#B99AFF !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-duration-pill{
+  background:#202A3C !important;
+  border-color:#344057 !important;
+  color:#B9C4D8 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-card-description,
+html[data-theme="dark"] body.subscriptions-page .plan-features li,
+html[data-theme="dark"] body.subscriptions-page .pass-card .plan-features li > span{
+  color:#AAB5C8 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-card .btn-full:not(.pass-upgrade-btn),
+html[data-theme="dark"] body.subscriptions-page .credits-combined-buy-btn{
+  color:#fff !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-active-badge{
+  background:rgba(22,163,74,.14) !important;
+  border-color:rgba(74,222,128,.30) !important;
+  color:#6EE7A0 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-status-dot{
+  background:#4ADE80 !important;
+}
+
+html[data-theme="dark"] body.subscriptions-page .pass-current-plan-box{
+  background:#1B2334 !important;
+  border-color:#303B50 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-current-plan-title,
+html[data-theme="dark"] body.subscriptions-page .pass-plan-detail-row span{
+  color:#8F9CB2 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-plan-detail-row{
+  border-bottom-color:#2A3346 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-plan-detail-row strong{color:#E8ECF4 !important;}
+
+html[data-theme="dark"] body.subscriptions-page .pass-category-toggle{
+  background:#111827 !important;
+  border-color:#303B50 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-category-option{color:#93A0B8 !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-category-option.is-selected{
+  background:#27334A !important;
+  color:#F1F5FC !important;
+  box-shadow:0 1px 5px rgba(0,0,0,.30) !important;
+}
+
+html[data-theme="dark"] body.subscriptions-page .best-value-badge{
+  background:#251D3D !important;
+  border-color:#4B3B73 !important;
+  color:#C4A8FF !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.22) !important;
+}
+
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info,
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-box{
+  background:#211B34 !important;
+  border-color:#44365F !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-info .upgrade-benefit,
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-text{color:#B8C2D5 !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-title,
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-price{color:#C4A8FF !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-note{color:#8290A8 !important;}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-btn{
+  color:#fff !important;
+  background:linear-gradient(135deg,#6040C9,#8B5CF6) !important;
+  border-color:transparent !important;
+}
+html[data-theme="dark"] body.subscriptions-page .pass-upgrade-box-unavailable{
+  color:#AAB5C8 !important;
+}
+
+html[data-theme="dark"] body.subscriptions-page .credits-combined-card{
+  background:#171F2E !important;
+  border-color:#4A3B22 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-card-kicker{color:#F5B942 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-card-title,
+html[data-theme="dark"] body.subscriptions-page .credits-purchase-title{color:#F1F5FC !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-card-subtitle,
+html[data-theme="dark"] body.subscriptions-page .credits-purchase-label{color:#93A0B8 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-card-badge{
+  background:#302718 !important;
+  border-color:#5A4524 !important;
+  color:#F5C76A !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-balance-panel{
+  background:#1B2334 !important;
+  border-color:#4A3B22 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-balance-number{color:#F5B942 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-balance-heading{color:#E8ECF4 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-balance-note{color:#8F9CB2 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-history-link{
+  background:#302718 !important;
+  border-color:#5A4524 !important;
+  color:#F5C76A !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefits{
+  border-bottom-color:#303B50 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefit{
+  color:#9EABC0 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefit + .credits-benefit{
+  border-left-color:#303B50 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefit > span,
+html[data-theme="dark"] body.subscriptions-page .credits-benefit-icon{
+  background:#302718 !important;
+  color:#F5B942 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-benefit strong{color:#AEB9CB !important;}
+
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-chip{
+  background:#1B2334 !important;
+  border-color:#303B50 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-chip:hover{
+  background:#202A3C !important;
+  border-color:#46536A !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-chip.selected{
+  background:#29233D !important;
+  border-color:#8B5CF6 !important;
+  box-shadow:0 0 0 2px rgba(139,92,246,.16) !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-name{color:#E8ECF4 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-price{color:#F5B942 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-price-original{color:#71809A !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-price-final{color:#F5B942 !important;}
+html[data-theme="dark"] body.subscriptions-page .credits-pack-row-large .credit-pack-badge{
+  background:#4A3211 !important;
+  border-color:#6A4A18 !important;
+  color:#FFD77D !important;
+}
+html[data-theme="dark"] body.subscriptions-page .credits-combined-card .credits-combined-buy-btn{
+  background:linear-gradient(135deg,#C47A08,#E6A21A) !important;
+  color:#111827 !important;
+  border-color:transparent !important;
+}
+
+html[data-theme="dark"] body.subscriptions-page .subscriptions-help-banner{
+  background:#171F2E !important;
+  border-color:#2A3346 !important;
+  color:#E8ECF4 !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] body.subscriptions-page .subscriptions-help-banner *{
+  color:inherit;
+}
+html[data-theme="dark"] body.subscriptions-page .subscriptions-help-banner p,
+html[data-theme="dark"] body.subscriptions-page .subscriptions-help-banner span{
+  color:#93A0B8 !important;
+}
+
 </style>
 
 
