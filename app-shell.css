@@ -1713,6 +1713,67 @@ body.app-shell .theme-toggle-btn.active{ background: var(--ts-navy); color: #fff
 }
 
 
+/* ---------- Settings dark-theme refinement ---------- */
+html[data-theme="dark"] body.app-shell.settings-page .settings-section-card{
+  background: #171F2E !important;
+  border-color: #2A3346 !important;
+  color: #E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-section-head,
+html[data-theme="dark"] body.app-shell.settings-page .settings-row{
+  border-color: #2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-row-action{
+  background: #1B2334 !important;
+  border-color: #5B8CFF !important;
+  color: #AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-row-action:hover{
+  background: #2F5FEC !important;
+  border-color: #2F5FEC !important;
+  color: #fff !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-edit-row{
+  background: #131A28 !important;
+  border-color: #2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-inline-form input{
+  background: #131A28 !important;
+  border-color: #3A465C !important;
+  color: #E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-inline-form input::placeholder{
+  color: #68758B !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-inline-form input:focus{
+  border-color: #5B8CFF !important;
+  box-shadow: 0 0 0 3px rgba(91,140,255,.18) !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-cancel-btn{
+  color: #93A0B8 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-cancel-btn:hover{
+  color: #E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-group{
+  background: #131A28 !important;
+  border-color: #3A465C !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+  color: #93A0B8 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn:hover{
+  color: #E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn.active{
+  background: #2F5FEC !important;
+  color: #fff !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .settings-section-icon,
+html[data-theme="dark"] body.app-shell.settings-page .settings-row-icon{
+  filter: brightness(1.05);
+}
+
 /* ---------- Help & Support page ---------- */
 body.app-shell .help-search-card{ padding: 8px; margin-top: 20px; }
 body.app-shell .help-search-box{
