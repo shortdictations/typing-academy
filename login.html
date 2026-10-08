@@ -53,6 +53,8 @@
  let signupData={firstName:'',lastName:'',email:''}, lastRegisteredEmail=null, resendInterval=null;
  const showErr=text=>{const e=$('errorMsg');e.textContent=text||'';e.style.display=text?'block':'none'};
  const clearMsgs=()=>['errorMsg','successMsg'].forEach(id=>{const e=$(id);if(e){e.textContent='';e.style.display='none'}});
+ const sessionMsg=sessionStorage.getItem('ts_session_invalidated_message');
+ if(sessionMsg){const e=$('successMsg');e.textContent=sessionMsg;e.style.display='block';sessionStorage.removeItem('ts_session_invalidated_message');}
  const contentHeight=el=>{const old=el.style.height;el.style.height='auto';const h=el.scrollHeight;el.style.height=old;return h};
  const setMeasuredHeight=(el,expanded)=>{el.style.height=expanded?contentHeight(el)+'px':'0px'};
 
