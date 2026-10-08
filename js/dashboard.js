@@ -1027,7 +1027,12 @@ async function fetchNearestCreditExpiry(userId) {
   if (error || !data) return null;
 
   const now = new Date();
-  const live = data.filter(row => row.credits_remaining > 0 && new Date(row.expires_at) > now);
+  const live = data.filter(row => {
+    const remaining = Number(row.credits_remaining);
+    const expiry = new Date(row.expires_at).getTime();
+    return Number.isFinite(remaining) && remaining > 0 &&
+      Number.isFinite(expiry) && expiry > now.getTime();
+  });
   if (live.length === 0) return null;
 
   return live.reduce((earliest, row) =>
