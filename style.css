@@ -2469,10 +2469,12 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
     flex: 0 0 25%;
     align-items: center;
     min-width: 0;
-    overflow: hidden;
   }
   .dash-target-left > div:last-child{
     min-width: 0;
+  }
+  .dash-change-link::before{
+    content: none;
   }
   .dash-target-divider{ display: block; }
   .dash-target-right{
