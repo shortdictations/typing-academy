@@ -2486,9 +2486,20 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
   .dash-progress-pct{ font-size: 0.66rem; margin-top: 4px; }
 }
 @media (max-width: 480px){
-  .dash-target-card{ padding: 14px 16px; }
-  .dash-target-left{ width: 27%; flex: 0 0 27%; }
-  .dash-target-right{ width: 73%; flex: 1 1 73%; }
+  .dash-target-card{
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .dash-target-left{
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .dash-target-right{
+    width: 0;
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 .dash-chart-label{
