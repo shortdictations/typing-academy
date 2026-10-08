@@ -26,6 +26,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="js/theme-init.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <!-- Supabase client — this page now reads live product/pricing/
      free-credits data (all public, RLS-gated: active products only,
@@ -151,6 +152,28 @@
 {"@type":"WebSite","@id":"https://typeshala.vercel.app/#website","name":"TypeShala","alternateName":"TypeShala Typing Practice","url":"https://typeshala.vercel.app/","publisher":{"@id":"https://typeshala.vercel.app/#organization"},"description":"Practice SSC, stenographer, legal and court typing tests online with TypeShala. Improve typing speed, accuracy and performance with exam-style mock tests."},
 {"@type":"SoftwareApplication","name":"TypeShala","url":"https://typeshala.vercel.app/","applicationCategory":"EducationalApplication","operatingSystem":"Web Browser","description":"Online typing practice for SSC, stenographer, legal and court typing aspirants."}
 ]}</script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const btn = document.getElementById("landingThemeToggle");
+  if (!btn) return;
+  function render(){
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+    btn.setAttribute("title", dark ? "Switch to light mode" : "Switch to dark mode");
+    btn.querySelector(".lp-theme-toggle-icon").innerHTML = dark
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+  }
+  render();
+  btn.addEventListener("click", function(){
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
+    document.documentElement.setAttribute("data-theme", next);
+    render();
+  });
+});
+</script>
 </head>
 <body class="landing-v2">
 <div class="ts-landing-main">
@@ -168,6 +191,9 @@
 <a href="#pricing">Passes &amp; Credits</a>
 </nav>
 <div class="nav-actions">
+<button type="button" class="lp-theme-toggle" id="landingThemeToggle" aria-label="Switch to dark mode" title="Switch to dark mode">
+  <span class="lp-theme-toggle-icon" aria-hidden="true"></span>
+</button>
 <a class="lp-btn lp-btn-gold lp-btn-small" href="login.html">Get Started</a>
 </div>
 

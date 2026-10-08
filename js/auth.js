@@ -381,6 +381,54 @@ async function requireLogin() {
 // Logout. Deliberately no Profile/Settings/Purchase History/etc
 // rows here — the desktop sidebar already handles all navigation;
 // this dropdown is account identity + logout only, per spec.
+
+/* ---------- Quick theme toggle: shared sidebar/mobile control ---------- */
+function applyQuickThemeToggle() {
+  const current = document.documentElement.getAttribute("data-theme") || "light";
+  const next = current === "dark" ? "light" : "dark";
+  try { localStorage.setItem("typeshala-theme", next); } catch (e) {}
+  document.documentElement.setAttribute("data-theme", next);
+
+  // Keep the full Settings selector visually in sync when this control
+  // is used on settings.html as well.
+  document.querySelectorAll(".theme-toggle-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.themeChoice === next);
+  });
+  document.querySelectorAll(".app-theme-quick-toggle, .mobile-theme-quick-toggle").forEach(btn => {
+    const isDark = next === "dark";
+    btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    btn.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+    const icon = btn.querySelector(".theme-quick-icon");
+    const label = btn.querySelector(".theme-quick-label");
+    if (icon) icon.innerHTML = isDark
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+    if (label) label.textContent = isDark ? "Light" : "Dark";
+  });
+}
+
+function wireQuickThemeToggle(container, className, id) {
+  if (!container || document.getElementById(id)) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = id;
+  button.className = className;
+  button.innerHTML =
+    '<span class="theme-quick-icon" aria-hidden="true"></span>' +
+    '<span class="theme-quick-label"></span>';
+  button.addEventListener("click", applyQuickThemeToggle);
+  container.appendChild(button);
+  // Render the correct icon/label without changing the saved preference.
+  const current = document.documentElement.getAttribute("data-theme") || "light";
+  const isDark = current === "dark";
+  button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  button.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+  button.querySelector(".theme-quick-icon").innerHTML = isDark
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+  button.querySelector(".theme-quick-label").textContent = isDark ? "Light" : "Dark";
+}
+
 function accountDropdownHtml(displayName, email, logoutBtnId) {
   return `
     <div class="avatar-dropdown-avatar-wrap">
@@ -436,6 +484,7 @@ async function initAuthHeader(user) {
   wireBottomNavActiveState();
   wireMobileProfileDrawer(user);
   wireSidebarCollapse();
+  wireSidebarThemeToggle();
   ensureAdminNavigation(user);
 
   const trigger = document.getElementById("userMenuTrigger");
@@ -662,6 +711,16 @@ async function fetchTotalCredits(userId) {
 // only the hamburger), and the sidebar/overlay are appended to
 // <body>. Sidebar nav links are cloned from whatever links this
 // page's .nav-links already had — no per-page link list needed.
+
+function wireSidebarThemeToggle() {
+  const sidebar = document.getElementById("appSidebar");
+  if (!sidebar || document.getElementById("sidebarThemeQuickToggle")) return;
+  const controlWrap = document.createElement("div");
+  controlWrap.className = "app-sidebar-theme-wrap";
+  wireQuickThemeToggle(controlWrap, "app-theme-quick-toggle", "sidebarThemeQuickToggle");
+  sidebar.appendChild(controlWrap);
+}
+
 function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsTotal) {
   const navLinks = document.querySelector(".nav-links");
   if (!navLinks || document.getElementById("hamburgerBtn")) return; // already built, or no header here
@@ -799,6 +858,9 @@ function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsT
   body.appendChild(logoutBtn);
 
   sidebar.appendChild(body);
+
+  // ---- Quick theme control ----
+  wireQuickThemeToggle(body, "mobile-theme-quick-toggle", "mobileThemeQuickToggle");
 
   // ---- Dark footer ----
   const footer = document.createElement("div");
