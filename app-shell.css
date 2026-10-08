@@ -5266,3 +5266,53 @@ html[data-theme="dark"] body.dashboard-page .dash-tile-orange{ background: var(-
     box-sizing: border-box;
   }
 }
+
+
+/* FINAL DARK THEME — START TEST / MOCK ATTEMPT PAGE */
+html[data-theme="dark"] body.app-shell.mock-attempt-page{background:#0F1521 !important;color:#E8ECF4 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .app-content{background:#0F1521 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-card,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #setupCard,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #testCard,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .mtr-card-wrap{background:#171F2E !important;border-color:#2A3346 !important;color:#E8ECF4 !important;box-shadow:0 14px 36px rgba(0,0,0,.28) !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-title,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option-title,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-section-label,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #setupCard .card-label,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #testPassageTitle,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .mtr-header h1{color:#F1F5FC !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-subtitle,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-option-desc,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option small,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #setupInfo{color:#93A0B8 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option{background:#1B2334 !important;border-color:#303B50 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option:hover{background:#202A3C !important;border-color:#4B6085 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-option.pts-selected{background:#162C4D !important;border-color:#5B8CFF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-type-icon{color:#8FB3FF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-section{background:#131A28 !important;border-color:#2A3346 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option{background:#1B2334 !important;border-color:#303B50 !important;color:#E8ECF4 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option:hover{background:#202A3C !important;border-color:#4B6085 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option.pts-selected{background:#2F5FEC !important;border-color:#5B8CFF !important;color:#fff !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-duration-option.pts-selected small{color:rgba(255,255,255,.82) !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .mock-start-button{background:#2F5FEC !important;border-color:#2F5FEC !important;color:#fff !important;box-shadow:0 6px 16px rgba(47,95,236,.25) !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .mock-start-button:hover{background:#4774F2 !important;border-color:#4774F2 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .timer-box{background:#1B2334 !important;border-color:#5B8CFF !important;color:#8FB3FF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .live-stats .val{color:#F1F5FC !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .live-stats .lab{color:#8F9CB2 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .passage-box{background:#131A28 !important;border-color:#303B50 !important;color:#AEB9CB !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .passage-box .typing-word{color:#7F8DA5 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .passage-box .typing-word.active{color:#8FB3FF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .passage-box .typing-word.word-correct{color:#E8ECF4 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .passage-box .typing-word.word-wrong{color:#FF7B72 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .type-input{background:#131A28 !important;border-color:#303B50 !important;color:#E8ECF4 !important;caret-color:#8FB3FF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .type-input:focus{background:#151E2E !important;outline-color:#5B8CFF !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .type-input:disabled{background:#0F1521 !important;color:#71809A !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .type-input::placeholder{color:#68758B !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .test-warning-banner{background:rgba(239,68,68,.12) !important;border-color:#D65B5B !important;color:#FF8A84 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .keyboard-input-status{color:#F5C76A !important;background:rgba(245,179,1,.08) !important;border-color:rgba(245,179,1,.20) !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .test-rules-note,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .mock-test-message,
+html[data-theme="dark"] body.app-shell.mock-attempt-page .result-sub{color:#8290A8 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #fsRetryBtn{background:#202A3C !important;border-color:#3A465C !important;color:#E8ECF4 !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .result-grid .big{color:#F1F5FC !important;}
+html[data-theme="dark"] body.app-shell.mock-attempt-page .result-grid .lab{color:#8F9CB2 !important;}
