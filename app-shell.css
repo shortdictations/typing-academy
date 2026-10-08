@@ -5361,3 +5361,18 @@ html[data-theme="dark"] body.dashboard-page .dash-change-link:hover{
 html[data-theme="dark"] body.dashboard-page .dash-change-link:focus-visible{
   outline-color: rgba(91,140,255,.45) !important;
 }
+
+
+/* ---------- Dashboard dark-mode refinement: Target WPM mobile action ---------- */
+@media (max-width: 480px){
+  html[data-theme="dark"] body.dashboard-page .dash-target-sub .dash-change-link{
+    color: #AFC4FF !important;
+    background: transparent !important;
+    min-height: 30px;
+    white-space: nowrap;
+  }
+  html[data-theme="dark"] body.dashboard-page .dash-target-sub .dash-change-link:hover{
+    background: rgba(91,140,255,.12) !important;
+    color: #D5E1FF !important;
+  }
+}
