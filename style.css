@@ -2562,8 +2562,23 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
 .dash-stat-nowrap{ white-space: nowrap; }
 
 /* Target WPM card: tighter, no leftover empty area */
-.dash-target-sub{ font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
-.dash-target-sub .dash-change-link{ display: inline; margin: 0; font-size: 0.72rem; }
+.dash-target-sub{
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.dash-target-sub .dash-change-link{
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0 0 2px;
+  padding: 4px 6px;
+  min-height: 30px;
+  box-sizing: border-box;
+  font-size: 0.70rem;
+  line-height: 1;
+  white-space: nowrap;
+}
 
 /* Softer background rule lines specifically on the dashboard — same
    pattern, lower contrast, so it doesn't compete with the cards. */
