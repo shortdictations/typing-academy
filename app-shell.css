@@ -5138,3 +5138,86 @@ html[data-theme="dark"] body.app-shell.mock-history-page .mh-page-control{
 html[data-theme="dark"] body.app-shell.mock-history-page .mh-page-number:hover{
   background: var(--ts-surface-3);
 }
+
+
+/* Dark-mode hard overrides for legacy page-specific CSS (notably subscriptions/re-attempt). */
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-card.plan-ssc,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-card.plan-legal,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-card.plan-combo,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-card.plan-credit,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-summary-card,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-combined-card,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-category-card{
+  background: var(--ts-surface) !important;
+  color: var(--ts-text) !important;
+  border-color: var(--ts-border) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .card-label,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-price,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-plan-detail-row strong,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-card-title,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-balance-number,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-purchase-title{
+  color: var(--ts-text) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .plan-features li,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-upgrade-text,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-upgrade-note,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-card-subtitle,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-balance-note,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-purchase-label{
+  color: var(--ts-muted) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-current-plan-box,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-upgrade-box,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-balance-panel,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-benefit,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-purchase-section,
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-category-header{
+  background: var(--ts-surface-2) !important;
+  border-color: var(--ts-border) !important;
+  color: var(--ts-text) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .credit-pack-chip{
+  background: var(--ts-surface-2) !important;
+  color: var(--ts-text) !important;
+  border-color: var(--ts-border) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .credit-pack-chip:hover{
+  background: var(--ts-surface-3) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-category-option{
+  color: var(--ts-muted) !important;
+  border-color: var(--ts-border) !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-category-option.is-selected{
+  background: var(--ts-blue-tint) !important;
+  color: #AFC4FF !important;
+  border-color: var(--ts-blue) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-history-link{
+  background: var(--ts-surface-2) !important;
+  color: #AFC4FF !important;
+  border-color: var(--ts-border) !important;
+}
+html[data-theme="dark"] body.app-shell.subscriptions-page .pass-active-badge,
+html[data-theme="dark"] body.app-shell.subscriptions-page .best-value-badge,
+html[data-theme="dark"] body.app-shell.subscriptions-page .credits-card-badge{
+  filter: brightness(1.12);
+}
+html[data-theme="dark"] body.app-shell.reattempt-page .rt-duration-option{
+  background: var(--ts-surface) !important;
+  color: var(--ts-text) !important;
+  border-color: var(--ts-border) !important;
+}
+html[data-theme="dark"] body.app-shell.reattempt-page .rt-duration-option:hover{
+  background: var(--ts-surface-2) !important;
+}
+html[data-theme="dark"] body.app-shell.reattempt-page .rt-card,
+html[data-theme="dark"] body.app-shell.reattempt-page .rt-panel,
+html[data-theme="dark"] body.app-shell.reattempt-page .rt-summary{
+  background: var(--ts-surface) !important;
+  color: var(--ts-text) !important;
+  border-color: var(--ts-border) !important;
+}
