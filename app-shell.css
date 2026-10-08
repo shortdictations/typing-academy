@@ -5577,30 +5577,60 @@ html[data-theme="dark"] body.app-shell .mobile-theme-quick-toggle:hover{
 }
 
 
-/* Mobile Profile drawer theme control — sits immediately above Logout. */
+/* Mobile Profile drawer: theme icon shares the Logout action row. */
 @media (max-width:700px){
-  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
+  body.app-shell .mobile-profile-drawer .mobile-profile-drawer-actions{
     display:flex;
+    align-items:center;
+    gap:8px;
     width:calc(100% - 32px);
     margin:10px 16px 2px;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-profile-drawer-actions .mobile-profile-drawer-logout{
+    flex:1 1 auto;
+    min-width:0;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:44px;
+    min-width:44px;
+    height:44px;
     min-height:44px;
-    background:#F6F8FC;
-    border-color:#E4E9F2;
+    margin:0;
+    padding:0;
+    border:0 !important;
+    border-radius:50%;
+    background:transparent !important;
     color:#5B6B85;
+    box-shadow:none !important;
   }
   body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle:hover{
-    background:#EAF1FE;
-    border-color:#2F5FEC;
+    background:#EAF1FE !important;
     color:#2F5FEC;
+    border:0 !important;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle:focus-visible{
+    outline:2px solid rgba(47,95,236,.45);
+    outline-offset:2px;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle .theme-quick-icon{
+    width:24px;
+    height:24px;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle .theme-quick-icon svg{
+    width:21px;
+    height:21px;
   }
   html[data-theme="dark"] body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
-    background:#131A28 !important;
-    border-color:#3A465C !important;
+    background:transparent !important;
+    border:0 !important;
     color:#AFC4FF !important;
   }
   html[data-theme="dark"] body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle:hover{
     background:#1B2334 !important;
-    border-color:#5B8CFF !important;
+    border:0 !important;
     color:#D5E1FF !important;
   }
 }
