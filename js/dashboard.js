@@ -1010,7 +1010,7 @@ async function renderPassCreditsCardInner(user, currentPlanBlock, creditsBlock) 
       ? Math.max(0, Math.ceil((new Date(creditsExpiry) - new Date()) / (24 * 60 * 60 * 1000))) + " days left"
       : null;
     if (creditsValidity) creditsBlock.title = "Validity: " + creditsValidity;
-    creditsBlock.innerHTML = statTileHtml("dash-tile-orange", passCreditsIcon("credits"), escapeHtmlDash(String(creditsTotal)), "Credits Left", "Available credits", "dash-wave-orange", giftIconSvg());
+    creditsBlock.innerHTML = statTileHtml("dash-tile-orange", passCreditsIcon("credits"), escapeHtmlDash(String(creditsTotal)), "Test Credits", "1 credit = 1 test", "dash-wave-orange", giftIconSvg());
   }
 }
 
