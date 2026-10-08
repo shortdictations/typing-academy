@@ -633,7 +633,7 @@ function renderTargetWpmCard() {
 
   if (currentTargetWpm) {
     el.textContent = currentTargetWpm; // icon is now its own separate element in the card, not inline with the number
-    changeBtn.textContent = "Change";
+    changeBtn.textContent = "Change target";
 
     progressCard.style.display = "flex";
     document.getElementById("progressActual").textContent = currentAvgWpm;
