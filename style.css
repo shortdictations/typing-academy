@@ -2476,7 +2476,8 @@ a.announcement-ticker-item:hover{ color: var(--brass); text-decoration: underlin
     text-align: center;
   }
   .dash-change-link::before{
-    content: none;
+    content: "✎";
+    display: inline-block;
   }
   .dash-target-divider{ display: block; }
   .dash-target-right{
