@@ -407,7 +407,7 @@ function applyQuickThemeToggle() {
   });
 }
 
-function wireQuickThemeToggle(container, className, id) {
+function wireQuickThemeToggle(container, className, id, iconOnly = false) {
   if (!container || document.getElementById(id)) return;
   const button = document.createElement("button");
   button.type = "button";
@@ -415,7 +415,7 @@ function wireQuickThemeToggle(container, className, id) {
   button.className = className;
   button.innerHTML =
     '<span class="theme-quick-icon" aria-hidden="true"></span>' +
-    '<span class="theme-quick-label"></span>';
+    (iconOnly ? '' : '<span class="theme-quick-label"></span>');
   button.addEventListener("click", applyQuickThemeToggle);
   container.appendChild(button);
   // Render the correct icon/label without changing the saved preference.
@@ -1059,10 +1059,14 @@ function wireMobileProfileDrawer(user) {
   const nameEl = document.getElementById("mobileProfileDrawerName");
   if (!trigger || !overlay || !drawer || !closeBtn || !logoutBtn) return;
 
-  // Quick theme control belongs at the bottom of the mobile profile
-  // drawer, immediately above Logout. It reuses the same local
-  // preference and theme engine as Settings and the desktop sidebar.
-  wireQuickThemeToggle(drawer, "mobile-theme-quick-toggle", "mobileProfileThemeQuickToggle");
+  // Mobile profile: keep the theme control on the same action row as
+  // Logout. It uses the exact same sun/moon SVGs as the landing page,
+  // but is icon-only so the drawer stays compact.
+  const logoutRow = document.createElement("div");
+  logoutRow.className = "mobile-profile-drawer-actions";
+  logoutBtn.parentNode.insertBefore(logoutRow, logoutBtn);
+  logoutRow.appendChild(logoutBtn);
+  wireQuickThemeToggle(logoutRow, "mobile-theme-quick-toggle", "mobileProfileThemeQuickToggle", true);
 
   const displayName = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : user.email;
   if (nameEl) nameEl.textContent = displayName;
