@@ -696,6 +696,24 @@ body.app-shell .mobile-profile-drawer-link{
   position: relative;
 }
 body.app-shell .mobile-profile-drawer-link:hover{ background: var(--ts-background); }
+body.app-shell .mobile-profile-drawer-link.active{
+  background: var(--ts-blue-tint);
+  color: var(--ts-blue-dark);
+  font-weight: 700;
+}
+body.app-shell .mobile-profile-drawer-link.active .mobile-profile-drawer-icon{
+  color: var(--ts-blue);
+}
+body.app-shell .mobile-profile-drawer-link.active::after{
+  content: "";
+  position: absolute;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ts-blue);
+}
+
 body.app-shell .mobile-profile-drawer-icon{ width: 22px; height: 22px; flex: none; display: flex; color: var(--ts-muted); }
 body.app-shell .mobile-profile-drawer-icon svg{ width: 20px; height: 20px; }
 /* Log Out's own divider now lives in .mobile-profile-drawer-bottom
@@ -2696,6 +2714,17 @@ html[data-theme="dark"] body.app-shell .mobile-profile-drawer-header{ color: var
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-name{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link{ color: var(--ts-text); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link:hover{ background: #1B2334; }
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link.active{
+  background:#202A3C;
+  color:#AFC4FF;
+}
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link.active .mobile-profile-drawer-icon{
+  color:#8FB3FF;
+}
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer-link.active::after{
+  background:#5B8CFF;
+}
+
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-logout{ border-color: var(--ts-border); }
 html[data-theme="dark"] body.app-shell .mobile-profile-drawer-logout:hover{ background: rgba(209,67,67,0.15); }
 html[data-theme="dark"] body.app-shell .pass-price{ color: var(--ts-text); }
