@@ -485,7 +485,7 @@ async function initAuthHeader(user) {
   wireBottomNavActiveState();
   wireMobileProfileDrawer(user);
   wireSidebarCollapse();
-  wireSidebarThemeToggle();
+  wireHeaderThemeToggle();
   ensureAdminNavigation(user);
 
   const trigger = document.getElementById("userMenuTrigger");
@@ -713,13 +713,23 @@ async function fetchTotalCredits(userId) {
 // <body>. Sidebar nav links are cloned from whatever links this
 // page's .nav-links already had — no per-page link list needed.
 
-function wireSidebarThemeToggle() {
-  const sidebar = document.getElementById("appSidebar");
-  if (!sidebar || document.getElementById("sidebarThemeQuickToggle")) return;
-  const controlWrap = document.createElement("div");
-  controlWrap.className = "app-sidebar-theme-wrap";
-  wireQuickThemeToggle(controlWrap, "app-theme-quick-toggle", "sidebarThemeQuickToggle", true);
-  sidebar.appendChild(controlWrap);
+function wireHeaderThemeToggle() {
+  const navLinks = document.querySelector(".nav-links");
+  if (!navLinks || document.getElementById("headerThemeQuickToggle")) return;
+
+  // Desktop/tablet landscape: keep the quick theme control in the
+  // global header, beside the credit/profile controls. Mobile app-shell
+  // pages keep their separate icon-only control in the Profile drawer.
+  const controlWrap = document.createElement("span");
+  controlWrap.className = "app-header-theme-wrap";
+  wireQuickThemeToggle(controlWrap, "app-header-theme-quick-toggle", "headerThemeQuickToggle", true);
+
+  const creditBadge = navLinks.querySelector(".credit-badge");
+  if (creditBadge) {
+    navLinks.insertBefore(controlWrap, creditBadge);
+  } else {
+    navLinks.appendChild(controlWrap);
+  }
 }
 
 function buildMobileSidebar(user, displayName, avatarUrl, activePasses, creditsTotal) {
