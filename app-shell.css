@@ -5348,3 +5348,16 @@ html[data-theme="dark"] body.dashboard-page .dash-practice-cta .dash-btn-primary
   background: #254FC8 !important;
   border-color: #254FC8 !important;
 }
+
+
+/* ---------- Dashboard dark-mode refinement: Target WPM action ---------- */
+html[data-theme="dark"] body.dashboard-page .dash-change-link{
+  color: #AFC4FF !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-change-link:hover{
+  color: #D5E1FF !important;
+  background: rgba(91,140,255,.12) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-change-link:focus-visible{
+  outline-color: rgba(91,140,255,.45) !important;
+}
