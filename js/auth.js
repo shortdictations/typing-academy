@@ -1059,6 +1059,11 @@ function wireMobileProfileDrawer(user) {
   const nameEl = document.getElementById("mobileProfileDrawerName");
   if (!trigger || !overlay || !drawer || !closeBtn || !logoutBtn) return;
 
+  // Quick theme control belongs at the bottom of the mobile profile
+  // drawer, immediately above Logout. It reuses the same local
+  // preference and theme engine as Settings and the desktop sidebar.
+  wireQuickThemeToggle(drawer, "mobile-theme-quick-toggle", "mobileProfileThemeQuickToggle");
+
   const displayName = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : user.email;
   if (nameEl) nameEl.textContent = displayName;
 

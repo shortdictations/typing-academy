@@ -5547,7 +5547,7 @@ body.app-shell .app-sidebar.collapsed .theme-quick-label{ display: none; }
 
 /* The legacy mobile drawer is hidden on app-shell pages, but remains
    the active mobile navigation on pages that still use it. */
-body.app-shell .mobile-theme-quick-toggle{ display:none !important; }
+body.app-shell .mobile-sidebar .mobile-theme-quick-toggle{ display:none !important; }
 
 html[data-theme="dark"] body.app-shell .app-theme-quick-toggle,
 html[data-theme="dark"] body.app-shell .mobile-theme-quick-toggle{
@@ -5573,5 +5573,34 @@ html[data-theme="dark"] body.app-shell .mobile-theme-quick-toggle:hover{
     background:#171F2E !important;
     border-color:#2A3346 !important;
     color:#AFC4FF !important;
+  }
+}
+
+
+/* Mobile Profile drawer theme control — sits immediately above Logout. */
+@media (max-width:700px){
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
+    display:flex;
+    width:calc(100% - 32px);
+    margin:10px 16px 2px;
+    min-height:44px;
+    background:#F6F8FC;
+    border-color:#E4E9F2;
+    color:#5B6B85;
+  }
+  body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle:hover{
+    background:#EAF1FE;
+    border-color:#2F5FEC;
+    color:#2F5FEC;
+  }
+  html[data-theme="dark"] body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
+    background:#131A28 !important;
+    border-color:#3A465C !important;
+    color:#AFC4FF !important;
+  }
+  html[data-theme="dark"] body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle:hover{
+    background:#1B2334 !important;
+    border-color:#5B8CFF !important;
+    color:#D5E1FF !important;
   }
 }
