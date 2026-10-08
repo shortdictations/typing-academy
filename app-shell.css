@@ -5627,8 +5627,6 @@ body.app-shell .app-header-theme-quick-toggle .theme-quick-label{
     text-align:left;
   }
   body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle{
-    margin-left:auto;
-
     display:inline-flex;
     align-items:center;
     justify-content:center;
@@ -5636,7 +5634,7 @@ body.app-shell .app-header-theme-quick-toggle .theme-quick-label{
     min-width:44px;
     height:44px;
     min-height:44px;
-    margin:0;
+    margin:0 0 0 auto;
     padding:0;
     border:0 !important;
     border-radius:50%;
