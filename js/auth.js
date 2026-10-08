@@ -984,14 +984,24 @@ async function requireAdmin() {
    HTML edit).
    ============================================================ */
 function wireBottomNavActiveState() {
-  const links = document.querySelectorAll(".app-bottom-nav-link");
-  if (links.length === 0) return;
-
   const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
 
-  links.forEach(link => {
+  document.querySelectorAll(".app-bottom-nav-link").forEach(link => {
     const linkPage = (link.getAttribute("href") || "").split("?")[0];
     link.classList.toggle("active", linkPage === currentPage);
+  });
+
+  // The mobile Profile drawer contains the secondary admin links
+  // (Announcements / Promotions). Keep its active state in sync with
+  // the same current-page rule used by the bottom navigation.
+  document.querySelectorAll(".mobile-profile-drawer-link").forEach(link => {
+    const linkPage = (link.getAttribute("href") || "").split("?")[0];
+    link.classList.toggle("active", linkPage === currentPage);
+    if (link.classList.contains("active")) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
   });
 }
 
