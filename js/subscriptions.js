@@ -289,15 +289,10 @@ function buildActivePassMap(passRows) {
 // function only totals what's currently spendable, it doesn't
 // decide which lot gets used.
 function sumUnexpiredCredits(creditRows) {
-  const now = Date.now();
+  const now = new Date();
   return creditRows
-    .filter(c => {
-      const remaining = Number(c.credits_remaining);
-      const expiry = new Date(c.expires_at).getTime();
-      return Number.isFinite(remaining) && remaining > 0 &&
-        Number.isFinite(expiry) && expiry > now;
-    })
-    .reduce((sum, c) => sum + Number(c.credits_remaining), 0);
+    .filter(c => new Date(c.expires_at) > now)
+    .reduce((sum, c) => sum + c.credits_remaining, 0);
 }
 
 // Identical icon set to index.html's planIconSvg() — same glyph per
