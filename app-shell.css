@@ -5316,3 +5316,35 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .result-sub{color:#8290
 html[data-theme="dark"] body.app-shell.mock-attempt-page #fsRetryBtn{background:#202A3C !important;border-color:#3A465C !important;color:#E8ECF4 !important;}
 html[data-theme="dark"] body.app-shell.mock-attempt-page .result-grid .big{color:#F1F5FC !important;}
 html[data-theme="dark"] body.app-shell.mock-attempt-page .result-grid .lab{color:#8F9CB2 !important;}
+
+
+/* ---------- Dashboard dark-mode refinement: Credits accent + Start Test CTA ---------- */
+html[data-theme="dark"] body.dashboard-page .dash-tile-orange{
+  background: rgba(245,158,11,.12) !important;
+  color: #F6B64A !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-wave-orange svg path{
+  fill: rgba(245,158,11,.14) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-wave-orange .dash-wave-icon{
+  background: #1B2334 !important;
+  color: #F6B64A !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-practice-cta .dash-btn-primary{
+  background: #2F5FEC !important;
+  border-color: #2F5FEC !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(47,95,236,.25) !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-practice-cta .dash-btn-primary:hover{
+  background: #4774F2 !important;
+  border-color: #4774F2 !important;
+}
+html[data-theme="dark"] body.dashboard-page .dash-practice-cta .dash-btn-primary:focus-visible{
+  outline: 3px solid rgba(91,140,255,.35) !important;
+  outline-offset: 3px;
+}
+html[data-theme="dark"] body.dashboard-page .dash-practice-cta .dash-btn-primary:active{
+  background: #254FC8 !important;
+  border-color: #254FC8 !important;
+}
