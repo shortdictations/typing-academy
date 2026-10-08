@@ -125,7 +125,7 @@ async function checkSingleActiveSession() {
       return true;
     }
     if (!isValid) {
-      await forceSessionLogout("Your session has expired because this account was logged in from another device.");
+      await forceSessionLogout("You have been logged out. Signed in on another device.");
       return false;
     }
     return true;
@@ -186,7 +186,7 @@ function startSingleSessionMonitoring(userId) {
           const localSessionId = localStorage.getItem(TS_SESSION_STORAGE_KEY);
           const serverSessionId = payload.new && payload.new.session_id;
           if (serverSessionId && localSessionId && serverSessionId !== localSessionId) {
-            forceSessionLogout("Your session has expired because this account was logged in from another device.");
+            forceSessionLogout("You have been logged out. Signed in on another device.");
           }
         }
       )
