@@ -692,39 +692,17 @@ function renderDropdownPlans(activePasses, targetId) {
 }
 
 async function fetchTotalCredits(userId) {
-  // Credit balance is user-facing and should never depend on a single
-  // transient request succeeding. Retry once, and always coerce the DB
-  // value to Number so bigint/numeric responses cannot concatenate as text.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const { data, error } = await supabaseClient
-        .from("wallet_credits")
-        .select("credits_remaining, expires_at")
-        .eq("user_id", userId);
+  const { data, error } = await supabaseClient
+    .from("wallet_credits")
+    .select("credits_remaining, expires_at")
+    .eq("user_id", userId);
 
-      if (!error && Array.isArray(data)) {
-        const now = Date.now();
-        return data
-          .filter(row => {
-            const remaining = Number(row.credits_remaining);
-            const expiry = new Date(row.expires_at).getTime();
-            return Number.isFinite(remaining) && remaining > 0 &&
-              Number.isFinite(expiry) && expiry > now;
-          })
-          .reduce((sum, row) => sum + Number(row.credits_remaining), 0);
-      }
+  if (error || !data) return "—";
 
-      if (error) console.warn("[credits] balance query failed:", error);
-    } catch (err) {
-      console.warn("[credits] balance query threw:", err);
-    }
-
-    if (attempt === 0) {
-      await new Promise(resolve => setTimeout(resolve, 350));
-    }
-  }
-
-  return "—";
+  const now = new Date();
+  return data
+    .filter(row => new Date(row.expires_at) > now)
+    .reduce((sum, row) => sum + row.credits_remaining, 0);
 }
 
 // Hamburger + slide-in sidebar for mobile. Built once per page
