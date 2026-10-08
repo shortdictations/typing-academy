@@ -4849,3 +4849,292 @@ body.app-shell.mock-attempt-page.mock-test-active{
     display:none !important;
   }
 }
+
+
+/* ============================================================
+   TypeShala — Unified Dark Theme Polish
+   ------------------------------------------------------------
+   Dark mode uses a deliberate surface hierarchy rather than
+   converting every light-mode component independently.
+   Light mode is intentionally untouched.
+   ============================================================ */
+
+html[data-theme="dark"] body.app-shell{
+  --ts-background: #0F1521;
+  --ts-surface: #171F2E;
+  --ts-surface-2: #1B2334;
+  --ts-surface-3: #202A3C;
+  --ts-text: #E8ECF4;
+  --ts-muted: #93A0B8;
+  --ts-border: #2A3346;
+  --ts-border-strong: #3A465C;
+  --ts-blue-tint: rgba(47,95,236,.16);
+  --ts-green-tint: rgba(21,154,72,.15);
+  --ts-red-tint: rgba(216,58,58,.14);
+  --ts-purple-tint: rgba(124,58,237,.16);
+  color-scheme: dark;
+  background: var(--ts-background);
+  color: var(--ts-text);
+}
+
+/* Shared structural surfaces */
+html[data-theme="dark"] body.app-shell .card,
+html[data-theme="dark"] body.app-shell .dash-stat-card,
+html[data-theme="dark"] body.app-shell .app-pc-card,
+html[data-theme="dark"] body.app-shell .settings-section-card,
+html[data-theme="dark"] body.app-shell .app-overview-card,
+html[data-theme="dark"] body.app-shell .app-recent-card,
+html[data-theme="dark"] body.app-shell .dash-target-card,
+html[data-theme="dark"] body.app-shell .help-search-card,
+html[data-theme="dark"] body.app-shell .help-topics-card,
+html[data-theme="dark"] body.app-shell .help-contact-card,
+html[data-theme="dark"] body.app-shell .help-faq-card,
+html[data-theme="dark"] body.app-shell .help-topic-card,
+html[data-theme="dark"] body.app-shell .help-faq-item,
+html[data-theme="dark"] body.app-shell .help-article-card,
+html[data-theme="dark"] body.app-shell .pass-card,
+html[data-theme="dark"] body.app-shell .mock-card,
+html[data-theme="dark"] body.app-shell .feature,
+html[data-theme="dark"] body.app-shell .ph-summary-card,
+html[data-theme="dark"] body.app-shell .ph-txn-card,
+html[data-theme="dark"] body.app-shell .ph-empty-state,
+html[data-theme="dark"] body.app-shell .ph-detail-head,
+html[data-theme="dark"] body.app-shell .ph-detail-section,
+html[data-theme="dark"] body.app-shell .unfinished-session-card,
+html[data-theme="dark"] body.app-shell .pts-option,
+html[data-theme="dark"] body.app-shell .mh-history-card{
+  background: var(--ts-surface);
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+
+/* Remove remaining white/light surfaces in reusable controls */
+html[data-theme="dark"] body.app-shell input,
+html[data-theme="dark"] body.app-shell select,
+html[data-theme="dark"] body.app-shell textarea,
+html[data-theme="dark"] body.app-shell button,
+html[data-theme="dark"] body.app-shell .btn-ghost,
+html[data-theme="dark"] body.app-shell .mh-action,
+html[data-theme="dark"] body.app-shell .ph-filter-btn,
+html[data-theme="dark"] body.app-shell .ph-status-select{
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body.app-shell input,
+html[data-theme="dark"] body.app-shell select,
+html[data-theme="dark"] body.app-shell textarea,
+html[data-theme="dark"] body.app-shell .field input,
+html[data-theme="dark"] body.app-shell .field select,
+html[data-theme="dark"] body.app-shell .field textarea,
+html[data-theme="dark"] body.app-shell .settings-inline-form input,
+html[data-theme="dark"] body.app-shell .help-field input,
+html[data-theme="dark"] body.app-shell .help-field textarea,
+html[data-theme="dark"] body.app-shell .app-period-select,
+html[data-theme="dark"] body.app-shell .theme-toggle-group,
+html[data-theme="dark"] body.app-shell .practice-input,
+html[data-theme="dark"] body.app-shell .practice-passage-box,
+html[data-theme="dark"] body.app-shell .mh-duration-choice,
+html[data-theme="dark"] body.app-shell select.mh-entry-select{
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+  border-color: var(--ts-border);
+}
+
+html[data-theme="dark"] body.app-shell input::placeholder,
+html[data-theme="dark"] body.app-shell textarea::placeholder{
+  color: #71809A;
+}
+
+/* Sidebar, mobile navigation and account surfaces */
+html[data-theme="dark"] body.app-shell .app-sidebar,
+html[data-theme="dark"] body.app-shell .app-bottom-nav,
+html[data-theme="dark"] body.app-shell .user-menu-dropdown,
+html[data-theme="dark"] body.app-shell .mobile-profile-drawer,
+html[data-theme="dark"] body.app-shell .avatar-picker-modal{
+  background: #131A28;
+  border-color: var(--ts-border);
+}
+
+html[data-theme="dark"] body.app-shell .app-nav-link{
+  color: var(--ts-muted);
+}
+html[data-theme="dark"] body.app-shell .app-nav-link:hover{
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .app-nav-link.active{
+  background: var(--ts-blue);
+  color: #fff;
+}
+html[data-theme="dark"] body.app-shell .app-bottom-nav-link{
+  color: var(--ts-muted);
+}
+html[data-theme="dark"] body.app-shell .app-bottom-nav-link.active{
+  color: #AFC4FF;
+}
+html[data-theme="dark"] body.app-shell .app-bottom-nav-link.active .app-bottom-nav-icon{
+  background: var(--ts-blue);
+  color: #fff;
+}
+
+/* Typography and shared secondary text */
+html[data-theme="dark"] body.app-shell h1,
+html[data-theme="dark"] body.app-shell h2,
+html[data-theme="dark"] body.app-shell h3,
+html[data-theme="dark"] body.app-shell h4,
+html[data-theme="dark"] body.app-shell h5,
+html[data-theme="dark"] body.app-shell h6,
+html[data-theme="dark"] body.app-shell .title,
+html[data-theme="dark"] body.app-shell .section-title,
+html[data-theme="dark"] body.app-shell .page-title,
+html[data-theme="dark"] body.app-shell .card-title{
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell p,
+html[data-theme="dark"] body.app-shell small,
+html[data-theme="dark"] body.app-shell .muted,
+html[data-theme="dark"] body.app-shell .subtitle{
+  color: var(--ts-muted);
+}
+
+/* Common light-mode utility surfaces */
+html[data-theme="dark"] body.app-shell .pts-option:not(.pts-selected) .pts-option-icon,
+html[data-theme="dark"] body.app-shell .pts-info-note,
+html[data-theme="dark"] body.app-shell .settings-edit-row,
+html[data-theme="dark"] body.app-shell .help-sender-row,
+html[data-theme="dark"] body.app-shell .history-detail-row td,
+html[data-theme="dark"] body.app-shell .mh-history-table th,
+html[data-theme="dark"] body.app-shell .mh-page-control,
+html[data-theme="dark"] body.app-shell .mh-page-number{
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+}
+
+html[data-theme="dark"] body.app-shell .pts-option:hover,
+html[data-theme="dark"] body.app-shell .mh-action:hover{
+  background: var(--ts-surface-3);
+  border-color: var(--ts-border-strong);
+}
+html[data-theme="dark"] body.app-shell .pts-info-note{
+  border: 1px solid var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .pts-option.pts-selected{
+  background: var(--ts-blue-tint);
+}
+
+/* Tables */
+html[data-theme="dark"] body.app-shell table,
+html[data-theme="dark"] body.app-shell .app-recent-table,
+html[data-theme="dark"] body.app-shell .mh-history-table{
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell table th,
+html[data-theme="dark"] body.app-shell .app-recent-table th,
+html[data-theme="dark"] body.app-shell .mh-history-table th{
+  background: #131A28;
+  color: #AAB6CA;
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell table td,
+html[data-theme="dark"] body.app-shell .app-recent-table td,
+html[data-theme="dark"] body.app-shell .mh-history-table td{
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell table tr:hover td,
+html[data-theme="dark"] body.app-shell .app-recent-row:hover td{
+  background: var(--ts-surface-2);
+}
+
+/* Subscription / credit page */
+html[data-theme="dark"] body.app-shell .subscriptions-help-banner,
+html[data-theme="dark"] body.app-shell .subscriptions-info,
+html[data-theme="dark"] body.app-shell .info-banner{
+  background: rgba(47,95,236,.12);
+  border-color: rgba(124,156,255,.20);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .upgrade-box,
+html[data-theme="dark"] body.app-shell .upgrade-card,
+html[data-theme="dark"] body.app-shell .credits-panel{
+  background: var(--ts-surface);
+  border-color: var(--ts-border);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell .credit-pack-chip{
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .credit-pack-chip:hover{
+  background: var(--ts-surface-3);
+}
+html[data-theme="dark"] body.app-shell .pass-features,
+html[data-theme="dark"] body.app-shell .plan-features{
+  color: var(--ts-text);
+}
+
+/* Status / semantic badges remain vivid but use dark-safe tints */
+html[data-theme="dark"] body.app-shell .mh-pass-status.mh-pass,
+html[data-theme="dark"] body.app-shell .status-success{
+  background: var(--ts-green-tint);
+  color: #72D99A;
+}
+html[data-theme="dark"] body.app-shell .mh-pass-status.mh-not-passed,
+html[data-theme="dark"] body.app-shell .status-error{
+  background: var(--ts-red-tint);
+  color: #FF9696;
+}
+
+/* Modals / overlays */
+html[data-theme="dark"] body.app-shell .modal,
+html[data-theme="dark"] body.app-shell .modal-content,
+html[data-theme="dark"] body.app-shell .dialog,
+html[data-theme="dark"] body.app-shell .dropdown,
+html[data-theme="dark"] body.app-shell .popover{
+  background: var(--ts-surface);
+  color: var(--ts-text);
+  border-color: var(--ts-border);
+}
+html[data-theme="dark"] body.app-shell .modal-header,
+html[data-theme="dark"] body.app-shell .modal-footer{
+  border-color: var(--ts-border);
+}
+
+/* Scrollbars */
+html[data-theme="dark"] body.app-shell{
+  scrollbar-color: #3A465C #0F1521;
+}
+html[data-theme="dark"] body.app-shell ::-webkit-scrollbar{
+  width: 10px;
+  height: 10px;
+}
+html[data-theme="dark"] body.app-shell ::-webkit-scrollbar-track{
+  background: #0F1521;
+}
+html[data-theme="dark"] body.app-shell ::-webkit-scrollbar-thumb{
+  background: #3A465C;
+  border-radius: 999px;
+}
+html[data-theme="dark"] body.app-shell ::-webkit-scrollbar-thumb:hover{
+  background: #4A5870;
+}
+
+/* Page-specific light-color cleanup */
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-history-table th{
+  background: #131A28;
+  color: #AAB6CA;
+}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-history-table tbody tr:not(.history-detail-row):hover td{
+  background: var(--ts-surface-2);
+}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-action{
+  background: var(--ts-surface);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-page-control{
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+}
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-page-number:hover{
+  background: var(--ts-surface-3);
+}
