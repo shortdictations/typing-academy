@@ -5616,8 +5616,11 @@ body.app-shell .app-header-theme-quick-toggle .theme-quick-label{
     display:flex;
     align-items:center;
     gap:8px;
-    width:calc(100% - 32px);
-    margin:10px 16px 2px;
+    width:100%;
+    margin:10px 0 2px;
+    padding:0;
+    box-sizing:border-box;
+    justify-content:flex-start;
   }
   body.app-shell .mobile-profile-drawer .mobile-profile-drawer-actions .mobile-profile-drawer-logout{
     flex:0 0 auto;
