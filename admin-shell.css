@@ -778,3 +778,104 @@ body.admin-detail-modal-open{overflow:hidden;}
   outline:2px solid rgba(29,78,216,.25);
   outline-offset:1px;
 }
+
+/* ============================================================
+   ADMIN DARK THEME
+   Unified with the TypeShala app-shell dark surface system.
+   Scoped to admin pages only; functionality and layout unchanged.
+   ============================================================ */
+html[data-theme="dark"] body.app-shell.admin-page{color:#E8ECF4;}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-card,
+html[data-theme="dark"] body.app-shell.admin-page .card,
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-panel,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-dialog{
+  background:#171F2E !important;border-color:#2A3346 !important;color:#E8ECF4;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-label,
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-note,
+html[data-theme="dark"] body.app-shell.admin-page .admin-passage-attempts,
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-meta,
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-count,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-kicker,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipient-empty{color:#93A0B8 !important;}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-value,
+html[data-theme="dark"] body.app-shell.admin-page .admin-passage-title,
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-head h2,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-header h2{color:#E8ECF4 !important;}
+
+html[data-theme="dark"] body.app-shell.admin-page input,
+html[data-theme="dark"] body.app-shell.admin-page textarea,
+html[data-theme="dark"] body.app-shell.admin-page select,
+html[data-theme="dark"] body.app-shell.admin-page .admin-period-select,
+html[data-theme="dark"] body.app-shell.admin-page .field input,
+html[data-theme="dark"] body.app-shell.admin-page .field textarea,
+html[data-theme="dark"] body.app-shell.admin-page .field select{
+  background:#1B2334 !important;color:#E8ECF4 !important;border-color:#3A465C !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page input::placeholder,
+html[data-theme="dark"] body.app-shell.admin-page textarea::placeholder{color:#71809A !important;}
+html[data-theme="dark"] body.app-shell.admin-page option{background:#171F2E;color:#E8ECF4;}
+html[data-theme="dark"] body.app-shell.admin-page .admin-passage-duration-note,
+html[data-theme="dark"] body.app-shell.admin-page .mock-duration-note{
+  background:#202A3C !important;border-color:#34445F !important;color:#A8B5CA !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .mock-duration-note strong{color:#E8ECF4 !important;}
+
+html[data-theme="dark"] body.app-shell.admin-page .admin-passage-row,
+html[data-theme="dark"] body.app-shell.admin-page .admin-section-divider,
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-head{
+  border-color:#2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-table th{
+  background:#1B2334 !important;color:#93A0B8 !important;border-color:#2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-table td{
+  color:#CBD4E3 !important;border-color:#2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-table tbody tr:hover{background:#202A3C !important;}
+
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-backdrop,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-backdrop{background:rgba(0,0,0,.62);}
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-close,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-close{
+  background:#202A3C !important;border-color:#3A465C !important;color:#C7D0DF !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-analytics-detail-close:hover,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-close:hover{
+  background:#2A3346 !important;color:#FFFFFF !important;
+}
+
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-results-list,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-dropdown-empty{
+  background:#171F2E !important;border-color:#3A465C !important;box-shadow:0 14px 34px rgba(0,0,0,.30);color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-result{
+  background:#171F2E !important;color:#CBD4E3 !important;border-bottom-color:#2A3346 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-result:hover,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-result:focus-visible{
+  background:#202A3C !important;color:#AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-user-picker-toggle:hover{background:#202A3C !important;color:#AFC4FF !important;}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-header,
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipient-row{border-color:#2A3346 !important;}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipients-summary{background:#1B2334 !important;color:#93A0B8 !important;}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-recipient-email{color:#CBD4E3 !important;}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-selected-chip{
+  background:#202A3C !important;border-color:#3A465C !important;color:#CBD4E3 !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-selected-chip-remove{
+  background:#2A3346 !important;color:#AAB7CB !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .promotion-selected-chip-remove:hover{background:#3A465C !important;color:#D5E1FF !important;}
+
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-skel-icon,
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-skel-line{background:#2A3346 !important;}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-skeleton::after{
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-card-clickable:hover{
+  box-shadow:0 10px 28px rgba(0,0,0,.28);border-color:#3A465C !important;
+}
+html[data-theme="dark"] body.app-shell.admin-page .admin-stat-card-hint{color:#AFC4FF;}
+html[data-theme="dark"] body.app-shell.admin-page .app-content{background:#0F1521;}
