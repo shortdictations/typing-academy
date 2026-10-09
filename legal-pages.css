@@ -217,21 +217,30 @@ body.landing-v2 .site-header .nav-actions{
 }
 
 
-/* Keep the sticky legal-page header opaque so scrolling content never shows through it. */
+/* Match the landing page's transparent-at-top, glass-on-scroll header behavior. */
 body.landing-v2 .site-header,
 body.landing-v2 .site-header.is-scrolled {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid var(--ts-border);
-  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  transition: background .28s ease, border-color .28s ease, box-shadow .28s ease, backdrop-filter .28s ease;
 }
-html[data-theme="dark"] body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled {
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom-color: rgba(229,234,241,.9);
+  box-shadow: 0 6px 20px rgba(16,24,40,.06);
+}
 html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
-  background: #0F1521;
-  border-bottom: 1px solid #2A3346;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+  background: rgba(19,26,40,.88);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom-color: #2A3346;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
 }
