@@ -16,7 +16,7 @@
      <meta name="google-site-verification" content="ROVLu8xT9bQa3MoCEYSMuzXthK_DUNpb0t-VkrluBv0" />
 <link href="/manifest.webmanifest" rel="manifest"/>
 <link href="/icons/apple-touch-icon.png?v=3" rel="apple-touch-icon" sizes="180x180"/>
-<meta content="#0B1C3F" name="theme-color"/>
+<meta content="#FFFFFF" name="theme-color"/>
 <link href="/icons/icon-1024.png?v=3" rel="icon" type="image/png"/>
 <link href="/favicon.ico" rel="icon" type="image/x-icon"/>
 <link href="/favicon.ico" rel="shortcut icon"/>
@@ -146,7 +146,7 @@
      cannot silently collide with this page's own styling again. -->
 <link href="landing-v3.css?v=2" rel="stylesheet"/>
 <link href="landing.css?v=2" rel="stylesheet"/>
-<link href="landing-polish.css?v=20261009-header-statusbar" rel="stylesheet"/>
+<link href="landing-polish.css?v=20261009-header-statusbar-lightfix" rel="stylesheet"/>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://typeshala.vercel.app/#organization","name":"TypeShala","url":"https://typeshala.vercel.app/","logo":"https://typeshala.vercel.app/icons/icon-1024.png","sameAs":["https://indianshorthand.blogspot.com","https://www.facebook.com/Shorthand-Dictations-101543991717541","https://www.youtube.com/@shortdictations","https://t.me/shorthandjournals"]},
@@ -178,6 +178,12 @@ document.addEventListener("DOMContentLoaded", function(){
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
     document.documentElement.setAttribute("data-theme", next);
+    if (typeof window.TypeShalaSyncThemeColor === "function") {
+      window.TypeShalaSyncThemeColor(next);
+    } else {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", next === "dark" ? "#131A28" : "#FFFFFF");
+    }
     render();
   });
 });
