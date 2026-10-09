@@ -243,3 +243,19 @@ html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
   outline: 0 !important;
 }
 
+/* Remove the remaining 1px seam at the very top of the landing page.
+   Reset top-edge borders/outlines on the document and header pseudo-elements,
+   while leaving the status-bar and theme surface colours unchanged. */
+html:has(body.landing-v2),
+body.landing-v2 {
+  border-top: 0 !important;
+  outline: 0 !important;
+}
+body.landing-v2 .site-header::before,
+body.landing-v2 .site-header::after,
+body.landing-v2 .nav-wrap::before,
+body.landing-v2 .nav-wrap::after {
+  border-top: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
