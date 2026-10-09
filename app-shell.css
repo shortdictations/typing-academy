@@ -5946,3 +5946,18 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
     gap: 2px !important;
   }
 }
+
+
+/* Final Settings theme-selector contrast correction: retain shared pill geometry,
+   but give the dark panel enough separation from its surrounding card. */
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-group{
+  border-radius: 999px !important;
+  padding: 3px !important;
+  gap: 2px !important;
+  background: #202B3D !important;
+  border: 1px solid #52627C !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+  border-radius: 999px !important;
+}
