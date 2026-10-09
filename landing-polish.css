@@ -186,3 +186,14 @@ html[data-theme="dark"] body.landing-v2 .lp-theme-toggle:focus-visible {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Fix: “Practice Anytime, On Any Device” heading remained navy/blue
+   in dark mode, causing poor contrast against the dark mobile-support
+   section. Keep the original colours in light mode. */
+html[data-theme="dark"] body.landing-v2 .ts-mobile-support-copy h2 {
+  color: #E8ECF4;
+}
+html[data-theme="dark"] body.landing-v2 .ts-mobile-support-copy h2 em {
+  color: #8DB0FF;
+}
