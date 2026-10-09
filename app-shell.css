@@ -5988,3 +5988,20 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn svg{
     flex-basis: 14px !important;
   }
 }
+
+
+/* Settings theme selector: smoother selection-state animation in both themes. */
+body.app-shell.settings-page .theme-toggle-btn,
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+  transition:
+    background-color 260ms cubic-bezier(.22,1,.36,1),
+    color 220ms ease,
+    border-color 260ms ease,
+    box-shadow 260ms ease !important;
+}
+@media (prefers-reduced-motion: reduce){
+  body.app-shell.settings-page .theme-toggle-btn,
+  html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+    transition: none !important;
+  }
+}
