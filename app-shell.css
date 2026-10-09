@@ -5961,3 +5961,30 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-group{
 html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
   border-radius: 999px !important;
 }
+
+
+/* Settings theme selector: match light-theme sizing in dark mode only.
+   Preserve all existing dark-theme colors, borders, shadows and effects. */
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+  min-height: unset !important;
+  padding: 7px 14px !important;
+  gap: 6px !important;
+  border-width: 0 !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn svg{
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px !important;
+}
+@media (max-width: 560px){
+  html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+    min-height: unset !important;
+    padding: 7px 14px !important;
+    gap: 6px !important;
+  }
+  html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn svg{
+    width: 14px !important;
+    height: 14px !important;
+    flex-basis: 14px !important;
+  }
+}
