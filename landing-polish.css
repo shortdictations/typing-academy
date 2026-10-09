@@ -288,3 +288,21 @@ body.landing-v2 .site-header {
 body.landing-v2 .site-header.is-scrolled {
   border-top: 0 !important;
 }
+
+/* Cover the persistent 1px viewport-edge hairline seen on mobile.
+   This 3px theme-matched strip sits at the very top of the page, above
+   browser-rendered page content, and does not shift the header or layout. */
+body.landing-v2::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #FFFFFF;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+html[data-theme="dark"] body.landing-v2::before {
+  background: #131A28;
+}
