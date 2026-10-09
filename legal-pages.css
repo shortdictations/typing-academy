@@ -193,3 +193,25 @@ html[data-theme="dark"] body.landing-v2 .site-foot-link-btn:hover{color:#E8ECF4}
 html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg rect,
 html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg circle{fill:#E8ECF4}
 html[data-theme="dark"] body.landing-v2 .site-foot-social-link svg path{fill:#090F1B}
+
+
+/* Seamless information-page header: blend into the page in both themes */
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled{
+  background:transparent;
+  border-bottom-color:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+}
+html[data-theme="dark"] body.landing-v2 .site-header,
+html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled{
+  background:transparent;
+  border-bottom-color:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+}
+/* No CTA on the three standalone information pages; keep the theme toggle aligned right. */
+body.landing-v2 .site-header .nav-actions{
+  margin-left:auto;
+  gap:0;
+}
