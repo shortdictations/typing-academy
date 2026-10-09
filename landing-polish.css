@@ -234,3 +234,12 @@ html[data-theme="dark"] body.landing-v2 .desktop-nav a:hover {
   color: #FFFFFF;
 }
 
+/* Seamless landing header: remove any top-edge divider in either theme. */
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled,
+html[data-theme="dark"] body.landing-v2 .site-header,
+html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
+  border-top: 0 !important;
+  outline: 0 !important;
+}
+
