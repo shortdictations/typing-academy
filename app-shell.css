@@ -5679,3 +5679,186 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-ssc-icon img,
 html[data-theme="dark"] body.app-shell.mock-history-page .mh-category-logo-ssc img {
   filter: brightness(0) saturate(100%) invert(57%) sepia(47%) saturate(1634%) hue-rotate(195deg) brightness(101%) contrast(101%);
 }
+
+
+/* ---------- Help & Support: complete dark-theme refinement ---------- */
+html[data-theme="dark"] body.app-shell.help-page{
+  background:#0F1521 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .app-content,
+html[data-theme="dark"] body.app-shell.help-page .page{
+  background:transparent !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .dashboard-h1,
+html[data-theme="dark"] body.app-shell.help-page h2,
+html[data-theme="dark"] body.app-shell.help-page h3,
+html[data-theme="dark"] body.app-shell.help-page .help-sender-email{
+  color:#F1F5FC !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .lede,
+html[data-theme="dark"] body.app-shell.help-page .help-topic-card p,
+html[data-theme="dark"] body.app-shell.help-page .help-send-note,
+html[data-theme="dark"] body.app-shell.help-page .help-sender-label,
+html[data-theme="dark"] body.app-shell.help-page .help-faq-item p,
+html[data-theme="dark"] body.app-shell.help-page .help-article-intro,
+html[data-theme="dark"] body.app-shell.help-page .help-article-section p,
+html[data-theme="dark"] body.app-shell.help-page .help-article-section li{
+  color:#A7B3C8 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-search-card,
+html[data-theme="dark"] body.app-shell.help-page .help-topics-card,
+html[data-theme="dark"] body.app-shell.help-page .help-faq-card,
+html[data-theme="dark"] body.app-shell.help-page .help-contact-card,
+html[data-theme="dark"] body.app-shell.help-page .help-article-card{
+  background:#171F2E !important;
+  border:1px solid #2A3346 !important;
+  color:#E8ECF4 !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.16) !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-search-box{
+  background:#131A28 !important;
+  border:1px solid #303B50 !important;
+  border-radius:10px;
+  color:#A7B3C8 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-search-box svg{color:#93A0B8 !important;}
+html[data-theme="dark"] body.app-shell.help-page .help-search-box input{
+  background:transparent !important;
+  color:#E8ECF4 !important;
+  caret-color:#8FB3FF;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-search-box input::placeholder,
+html[data-theme="dark"] body.app-shell.help-page .help-field input::placeholder,
+html[data-theme="dark"] body.app-shell.help-page .help-field textarea::placeholder{
+  color:#78869D !important;
+  opacity:1;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-card{
+  background:#131A28 !important;
+  border-color:#303B50 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-card:hover{
+  background:#1B2334 !important;
+  border-color:#4B6085 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-card-match{
+  border-color:#5B8CFF !important;
+  box-shadow:0 0 0 2px rgba(91,140,255,.2) !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-card-dim{opacity:.48;}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-icon.dash-tile-blue{
+  background:rgba(59,130,246,.15) !important;color:#8FB3FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-icon.dash-tile-green{
+  background:rgba(34,197,94,.13) !important;color:#75D6A0 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-icon.dash-tile-purple{
+  background:rgba(167,139,250,.15) !important;color:#C4B5FD !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-icon.dash-tile-orange{
+  background:rgba(245,158,11,.13) !important;color:#F6B64A !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-link,
+html[data-theme="dark"] body.app-shell.help-page .help-article-back{
+  color:#AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-topic-link:hover,
+html[data-theme="dark"] body.app-shell.help-page .help-article-back:hover{
+  color:#D5E1FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-sender-icon{
+  background:rgba(91,140,255,.14) !important;
+  color:#AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-field label{
+  color:#DCE4F2 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-field input,
+html[data-theme="dark"] body.app-shell.help-page .help-field textarea{
+  background:#131A28 !important;
+  border-color:#354158 !important;
+  color:#E8ECF4 !important;
+  box-shadow:none;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-field input:focus,
+html[data-theme="dark"] body.app-shell.help-page .help-field textarea:focus,
+html[data-theme="dark"] body.app-shell.help-page .help-search-box:focus-within{
+  border-color:#5B8CFF !important;
+  outline:none;
+  box-shadow:0 0 0 3px rgba(91,140,255,.16) !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-faq-group h3{
+  color:#8F9CB2 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-faq-item{
+  background:#131A28 !important;
+  border-color:#303B50 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-faq-item summary{
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-faq-item summary::before{
+  color:#AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-faq-item[open]{
+  background:#171F2E !important;
+  border-color:#3A4962 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-article-intro{
+  border-bottom-color:#303B50 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-article-section h3{
+  color:#AFC4FF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-article-section p,
+html[data-theme="dark"] body.app-shell.help-page .help-article-section li{
+  color:#B8C3D5 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-article-close{
+  background:#202A3C !important;
+  border-color:#3A465C !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .settings-verified-pill{
+  background:rgba(34,197,94,.13) !important;
+  border-color:rgba(74,222,128,.28) !important;
+  color:#86E3AC !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .settings-unverified-pill{
+  background:rgba(245,158,11,.12) !important;
+  border-color:rgba(245,158,11,.28) !important;
+  color:#F6C66B !important;
+}
+html[data-theme="dark"] body.app-shell.help-page #helpError{
+  background:rgba(239,68,68,.12) !important;
+  border-color:#713543 !important;
+  color:#FFB8C2 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-send-btn{
+  background:#2F5FEC !important;
+  border-color:#2F5FEC !important;
+  color:#FFFFFF !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-send-btn:hover{
+  background:#4774F2 !important;
+  border-color:#4774F2 !important;
+}
+html[data-theme="dark"] body.app-shell.help-page .help-send-btn:focus-visible,
+html[data-theme="dark"] body.app-shell.help-page .help-topic-link:focus-visible,
+html[data-theme="dark"] body.app-shell.help-page .help-article-back:focus-visible{
+  outline:2px solid rgba(143,179,255,.8) !important;
+  outline-offset:3px;
+}
+@media (max-width:699px){
+  html[data-theme="dark"] body.app-shell.help-page .help-search-card,
+  html[data-theme="dark"] body.app-shell.help-page .help-topics-card,
+  html[data-theme="dark"] body.app-shell.help-page .help-faq-card,
+  html[data-theme="dark"] body.app-shell.help-page .help-contact-card,
+  html[data-theme="dark"] body.app-shell.help-page .help-article-card{
+    box-shadow:none !important;
+  }
+}
