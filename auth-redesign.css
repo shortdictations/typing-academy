@@ -164,3 +164,68 @@ body.auth-shell{
 .auth-forgot-view .auth-field{margin-bottom:14px}
 #forgotInlineBtn{margin-top:0}
 #forgotBackBtn{background:none;border:0;padding:0;cursor:pointer;font:inherit}
+
+
+/* Complete dark theme for sign-in, sign-up, password reset and verification states. */
+html[data-theme="dark"] body.auth-shell {
+  --auth-bg: #0F1521;
+  --auth-text: #E8ECF4;
+  --auth-muted: #A7B3C8;
+  --auth-border: #2A3346;
+  --auth-primary: #4778F5;
+  --auth-primary-hover: #5B88FF;
+  --auth-accent: #F0B90B;
+  background: var(--auth-bg);
+  color: var(--auth-text);
+}
+html[data-theme="dark"] .auth-brand-copy strong { color: #E8ECF4; }
+html[data-theme="dark"] .auth-social-btn,
+html[data-theme="dark"] .auth-input,
+html[data-theme="dark"] .auth-secondary {
+  background: #111827;
+  color: #E8ECF4;
+  border-color: #354158;
+}
+html[data-theme="dark"] .auth-social-btn:hover,
+html[data-theme="dark"] .auth-secondary:hover {
+  background: #1D293B;
+  border-color: #52627D;
+}
+html[data-theme="dark"] .auth-input::placeholder { color: #7F8CA3; }
+html[data-theme="dark"] .auth-input:focus {
+  border-color: #F0B90B;
+  box-shadow: 0 0 0 3px rgba(240,185,11,.16);
+}
+html[data-theme="dark"] .auth-toggle:hover { background: #263247; color: #E8ECF4; }
+html[data-theme="dark"] .auth-error-msg {
+  background: #351E28;
+  color: #FFB8C2;
+  border-color: #713543;
+}
+html[data-theme="dark"] .auth-success-msg {
+  background: #16352D;
+  color: #9DE6C4;
+  border-color: #28634F;
+}
+html[data-theme="dark"] .auth-verify-icon {
+  background: #16352D;
+  color: #9DE6C4;
+}
+html[data-theme="dark"] .auth-verification-tip {
+  background: #111827;
+  color: #A7B3C8;
+  border-color: #2A3346;
+}
+html[data-theme="dark"] .auth-verification-tip > strong,
+html[data-theme="dark"] .auth-verification-tip span strong,
+html[data-theme="dark"] .auth-verify h2,
+html[data-theme="dark"] .auth-verify-email {
+  color: #E8ECF4;
+}
+html[data-theme="dark"] .auth-resend-status.is-success { color: #9DE6C4; }
+html[data-theme="dark"] .auth-resend-status.is-error { color: #FFB8C2; }
+html[data-theme="dark"] .auth-primary {
+  background: #4778F5;
+  color: #FFFFFF;
+}
+html[data-theme="dark"] .auth-primary:hover { background: #5B88FF; }
