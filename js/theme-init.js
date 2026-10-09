@@ -6,7 +6,7 @@
    shared TypeShala header in both light and dark themes.
    ============================================================ */
 (function () {
-  var LIGHT_HEADER_COLOR = "#0B1C3F";
+  var LIGHT_HEADER_COLOR = "#FFFFFF";
   var DARK_HEADER_COLOR = "#131A28";
 
   function syncThemeColor(theme) {
