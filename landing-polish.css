@@ -259,3 +259,32 @@ body.landing-v2 .nav-wrap::after {
   box-shadow: none !important;
   outline: 0 !important;
 }
+
+/* Top seam diagnostic fix: the visible line is at the document's top edge,
+   not the header's own border. Match the root canvas to the header surface
+   and explicitly clear root/body top borders and shadows in both themes. */
+html:has(body.landing-v2) {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: #FFFFFF;
+}
+body.landing-v2 {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"]:has(body.landing-v2) {
+  background: #131A28;
+}
+body.landing-v2 .site-header {
+  margin-top: 0 !important;
+  top: 0 !important;
+  border-top: 0 !important;
+  box-shadow: none !important;
+}
+body.landing-v2 .site-header.is-scrolled {
+  border-top: 0 !important;
+}
