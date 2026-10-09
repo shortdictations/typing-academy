@@ -179,8 +179,15 @@ document.addEventListener("DOMContentLoaded", function(){
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
     document.documentElement.setAttribute("data-theme", next);
-    // Avoid changing Android's system status-bar color live; this is
-    // intentionally separate from the webpage's theme toggle.
+    // Update Android/browser status-bar color after the page theme has
+    // changed. This restores light/dark status-bar matching; verify on
+    // the installed PWA because some Android builds may redraw the seam.
+    if (typeof window.TypeShalaSyncThemeColor === "function") {
+      window.TypeShalaSyncThemeColor(next);
+    } else {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", next === "dark" ? "#131A28" : "#FFFFFF");
+    }
     render();
   });
 });
