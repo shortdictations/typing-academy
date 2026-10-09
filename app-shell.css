@@ -5926,3 +5926,23 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn:focus-vis
     transition: none !important;
   }
 }
+
+
+/* Keep Settings theme selector geometry identical across light and dark themes. */
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-group{
+  border-radius: 999px !important;
+  padding: 3px !important;
+  gap: 2px !important;
+  background: #131A28 !important;
+  border: 1px solid #3A465C !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
+  border-radius: 999px !important;
+}
+@media (max-width: 560px){
+  html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-group{
+    padding: 3px !important;
+    gap: 2px !important;
+  }
+}
