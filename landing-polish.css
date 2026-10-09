@@ -198,4 +198,32 @@ html[data-theme="dark"] body.landing-v2 .ts-mobile-support-copy h2 em {
   color: #8DB0FF;
 }
 
+/* Landing header/status-bar colour match.
+   Keep the sticky header on the same solid brand surface as the browser
+   status bar, rather than switching from transparent to white on scroll.
+   The dark theme uses the matching dark app-shell surface. */
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled {
+  background: #0B1C3F;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.landing-v2 .lp-brand strong {
+  color: #FFFFFF;
+}
+body.landing-v2 .desktop-nav a,
+body.landing-v2 .desktop-nav a:hover {
+  color: #D7E0F2;
+}
+body.landing-v2 .desktop-nav a:hover {
+  color: #FFFFFF;
+}
+html[data-theme="dark"] body.landing-v2 .site-header,
+html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
+  background: #131A28;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
 
