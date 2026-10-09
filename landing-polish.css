@@ -268,3 +268,56 @@ html[data-theme="dark"] body.landing-v2,
 html[data-theme="dark"] body.landing-v2 .ts-landing-main {
   background-color: #131A28 !important;
 }
+
+
+/* Landing hero — live typing preview: deliberate dark-theme hierarchy. */
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-window {
+  background: #101725;
+  border: 1px solid #2A3346;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, .32);
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-top {
+  color: #A7B3C8;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-label {
+  color: #C0CBDE;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-body {
+  background: #171F2E;
+  border: 1px solid #2A3346;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-stats div {
+  background: #1B2334;
+  border-color: #344057;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-stats small,
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .passage-label,
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .input-label {
+  color: #A7B3C8;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-stats strong {
+  color: #E8ECF4;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-stats strong.blue {
+  color: #8DB0FF;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-stats strong.green {
+  color: #63D6A0;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .typing-passage {
+  background: #1B2334;
+  color: #C0CBDE;
+  border-color: #344057;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .typing-input {
+  background: #131A28;
+  color: #F0F4FC;
+  border-color: #5B8CFF;
+  box-shadow: inset 0 0 0 1px rgba(91, 140, 255, .12);
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-footer {
+  color: #A7B3C8;
+}
+html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-footer svg {
+  color: #63D6A0;
+}
