@@ -23,8 +23,28 @@
   }
 
   // Expose the same updater so the Settings toggle can update the
-  // browser status bar immediately without waiting for navigation.
+  // browser/PWA title bar immediately without waiting for navigation.
   window.TypeShalaSyncThemeColor = syncThemeColor;
+
+  // Keep the browser title/status bar aligned with the actual landing
+  // header theme, including theme changes made by other page controls.
+  function syncFromDocumentTheme() {
+    var theme = document.documentElement.getAttribute("data-theme");
+    if (!VALID_THEMES[theme]) {
+      try {
+        theme = localStorage.getItem("typeshala-theme") || "light";
+        if (theme === "system") {
+          theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+      } catch (e) { theme = "light"; }
+    }
+    syncThemeColor(theme);
+  }
+
+  if (window.MutationObserver) {
+    var themeObserver = new MutationObserver(function () { syncFromDocumentTheme(); });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  }
 
   function applyResolvedTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
