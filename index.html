@@ -178,10 +178,10 @@ document.addEventListener("DOMContentLoaded", function(){
     const current = document.documentElement.getAttribute("data-theme") || "light";
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
-    // Reload so theme-init.js sets the matching Android PWA status-bar
-    // color before the first paint. Live theme-color updates caused a
-    // persistent seam on some Android devices.
-    window.location.reload();
+    // Keep theme switching in-page. Do not repaint Android's system
+    // status bar while the PWA is open; live updates/reloads can leave
+    // a persistent grey seam at the top edge on affected devices.
+    render();
   });
 });
 </script>
