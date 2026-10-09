@@ -61,3 +61,99 @@ body.landing-v2 .legal-page-content a:hover{text-decoration:underline}
   body.landing-v2 .legal-page-title{font-size:2rem}
   body.landing-v2 .legal-page-content{font-size:.9rem}
 }
+
+
+/* Mobile header fixes for Privacy Policy, Terms and About pages */
+body.landing-v2 .site-header{
+  background:rgba(255,255,255,.97);
+  border-bottom:1px solid var(--ts-border);
+  box-shadow:0 4px 16px rgba(16,24,40,.05);
+}
+body.landing-v2 .site-header.is-scrolled{
+  background:rgba(255,255,255,.98);
+  border-bottom-color:var(--ts-border);
+}
+body.landing-v2 .site-header .nav-wrap{
+  min-width:0;
+}
+body.landing-v2 .site-header .lp-brand{
+  min-width:0;
+  flex-shrink:1;
+}
+body.landing-v2 .site-header .lp-brand strong{
+  white-space:nowrap;
+}
+body.landing-v2 .site-header .nav-actions{
+  flex-shrink:0;
+}
+@media(max-width:720px){
+  body.landing-v2 .site-header .nav-wrap{
+    gap:8px;
+    height:64px;
+  }
+  body.landing-v2 .site-header .lp-brand{
+    gap:7px;
+  }
+  body.landing-v2 .site-header .lp-brand-mark{
+    width:34px;
+    height:34px;
+  }
+  body.landing-v2 .site-header .lp-brand strong{
+    font-size:16px;
+    letter-spacing:-.4px;
+  }
+  body.landing-v2 .site-header .nav-actions{
+    margin-left:auto;
+    gap:0;
+  }
+  body.landing-v2 .site-header .nav-actions .lp-btn{
+    padding:10px 13px;
+    min-height:40px;
+    border-radius:10px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  body.landing-v2 .site-header .mobile-menu-btn{
+    flex:0 0 36px;
+    width:36px;
+    height:40px;
+    margin-left:2px;
+    padding:0;
+  }
+  body.landing-v2 .site-header .mobile-menu-btn svg{
+    width:25px;
+    height:25px;
+  }
+  body.landing-v2 .site-header .mobile-menu{
+    background:#fff;
+    box-shadow:0 12px 24px rgba(16,24,40,.08);
+  }
+  body.landing-v2 .legal-page-main{
+    padding-top:24px;
+  }
+}
+@media(max-width:380px){
+  body.landing-v2 .site-header .nav-wrap{
+    gap:5px;
+  }
+  body.landing-v2 .site-header .lp-brand-mark{
+    width:30px;
+    height:30px;
+  }
+  body.landing-v2 .site-header .lp-brand strong{
+    font-size:14px;
+  }
+  body.landing-v2 .site-header .nav-actions .lp-btn{
+    padding:9px 10px;
+    font-size:11px;
+  }
+}
+html[data-theme="dark"] body.landing-v2 .site-header{
+  background:rgba(19,26,40,.97);
+  border-bottom-color:#2A3346;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+html[data-theme="dark"] body.landing-v2 .site-header .mobile-menu{
+  background:#131A28;
+  border-color:#2A3346;
+}
