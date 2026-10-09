@@ -306,3 +306,21 @@ body.landing-v2::before {
 html[data-theme="dark"] body.landing-v2::before {
   background: #131A28;
 }
+
+/* Final mobile-webapp edge correction:
+   The screenshot's first two rows are #E6E6E6, above the white page canvas.
+   Paint the root viewport edge directly (rather than on body, whose pseudo
+   element can participate in the page's flex layout). */
+html:has(body.landing-v2)::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  display: block;
+  background: #FFFFFF;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+html[data-theme="dark"]:has(body.landing-v2)::before {
+  background: #131A28;
+}
