@@ -6022,3 +6022,10 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
     z-index: 1100 !important;
   }
 }
+
+
+/* Seamless app shell: remove the divider beneath the header in both themes. */
+body.app-shell .letterhead,
+html[data-theme="dark"] body.app-shell .letterhead{
+  border-bottom: 0 !important;
+}
