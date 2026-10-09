@@ -179,12 +179,10 @@ document.addEventListener("DOMContentLoaded", function(){
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
     document.documentElement.setAttribute("data-theme", next);
-    if (typeof window.TypeShalaSyncThemeColor === "function") {
-      window.TypeShalaSyncThemeColor(next);
-    } else {
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", next === "dark" ? "#131A28" : "#FFFFFF");
-    }
+    // Do not mutate the Android PWA status-bar theme-color while the app
+    // is already open. On Android this live system-bar repaint appears to
+    // create a persistent 1px seam at the status-bar/header boundary.
+    // theme-init.js still sets the correct status-bar color at launch.
     render();
   });
 });
