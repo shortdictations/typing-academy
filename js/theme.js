@@ -2,12 +2,8 @@
    theme.js
    ------------------------------------------------------------
    Wires the Light / System / Dark toggle on the Settings page.
-   Persists the CHOICE ("light" | "system" | "dark") to
-   localStorage under "typeshala-theme" — the same key
-   js/theme-init.js reads on every app-shell page's next load, so a
-   theme picked here applies immediately elsewhere in the app too.
-   No account/database involvement — this is a local display
-   preference, not account data.
+   Persists the selected preference and updates both page theme
+   and the browser status-bar color immediately.
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelectorAll(".theme-toggle-btn");
@@ -23,12 +19,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function applyThemeChoice(choice, buttons) {
   try {
     localStorage.setItem("typeshala-theme", choice);
-  } catch (e) { /* localStorage unavailable — theme just won't persist across reloads */ }
+  } catch (e) { /* Theme still applies for the current page. */ }
 
   const resolved = choice === "system"
     ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     : choice;
   document.documentElement.setAttribute("data-theme", resolved);
+
+  if (typeof window.TypeShalaSyncThemeColor === "function") {
+    window.TypeShalaSyncThemeColor(resolved);
+  } else {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", resolved === "dark" ? "#131A28" : "#0B1C3F");
+  }
 
   buttons.forEach(btn => btn.classList.toggle("active", btn.dataset.themeChoice === choice));
 }
