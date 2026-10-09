@@ -14,6 +14,7 @@
 <a href="index.html#pricing">Passes &amp; Credits</a>
 </nav>
 <div class="nav-actions">
+<button type="button" class="lp-theme-toggle" id="landingThemeToggle" aria-label="Switch to dark mode" title="Switch to dark mode"><span class="lp-theme-toggle-icon" aria-hidden="true"></span></button>
 <a class="lp-btn lp-btn-gold lp-btn-small" href="login.html">Get Started</a>
 </div>
 </div>
@@ -145,4 +146,25 @@
 <div class="site-foot-copyright">© TypeShala 2026. All rights reserved.</div>
 </div>
 </div>
-</footer><script src="js/landing-v3.js?v=2"></script></body></html>
+</footer><script src="js/landing-v3.js?v=2"></script><script>
+document.addEventListener("DOMContentLoaded",function(){
+  const btn=document.getElementById("landingThemeToggle");
+  if(!btn)return;
+  function render(){
+    const dark=document.documentElement.getAttribute("data-theme")==="dark";
+    btn.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode");
+    btn.setAttribute("title",dark?"Switch to light mode":"Switch to dark mode");
+    btn.querySelector(".lp-theme-toggle-icon").innerHTML=dark
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+  }
+  render();
+  btn.addEventListener("click",function(){
+    const next=(document.documentElement.getAttribute("data-theme")||"light")==="dark"?"light":"dark";
+    try{localStorage.setItem("typeshala-theme",next)}catch(e){}
+    document.documentElement.setAttribute("data-theme",next);
+    render();
+  });
+});
+</script>
+</body></html>
