@@ -242,3 +242,29 @@ html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
   border-top: 0 !important;
   outline: 0 !important;
 }
+
+/* Theme-toggle seam fix: keep the viewport canvas and sticky header on
+   the same solid surface, and avoid animating the surface at theme changes.
+   This targets the intermittent line observed immediately after toggling. */
+html:has(body.landing-v2),
+body.landing-v2,
+body.landing-v2 .ts-landing-main,
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled {
+  transition: none !important;
+  border-top: 0 !important;
+  outline: 0 !important;
+}
+html[data-theme="light"]:has(body.landing-v2),
+html:not([data-theme="dark"]):has(body.landing-v2),
+html[data-theme="light"] body.landing-v2,
+html:not([data-theme="dark"]) body.landing-v2,
+html[data-theme="light"] body.landing-v2 .ts-landing-main,
+html:not([data-theme="dark"]) body.landing-v2 .ts-landing-main {
+  background-color: #FFFFFF !important;
+}
+html[data-theme="dark"]:has(body.landing-v2),
+html[data-theme="dark"] body.landing-v2,
+html[data-theme="dark"] body.landing-v2 .ts-landing-main {
+  background-color: #131A28 !important;
+}
