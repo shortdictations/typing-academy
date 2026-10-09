@@ -199,15 +199,3 @@ html[data-theme="dark"] body.landing-v2 .ts-mobile-support-copy h2 em {
 }
 
 
-/* SSC audience-card logo: preserve the original brand colours in dark mode.
-   The previous invert(1) treatment inverted every logo colour, which can
-   make a multicolour/transparent logo look incorrect. Give it a neutral
-   light tile instead so the logo remains recognizable on the dark card. */
-html[data-theme="dark"] body.landing-v2 .audience-card.blue-card .icon-box img[alt="SSC logo"] {
-  filter: none;
-  opacity: 1;
-  background: #FFFFFF;
-  border-radius: 5px;
-  padding: 3px;
-  box-sizing: content-box;
-}
