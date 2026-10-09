@@ -5673,3 +5673,9 @@ body.app-shell .app-header-theme-quick-toggle .theme-quick-label{
     color:#D5E1FF !important;
   }
 }
+
+/* Match the landing-page SSC logo treatment across the app in dark mode. */
+html[data-theme="dark"] body.app-shell.mock-attempt-page .pts-ssc-icon img,
+html[data-theme="dark"] body.app-shell.mock-history-page .mh-category-logo-ssc img {
+  filter: brightness(0) saturate(100%) invert(57%) sepia(47%) saturate(1634%) hue-rotate(195deg) brightness(101%) contrast(101%);
+}
