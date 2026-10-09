@@ -178,9 +178,10 @@ document.addEventListener("DOMContentLoaded", function(){
     const current = document.documentElement.getAttribute("data-theme") || "light";
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
-    // Keep theme switching in-page. Do not repaint Android's system
-    // status bar while the PWA is open; live updates/reloads can leave
-    // a persistent grey seam at the top edge on affected devices.
+    // Do not mutate the PWA/browser theme-color while the app is open.
+    // Android may leave a thin system-bar redraw seam after live updates.
+    // theme-init.js still sets the initial color on page load; only the
+    // webpage theme changes when this toggle is used.
     render();
   });
 });
