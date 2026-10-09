@@ -26,6 +26,45 @@
   // browser/PWA title bar immediately without waiting for navigation.
   window.TypeShalaSyncThemeColor = syncThemeColor;
 
+  // Use the actual rendered header colour per page: the public landing
+  // page is white in light mode, while authenticated pages use navy.
+  function syncFromRenderedHeader() {
+    var theme = document.documentElement.getAttribute("data-theme") || "light";
+    var selectors = [
+      "body.app-shell .letterhead",
+      "body.auth-page .letterhead",
+      "body:not(.landing-v2) .letterhead",
+      "body.landing-v2 .site-header"
+    ];
+    var header = null;
+    for (var i = 0; i < selectors.length && !header; i++) {
+      header = document.querySelector(selectors[i]);
+    }
+    if (!header) { syncThemeColor(theme); return; }
+    var bg = window.getComputedStyle(header).backgroundColor;
+    var match = bg && bg.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+    if (!match) { syncThemeColor(theme); return; }
+    var color = "#" + [match[1], match[2], match[3]].map(function (v) {
+      return Number(v).toString(16).padStart(2, "0");
+    }).join("").toUpperCase();
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", color);
+  }
+
+  function scheduleHeaderColorSync() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", syncFromRenderedHeader, { once: true });
+    } else {
+      syncFromRenderedHeader();
+    }
+  }
+  scheduleHeaderColorSync();
+
   // Keep the browser title/status bar aligned with the actual landing
   // header theme, including theme changes made by other page controls.
   function syncFromDocumentTheme() {
@@ -42,8 +81,19 @@
   }
 
   if (window.MutationObserver) {
-    var themeObserver = new MutationObserver(function () { syncFromDocumentTheme(); });
+    var themeObserver = new MutationObserver(function () {
+      syncFromDocumentTheme();
+      scheduleHeaderColorSync();
+    });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    document.addEventListener("DOMContentLoaded", function () {
+      var header = document.querySelector("header");
+      if (header) {
+        var headerObserver = new MutationObserver(scheduleHeaderColorSync);
+        headerObserver.observe(header, { attributes: true, attributeFilter: ["class", "style"] });
+      }
+      scheduleHeaderColorSync();
+    }, { once: true });
   }
 
   function applyResolvedTheme(theme) {
