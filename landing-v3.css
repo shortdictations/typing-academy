@@ -577,3 +577,9 @@ html[data-theme="dark"] body.landing-v2 .audience-card.blue-card .icon-box{
   border:1px solid rgba(111,152,255,.18);
 }
 
+
+/* Keep the SSC emblem blue in dark mode without changing light mode. */
+html[data-theme="dark"] body.landing-v2 .audience-card.blue-card .icon-box img,
+html[data-theme="dark"] body.landing-v2 .price-icon.blue-bg img {
+  filter: brightness(0) saturate(100%) invert(57%) sepia(47%) saturate(1634%) hue-rotate(195deg) brightness(101%) contrast(101%);
+}
