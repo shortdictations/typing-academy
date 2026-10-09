@@ -6005,3 +6005,20 @@ html[data-theme="dark"] body.app-shell.settings-page .theme-toggle-btn{
     transition: none !important;
   }
 }
+
+
+/* Mobile portrait shell: preserve document scrolling and keep the shared
+   header pinned at the top. overflow-x:hidden can create a scrolling
+   ancestor and prevent position:sticky from sticking on mobile browsers;
+   clip hides horizontal overflow without creating that scroll container. */
+@media (orientation: portrait) and (max-width: 700px){
+  html,
+  body.app-shell{
+    overflow-x: clip !important;
+  }
+  body.app-shell .letterhead{
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1100 !important;
+  }
+}
