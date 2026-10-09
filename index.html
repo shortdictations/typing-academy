@@ -179,14 +179,10 @@ document.addEventListener("DOMContentLoaded", function(){
     const next = current === "dark" ? "light" : "dark";
     try { localStorage.setItem("typeshala-theme", next); } catch(e) {}
     document.documentElement.setAttribute("data-theme", next);
-    // Keep the Android PWA status bar matched to the selected theme.
-    // The CSS below removes the page/header seam independently of this update.
-    if (typeof window.TypeShalaSyncThemeColor === "function") {
-      window.TypeShalaSyncThemeColor(next);
-    } else {
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", next === "dark" ? "#131A28" : "#FFFFFF");
-    }
+    // Do not mutate the PWA/browser theme-color while the app is open.
+    // Android may leave a thin system-bar redraw seam after live updates.
+    // theme-init.js still sets the initial color on page load; only the
+    // webpage theme changes when this toggle is used.
     render();
   });
 });
