@@ -1137,25 +1137,104 @@ body.app-shell .weak-key-empty{
   body.app-shell .mtr-bar-col{ min-width: 0; }
 }
 
-/* ---------- Print view ----------
-   #printResultView is completely invisible on screen; @media print
-   below hides everything else on the page and shows only this,
-   so printing/Save-as-PDF never touches the live result page. */
-.print-only{ display: none; }
-@media print{
-  body *{ visibility: hidden; }
-  #printResultView, #printResultView *{ visibility: visible; }
-  #printResultView{ display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
-  .print-sheet{ padding: 24px; font-family: var(--ts-font, sans-serif); color: #111; }
-  .print-brand{ font-weight: 800; font-size: 1.1rem; color: var(--ts-navy, #0B1C3F); }
-  .print-sheet h1{ font-size: 1.3rem; margin: 4px 0 2px; }
-  .print-meta{ font-size: 0.85rem; color: #555; margin-bottom: 18px; }
-  .print-sheet h2{ font-size: 1rem; margin: 20px 0 8px; }
-  .print-table{ width: 100%; border-collapse: collapse; }
-  .print-table th, .print-table td{ text-align: left; padding: 7px 4px; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
-  .print-table th{ font-weight: 600; width: 40%; color: #444; }
+/* ---------- Premium print / Save-as-PDF report ---------- */
+.print-only{ display:none; }
+@page{
+  size:A4;
+  margin:14mm 13mm 16mm;
 }
-
+@media print{
+  html, body{
+    width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+    color:#172033 !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  body *{ visibility:hidden; }
+  #printResultView, #printResultView *{ visibility:visible; }
+  #printResultView{
+    display:block !important;
+    position:absolute;
+    inset:0 auto auto 0;
+    width:100%;
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+  }
+  .print-sheet{
+    box-sizing:border-box;
+    width:100%;
+    padding:0;
+    color:#172033;
+    background:#fff;
+    font-family:Inter,Arial,Helvetica,sans-serif;
+    font-size:10pt;
+    line-height:1.45;
+  }
+  .print-report-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:0 0 14px;
+    border-bottom:2px solid #172d55;
+  }
+  .print-report-brand{display:flex;align-items:center;gap:9px;}
+  .print-brand-mark{
+    display:flex;align-items:center;justify-content:center;
+    width:35px;height:35px;border-radius:9px;
+    background:#172d55;color:#fff;font-size:19px;font-weight:800;
+  }
+  .print-report-brand strong{display:block;font-size:16pt;letter-spacing:-.4px;color:#172d55;}
+  .print-report-brand small{display:block;font-size:8pt;color:#65718a;margin-top:1px;}
+  .print-report-label{font-size:8pt;font-weight:800;letter-spacing:1.4px;color:#64728a;}
+  .print-report-title{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+    padding:21px 0 15px;
+  }
+  .print-eyebrow{margin:0 0 4px;font-size:7.5pt;font-weight:800;letter-spacing:1.3px;color:#5269a7;}
+  .print-report-title h1{margin:0;font-size:22pt;line-height:1.15;letter-spacing:-.6px;color:#142544;}
+  .print-report-subtitle{margin:6px 0 0;font-size:9pt;color:#63708a;overflow-wrap:anywhere;}
+  .print-status{
+    display:inline-block;flex:none;margin-top:4px;padding:6px 10px;border-radius:5px;
+    font-size:8pt;font-weight:800;letter-spacing:.5px;border:1px solid;
+  }
+  .print-status-passed{color:#12653a;background:#e8f6ee;border-color:#a6dfbb;}
+  .print-status-failed{color:#a33a31;background:#fff0ed;border-color:#f0b7ae;}
+  .print-report-meta{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+    padding:12px 14px;margin:0 0 15px;border:1px solid #dce3ef;border-radius:7px;background:#f6f8fc;
+  }
+  .print-report-meta span{display:block;min-width:0;font-size:9pt;font-weight:700;color:#202d45;overflow-wrap:anywhere;}
+  .print-report-meta b{display:block;margin-bottom:3px;font-size:7pt;letter-spacing:.7px;color:#71809a;}
+  .print-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 20px;}
+  .print-metric{min-width:0;padding:12px 10px;border:1px solid #dfe5ef;border-radius:7px;background:#fff;}
+  .print-metric span{display:block;font-size:8pt;color:#69758b;margin-bottom:4px;}
+  .print-metric strong{display:block;font-size:17pt;line-height:1.15;letter-spacing:-.4px;color:#172d55;overflow-wrap:anywhere;}
+  .print-metric-primary{background:#eef3ff;border-color:#cbd8fb;}
+  .print-metric-primary strong{color:#284fc4;}
+  .print-report-section{margin:0 0 18px;break-inside:avoid;page-break-inside:avoid;}
+  .print-report-section h2{display:flex;align-items:center;gap:8px;margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid #dfe5ef;font-size:12pt;color:#172d55;}
+  .print-report-section h2 span{font-size:8pt;color:#536fbd;letter-spacing:.5px;}
+  .print-section-note{margin:0 0 8px;font-size:8.5pt;color:#69758b;}
+  .print-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  .print-table th,.print-table td{padding:7px 9px;border-bottom:1px solid #e4e9f1;text-align:left;font-size:9pt;vertical-align:middle;overflow-wrap:anywhere;}
+  .print-table th{width:48%;font-weight:600;color:#59667e;background:#f8f9fc;}
+  .print-table td{font-weight:700;color:#1e2c45;}
+  .print-table thead th{width:auto;background:#edf2fb;color:#4d5e7e;font-size:8pt;text-transform:uppercase;letter-spacing:.5px;}
+  .print-weak-table th:first-child,.print-weak-table td:first-child{width:34%;}
+  .print-keycap{display:inline-flex;align-items:center;justify-content:center;min-width:24px;padding:3px 7px;border:1px solid #cdd6e7;border-radius:4px;background:#f2f5fa;font-weight:800;color:#172d55;}
+  .print-report-footer{
+    display:flex;justify-content:space-between;gap:12px;margin-top:24px;padding-top:9px;
+    border-top:1px solid #dfe5ef;font-size:7.5pt;color:#7b879a;
+  }
+  .print-report-footer span:last-child{font-weight:700;color:#5269a7;}
+  .print-report-section h2,.print-report-meta,.print-metric,.print-table tr{break-inside:avoid;page-break-inside:avoid;}
+}
 
 body.app-shell .weak-keys-card-letters{ display: flex; gap: 8px; margin: 12px 0 6px; }
 body.app-shell .weak-keys-card-letter{
