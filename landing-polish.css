@@ -321,3 +321,33 @@ html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-footer {
 html[data-theme="dark"] body.landing-v2 .lp-hero-demo .demo-footer svg {
   color: #63D6A0;
 }
+
+
+/* Installed-PWA top seam: eliminate any inherited divider, shadow, or
+   compositing edge at the top of the landing header. Keep the existing
+   header dimensions and sticky behaviour unchanged. */
+html:has(body.landing-v2),
+body.landing-v2 {
+  margin-top: 0 !important;
+  border-top: 0 !important;
+  box-shadow: none !important;
+}
+body.landing-v2 .ts-landing-main,
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled,
+body.landing-v2 .site-header .nav-wrap {
+  border-top: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+body.landing-v2 .site-header {
+  top: 0 !important;
+  background-clip: padding-box;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+body.landing-v2 .site-header::before,
+body.landing-v2 .site-header::after {
+  border: 0 !important;
+  box-shadow: none !important;
+}
