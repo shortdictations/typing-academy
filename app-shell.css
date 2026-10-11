@@ -6123,3 +6123,24 @@ body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle {
     will-change: auto;
   }
 }
+
+/* Typing-test countdown: fixed width prevents the header shifting as digits change. */
+body.app-shell.mock-attempt-page #testCard .timer-box{
+  box-sizing: border-box;
+  width: 104px;
+  min-width: 104px;
+  flex: 0 0 104px;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+@media (max-width: 700px){
+  body.app-shell.mock-attempt-page.mock-test-active #testCard .timer-box{
+    width: 88px;
+    min-width: 88px;
+    flex: 0 0 88px;
+    padding-inline: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+}
