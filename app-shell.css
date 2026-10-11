@@ -6466,3 +6466,19 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     break-inside:avoid !important; page-break-inside:avoid !important;
   }
 }
+
+/* Use the original TypeShala brand asset in the PDF report. */
+@media print {
+  body.printing-results #printResultView .print-brand-logo {
+    display:block !important;
+    width:30px !important;
+    height:30px !important;
+    min-width:30px !important;
+    min-height:30px !important;
+    object-fit:contain !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+}
