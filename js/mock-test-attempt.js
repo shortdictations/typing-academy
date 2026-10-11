@@ -1615,38 +1615,94 @@ function wirePrintResults(r, passed) {
   if (!btn) return;
 
   btn.onclick = () => {
-    // Reuses r.weakKeys (computed once in endMockTest()) rather than
-    // recomputing separately — same list the screen itself shows,
-    // never a second independent calculation that could drift.
+    // Use the exact result and weak-key data already shown on screen.
     const weakKeys = r.weakKeys || [];
     const view = document.getElementById("printResultView");
-    view.innerHTML = `
-      <div class="print-sheet">
-        <div class="print-brand">TypeShala</div>
-        <h1>Typing Test Result</h1>
-        <div class="print-meta">${escapeHtml(mockTest.title)} &middot; ${escapeHtml(selectedPassage.title)} &middot; ${new Date().toLocaleDateString()}</div>
+    const resultDate = new Date().toLocaleDateString(undefined, {
+      day: "2-digit", month: "short", year: "numeric"
+    });
+    const statusLabel = passed ? "PASSED" : "NOT PASSED";
+    const statusClass = passed ? "print-status-passed" : "print-status-failed";
+    const metrics = [
+      ["Net speed", r.netWpm + " WPM", "print-metric-primary"],
+      ["Accuracy", r.accuracy + "%", ""],
+      ["Gross speed", r.grossWpm + " WPM", ""],
+      ["Mistakes", r.errors, ""]
+    ];
 
-        <table class="print-table">
-          <tr><th>Status</th><td>${passed ? "Passed" : "Not Passed"}</td></tr>
-          <tr><th>Test Duration</th><td>${r.testDurationMinutes} minutes</td></tr>
-          <tr><th>Words Typed</th><td>${r.wordsTyped}</td></tr>
-          <tr><th>Time Taken</th><td>${formatDurationForResult(r)}</td></tr>
-          <tr><th>Gross Speed</th><td>${r.grossWpm} WPM</td></tr>
-          <tr><th>Net Speed</th><td>${r.netWpm} WPM</td></tr>
-          <tr><th>Accuracy</th><td>${r.accuracy}%</td></tr>
-          <tr><th>Mistakes</th><td>${r.errors}</td></tr>
-          ${!passed && r.failReasons && r.failReasons.length ? `<tr><th>Reason</th><td>${r.failReasons.map(escapeHtml).join(" ")}</td></tr>` : ""}
-        </table>
+    view.innerHTML = `
+      <article class="print-sheet">
+        <header class="print-report-header">
+          <div class="print-report-brand">
+            <span class="print-brand-mark" aria-hidden="true">T</span>
+            <span><strong>TypeShala</strong><small>Typing Practice Centre</small></span>
+          </div>
+          <div class="print-report-label">PERFORMANCE REPORT</div>
+        </header>
+
+        <section class="print-report-title">
+          <div>
+            <p class="print-eyebrow">MOCK TEST RESULT</p>
+            <h1>${escapeHtml(mockTest.title || "Typing Test")}</h1>
+            <p class="print-report-subtitle">${escapeHtml(selectedPassage.title || "Typing passage")} · ${escapeHtml(String(mockTest.category || "Typing").toUpperCase())}</p>
+          </div>
+          <span class="print-status ${statusClass}">${statusLabel}</span>
+        </section>
+
+        <div class="print-report-meta">
+          <span><b>DATE</b>${resultDate}</span>
+          <span><b>TEST DURATION</b>${r.testDurationMinutes} minutes</span>
+          <span><b>TIME TAKEN</b>${escapeHtml(formatDurationForResult(r))}</span>
+        </div>
+
+        <section class="print-metrics" aria-label="Performance metrics">
+          ${metrics.map(([label, value, extra]) => `
+            <div class="print-metric ${extra}">
+              <span>${label}</span><strong>${value}</strong>
+            </div>`).join("")}
+        </section>
+
+        <section class="print-report-section">
+          <h2><span>01</span> Test overview</h2>
+          <table class="print-table">
+            <tbody>
+              <tr><th>Words typed</th><td>${r.wordsTyped}</td></tr>
+              <tr><th>Time taken</th><td>${escapeHtml(formatDurationForResult(r))}</td></tr>
+              <tr><th>Gross typing speed</th><td>${r.grossWpm} WPM</td></tr>
+              <tr><th>Net typing speed</th><td>${r.netWpm} WPM</td></tr>
+              <tr><th>Accuracy</th><td>${r.accuracy}%</td></tr>
+              <tr><th>Total mistakes</th><td>${r.errors}</td></tr>
+              ${!passed && r.failReasons && r.failReasons.length ? `<tr><th>Areas to improve</th><td>${r.failReasons.map(escapeHtml).join("; ")}</td></tr>` : ""}
+            </tbody>
+          </table>
+        </section>
 
         ${weakKeys.length ? `
-          <h2>Weak Keys</h2>
-          <table class="print-table">
-            ${weakKeys.map(k => `<tr><th>${k.key}</th><td>${Math.round(k.accuracy)}% accuracy &middot; ${k.errors} mistakes</td></tr>`).join("")}
-          </table>
+          <section class="print-report-section print-weak-section">
+            <h2><span>02</span> Keys to practise</h2>
+            <p class="print-section-note">Focus on these keys to improve accuracy in your next attempt.</p>
+            <table class="print-table print-weak-table">
+              <thead><tr><th>Key</th><th>Accuracy</th><th>Mistakes</th></tr></thead>
+              <tbody>${weakKeys.map(k => `
+                <tr>
+                  <td><span class="print-keycap">${escapeHtml(String(k.key))}</span></td>
+                  <td>${Math.round(k.accuracy)}%</td>
+                  <td>${k.errors}</td>
+                </tr>`).join("")}</tbody>
+            </table>
+          </section>
         ` : ""}
-      </div>
+
+        <footer class="print-report-footer">
+          <span>Keep practising. Every keystroke counts.</span>
+          <span>typeshala.vercel.app</span>
+        </footer>
+      </article>
     `;
+    view.setAttribute("aria-hidden", "false");
     window.print();
+    // Keep the print-only report out of the accessibility tree after the dialog closes.
+    setTimeout(() => view.setAttribute("aria-hidden", "true"), 1000);
   };
 }
 
