@@ -400,9 +400,7 @@ function applyQuickThemeToggle() {
     btn.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
     const icon = btn.querySelector(".theme-quick-icon");
     const label = btn.querySelector(".theme-quick-label");
-    if (icon) icon.innerHTML = isDark
-      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+    if (icon) btn.classList.toggle("is-dark", isDark);
     if (label) label.textContent = isDark ? "Light" : "Dark";
   });
 }
@@ -414,7 +412,7 @@ function wireQuickThemeToggle(container, className, id, iconOnly = false) {
   button.id = id;
   button.className = className;
   button.innerHTML =
-    '<span class="theme-quick-icon" aria-hidden="true"></span>' +
+    '<span class="theme-quick-icon" aria-hidden="true"><svg class="theme-quick-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg><svg class="theme-quick-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></span>' +
     (iconOnly ? '' : '<span class="theme-quick-label"></span>');
   button.addEventListener("click", applyQuickThemeToggle);
   container.appendChild(button);
@@ -423,9 +421,7 @@ function wireQuickThemeToggle(container, className, id, iconOnly = false) {
   const isDark = current === "dark";
   button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
   button.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
-  button.querySelector(".theme-quick-icon").innerHTML = isDark
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+  button.classList.toggle("is-dark", isDark);
   const label = button.querySelector(".theme-quick-label");
   if (label) label.textContent = isDark ? "Light" : "Dark";
 }
