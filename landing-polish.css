@@ -379,23 +379,24 @@ body.landing-v2 .site-header.is-scrolled {
 }
 
 
-/* Landing page: match the full-width header/footer placement used on information pages. */
+/* Landing page desktop header/footer: override the shared constrained container.
+   This stylesheet is loaded only by index.html, so no :has() selector is needed. */
 @media (min-width: 721px) {
-  body.landing-v2:has(.ts-landing-main) .site-header .nav-wrap {
-    width: 100%;
-    max-width: none;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 32px;
-    padding-right: 32px;
+  body.landing-v2 .site-header .nav-wrap {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
   }
 
-  body.landing-v2:has(.ts-landing-main) .site-foot-inner {
-    width: 100%;
-    max-width: none;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 32px;
-    padding-right: 32px;
+  body.landing-v2 .site-foot-inner {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
   }
 }
