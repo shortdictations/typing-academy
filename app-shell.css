@@ -6626,3 +6626,115 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     color: #758196 !important; font-size: 6pt !important;
   }
 }
+
+
+/* Final report layout refinements: light linked brand header and balanced 3x2 metrics. */
+@media print {
+  .history-print-brand {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 0 !important;
+    margin: 0 0 15px !important;
+    padding: 0 0 10px !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
+  }
+  .history-print-brand a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    color: #172b4d !important;
+    text-decoration: none !important;
+    line-height: 1 !important;
+  }
+  .history-print-brand-left {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 9px !important;
+  }
+  .history-print-logo {
+    display: block !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    object-fit: contain !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  .history-print-wordmark {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #172b4d !important;
+    font-size: 20pt !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -.65px !important;
+    white-space: nowrap !important;
+  }
+  .history-print-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+  .history-print-metrics > div,
+  .history-print-metrics .metric-speed,
+  .history-print-metrics .metric-accuracy,
+  .history-print-metrics .metric-speed-secondary,
+  .history-print-metrics .metric-errors,
+  .history-print-metrics .metric-words,
+  .history-print-metrics .metric-duration {
+    grid-column: span 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    min-height: 88px !important;
+    padding: 11px 12px !important;
+    border: 1px solid #e0e7ef !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    text-align: left !important;
+  }
+  .history-print-metrics .metric-speed,
+  .history-print-metrics .metric-accuracy {
+    background: #eef3f9 !important;
+    border-color: #d7e1ee !important;
+    border-left: 2px solid #6483aa !important;
+  }
+  .history-print-metrics span {
+    font-size: 6pt !important;
+    color: #64748b !important;
+    font-weight: 800 !important;
+    letter-spacing: .45px !important;
+  }
+  .history-print-metrics strong,
+  .history-print-metrics .metric-speed strong,
+  .history-print-metrics .metric-accuracy strong,
+  .history-print-metrics .metric-speed-secondary strong,
+  .history-print-metrics .metric-errors strong,
+  .history-print-metrics .metric-words strong,
+  .history-print-metrics .metric-duration strong {
+    margin: 0 !important;
+    color: #172b4d !important;
+    font-size: 20pt !important;
+    font-weight: 800 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.45px !important;
+  }
+  .history-print-metrics small {
+    font-size: 6pt !important;
+    color: #758196 !important;
+  }
+}
