@@ -231,53 +231,50 @@ html[data-theme="dark"] .auth-primary {
 html[data-theme="dark"] .auth-primary:hover { background: #5B88FF; }
 
 
-/* Legal consent note: centered, quiet, responsive, and theme-aware. */
-.auth-legal-note {
-  max-width: 360px;
-  margin: 13px auto 0;
-  padding: 0 8px;
+/* Legal consent statement sits quietly at the bottom of the authentication page. */
+.auth-page .auth-footer {
+  margin: auto 20px 0;
+  padding: 22px 12px 20px;
   text-align: center;
   color: var(--auth-muted);
   font-size: 11px;
   line-height: 1.7;
   font-weight: 400;
-  text-wrap: pretty;
 }
-.auth-legal-note a {
+.auth-page .auth-footer a {
   color: var(--auth-muted);
-  font-weight: 650;
+  font-weight: 600;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--auth-muted) 55%, transparent);
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
   transition: color .15s ease, text-decoration-color .15s ease;
 }
-.auth-legal-note a:hover,
-.auth-legal-note a:focus-visible {
+.auth-page .auth-footer a:hover,
+.auth-page .auth-footer a:focus-visible {
   color: var(--auth-primary);
   text-decoration-color: currentColor;
 }
-.auth-legal-note a:focus-visible {
+.auth-page .auth-footer a:focus-visible {
   outline: 2px solid var(--auth-primary);
   outline-offset: 3px;
   border-radius: 2px;
 }
-html[data-theme="dark"] .auth-legal-note { color: #9AA8BE; }
-html[data-theme="dark"] .auth-legal-note a {
+html[data-theme="dark"] .auth-page .auth-footer { color: #9AA8BE; }
+html[data-theme="dark"] .auth-page .auth-footer a {
   color: #B6C5DE;
   text-decoration-color: #63718A;
 }
-html[data-theme="dark"] .auth-legal-note a:hover,
-html[data-theme="dark"] .auth-legal-note a:focus-visible {
+html[data-theme="dark"] .auth-page .auth-footer a:hover,
+html[data-theme="dark"] .auth-page .auth-footer a:focus-visible {
   color: #8FB0FF;
   text-decoration-color: currentColor;
 }
 @media (max-width: 520px) {
-  .auth-legal-note {
-    max-width: 330px;
-    margin-top: 12px;
-    padding: 0 4px;
+  .auth-page .auth-footer {
+    margin-right: 12px;
+    margin-left: 12px;
+    padding: 18px 4px 16px;
     font-size: 10.5px;
-    line-height: 1.65;
   }
 }
