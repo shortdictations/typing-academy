@@ -6794,3 +6794,26 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     line-height: 1.25 !important;
   }
 }
+
+
+/* Typing performance report: centered title and readable result metric. */
+@media print {
+  body.printing-history-result .history-print-sheet h1.history-print-title {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #172b4d !important;
+    text-align: center !important;
+    font-size: 16pt !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    letter-spacing: .25px !important;
+  }
+  body.printing-history-result .history-print-metrics .history-print-metric-result {
+    font-size: 12pt !important;
+    letter-spacing: -.2px !important;
+    overflow-wrap: anywhere !important;
+  }
+}
