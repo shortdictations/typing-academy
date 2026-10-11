@@ -377,3 +377,25 @@ body.landing-v2 .site-header.is-scrolled {
   border-bottom: 0 !important;
   box-shadow: none !important;
 }
+
+
+/* Landing page: match the full-width header/footer placement used on information pages. */
+@media (min-width: 721px) {
+  body.landing-v2:has(.ts-landing-main) .site-header .nav-wrap {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  body.landing-v2:has(.ts-landing-main) .site-foot-inner {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
