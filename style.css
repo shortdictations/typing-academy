@@ -2950,3 +2950,34 @@ body.subscriptions-page .passes-grid > .credits-summary-card{
 body.subscriptions-page .passes-grid .credits-summary-card .credits-purchase-section{
   margin-top:auto;
 }
+
+/* Accessible light/dark theme transitions — animate paint-only properties,
+   never layout, large-container transforms, or browser/status-bar surfaces. */
+:root {
+  color-scheme: light;
+}
+html[data-theme="dark"] { color-scheme: dark; }
+body:not(.landing-v2) :where(
+  .card, .panel, .modal, .dropdown-menu, .sidebar, .topbar, .app-header,
+  .stat-card, .pass-card, .credit-card, .credits-summary-card, .auth-panel,
+  .auth-page, .auth-brand, .auth-footer, input, textarea, select,
+  .btn, .button, .nav-link, .theme-toggle, .theme-toggle svg
+) {
+  transition:
+    background-color 280ms ease,
+    color 280ms ease,
+    border-color 280ms ease,
+    box-shadow 280ms ease,
+    fill 280ms ease,
+    stroke 280ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  body:not(.landing-v2) :where(
+    .card, .panel, .modal, .dropdown-menu, .sidebar, .topbar, .app-header,
+    .stat-card, .pass-card, .credit-card, .credits-summary-card, .auth-panel,
+    .auth-page, .auth-brand, .auth-footer, input, textarea, select,
+    .btn, .button, .nav-link, .theme-toggle, .theme-toggle svg
+  ) {
+    transition-duration: 0.01ms !important;
+  }
+}
