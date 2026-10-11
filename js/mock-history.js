@@ -315,7 +315,7 @@ function downloadHistoryResult(index) {
   view.innerHTML = `
     <article class="history-print-sheet">
       <header class="history-print-brand">
-        <div class="history-print-wordmark"><strong>TYPESH​ALA</strong><small>TYPING PRACTICE CENTRE · PERFORMANCE ASSESSMENT</small></div>
+        <div class="history-print-brand-left"><img src="favicon.png" alt="" class="history-print-logo"><div class="history-print-wordmark"><strong>TypeShala</strong><small>TYPING PRACTICE CENTRE · PERFORMANCE ASSESSMENT</small></div></div>
         <span class="history-print-official">OFFICIAL REPORT</span>
       </header>
       <h1>${safe(category)} MOCK TEST PERFORMANCE REPORT</h1>
