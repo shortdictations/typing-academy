@@ -6738,3 +6738,59 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     color: #758196 !important;
   }
 }
+
+
+/* TypeShala history PDF — concise, evidence-based improvement analysis. */
+@media print {
+  body.printing-history-result .history-print-analysis {
+    margin-top: 9px !important;
+    margin-bottom: 8px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-history-result .history-print-analysis h2 {
+    margin-bottom: 6px !important;
+  }
+  body.printing-history-result .history-print-analysis-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  body.printing-history-result .history-print-analysis-card {
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    border: 1px solid #e0e7ef !important;
+    border-radius: 7px !important;
+    background: #f8fafc !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-history-result .history-print-analysis-actions {
+    background: #f1f6ff !important;
+    border-color: #d9e5f8 !important;
+  }
+  body.printing-history-result .history-print-analysis-card h3 {
+    margin: 0 0 5px !important;
+    color: #344966 !important;
+    font-size: 6.2pt !important;
+    font-weight: 800 !important;
+    letter-spacing: .35px !important;
+  }
+  body.printing-history-result .history-print-analysis-card ul {
+    margin: 0 !important;
+    padding-left: 13px !important;
+  }
+  body.printing-history-result .history-print-analysis-card li {
+    margin: 0 0 3px !important;
+    color: #344256 !important;
+    font-size: 6.6pt !important;
+    line-height: 1.3 !important;
+    overflow-wrap: anywhere !important;
+  }
+  body.printing-history-result .history-print-analysis-note {
+    margin: 5px 0 0 !important;
+    color: #758196 !important;
+    font-size: 5.8pt !important;
+    line-height: 1.25 !important;
+  }
+}
