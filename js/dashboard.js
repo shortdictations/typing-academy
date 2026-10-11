@@ -664,7 +664,7 @@ function updateDashboardTimeGreeting() {
   } else if (hour >= 17 && hour < 21) {
     greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! 🌆";
   } else {
-    greetingEl.textContent = "Burning the midnight oil, " + dashboardGreetingName + "? 🌙";
+    greetingEl.textContent = "Hello, night owl! 🦉";
   }
 }
 
