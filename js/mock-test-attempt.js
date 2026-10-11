@@ -733,8 +733,9 @@ function startMockTest() {
   document.getElementById("testCard").style.display = "block";
   hideWarningBanner();
 
+  const testCategory = String(mockTest.category || selectedPassage.category || "").toLowerCase();
   document.getElementById("testPassageTitle").textContent =
-    mockTest.title + " · " + selectedDurationMinutes + " min · " + selectedPassage.title;
+    testCategory.includes("legal") ? "LEGAL TYPING TEST" : "SSC TYPING TEST";
 
   renderPassage();
 
