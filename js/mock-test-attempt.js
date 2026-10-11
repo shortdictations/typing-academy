@@ -746,7 +746,7 @@ function startMockTest() {
 
   secondsLeft = selectedDurationMinutes * 60;
   updateTimerDisplay();
-  updateLiveStats(0, 100, 0);
+  updateLiveStats(0, null, 0);
 
   testActive = false;
   testScreenOpen = true;
@@ -1178,7 +1178,7 @@ function computeLiveStats(typed) {
   }
 
   const totalTyped = typed.length;
-  const accuracy = totalTyped > 0 ? Math.round((correctChars / totalTyped) * 100) : 100;
+  const accuracy = totalTyped > 0 ? Math.round((correctChars / totalTyped) * 100) : null;
   const minutesElapsed = testStartTime ? (Date.now() - testStartTime) / 60000 : 0;
   const wpm = minutesElapsed > 0 ? Math.round((correctChars / 5) / minutesElapsed) : 0;
   const mistakes = wordResults.filter(r => !r.correct).length;
@@ -1221,7 +1221,7 @@ function updateTimerDisplay() {
 
 function updateLiveStats(wpm, accuracy, mistakes) {
   document.getElementById("liveWpm").textContent = wpm;
-  document.getElementById("liveAccuracy").textContent = accuracy + "%";
+  document.getElementById("liveAccuracy").textContent = accuracy == null ? "—" : accuracy + "%";
   const mistakesEl = document.getElementById("liveMistakes");
   if (mistakesEl) mistakesEl.textContent = mistakes;
 }
