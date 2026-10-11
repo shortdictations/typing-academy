@@ -1637,7 +1637,7 @@ function wirePrintResults(r, passed) {
       <article class="print-sheet">
         <header class="print-report-header">
           <div class="print-report-brand">
-            <span class="print-brand-mark" aria-hidden="true">T</span>
+            <img class="print-brand-logo" src="favicon.png" alt="TypeShala logo" width="34" height="34">
             <span><strong>TypeShala</strong><small>Typing Practice Centre</small></span>
           </div>
           <div class="print-report-label">PERFORMANCE REPORT</div>
