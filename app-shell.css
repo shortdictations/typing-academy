@@ -6319,3 +6319,90 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
   background:#293750 !important;
   border-color:#5B8CFF !important;
 }
+
+
+/* Keep the exported report identical in light and dark app themes. */
+.print-no-weak-keys{
+  display:block;
+  padding:14px 16px;
+  border:1px solid #cfe5d7;
+  border-radius:7px;
+  background:#f0f8f3;
+  color:#215d3a;
+}
+.print-no-weak-keys strong{display:block;font-size:10pt;color:#215d3a;}
+.print-no-weak-keys p{margin:3px 0 0;font-size:8.5pt;color:#4f6c5a;}
+@media print{
+  html[data-theme="dark"] body.app-shell #printResultView,
+  html[data-theme="light"] body.app-shell #printResultView,
+  body.app-shell #printResultView{
+    background:#fff !important;
+    color:#172033 !important;
+    color-scheme:light !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-sheet,
+  html[data-theme="light"] body.app-shell #printResultView .print-sheet,
+  body.app-shell #printResultView .print-sheet{
+    background:#fff !important;
+    color:#172033 !important;
+    border-color:#dce3ef !important;
+    box-shadow:none !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-brand strong,
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-title h1,
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-section h2,
+  html[data-theme="dark"] body.app-shell #printResultView .print-metric strong,
+  html[data-theme="dark"] body.app-shell #printResultView .print-table td,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-brand strong,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-title h1,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-section h2,
+  html[data-theme="light"] body.app-shell #printResultView .print-metric strong,
+  html[data-theme="light"] body.app-shell #printResultView .print-table td{
+    color:#172d55 !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-subtitle,
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-label,
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-brand small,
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-meta b,
+  html[data-theme="dark"] body.app-shell #printResultView .print-metric span,
+  html[data-theme="dark"] body.app-shell #printResultView .print-section-note,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-subtitle,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-label,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-brand small,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-meta b,
+  html[data-theme="light"] body.app-shell #printResultView .print-metric span,
+  html[data-theme="light"] body.app-shell #printResultView .print-section-note{
+    color:#63708a !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-report-meta,
+  html[data-theme="dark"] body.app-shell #printResultView .print-metric,
+  html[data-theme="dark"] body.app-shell #printResultView .print-table th,
+  html[data-theme="light"] body.app-shell #printResultView .print-report-meta,
+  html[data-theme="light"] body.app-shell #printResultView .print-metric,
+  html[data-theme="light"] body.app-shell #printResultView .print-table th{
+    background:#f6f8fc !important;
+    color:#59667e !important;
+    border-color:#dfe5ef !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-metric-primary,
+  html[data-theme="light"] body.app-shell #printResultView .print-metric-primary{
+    background:#eef3ff !important;
+    border-color:#cbd8fb !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-metric-primary strong,
+  html[data-theme="light"] body.app-shell #printResultView .print-metric-primary strong{
+    color:#284fc4 !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-no-weak-keys,
+  html[data-theme="light"] body.app-shell #printResultView .print-no-weak-keys{
+    background:#f0f8f3 !important;
+    border-color:#cfe5d7 !important;
+    color:#215d3a !important;
+  }
+  html[data-theme="dark"] body.app-shell #printResultView .print-no-weak-keys strong,
+  html[data-theme="dark"] body.app-shell #printResultView .print-no-weak-keys p,
+  html[data-theme="light"] body.app-shell #printResultView .print-no-weak-keys strong,
+  html[data-theme="light"] body.app-shell #printResultView .print-no-weak-keys p{
+    color:#215d3a !important;
+  }
+}
