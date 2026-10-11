@@ -30,6 +30,15 @@
   // page is white in light mode, while authenticated pages use navy.
   function syncFromRenderedHeader() {
     var theme = document.documentElement.getAttribute("data-theme") || "light";
+
+    // The public landing page intentionally uses a transparent/glass header.
+    // Its computed background may be rgba(..., 0), which is not a reliable
+    // browser/status-bar colour. Use the selected theme as the source of truth.
+    if (document.body && document.body.classList.contains("landing-v2")) {
+      syncThemeColor(theme);
+      return;
+    }
+
     var selectors = [
       "body.app-shell .letterhead",
       "body.auth-page .letterhead",
@@ -42,8 +51,14 @@
     }
     if (!header) { syncThemeColor(theme); return; }
     var bg = window.getComputedStyle(header).backgroundColor;
-    var match = bg && bg.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
-    if (!match) { syncThemeColor(theme); return; }
+    // Never turn a transparent background into an opaque hex colour.
+    var rgba = bg && bg.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*[,/]\s*([0-9.]+%?))?\s*\)$/i);
+    if (!rgba) { syncThemeColor(theme); return; }
+    if (rgba[4] !== undefined && parseFloat(rgba[4]) < 1) {
+      syncThemeColor(theme);
+      return;
+    }
+    var match = rgba;
     var color = "#" + [match[1], match[2], match[3]].map(function (v) {
       return Number(v).toString(16).padStart(2, "0");
     }).join("").toUpperCase();
