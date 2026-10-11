@@ -6029,3 +6029,50 @@ body.app-shell .letterhead,
 html[data-theme="dark"] body.app-shell .letterhead{
   border-bottom: 0 !important;
 }
+
+/* Match mobile and desktop theme-change motion across app-shell controls.
+   Animate only paint properties; do not transform the header or page canvas. */
+body.app-shell .theme-toggle-group,
+body.app-shell .theme-toggle-btn,
+body.app-shell .theme-toggle-btn svg,
+body.app-shell .settings-section-card,
+body.app-shell .settings-section-head,
+body.app-shell .settings-row,
+body.app-shell .settings-row-action,
+body.app-shell .settings-inline-form input,
+body.app-shell .settings-cancel-btn {
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    fill 300ms ease,
+    stroke 300ms ease;
+}
+body.app-shell .theme-toggle-btn svg {
+  transform-origin: center;
+  transition: transform 300ms cubic-bezier(.2,.75,.25,1), color 300ms ease;
+}
+body.app-shell .theme-toggle-btn.active svg {
+  transform: scale(1.08);
+}
+@media (max-width: 560px) {
+  body.app-shell .theme-toggle-group,
+  body.app-shell .theme-toggle-btn,
+  body.app-shell .theme-toggle-btn svg {
+    transition-duration: 300ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.app-shell .theme-toggle-group,
+  body.app-shell .theme-toggle-btn,
+  body.app-shell .theme-toggle-btn svg,
+  body.app-shell .settings-section-card,
+  body.app-shell .settings-section-head,
+  body.app-shell .settings-row,
+  body.app-shell .settings-row-action,
+  body.app-shell .settings-inline-form input,
+  body.app-shell .settings-cancel-btn {
+    transition-duration: 0.01ms !important;
+  }
+}
