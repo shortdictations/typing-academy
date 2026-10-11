@@ -1612,6 +1612,8 @@ function renderEncouragement(passed) {
 // exactly window.print()'s destination picker, so no extra library
 // is needed for that requirement either.
 function wirePrintResults(r, passed) {
+  // Freeze the completed attempt once; PDF exports never read a live timer.
+  r = Object.freeze({ ...r, elapsedTime: Math.max(0, Math.round(Number(r?.elapsedTime ?? 0))) });
   const btn = document.getElementById("printResultsBtn");
   if (!btn) return;
 
@@ -1706,9 +1708,28 @@ function wirePrintResults(r, passed) {
       </article>
     `;
     view.setAttribute("aria-hidden", "false");
+
+    // Print the report as a direct body child so app-shell backgrounds cannot
+    // bleed through the PDF, regardless of the selected theme.
+    const originalParent = view.parentNode;
+    const originalNextSibling = view.nextSibling;
+    document.body.appendChild(view);
+    document.body.classList.add("printing-results");
+    let restored = false;
+    const restoreReport = () => {
+      if (restored) return;
+      restored = true;
+      document.body.classList.remove("printing-results");
+      if (originalParent) {
+        if (originalNextSibling && originalNextSibling.parentNode === originalParent) originalParent.insertBefore(view, originalNextSibling);
+        else originalParent.appendChild(view);
+      }
+      view.setAttribute("aria-hidden", "true");
+      window.removeEventListener("afterprint", restoreReport);
+    };
+    window.addEventListener("afterprint", restoreReport, { once: true });
     window.print();
-    // Keep the print-only report out of the accessibility tree after the dialog closes.
-    setTimeout(() => view.setAttribute("aria-hidden", "true"), 1000);
+    setTimeout(restoreReport, 1500);
   };
 }
 
