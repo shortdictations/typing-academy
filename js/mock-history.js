@@ -301,10 +301,60 @@ function downloadHistoryResult(index) {
   if (!Array.isArray(weak)) weak = [];
   const weakRows = weak.map(item => { item = typeof item === "string" ? {key:item} : (item || {}); const key = item.key ?? item.character ?? item.stroke ?? item.key_name ?? item.name ?? "—"; const misses = item.misses ?? item.errors ?? item.error_count ?? item.count ?? item.total_errors ?? "—"; const acc = item.accuracy ?? item.accuracy_percent ?? item.precision; const impact = item.impact_level ?? item.impact ?? (Number(misses)>=3 ? "HIGH" : Number(misses)===2 ? "MEDIUM" : Number(misses)===1 ? "LOW" : "—"); const pattern = item.finger_pattern ?? item.finger ?? item.recommendation ?? item.note ?? "—"; return "<tr><td><span class=\"history-print-keycap\">"+safe(key)+"</span></td><td>"+num(misses)+"</td><td>"+(acc == null || acc === "" ? "—" : safe(String(acc).includes("%") ? acc : acc+"%"))+"</td><td><b>"+safe(impact)+"</b></td><td>"+safe(pattern)+"</td></tr>"; }).join("");
   const weakSection = weakRows ? '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><p class="history-print-section-note">Recorded keys and strokes requiring additional practice.</p><table class="history-print-weak-table"><thead><tr><th>KEY / STROKE</th><th>MISSES</th><th>ACCURACY</th><th>IMPACT</th><th>FINGER PATTERN / NOTE</th></tr></thead><tbody>'+weakRows+"</tbody></table></section>" : '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><div class="history-print-empty-weak">Key-level analysis is not available for this attempt. No key-level statistics have been inferred.</div></section>';
+  // Build evidence-based feedback only from metrics recorded for this attempt.
+  const net = Number(r.net_wpm), gross = Number(r.gross_wpm), accuracy = Number(r.accuracy);
+  const errorCount = Number(errors), typedWords = Number(words);
+  const hasNet = r.net_wpm != null && r.net_wpm !== "" && Number.isFinite(net);
+  const hasGross = r.gross_wpm != null && r.gross_wpm !== "" && Number.isFinite(gross);
+  const hasAccuracy = r.accuracy != null && r.accuracy !== "" && Number.isFinite(accuracy);
+  const hasErrors = errors != null && errors !== "" && Number.isFinite(errorCount);
+  const hasWords = words != null && words !== "" && Number.isFinite(typedWords);
+  const observations = [], actions = [];
+  if (hasAccuracy && accuracy < 90) {
+    observations.push("Accuracy is below 90%, so mistakes may be reducing your effective speed.");
+    actions.push("Slow down slightly and prioritise correct keystrokes before increasing speed.");
+  } else if (hasAccuracy && accuracy >= 97) {
+    observations.push("Accuracy is strong; speed may be the next area to develop.");
+    actions.push("Keep your current accuracy while gradually increasing your pace.");
+  } else if (hasAccuracy) {
+    observations.push("Accuracy is moderate; aim to make typing more consistent.");
+    actions.push("Practise short passages at a controlled pace and review recurring mistakes.");
+  }
+  if (hasNet && hasGross && gross > 0) {
+    const speedGap = gross - net;
+    const gapPercent = speedGap / gross * 100;
+    if (gapPercent >= 15) {
+      observations.push("There is a notable gap between gross and net speed, suggesting errors are costing effective speed.");
+      actions.push("Focus on error-prone words and avoid rushing through difficult phrases.");
+    } else if (gapPercent < 7 && hasAccuracy && accuracy >= 90) {
+      observations.push("Net speed is close to gross speed, indicating relatively efficient typing.");
+      actions.push("Build speed in small increments without sacrificing accuracy.");
+    }
+  }
+  if (hasErrors && errorCount > 0) {
+    observations.push("The attempt recorded " + errorCount + " error(s).");
+    actions.push("Review the weak-key/stroke table above, if available, and drill those patterns in focused repetitions.");
+  } else if (hasErrors && errorCount === 0) {
+    observations.push("No errors were recorded in the saved result.");
+  }
+  if (hasNet && net > 0) {
+    observations.push("Recorded net speed: " + net + " WPM.");
+    actions.push("Use timed practice rounds and compare net WPM across several attempts to confirm progress.");
+  }
+  if (hasWords && typedWords > 0 && duration !== "—" && Number(duration) > 0) {
+    const expectedWordsPerMinute = typedWords / Number(duration);
+    if (hasNet && expectedWordsPerMinute > net * 1.5) {
+      observations.push("Words typed and net speed may use different counting rules; interpret them as separate indicators.");
+    }
+  }
+  if (!observations.length) observations.push("There is not enough recorded performance data to identify a reliable reason for the result.");
+  if (!actions.length) actions.push("Complete another timed mock with speed, accuracy and error tracking enabled, then compare the results.");
+  const listItems = items => items.map(item => "<li>"+safe(item)+"</li>").join("");
+  const analysisSection = '<section class="history-print-section history-print-analysis"><h2>4. PERFORMANCE ANALYSIS &amp; IMPROVEMENT PLAN</h2><div class="history-print-analysis-grid"><div class="history-print-analysis-card"><h3>WHY PROGRESS MAY BE LIMITED</h3><ul>'+listItems(observations)+'</ul></div><div class="history-print-analysis-card history-print-analysis-actions"><h3>WHAT TO IMPROVE NEXT</h3><ul>'+listItems(actions)+'</ul></div></div><p class="history-print-analysis-note">This guidance is based only on metrics saved for this attempt. It is a practice guide, not a diagnosis or a guarantee of exam performance.</p></section>';
   let view = document.getElementById("historyPrintResultView"); if (!view) { view = document.createElement("div"); view.id = "historyPrintResultView"; view.setAttribute("aria-hidden","true"); document.body.appendChild(view); }
   view.innerHTML = '<article class="history-print-sheet"><header class="history-print-brand"><a href="https://typeshala.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Visit TypeShala website"><span class="history-print-brand-left"><img src="favicon.png" alt="" class="history-print-logo"><strong class="history-print-wordmark">TypeShala</strong></span></a></header><h1>'+safe(category)+' MOCK TEST PERFORMANCE REPORT</h1>'+
   '<section class="history-print-section"><h2>1. CANDIDATE &amp; EXAMINATION DETAILS</h2><table class="history-print-details"><tbody><tr><th>CANDIDATE NAME</th><td>'+safe(candidate)+'</td><th>TEST DATE &amp; TIME</th><td>'+safe(dateText)+'</td></tr><tr><th>TEST NAME</th><td>'+safe(r.mock_name || "Typing Mock Test")+'</td><th>DURATION</th><td>'+safe(duration)+' minutes</td></tr><tr><th>REPORT GENERATED ON</th><td>'+safe(generatedText)+'</td><th>TEST RESULT</th><td><b class="history-print-result-pill '+(passed ? "is-passed" : "is-failed")+'">'+(passed ? "PASSED" : "NOT PASSED")+'</b></td></tr></tbody></table></section>'+
-  '<section class="history-print-section"><h2>2. PERFORMANCE SUMMARY</h2><div class="history-print-metrics"><div class="metric-speed"><span>NET SPEED</span><strong>'+num(r.net_wpm)+'</strong><small>WPM</small></div><div class="metric-accuracy"><span>ACCURACY</span><strong>'+(r.accuracy == null || r.accuracy === "" ? "—" : safe(r.accuracy)+"%")+'</strong><small>PRECISION</small></div><div class="metric-speed-secondary"><span>GROSS SPEED</span><strong>'+num(r.gross_wpm)+'</strong><small>WPM</small></div><div class="metric-errors"><span>TOTAL ERRORS</span><strong>'+num(errors)+'</strong><small>ERROR COUNT</small></div><div class="metric-words"><span>WORDS TYPED</span><strong>'+num(words)+'</strong><small>WORD COUNT</small></div><div class="metric-duration"><span>TEST DURATION</span><strong>'+safe(duration)+'</strong><small>MINUTES</small></div></div></section>'+weakSection+'<footer class="history-print-footer"><span>TypeShala · typeshala.vercel.app</span><span>Keep practising. Improve every attempt.</span></footer></article>';
+  '<section class="history-print-section"><h2>2. PERFORMANCE SUMMARY</h2><div class="history-print-metrics"><div class="metric-speed"><span>NET SPEED</span><strong>'+num(r.net_wpm)+'</strong><small>WPM</small></div><div class="metric-accuracy"><span>ACCURACY</span><strong>'+(r.accuracy == null || r.accuracy === "" ? "—" : safe(r.accuracy)+"%")+'</strong><small>PRECISION</small></div><div class="metric-speed-secondary"><span>GROSS SPEED</span><strong>'+num(r.gross_wpm)+'</strong><small>WPM</small></div><div class="metric-errors"><span>TOTAL ERRORS</span><strong>'+num(errors)+'</strong><small>ERROR COUNT</small></div><div class="metric-words"><span>WORDS TYPED</span><strong>'+num(words)+'</strong><small>WORD COUNT</small></div><div class="metric-duration"><span>TEST DURATION</span><strong>'+safe(duration)+'</strong><small>MINUTES</small></div></div></section>'+weakSection+analysisSection+'<footer class="history-print-footer"><span>TypeShala · typeshala.vercel.app</span><span>Keep practising. Improve every attempt.</span></footer></article>';
   document.body.classList.add("printing-history-result"); let cleaned = false;
   const cleanup = () => { if (cleaned) return; cleaned = true; document.body.classList.remove("printing-history-result"); window.removeEventListener("afterprint",cleanup); };
   window.addEventListener("afterprint",cleanup,{once:true}); const logo = view.querySelector(".history-print-logo");
