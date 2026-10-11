@@ -1567,7 +1567,6 @@ function renderPassCriteria(r) {
   if (!list) return;
 
   const criteria = [
-    { met: r.requiredDurationCompleted, text: "You must complete the selected test duration" },
     { met: r.accuracy >= REQUIRED_ACCURACY, text: "Your accuracy must be at least " + REQUIRED_ACCURACY + "%" },
     { met: r.netWpm >= REQUIRED_NET_WPM, text: "Your net typing speed must be at least " + REQUIRED_NET_WPM + " WPM" }
   ];
