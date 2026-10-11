@@ -6406,3 +6406,63 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     color:#215d3a !important;
   }
 }
+
+/* Final PDF isolation + compact A4 layout. */
+@page { size: A4; margin: 7mm 8mm; }
+@media print {
+  html, body {
+    width:auto !important; min-width:0 !important; height:auto !important;
+    margin:0 !important; padding:0 !important; overflow:visible !important;
+    background:#fff !important; background-image:none !important;
+    color:#172033 !important; color-scheme:light !important;
+    -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;
+  }
+  body.printing-results > *:not(#printResultView) {
+    display:none !important; visibility:hidden !important;
+    background:transparent !important; box-shadow:none !important;
+  }
+  body.printing-results > #printResultView {
+    display:block !important; visibility:visible !important; position:static !important;
+    inset:auto !important; width:100% !important; max-width:none !important;
+    height:auto !important; margin:0 !important; padding:0 !important;
+    overflow:visible !important; background:#fff !important; background-image:none !important;
+    color:#172033 !important; box-shadow:none !important; border:0 !important;
+  }
+  body.printing-results > #printResultView * {
+    visibility:visible !important; box-shadow:none !important; text-shadow:none !important;
+    background-image:none !important;
+  }
+  body.printing-results #printResultView .print-sheet {
+    width:100% !important; margin:0 !important; padding:0 !important;
+    background:#fff !important; color:#172033 !important;
+    font-size:8.5pt !important; line-height:1.25 !important;
+    border:0 !important; box-shadow:none !important;
+  }
+  body.printing-results #printResultView .print-report-header { padding-bottom:6px !important; }
+  body.printing-results #printResultView .print-brand-mark {
+    width:27px !important; height:27px !important; border-radius:6px !important; font-size:15pt !important;
+  }
+  body.printing-results #printResultView .print-report-brand strong { font-size:13pt !important; }
+  body.printing-results #printResultView .print-report-title { padding:9px 0 7px !important; gap:8px !important; }
+  body.printing-results #printResultView .print-report-title h1 { font-size:17pt !important; line-height:1.1 !important; }
+  body.printing-results #printResultView .print-report-subtitle { margin-top:3px !important; font-size:8pt !important; }
+  body.printing-results #printResultView .print-status { margin-top:2px !important; padding:4px 7px !important; font-size:7pt !important; }
+  body.printing-results #printResultView .print-report-meta { gap:7px !important; padding:7px 9px !important; margin-bottom:8px !important; }
+  body.printing-results #printResultView .print-report-meta span { font-size:8pt !important; }
+  body.printing-results #printResultView .print-report-meta b { margin-bottom:1px !important; font-size:6pt !important; }
+  body.printing-results #printResultView .print-metrics { gap:6px !important; margin-bottom:9px !important; }
+  body.printing-results #printResultView .print-metric { padding:7px 8px !important; }
+  body.printing-results #printResultView .print-metric span { margin-bottom:2px !important; font-size:7pt !important; }
+  body.printing-results #printResultView .print-metric strong { font-size:13pt !important; }
+  body.printing-results #printResultView .print-report-section { margin-bottom:9px !important; break-inside:auto !important; page-break-inside:auto !important; }
+  body.printing-results #printResultView .print-report-section h2 { margin-bottom:4px !important; padding-bottom:4px !important; font-size:10pt !important; }
+  body.printing-results #printResultView .print-table th,
+  body.printing-results #printResultView .print-table td { padding:4px 7px !important; font-size:8pt !important; }
+  body.printing-results #printResultView .print-section-note { margin-bottom:4px !important; font-size:7.5pt !important; }
+  body.printing-results #printResultView .print-keycap { padding:1px 5px !important; }
+  body.printing-results #printResultView .print-no-weak-keys { padding:8px 10px !important; }
+  body.printing-results #printResultView .print-report-footer {
+    margin-top:10px !important; padding-top:5px !important; font-size:7pt !important;
+    break-inside:avoid !important; page-break-inside:avoid !important;
+  }
+}
