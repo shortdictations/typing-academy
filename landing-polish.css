@@ -351,3 +351,20 @@ body.landing-v2 .site-header::after {
   border: 0 !important;
   box-shadow: none !important;
 }
+
+
+/* Final visual mask for the persistent 1–2px top-edge hairline seen in
+   Android standalone PWA screenshots. Match the active page surface so
+   the viewport edge and sticky header read as one continuous surface. */
+html:has(body.landing-v2)::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: #FFFFFF;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+html[data-theme="dark"]:has(body.landing-v2)::before {
+  background: #131A28;
+}
