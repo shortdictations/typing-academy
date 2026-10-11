@@ -353,18 +353,27 @@ body.landing-v2 .site-header::after {
 }
 
 
-/* Final visual mask for the persistent 1–2px top-edge hairline seen in
-   Android standalone PWA screenshots. Match the active page surface so
-   the viewport edge and sticky header read as one continuous surface. */
-html:has(body.landing-v2)::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: #FFFFFF;
-  z-index: 2147483647;
-  pointer-events: none;
+/* Theme-switch seam root-cause mitigation:
+   keep the landing page's top canvas and sticky header on a single
+   non-animated paint surface. Do not mask the seam with an overlay;
+   force the top-edge surfaces to repaint without transforms or filters. */
+html:has(body.landing-v2),
+body.landing-v2,
+body.landing-v2 .ts-landing-main,
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled,
+body.landing-v2 .site-header .nav-wrap {
+  transition-property: none !important;
+  animation: none !important;
 }
-html[data-theme="dark"]:has(body.landing-v2)::before {
-  background: #131A28;
+body.landing-v2 .site-header,
+body.landing-v2 .site-header.is-scrolled {
+  -webkit-transform: none !important;
+  transform: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-clip: border-box !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
 }
