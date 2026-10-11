@@ -522,3 +522,55 @@ html[data-theme="dark"] body.landing-v2 .lp-theme-toggle-icon { transform: rotat
     .lp-brand strong, .desktop-nav a, .lp-theme-toggle, .lp-theme-toggle-icon
   ) { transition-duration: 0.01ms !important; }
 }
+
+
+/* Mobile-friendly sun/moon morph: keep both SVGs mounted so the icon
+   cross-fades and turns smoothly instead of swapping SVG markup mid-click. */
+body.landing-v2 .lp-theme-toggle-icon {
+  position: relative;
+  display: inline-block;
+  width: 19px;
+  height: 19px;
+  transform: none !important;
+  transition: none !important;
+}
+body.landing-v2 .lp-theme-toggle-icon svg {
+  position: absolute;
+  inset: 0;
+  width: 19px;
+  height: 19px;
+  transform-origin: 50% 50%;
+  transition: opacity 260ms ease, transform 320ms cubic-bezier(.2,.75,.25,1);
+  will-change: opacity, transform;
+}
+body.landing-v2 .lp-theme-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+body.landing-v2 .lp-theme-moon {
+  opacity: 0;
+  transform: rotate(-70deg) scale(.65);
+}
+html[data-theme="dark"] body.landing-v2 .lp-theme-sun {
+  opacity: 0;
+  transform: rotate(70deg) scale(.65);
+}
+html[data-theme="dark"] body.landing-v2 .lp-theme-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+@media (max-width: 600px) {
+  body.landing-v2 .lp-theme-toggle {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.landing-v2 .lp-theme-toggle-icon svg {
+    transition-duration: .01ms !important;
+    will-change: auto;
+  }
+}
