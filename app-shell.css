@@ -6553,3 +6553,8 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
   .history-print-footer{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px 12px!important;border-top:1px solid #9ca3af!important;padding-top:6px!important;margin-top:12px!important;font-size:6.5pt!important;color:#4b5563!important;break-inside:avoid!important;page-break-inside:avoid!important}
   .history-print-footer small{grid-column:1/-1!important;text-align:center!important;margin-top:8px!important;font-size:7pt!important;color:#6b7280!important}
 }
+
+@media print{
+  .history-print-brand-left{display:flex!important;align-items:center!important;gap:9px!important}
+  .history-print-logo{display:block!important;width:34px!important;height:34px!important;object-fit:contain!important;background:transparent!important;border:0!important;border-radius:0!important}
+}
