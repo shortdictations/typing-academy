@@ -130,25 +130,14 @@ function renderHistory() {
           <span class="mh-pass-status ${r.is_passed ? "mh-pass" : "mh-not-passed"}">${r.is_passed ? "Passed" : "Not Passed"}</span>
         </td>
         <td data-label="Actions">
-          <button type="button" class="mh-action mh-action-result" onclick="toggleDetail('${rowId}')">
+          <button type="button" class="mh-action mh-action-result" onclick="downloadHistoryResult(${absoluteIndex})" aria-label="Download result as PDF">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/></svg>
             <span>View Result</span>
           </button>
         </td>
         <td data-label="Re-attempt">${reattemptHtml}</td>
       </tr>
-      <tr id="${rowId}" class="history-detail-row" style="display:none;">
-        <td colspan="11">
-          <div class="mh-detail-inner">
-            <span><strong>Mock</strong>${escapeHtml(r.mock_name || "-")}</span>
-            <span><strong>Duration</strong>${escapeHtml(String(r.duration ?? "-"))} min</span>
-            <button type="button" class="mh-action mh-action-download" onclick="downloadHistoryResult(${absoluteIndex})" aria-label="Download result as PDF">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>
-              <span>Download Result</span>
-            </button>
-          </div>
-        </td>
-      </tr>`;
+`;
   }).join("");
 
   container.innerHTML = `
