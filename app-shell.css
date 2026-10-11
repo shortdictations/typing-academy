@@ -7026,3 +7026,42 @@ body.printing-history-result #historyPrintResultView *{visibility:visible!import
     font-size: 6pt !important;
   }
 }
+
+
+/* Six-metric performance summary: two headline scores + four balanced supporting cards. */
+@media print {
+  .history-print-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+  .history-print-metrics .metric-speed,
+  .history-print-metrics .metric-accuracy {
+    grid-column: span 2 !important;
+    min-height: 94px !important;
+  }
+  .history-print-metrics .metric-speed-secondary,
+  .history-print-metrics .metric-errors,
+  .history-print-metrics .metric-words,
+  .history-print-metrics .metric-duration {
+    grid-column: span 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    min-height: 66px !important;
+    padding: 8px 9px !important;
+    background: #f1f4f8 !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    gap: 4px !important;
+  }
+  .history-print-metrics .metric-speed-secondary strong {
+    margin: 0 !important;
+    font-size: 15pt !important;
+  }
+  .history-print-metrics .metric-errors strong,
+  .history-print-metrics .metric-words strong,
+  .history-print-metrics .metric-duration strong {
+    font-size: 15pt !important;
+  }
+}
