@@ -6076,3 +6076,50 @@ body.app-shell .theme-toggle-btn.active svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Shared app-shell sun/moon animation, including the mobile sidebar toggle.
+   Both SVGs stay mounted so theme changes cross-fade rather than replace markup. */
+body.app-shell .theme-quick-icon {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+body.app-shell .theme-quick-icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  transition: opacity 260ms ease, transform 320ms cubic-bezier(.2,.75,.25,1);
+  will-change: opacity, transform;
+}
+body.app-shell .theme-quick-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+body.app-shell .theme-quick-moon {
+  opacity: 0;
+  transform: rotate(-70deg) scale(.65);
+}
+html[data-theme="dark"] body.app-shell .theme-quick-sun {
+  opacity: 0;
+  transform: rotate(70deg) scale(.65);
+}
+html[data-theme="dark"] body.app-shell .theme-quick-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+body.app-shell .mobile-sidebar .mobile-theme-quick-toggle,
+body.app-shell .mobile-profile-drawer .mobile-theme-quick-toggle {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.app-shell .theme-quick-icon svg {
+    transition-duration: .01ms !important;
+    will-change: auto;
+  }
+}
