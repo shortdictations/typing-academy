@@ -491,3 +491,34 @@ html[data-theme="dark"] body.landing-v2 .free-credit-note strong {
     font-size: 13px;
   }
 }
+
+/* Theme toggle animation: animate paint-only properties while keeping the
+   page canvas and sticky header unanimated to avoid the known hairline seam. */
+body.landing-v2 :where(
+  .intro-strip, .audience, .why-section, .engine-section, .progress-section,
+  .dashboard-section, .pricing-section, .credits-box, .credit-options > div,
+  .audience-card, .feature-card, .progress-card, .price-card,
+  .dashboard-preview, .demo-body, .mock-content, .final-cta,
+  .section-heading h2, .section-heading p, .credits-box h3, .credits-box p,
+  .credit-options strong, .credit-options span, .free-credit-note,
+  .lp-brand strong, .desktop-nav a, .lp-theme-toggle
+) {
+  transition: background-color 300ms ease, color 300ms ease,
+    border-color 300ms ease, box-shadow 300ms ease, fill 300ms ease, stroke 300ms ease;
+}
+body.landing-v2 .lp-theme-toggle-icon {
+  transition: transform 320ms cubic-bezier(.2,.75,.25,1), color 280ms ease;
+  transform-origin: center;
+}
+html[data-theme="dark"] body.landing-v2 .lp-theme-toggle-icon { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  body.landing-v2 :where(
+    .intro-strip, .audience, .why-section, .engine-section, .progress-section,
+    .dashboard-section, .pricing-section, .credits-box, .credit-options > div,
+    .audience-card, .feature-card, .progress-card, .price-card,
+    .dashboard-preview, .demo-body, .mock-content, .final-cta,
+    .section-heading h2, .section-heading p, .credits-box h3, .credits-box p,
+    .credit-options strong, .credit-options span, .free-credit-note,
+    .lp-brand strong, .desktop-nav a, .lp-theme-toggle, .lp-theme-toggle-icon
+  ) { transition-duration: 0.01ms !important; }
+}
