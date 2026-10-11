@@ -283,16 +283,27 @@ function escapeHtml(str) {
 }
 
 
-// Print the selected history record as a clean, theme-independent PDF report.
+// Build a clean, theme-independent report matching the TypeShala assessment-report layout.
+// Uses the saved attempt timestamp and metrics only; it never substitutes the current time.
 function downloadHistoryResult(index) {
   const r = allHistoryResults[index];
   if (!r) return;
-  const date = r.created_at ? new Date(r.created_at) : new Date();
-  const dateText = date.toLocaleString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric",
-    hour: "2-digit", minute: "2-digit"
-  });
-  const safe = value => escapeHtml(String(value ?? "-"));
+
+  const date = r.created_at ? new Date(r.created_at) : null;
+  const dateText = date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" })
+    : "Not recorded";
+  const safe = value => escapeHtml(String(value ?? "—"));
+  const num = value => value === null || value === undefined || value === "" ? "—" : safe(value);
+  const category = String(r.category || "Typing").toUpperCase();
+  const passed = r.is_passed === true;
+  const words = r.words_typed ?? r.total_words ?? r.words ?? null;
+  const errors = r.errors ?? r.total_errors ?? r.mistakes ?? null;
+  const duration = r.duration ?? r.duration_minutes ?? "—";
+  const candidate = currentUser?.user_metadata?.full_name
+    || currentUser?.user_metadata?.name
+    || "Candidate / Test Taker";
+
   let view = document.getElementById("historyPrintResultView");
   if (!view) {
     view = document.createElement("div");
@@ -300,46 +311,59 @@ function downloadHistoryResult(index) {
     view.setAttribute("aria-hidden", "true");
     document.body.appendChild(view);
   }
-  const passed = !!r.is_passed;
+
   view.innerHTML = `
     <article class="history-print-sheet">
       <header class="history-print-brand">
-        <img src="favicon.png" alt="TypeShala logo">
-        <div><strong>TypeShala</strong><small>Typing Practice Centre</small></div>
-        <span class="history-print-status ${passed ? "passed" : "failed"}">${passed ? "PASSED" : "NOT PASSED"}</span>
+        <div class="history-print-wordmark"><strong>TYPESH​ALA</strong><small>TYPING PRACTICE CENTRE · PERFORMANCE ASSESSMENT</small></div>
+        <span class="history-print-official">OFFICIAL REPORT</span>
       </header>
-      <h1>Typing Test Result</h1>
-      <p class="history-print-subtitle">${safe((r.category || "Typing").toUpperCase())} Mock Test Performance Report</p>
-      <section class="history-print-meta">
-        <div><b>Test</b><span>${safe(r.mock_name || "-")}</span></div>
-        <div><b>Date &amp; Time</b><span>${safe(dateText)}</span></div>
-        <div><b>Duration</b><span>${safe(r.duration ?? "-")} minutes</span></div>
-        <div><b>Result</b><span>${passed ? "Passed" : "Not Passed"}</span></div>
+      <h1>${safe(category)} MOCK TEST PERFORMANCE REPORT</h1>
+      <section class="history-print-section">
+        <h2>1. CANDIDATE &amp; EXAMINATION DETAILS</h2>
+        <table class="history-print-details"><tbody>
+          <tr><th>TEST TAKER</th><td>${safe(candidate)}</td><th>DATE &amp; TIME</th><td>${safe(dateText)}</td></tr>
+          <tr><th>TEST PAPER</th><td>${safe(r.mock_name || "Typing Mock Test")}</td><th>DURATION</th><td>${safe(duration)} minutes</td></tr>
+          <tr><th>PLATFORM / MODE</th><td>TypeShala Assessment Portal</td><th>TEST STATUS</th><td><b class="history-print-result-pill ${passed ? "is-passed" : "is-failed"}">${passed ? "PASSED" : "NOT PASSED"}</b></td></tr>
+        </tbody></table>
       </section>
-      <h2>Performance Summary</h2>
-      <section class="history-print-metrics">
-        <div><small>Gross WPM</small><strong>${safe(r.gross_wpm)}</strong></div>
-        <div><small>Net WPM</small><strong>${safe(r.net_wpm)}</strong></div>
-        <div><small>Accuracy</small><strong>${safe(r.accuracy)}%</strong></div>
-        <div><small>Errors</small><strong>${safe(r.errors)}</strong></div>
-        <div><small>Words Typed</small><strong>${safe(r.words_typed ?? r.total_words)}</strong></div>
+      <section class="history-print-section">
+        <h2>2. PERFORMANCE SUMMARY</h2>
+        <div class="history-print-metrics">
+          <div><span>GROSS SPEED</span><strong>${num(r.gross_wpm)}</strong><small>GROSS WPM</small></div>
+          <div><span>NET SPEED</span><strong>${num(r.net_wpm)}</strong><small>NET WPM</small></div>
+          <div><span>ACCURACY</span><strong>${r.accuracy == null || r.accuracy === "" ? "—" : safe(r.accuracy) + "%"}</strong><small>PRECISION</small></div>
+          <div><span>TOTAL ERRORS</span><strong>${num(errors)}</strong><small>MISSES</small></div>
+          <div><span>WORDS TYPED</span><strong>${num(words)}</strong><small>WORDS</small></div>
+          <div><span>FINAL RESULT</span><strong class="history-print-result-text">${passed ? "PASSED" : "NOT PASSED"}</strong><small>TEST STATUS</small></div>
+        </div>
       </section>
-      <footer>Generated by TypeShala · typeshala.vercel.app</footer>
+      <section class="history-print-section">
+        <h2>3. PERFORMANCE NOTES</h2>
+        <div class="history-print-notes">
+          <p><b>Speed:</b> Your recorded net speed was <strong>${num(r.net_wpm)} WPM</strong>.</p>
+          <p><b>Accuracy:</b> Your recorded accuracy was <strong>${r.accuracy == null || r.accuracy === "" ? "—" : safe(r.accuracy) + "%"}</strong>.</p>
+          <p><b>Practice recommendation:</b> Continue timed practice and focus on reducing errors while maintaining a steady typing rhythm.</p>
+        </div>
+      </section>
+      <footer class="history-print-footer">
+        <div><b>Platform:</b> TypeShala Assessment Engine</div>
+        <div><b>Status:</b> System-generated performance report</div>
+        <div><b>Verification:</b> typeshala.vercel.app</div>
+        <small>Generated by TypeShala · typeshala.vercel.app</small>
+      </footer>
     </article>`;
+
   document.body.classList.add("printing-history-result");
+  let cleaned = false;
   const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
     document.body.classList.remove("printing-history-result");
     window.removeEventListener("afterprint", cleanup);
   };
-  window.addEventListener("afterprint", cleanup, { once: true });
-  const logo = view.querySelector("img");
-  const printNow = () => setTimeout(() => window.print(), 80);
-  if (logo && !logo.complete) {
-    logo.addEventListener("load", printNow, { once: true });
-    logo.addEventListener("error", printNow, { once: true });
-    setTimeout(printNow, 900);
-  } else {
-    printNow();
-  }
+  window.addEventListener("afterprint", cleanup, { once:true });
+  // Print styles explicitly force a white page in both light and dark site themes.
+  requestAnimationFrame(() => setTimeout(() => window.print(), 120));
   setTimeout(cleanup, 30000);
 }
