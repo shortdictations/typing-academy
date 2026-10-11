@@ -244,3 +244,25 @@ html[data-theme="dark"] body.landing-v2 .site-header.is-scrolled {
   border-bottom-color: #2A3346;
   box-shadow: 0 6px 20px rgba(0,0,0,.18);
 }
+
+
+/* Desktop information pages: let header and footer content use the full viewport width. */
+@media (min-width: 721px) {
+  body.landing-v2:has(.legal-page-main) .site-header .nav-wrap {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  body.landing-v2:has(.legal-page-main) .site-foot-inner {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
