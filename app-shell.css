@@ -6144,3 +6144,99 @@ body.app-shell.mock-attempt-page #testCard .timer-box{
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Mock-test results — refined dark-theme contrast and hierarchy. */
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard{
+  background:#171F2E !important;
+  border-color:#2A3549 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-card{
+  background:#1B2536 !important;
+  border-color:#2D3A50 !important;
+  box-shadow:0 8px 22px rgba(0,0,0,.14) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-header-icon{
+  background:rgba(167,139,250,.14) !important;
+  color:#B9A2FF !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-card-head h3,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-summary-value,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-criteria-text,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-status-msg,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-tip-box strong,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-encourage-card strong,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-banner p{
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-summary-label,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-summary-label svg,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-chart-axis-left,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-chart-axis-right,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-tip-box p,
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-encourage-card p{
+  color:#A7B4C9 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-status-card.mtr-status-fail{
+  background:rgba(251,146,60,.12) !important;
+  border:1px solid rgba(251,146,60,.28) !important;
+  color:#FDBA74 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-status-card.mtr-status-pass{
+  background:rgba(52,211,153,.11) !important;
+  border:1px solid rgba(52,211,153,.26) !important;
+  color:#6EE7B7 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-status-msg{
+  color:#D6DEEA !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-chart-bars{
+  border-color:#35435A !important;
+  background-image:repeating-linear-gradient(to bottom,#35435A 0,#35435A 1px,transparent 1px,transparent 33.3%) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-bar-label{
+  background:#253147 !important;
+  color:#E8ECF4 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-tip-box{
+  background:#141D2B !important;
+  border:1px solid #2A3549 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-encourage-card{
+  background:rgba(251,191,36,.09) !important;
+  border:1px solid rgba(251,191,36,.2) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-banner{
+  background:rgba(91,140,255,.11) !important;
+  border:1px solid rgba(91,140,255,.22) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-banner strong{
+  color:#9DBBFF !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-criteria-met{
+  background:rgba(52,211,153,.12) !important;
+  color:#6EE7B7 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-criteria-unmet{
+  background:rgba(248,113,113,.12) !important;
+  color:#FCA5A5 !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-badge-pass{
+  background:rgba(52,211,153,.12) !important;
+  color:#6EE7B7 !important;
+  border-color:rgba(52,211,153,.45) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-badge-fail{
+  background:rgba(248,113,113,.12) !important;
+  color:#FCA5A5 !important;
+  border-color:rgba(248,113,113,.4) !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-actions .btn-ghost{
+  color:#DCE6F7 !important;
+  border-color:#3A4A63 !important;
+  background:#202B3E !important;
+}
+html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-actions .btn-ghost:hover{
+  background:#293750 !important;
+  border-color:#5B8CFF !important;
+}
