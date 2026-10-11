@@ -400,3 +400,94 @@ body.landing-v2 .site-header.is-scrolled {
     padding-right: 32px !important;
   }
 }
+
+/* Credit Wallet — polished dark-theme hierarchy and responsive pricing cards. */
+html[data-theme="dark"] body.landing-v2 .credits-box {
+  background: linear-gradient(135deg, #151E2D 0%, #131A28 100%);
+  border: 1px solid #303B50;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .18);
+}
+html[data-theme="dark"] body.landing-v2 .credits-box .section-kicker {
+  display: inline-flex;
+  align-items: center;
+  color: #AFC4FF;
+  letter-spacing: .12em;
+  font-size: 11px;
+  font-weight: 800;
+}
+html[data-theme="dark"] body.landing-v2 .credits-box h3 {
+  color: #F3F6FC;
+  font-size: clamp(19px, 2vw, 22px);
+  line-height: 1.35;
+  letter-spacing: -.35px;
+}
+html[data-theme="dark"] body.landing-v2 .credits-box p {
+  color: #B0BCD0;
+  font-size: 12px;
+  line-height: 1.65;
+  max-width: 360px;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options {
+  gap: 10px;
+  align-items: stretch;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options > div {
+  flex: 1 1 0;
+  min-width: 88px;
+  padding: 15px 12px;
+  background: #1A2435;
+  color: #EDF2FC;
+  border: 1px solid #354158;
+  border-radius: 14px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .12);
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options > div:hover {
+  background: #202D42;
+  border-color: #6F98FF;
+  transform: translateY(-2px);
+}
+html[data-theme="dark"] body.landing-v2 .credit-options strong {
+  color: #F3F6FC;
+  font-size: 19px;
+  line-height: 1.25;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options span {
+  color: #F6C66C;
+  font-size: 14px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options .credit-best {
+  background: #222B3A;
+  border: 1px solid #F6B64A !important;
+  box-shadow: 0 0 0 1px rgba(246, 182, 74, .12), 0 8px 20px rgba(0, 0, 0, .16);
+}
+html[data-theme="dark"] body.landing-v2 .credit-options .credit-best small {
+  color: #F6C66C;
+  font-size: 9px;
+  letter-spacing: .04em;
+}
+html[data-theme="dark"] body.landing-v2 .free-credit-note strong {
+  color: #DCE5F4;
+}
+@media (max-width: 600px) {
+  html[data-theme="dark"] body.landing-v2 .credits-box {
+    padding: 21px 17px;
+    gap: 20px;
+  }
+  html[data-theme="dark"] body.landing-v2 .credit-options {
+    gap: 8px;
+  }
+  html[data-theme="dark"] body.landing-v2 .credit-options > div {
+    min-width: 0;
+    padding: 13px 7px;
+    border-radius: 12px;
+  }
+  html[data-theme="dark"] body.landing-v2 .credit-options strong {
+    font-size: 17px;
+  }
+  html[data-theme="dark"] body.landing-v2 .credit-options span {
+    font-size: 13px;
+  }
+}
