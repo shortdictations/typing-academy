@@ -1515,8 +1515,9 @@ function showResultTicket(r) {
 // selectedDurationMinutes (the user's actual 5/10-minute choice for
 // THIS attempt), never a hard-coded value.
 function formatDurationForResult(r) {
-  const elapsedMs = testStartTime ? Date.now() - testStartTime : selectedDurationMinutes * 60000;
-  const totalSeconds = Math.max(Math.round(elapsedMs / 1000), 0);
+  // Results are immutable snapshots. Never read Date.now() here:
+  // the report can be opened/printed repeatedly long after the test ended.
+  const totalSeconds = Math.max(0, Math.round(Number(r?.elapsedTime ?? 0)));
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
   return mins + ":" + String(secs).padStart(2, "0") + " min";
@@ -1677,9 +1678,9 @@ function wirePrintResults(r, passed) {
           </table>
         </section>
 
-        ${weakKeys.length ? `
-          <section class="print-report-section print-weak-section">
-            <h2><span>02</span> Keys to practise</h2>
+        <section class="print-report-section print-weak-section">
+          <h2><span>02</span> Weak-key analysis</h2>
+          ${weakKeys.length ? `
             <p class="print-section-note">Focus on these keys to improve accuracy in your next attempt.</p>
             <table class="print-table print-weak-table">
               <thead><tr><th>Key</th><th>Accuracy</th><th>Mistakes</th></tr></thead>
@@ -1690,8 +1691,13 @@ function wirePrintResults(r, passed) {
                   <td>${k.errors}</td>
                 </tr>`).join("")}</tbody>
             </table>
-          </section>
-        ` : ""}
+          ` : `
+            <div class="print-no-weak-keys">
+              <strong>No significant weak keys detected</strong>
+              <p>No keys were flagged for additional practice in this attempt.</p>
+            </div>
+          `}
+        </section>
 
         <footer class="print-report-footer">
           <span>Keep practising. Every keystroke counts.</span>
