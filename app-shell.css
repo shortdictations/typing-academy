@@ -6810,3 +6810,219 @@ body.printing-history-result #historyPrintResultView *{visibility:visible!import
     font-size: 6.5pt !important;
   }
 }
+
+
+/* TypeShala report redesign v2: editorial header, compact metadata, bold scorecards. */
+@media print {
+  @page { size: A4 portrait; margin: 8mm; }
+  .history-print-sheet {
+    padding: 0 !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+    color: #182230 !important;
+    font-size: 8pt !important;
+    line-height: 1.3 !important;
+  }
+  .history-print-brand {
+    min-height: 68px !important;
+    margin: 0 0 13px !important;
+    padding: 12px 15px !important;
+    background: #14243a !important;
+    border: 0 !important;
+    border-radius: 9px !important;
+    color: #fff !important;
+  }
+  .history-print-brand-left { gap: 10px !important; }
+  .history-print-logo {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 3px !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+  }
+  .history-print-wordmark {
+    color: #fff !important;
+    font-size: 23pt !important;
+    font-weight: 750 !important;
+    letter-spacing: -1px !important;
+  }
+  .history-print-sheet h1 {
+    margin: 0 0 15px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #14243a !important;
+    font-size: 17pt !important;
+    line-height: 1.15 !important;
+    font-weight: 800 !important;
+    letter-spacing: -.45px !important;
+  }
+  .history-print-section { margin: 0 0 14px !important; }
+  .history-print-section h2 {
+    margin: 0 0 7px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #526277 !important;
+    font-size: 7.2pt !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+  }
+  .history-print-details {
+    border: 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 4px !important;
+    overflow: visible !important;
+  }
+  .history-print-details th,
+  .history-print-details td {
+    border: 0 !important;
+    padding: 7px 8px !important;
+    overflow-wrap: anywhere !important;
+  }
+  .history-print-details th {
+    background: #f0f3f7 !important;
+    color: #617084 !important;
+    font-size: 6pt !important;
+    font-weight: 800 !important;
+    letter-spacing: .35px !important;
+  }
+  .history-print-details td {
+    background: #f8fafc !important;
+    color: #172235 !important;
+    font-size: 7.4pt !important;
+    font-weight: 650 !important;
+  }
+  .history-print-details tr > :first-child { border-radius: 5px 0 0 5px !important; }
+  .history-print-details tr > :last-child { border-radius: 0 5px 5px 0 !important; }
+  .history-print-result-pill {
+    display: inline-block !important;
+    border: 0 !important;
+    border-radius: 4px !important;
+    padding: 4px 7px !important;
+    background: #d9f7e8 !important;
+    color: #116344 !important;
+    font-size: 6.2pt !important;
+    font-weight: 850 !important;
+    letter-spacing: .5px !important;
+  }
+  .history-print-result-pill.is-failed {
+    background: #ffe4e6 !important;
+    color: #a3192d !important;
+  }
+  .history-print-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    border: 0 !important;
+    overflow: visible !important;
+  }
+  .history-print-metrics > div {
+    min-height: 68px !important;
+    padding: 9px 10px !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    background: #f1f4f8 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    text-align: left !important;
+  }
+  .history-print-metrics span {
+    color: #5c6b80 !important;
+    font-size: 5.8pt !important;
+    font-weight: 850 !important;
+    letter-spacing: .65px !important;
+  }
+  .history-print-metrics strong {
+    color: #15263e !important;
+    font-size: 17pt !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -.4px !important;
+  }
+  .history-print-metrics small {
+    color: #68778b !important;
+    font-size: 5.8pt !important;
+  }
+  .history-print-metrics .metric-speed,
+  .history-print-metrics .metric-accuracy {
+    grid-column: span 3 !important;
+    min-height: 100px !important;
+    padding: 13px 15px !important;
+    background: #eaf0f8 !important;
+    border-left: 3px solid #335d91 !important;
+  }
+  .history-print-metrics .metric-speed strong,
+  .history-print-metrics .metric-accuracy strong {
+    color: #142c4a !important;
+    font-size: 29pt !important;
+    letter-spacing: -1.2px !important;
+  }
+  .history-print-metrics .metric-speed-secondary {
+    grid-column: span 6 !important;
+    min-height: 43px !important;
+    padding: 8px 12px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    align-items: center !important;
+    background: #f8fafc !important;
+  }
+  .history-print-metrics .metric-speed-secondary strong {
+    margin: 0 10px !important;
+    font-size: 14pt !important;
+  }
+  .history-print-metrics .metric-speed-secondary small { justify-self: end !important; }
+  .history-print-metrics > div:not(.metric-speed):not(.metric-accuracy):not(.metric-speed-secondary) {
+    grid-column: span 3 !important;
+    min-height: 61px !important;
+  }
+  .history-print-section-note {
+    margin: 0 0 7px !important;
+    color: #69778a !important;
+    font-size: 6.8pt !important;
+  }
+  .history-print-weak-table {
+    border: 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    overflow: visible !important;
+  }
+  .history-print-weak-table th {
+    padding: 8px 6px !important;
+    background: #14243a !important;
+    color: #fff !important;
+    font-size: 5.7pt !important;
+    font-weight: 800 !important;
+    letter-spacing: .25px !important;
+  }
+  .history-print-weak-table td {
+    padding: 8px 6px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e7ee !important;
+    color: #263448 !important;
+    font-size: 6.5pt !important;
+  }
+  .history-print-keycap {
+    border: 0 !important;
+    border-radius: 4px !important;
+    background: #e8eef6 !important;
+    color: #234a78 !important;
+    padding: 3px 7px !important;
+    font-weight: 800 !important;
+  }
+  .history-print-empty-weak {
+    padding: 11px 12px !important;
+    border: 1px dashed #cbd5e1 !important;
+    border-radius: 7px !important;
+    background: #f8fafc !important;
+    color: #526277 !important;
+    font-size: 7pt !important;
+  }
+  .history-print-footer {
+    margin-top: 13px !important;
+    padding-top: 7px !important;
+    border-top: 1px solid #e1e6ed !important;
+    color: #718096 !important;
+    font-size: 6pt !important;
+  }
+}
