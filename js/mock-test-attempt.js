@@ -1790,7 +1790,32 @@ async function saveMockResult(r) {
 
   if (error) {
     console.error("Could not save mock test result:", error);
+    return;
   }
+
+  // Persist the per-attempt analysis separately from lifetime typing_key_stats.
+  // Resolve the result id from this exact session after the completion RPC.
+  const { data: sessionRow, error: sessionError } = await supabaseClient
+    .from("mock_test_sessions")
+    .select("result_id")
+    .eq("id", currentSession.id)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+  if (sessionError || !sessionRow?.result_id) {
+    console.error("Could not resolve result id for per-attempt key analysis:", sessionError);
+    return;
+  }
+
+  const { error: analysisError } = await supabaseClient
+    .from("mock_test_result_key_analysis")
+    .upsert({
+      result_id: sessionRow.result_id,
+      user_id: currentUser.id,
+      weak_keys: Array.isArray(r.weakKeys) ? r.weakKeys : [],
+      key_analysis: r.keyAnalysis && typeof r.keyAnalysis === "object" ? r.keyAnalysis : {},
+      created_at: new Date().toISOString()
+    }, { onConflict: "result_id" });
+  if (analysisError) console.error("Could not save per-attempt key analysis:", analysisError);
 }
 
 function escapeHtml(str) {
