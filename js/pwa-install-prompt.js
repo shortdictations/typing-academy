@@ -183,21 +183,32 @@
         overlay.setAttribute("aria-hidden", isFooterVisible ? "true" : "false");
       };
 
-      if ("IntersectionObserver" in window) {
-        const footerObserver = new IntersectionObserver((entries) => {
-          const entry = entries[0];
-          syncFooterVisibility(Boolean(entry && entry.isIntersecting));
-        }, { threshold: 0.01 });
-        footerObserver.observe(footer);
-      } else {
-        const checkFooterVisibility = () => {
+      // Use scroll geometry as the reliable source of truth. IntersectionObserver
+      // remains as a supplement, since some mobile browsers report delayed
+      // intersection updates during momentum scrolling or page restoration.
+      let footerCheckFrame = 0;
+      const checkFooterVisibility = () => {
+        if (footerCheckFrame) return;
+        footerCheckFrame = window.requestAnimationFrame(() => {
+          footerCheckFrame = 0;
+          if (!footer.isConnected || !overlay.isConnected) return;
           const rect = footer.getBoundingClientRect();
-          syncFooterVisibility(rect.top < window.innerHeight && rect.bottom > 0);
-        };
-        window.addEventListener("scroll", checkFooterVisibility, { passive: true });
-        window.addEventListener("resize", checkFooterVisibility, { passive: true });
-        checkFooterVisibility();
+          const visible = rect.top < window.innerHeight && rect.bottom > 0;
+          syncFooterVisibility(visible);
+        });
+      };
+
+      window.addEventListener("scroll", checkFooterVisibility, { passive: true });
+      window.addEventListener("resize", checkFooterVisibility, { passive: true });
+      window.addEventListener("pageshow", checkFooterVisibility);
+      if ("IntersectionObserver" in window) {
+        const footerObserver = new IntersectionObserver(checkFooterVisibility, {
+          threshold: 0,
+          rootMargin: "0px"
+        });
+        footerObserver.observe(footer);
       }
+      checkFooterVisibility();
     }
 
     const installButton = overlay.querySelector("#ts-install-action");
