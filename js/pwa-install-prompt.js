@@ -189,15 +189,31 @@
     installButton.onclick = handleInstall;
   }
 
-  function init() {
-    // Opening the installed PWA records the state for later visits in the browser.
+  async function init() {
+    // Standalone mode is definitive when the app is opened from its installed icon.
     if (isInstalled()) {
       rememberInstalled();
       return;
     }
-    // Browser mode cannot reliably detect an app installed previously by the OS.
-    // Keep a same-origin marker after installation so the banner stays hidden there too.
     if (hasInstalledMarker()) return;
+
+    // Chromium can report an installed PWA when the manifest declares this site
+    // as a related web app. This also covers installs made from the browser menu.
+    if (navigator.getInstalledRelatedApps) {
+      try {
+        const apps = await navigator.getInstalledRelatedApps();
+        const thisPwaInstalled = apps.some(app =>
+          app.platform === "webapp" &&
+          (!app.url || app.url.includes("typeshala.vercel.app/manifest.webmanifest"))
+        );
+        if (thisPwaInstalled) {
+          rememberInstalled();
+          return;
+        }
+      } catch (error) {
+        console.debug("TypeShala installed-app detection unavailable:", error);
+      }
+    }
     createPrompt();
   }
 
