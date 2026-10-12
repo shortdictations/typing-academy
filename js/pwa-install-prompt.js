@@ -139,7 +139,7 @@
         showInstructions();
       }
     };
-    installButton.addEventListener("click", handleInstall);
+    installButton.onclick = handleInstall;
   }
 
   function init() {
