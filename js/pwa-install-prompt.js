@@ -1,7 +1,6 @@
 /* TypeShala persistent PWA install banner for the landing page. */
 (() => {
   "use strict";
-  const STORAGE_INSTALLED = "typeshala-pwa-installed";
   let deferredInstallPrompt = null;
   let promptVisible = false;
 
@@ -15,7 +14,7 @@
 
   const isInstalled = () => {
     try {
-      return localStorage.getItem(STORAGE_INSTALLED) === "1" || isStandalone();
+      return isStandalone();
     } catch (_) {
       return isStandalone();
     }
@@ -28,9 +27,6 @@
 
   window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
-    try {
-      localStorage.setItem(STORAGE_INSTALLED, "1");
-    } catch (_) {}
     closePrompt();
   });
 
@@ -98,7 +94,7 @@
     const style = document.createElement("style");
     style.id = "ts-install-styles";
     style.textContent = `
-      .ts-install-banner{position:fixed;right:24px;bottom:24px;z-index:9999;display:flex;align-items:center;gap:13px;box-sizing:border-box;width:min(390px,calc(100vw - 32px));padding:11px 13px;border:1px solid rgba(148,163,184,.24);border-radius:16px;background:#fff;color:#172033;box-shadow:0 10px 34px rgba(15,23,42,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;animation:tsInstallSlide .22s ease-out}
+      .ts-install-banner{position:fixed!important;right:24px!important;bottom:24px!important;z-index:2147483647!important;display:flex!important;visibility:visible!important;opacity:1!important;align-items:center;gap:13px;box-sizing:border-box;width:min(390px,calc(100vw - 32px));padding:11px 13px;border:1px solid rgba(148,163,184,.24);border-radius:16px;background:#fff;color:#172033;box-shadow:0 10px 34px rgba(15,23,42,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;animation:tsInstallSlide .22s ease-out}
       html[data-theme="dark"] .ts-install-banner,html.dark .ts-install-banner,body.dark .ts-install-banner{background:#171f2e;color:#edf2fb;border-color:rgba(148,163,184,.2);box-shadow:0 10px 34px rgba(0,0,0,.32)}
       .ts-install-mark{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:#f4ead1;color:#7a5a16;font-size:22px}
       html[data-theme="dark"] .ts-install-mark,html.dark .ts-install-mark,body.dark .ts-install-mark{background:#3a3223;color:#f0cc75}
@@ -112,7 +108,7 @@
       @media(max-width:767px){.ts-install-banner{right:10px;bottom:calc(10px + env(safe-area-inset-bottom));left:10px;width:auto;gap:9px;padding:10px;border-radius:14px}.ts-install-mark{flex-basis:36px;width:36px;height:36px;font-size:19px}.ts-install-title{font-size:13px}.ts-install-copy #ts-install-description{font-size:11px}.ts-install-action{padding:8px 11px;font-size:11.5px}}
       @media(prefers-reduced-motion:reduce){.ts-install-banner{animation:none}}
     `
-    document.head.appendChild(style);
+    if (!document.getElementById("ts-install-styles")) document.head.appendChild(style);
     document.body.appendChild(overlay);
 
     const installButton = overlay.querySelector("#ts-install-action");
@@ -122,7 +118,6 @@
           deferredInstallPrompt.prompt();
           const choice = await deferredInstallPrompt.userChoice;
           if (choice && choice.outcome === "accepted") {
-            try { localStorage.setItem(STORAGE_INSTALLED, "1"); } catch (_) {}
           }
           deferredInstallPrompt = null;
           closePrompt();
