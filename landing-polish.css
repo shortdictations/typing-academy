@@ -639,3 +639,18 @@ html[data-theme="dark"] body.landing-v2 .free-credit-note span {
   font-size: inherit !important;
   line-height: inherit !important;
 }
+
+
+/* Seamless mobile splash handoff:
+   Android's native PWA splash already displays the app icon. Keep the
+   in-page logo visible at its final size from the first paint, rather than
+   hiding it and replaying a second scale/fade entrance after the native
+   splash disappears. Only the subtle glow animates; the exit fade remains. */
+@media (max-width: 767px) {
+  #ts-animated-splash .ts-splash-logo {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: ts-splash-logo-glow .72s ease-out 0s both !important;
+    will-change: filter;
+  }
+}
