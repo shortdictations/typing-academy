@@ -24,11 +24,10 @@
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   const isInstalled = () => {
-    try {
-      return isStandalone();
-    } catch (_) {
-      return isStandalone();
-    }
+    // The installed app runs in standalone mode; the website in a browser does not.
+    // Do not treat a remembered install marker as permanent: uninstalling the PWA
+    // must allow the install banner to appear again on the next browser visit.
+    return isStandalone();
   };
 
   window.addEventListener("beforeinstallprompt", event => {
@@ -37,7 +36,8 @@
   });
 
   window.addEventListener("appinstalled", () => {
-    rememberInstalled();
+    // Standalone mode is the live installed-state signal. Do not persist a marker,
+    // because browsers do not reliably notify websites when an app is uninstalled.
     deferredInstallPrompt = null;
     closePrompt();
   });
@@ -172,10 +172,6 @@
         try {
           deferredInstallPrompt.prompt();
           const choice = await deferredInstallPrompt.userChoice;
-          if (choice && choice.outcome === "accepted") {
-            // Persist installation across browser visits, not just this page session.
-            rememberInstalled();
-          }
           deferredInstallPrompt = null;
           closePrompt();
         } catch (error) {
@@ -189,31 +185,11 @@
     installButton.onclick = handleInstall;
   }
 
-  async function init() {
-    // Standalone mode is definitive when the app is opened from its installed icon.
-    if (isInstalled()) {
-      rememberInstalled();
-      return;
-    }
-    if (hasInstalledMarker()) return;
-
-    // Chromium can report an installed PWA when the manifest declares this site
-    // as a related web app. This also covers installs made from the browser menu.
-    if (navigator.getInstalledRelatedApps) {
-      try {
-        const apps = await navigator.getInstalledRelatedApps();
-        const thisPwaInstalled = apps.some(app =>
-          app.platform === "webapp" &&
-          (!app.url || app.url.includes("typeshala.vercel.app/manifest.webmanifest"))
-        );
-        if (thisPwaInstalled) {
-          rememberInstalled();
-          return;
-        }
-      } catch (error) {
-        console.debug("TypeShala installed-app detection unavailable:", error);
-      }
-    }
+  function init() {
+    // Only suppress the banner while this page is running as the installed app.
+    // If the user uninstalls it, opening the website in a browser shows the banner
+    // again because we never store a permanent "installed" flag in localStorage.
+    if (isInstalled()) return;
     createPrompt();
   }
 
