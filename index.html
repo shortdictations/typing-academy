@@ -14,7 +14,20 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
      <meta name="google-site-verification" content="ROVLu8xT9bQa3MoCEYSMuzXthK_DUNpb0t-VkrluBv0" />
-<link href="/manifest.webmanifest" rel="manifest"/>
+<script>
+  // Select the desktop fullscreen PWA manifest only on desktop-class devices.
+  // Mobile/tablet installations keep the existing standalone manifest.
+  (function () {
+    var ua = navigator.userAgent || "";
+    var isDesktop = !/Android|iPhone|iPad|iPod/i.test(ua) &&
+      (/(Windows NT|Macintosh|X11|Linux x86_64)/i.test(ua)) &&
+      !(navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
+    var manifest = document.createElement("link");
+    manifest.rel = "manifest";
+    manifest.href = isDesktop ? "/manifest-desktop.webmanifest" : "/manifest.webmanifest";
+    document.head.appendChild(manifest);
+  })();
+</script>
 <link href="/icons/apple-touch-icon.png?v=3" rel="apple-touch-icon" sizes="180x180"/>
 <meta content="#FFFFFF" name="theme-color"/>
 <meta name="color-scheme" content="light dark"/>
