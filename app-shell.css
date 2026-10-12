@@ -6860,3 +6860,51 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     overflow-wrap: anywhere !important;
   }
 }
+
+/* Final dark-theme isolation for the history-style result PDF.
+   The PDF currently uses .printing-history-result, not .printing-results;
+   make the entire print canvas white and suppress theme-level backgrounds. */
+@media print {
+  html[data-theme="dark"],
+  html[data-theme="dark"] body,
+  html[data-theme="dark"] body.printing-history-result,
+  html[data-theme="light"] body.printing-history-result,
+  body.printing-history-result {
+    background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    color: #172033 !important;
+    color-scheme: light !important;
+  }
+  html[data-theme="dark"] body.printing-history-result::before,
+  html[data-theme="dark"] body.printing-history-result::after,
+  body.printing-history-result::before,
+  body.printing-history-result::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    background-image: none !important;
+  }
+  body.printing-history-result > *:not(#historyPrintResultView),
+  body.printing-history-result > *:not(#historyPrintResultView)::before,
+  body.printing-history-result > *:not(#historyPrintResultView)::after {
+    display: none !important;
+    visibility: hidden !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  body.printing-history-result #historyPrintResultView,
+  body.printing-history-result #historyPrintResultView .history-print-sheet {
+    background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    color: #172033 !important;
+  }
+  body.printing-history-result #historyPrintResultView,
+  body.printing-history-result #historyPrintResultView * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
