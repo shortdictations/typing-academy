@@ -719,9 +719,24 @@ function hideMobileKeyboardGate() {
   document.body.classList.remove("mobile-keyboard-gate-open");
 }
 
+function closeTestFromKeyboardGate() {
+  hideMobileKeyboardGate();
+  // The keyboard gate is shown before the candidate starts typing, so
+  // cancel the unstarted attempt without recording a result or score.
+  if (typeof cancelUnstartedTest === "function") {
+    cancelUnstartedTest("Test closed. You can resume it when you are ready.");
+  }
+}
+
 function showMobileKeyboardGate() {
   const overlay = document.getElementById("keyboardGateOverlay");
   if (!overlay || !window.matchMedia("(max-width: 700px)").matches) return;
+
+  const closeButton = document.getElementById("keyboardGateCloseBtn");
+  if (closeButton && closeButton.dataset.gateCloseWired !== "true") {
+    closeButton.dataset.gateCloseWired = "true";
+    closeButton.addEventListener("click", closeTestFromKeyboardGate);
+  }
 
   overlay.classList.add("is-visible");
   overlay.setAttribute("aria-hidden", "false");
