@@ -709,6 +709,40 @@ async function handleStartClick(options = {}) {
 }
 
 
+let mobileKeyboardGateListenerWired = false;
+
+function hideMobileKeyboardGate() {
+  const overlay = document.getElementById("keyboardGateOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("is-visible");
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("mobile-keyboard-gate-open");
+}
+
+function showMobileKeyboardGate() {
+  const overlay = document.getElementById("keyboardGateOverlay");
+  if (!overlay || !window.matchMedia("(max-width: 700px)").matches) return;
+
+  overlay.classList.add("is-visible");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("mobile-keyboard-gate-open");
+
+  // Browsers do not expose a dependable API for checking whether a
+  // Bluetooth/USB keyboard is connected. Treat the first trusted
+  // typing-style keydown as the practical signal and dismiss the
+  // reminder automatically. The test input remains focused behind
+  // the overlay so the first character can be typed immediately.
+  if (mobileKeyboardGateListenerWired) return;
+  mobileKeyboardGateListenerWired = true;
+  document.addEventListener("keydown", function onKeyboardGateKeydown(event) {
+    const key = event.key;
+    const isTypingKey = (typeof key === "string" && key.length === 1) ||
+      key === "Backspace" || key === "Delete" || key === "Enter";
+    if (!isTypingKey || !event.isTrusted || !document.body.classList.contains("mobile-keyboard-gate-open")) return;
+    hideMobileKeyboardGate();
+  }, true);
+}
+
 function startMockTest() {
   // A resumed session must leave the unfinished-state page completely
   // before the live typing screen is shown. The body class has its own
@@ -759,6 +793,10 @@ function startMockTest() {
   // endMockTest(), the single authoritative point testScreenOpen also
   // returns to false.
   document.body.classList.add("mock-test-active");
+
+  // The passage is rendered behind the mobile keyboard reminder.
+  // Desktop users continue straight into the existing test flow.
+  showMobileKeyboardGate();
 
   if (testTimer) clearInterval(testTimer);
 
@@ -1334,6 +1372,7 @@ function abandonMockTest() {
 }
 
 async function endMockTest(reason) {
+  hideMobileKeyboardGate();
   if (testResultSaved) return;
 
   // Just-in-time re-check before recording/saving anything — a test
