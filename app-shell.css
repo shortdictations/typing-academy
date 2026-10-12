@@ -7179,3 +7179,20 @@ body.app-shell.dashboard-page .dash-practice-cta-text p {
     min-width: 0 !important;
   }
 }
+
+
+/* Dashboard spacing guard: keep the Active Pass/greeting row visually
+   separate from the four stat cards at every wrap and container width.
+   Margin on the row remains effective when the pass card wraps to its
+   own line on tablet and narrow landscape layouts. */
+body.app-shell.dashboard-page .app-greeting-row-with-plan {
+  margin-bottom: 20px !important;
+}
+body.app-shell.dashboard-page .dash-stats-grid {
+  margin-top: 0 !important;
+}
+@media (max-width: 700px) {
+  body.app-shell.dashboard-page .app-greeting-row-with-plan {
+    margin-bottom: 16px !important;
+  }
+}
