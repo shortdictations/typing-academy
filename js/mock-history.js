@@ -33,6 +33,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   allHistoryResults = results || [];
   const resultIds = allHistoryResults.map(r => r.id).filter(Boolean);
 
+  // Fetch per-attempt key analysis by result id. Do not use lifetime
+  // typing_key_stats here, because that would misattribute keys from other tests.
+  if (resultIds.length) {
+    const { data: keyRows, error: keyError } = await supabaseClient
+      .from("mock_test_result_key_analysis")
+      .select("result_id, weak_keys, key_analysis")
+      .in("result_id", resultIds);
+    if (keyError) {
+      console.error("Could not load per-attempt key analysis:", keyError);
+    } else {
+      const keyByResult = new Map((keyRows || []).map(row => [row.result_id, row]));
+      allHistoryResults = allHistoryResults.map(row => {
+        const analysis = keyByResult.get(row.id);
+        return analysis ? { ...row, weak_key_analysis: analysis.weak_keys, key_analysis: analysis.key_analysis } : row;
+      });
+    }
+  }
+
   sessionByResultId = new Map();
   if (resultIds.length) {
     const { data: sessions, error: sessionsError } = await supabaseClient
