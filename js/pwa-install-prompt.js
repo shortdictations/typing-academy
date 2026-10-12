@@ -178,6 +178,18 @@
 
     const installButton = overlay.querySelector("#ts-install-action");
     const handleInstall = async () => {
+      // Check installed status before opening the browser's install dialog.
+      // This also covers apps installed before TypeShala began saving a marker,
+      // whenever the browser supports getInstalledRelatedApps().
+      const relatedInstalled = await isRelatedAppInstalled();
+      if (relatedInstalled || (!deferredInstallPrompt && hasInstalledMarker())) {
+        showMessage(
+          "TypeShala is already installed",
+          "Open TypeShala from your Home screen or app drawer."
+        );
+        return;
+      }
+
       if (deferredInstallPrompt) {
         const installPrompt = deferredInstallPrompt;
         deferredInstallPrompt = null;
