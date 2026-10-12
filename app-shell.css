@@ -6908,3 +6908,26 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
   }
 }
 
+/* Mock Test History: use the full available content row on wide screens.
+   Keep the fixed-width, horizontally-scrollable table only on small screens. */
+@media (min-width: 901px) {
+  body.app-shell.mock-history-page .app-content .page {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+  body.app-shell.mock-history-page .mh-history-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  body.app-shell.mock-history-page .mh-table-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
+  body.app-shell.mock-history-page .mh-history-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+}
+
