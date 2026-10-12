@@ -306,3 +306,22 @@ body.auth-shell .auth-page > .auth-brand .auth-brand-logo {
     left: 14px !important;
   }
 }
+
+/* Login uses the exact shared landing-page header and brand markup. */
+body.auth-shell .auth-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.auth-shell .auth-site-header .lp-brand strong {
+  color: var(--auth-text);
+}
+html[data-theme="dark"] body.auth-shell .auth-site-header .lp-brand strong {
+  color: #E8ECF4;
+}
+
