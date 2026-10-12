@@ -1,4 +1,4 @@
-/* TypeShala PWA installation prompt — shared by landing page and dashboard. */
+/* TypeShala persistent PWA install banner for the landing page. */
 (() => {
   "use strict";
   const STORAGE_INSTALLED = "typeshala-pwa-installed";
@@ -12,9 +12,6 @@
 
   const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-  const isMobile = () => window.matchMedia("(max-width: 767px)").matches ||
-    /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
 
   const isInstalled = () => {
     try {
@@ -111,8 +108,6 @@
       .ts-install-copy #ts-install-description{margin:0;font-size:11.5px;line-height:1.4;opacity:.72}
       .ts-install-action{flex:0 0 auto;padding:9px 13px;border:0;border-radius:10px;background:#d9b45b;color:#231d10;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
       .ts-install-action:hover{filter:brightness(.97)}
-      .ts-install-close{align-self:flex-start;flex:0 0 22px;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;font-size:19px;line-height:1;cursor:pointer;opacity:.6}
-      .ts-install-close:hover{background:rgba(148,163,184,.14);opacity:1}
       @keyframes tsInstallSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
       @media(max-width:767px){.ts-install-banner{right:10px;bottom:calc(10px + env(safe-area-inset-bottom));left:10px;width:auto;gap:9px;padding:10px;border-radius:14px}.ts-install-mark{flex-basis:36px;width:36px;height:36px;font-size:19px}.ts-install-title{font-size:13px}.ts-install-copy #ts-install-description{font-size:11px}.ts-install-action{padding:8px 11px;font-size:11.5px}}
       @media(prefers-reduced-motion:reduce){.ts-install-banner{animation:none}}
