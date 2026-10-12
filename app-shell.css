@@ -6407,6 +6407,49 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
   }
 }
 
+
+/* Dark-theme PDF artifact guard: print only the report and neutralize
+   theme backgrounds/pseudo-elements that can leak below the report. */
+@media print {
+  html[data-theme="dark"],
+  html[data-theme="dark"] body.printing-results,
+  body.printing-results {
+    background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    color: #172033 !important;
+  }
+  html[data-theme="dark"] body.printing-results::before,
+  html[data-theme="dark"] body.printing-results::after,
+  body.printing-results::before,
+  body.printing-results::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+  }
+  body.printing-results > *:not(#printResultView),
+  body.printing-results > *:not(#printResultView)::before,
+  body.printing-results > *:not(#printResultView)::after {
+    display: none !important;
+    visibility: hidden !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  body.printing-results > #printResultView,
+  body.printing-results > #printResultView .print-sheet {
+    background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    color: #172033 !important;
+  }
+  body.printing-results > #printResultView,
+  body.printing-results > #printResultView * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 /* Final PDF isolation + compact A4 layout. */
 @page { size: A4; margin: 7mm 8mm; }
 @media print {
