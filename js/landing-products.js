@@ -115,7 +115,7 @@ function renderCredits(credits, container) {
       : `<span>₹${formatPriceLP(p.price)}</span>`;
     return `
       <div class="${bestClass.trim()}">
-        <strong>${p.credits}</strong>${priceHtml}${badge}
+        <strong>${p.credits} Tests</strong>${priceHtml}${badge}
       </div>`;
   }).join("");
 }
