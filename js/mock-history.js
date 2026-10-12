@@ -302,12 +302,33 @@ function downloadHistoryResult(index) {
   const words = r.words_typed ?? r.total_words ?? r.words ?? null; const errors = r.errors ?? r.total_errors ?? r.mistakes ?? null;
   const duration = r.duration ?? r.duration_minutes ?? "—";
   const candidate = currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email || "Candidate";
-  let weak = r.weak_key_analysis ?? r.weak_keys ?? r.key_analysis ?? r.key_errors ?? r.weak_key_stats ?? null;
+  let weak = r.weak_key_analysis ?? r.weak_keys ?? null;
+  let keyAnalysis = r.key_analysis ?? r.key_errors ?? r.weak_key_stats ?? null;
   if (typeof weak === "string") { try { weak = JSON.parse(weak); } catch (_) { weak = null; } }
+  if (typeof keyAnalysis === "string") { try { keyAnalysis = JSON.parse(keyAnalysis); } catch (_) { keyAnalysis = null; } }
   if (weak && !Array.isArray(weak) && typeof weak === "object") weak = weak.keys ?? weak.items ?? weak.analysis ?? Object.entries(weak).map(([key,value]) => typeof value === "object" ? Object.assign({key},value) : {key,misses:value});
   if (!Array.isArray(weak)) weak = [];
+
+  // Some attempts have a valid per-character key_analysis object but an
+  // empty weak_keys array (meaning no key crossed the weak-key threshold).
+  // Derive the report's weak list from those saved per-attempt stats instead
+  // of incorrectly labelling the analysis as unavailable.
+  const hasKeyStats = !!keyAnalysis && typeof keyAnalysis === "object" && Object.keys(keyAnalysis).length > 0;
+  if (!weak.length && hasKeyStats) {
+    weak = Object.entries(keyAnalysis).map(([key, stat]) => {
+      stat = stat && typeof stat === "object" ? stat : {};
+      const attempts = Number(stat.attempts ?? stat.total ?? 0);
+      const errorsCount = Number(stat.errors ?? stat.error_count ?? stat.misses ?? 0);
+      const correct = Number(stat.correct ?? stat.correct_count ?? Math.max(0, attempts - errorsCount));
+      const accuracy = stat.accuracy != null ? Number(stat.accuracy) : (attempts > 0 ? correct / attempts * 100 : 100);
+      return { key, attempts, errors: errorsCount, accuracy };
+    }).filter(item => item.attempts >= 5 && item.errors >= 2 && item.accuracy < 90)
+      .sort((x,y) => x.accuracy-y.accuracy).slice(0,5);
+  }
+
   const weakRows = weak.map(item => { item = typeof item === "string" ? {key:item} : (item || {}); const key = item.key ?? item.character ?? item.stroke ?? item.key_name ?? item.name ?? "—"; const misses = item.misses ?? item.errors ?? item.error_count ?? item.count ?? item.total_errors ?? "—"; const acc = item.accuracy ?? item.accuracy_percent ?? item.precision; const impact = item.impact_level ?? item.impact ?? (Number(misses)>=3 ? "HIGH" : Number(misses)===2 ? "MEDIUM" : Number(misses)===1 ? "LOW" : "—"); const pattern = item.finger_pattern ?? item.finger ?? item.recommendation ?? item.note ?? "—"; return "<tr><td><span class=\"history-print-keycap\">"+safe(key)+"</span></td><td>"+num(misses)+"</td><td>"+(acc == null || acc === "" ? "—" : safe(String(acc).includes("%") ? acc : acc+"%"))+"</td><td><b>"+safe(impact)+"</b></td><td>"+safe(pattern)+"</td></tr>"; }).join("");
-  const weakSection = weakRows ? '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><p class="history-print-section-note">Recorded keys and strokes requiring additional practice.</p><table class="history-print-weak-table"><thead><tr><th>KEY / STROKE</th><th>MISSES</th><th>ACCURACY</th><th>IMPACT</th><th>FINGER PATTERN / NOTE</th></tr></thead><tbody>'+weakRows+"</tbody></table></section>" : '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><div class="history-print-empty-weak">Key-level analysis is not available for this attempt. No key-level statistics have been inferred.</div></section>';
+  const emptyWeakMessage = hasKeyStats ? "No significant weak keys detected in this attempt. Per-key statistics were recorded, but no key met the weak-key threshold." : "Key-level analysis is not available for this attempt. No key-level statistics have been inferred.";
+  const weakSection = weakRows ? '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><p class="history-print-section-note">Recorded keys and strokes requiring additional practice.</p><table class="history-print-weak-table"><thead><tr><th>KEY / STROKE</th><th>MISSES</th><th>ACCURACY</th><th>IMPACT</th><th>FINGER PATTERN / NOTE</th></tr></thead><tbody>'+weakRows+"</tbody></table></section>" : '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><div class="history-print-empty-weak">'+safe(emptyWeakMessage)+'</div></section>';
   // Build evidence-based feedback only from metrics recorded for this attempt.
   const net = Number(r.net_wpm), gross = Number(r.gross_wpm), accuracy = Number(r.accuracy);
   const errorCount = Number(errors), typedWords = Number(words);
