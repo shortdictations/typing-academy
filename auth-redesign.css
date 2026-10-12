@@ -281,3 +281,28 @@ html[data-theme="dark"] .auth-page .auth-footer a:focus-visible {
     font-size: 10.5px;
   }
 }
+
+
+/* Final placement lock: keep the login brand at the same top-left anchor as the landing header. */
+body.auth-shell .auth-page > .auth-brand {
+  position: absolute !important;
+  top: 18px !important;
+  left: max(32px, calc((100% - 1380px) / 2)) !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 11px !important;
+  transform: none !important;
+}
+body.auth-shell .auth-page > .auth-brand .auth-brand-logo {
+  width: 39px !important;
+  height: 39px !important;
+}
+@media (max-width: 720px) {
+  body.auth-shell .auth-page > .auth-brand {
+    top: 14px !important;
+    left: 14px !important;
+  }
+}
