@@ -3,6 +3,17 @@
   "use strict";
   let deferredInstallPrompt = null;
   let promptVisible = false;
+  const INSTALLED_KEY = "ts_pwa_installed_v1";
+
+  const hasInstalledMarker = () => {
+    try { return localStorage.getItem(INSTALLED_KEY) === "1"; }
+    catch (_) { return false; }
+  };
+
+  const rememberInstalled = () => {
+    try { localStorage.setItem(INSTALLED_KEY, "1"); }
+    catch (_) {}
+  };
 
   const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
@@ -26,6 +37,7 @@
   });
 
   window.addEventListener("appinstalled", () => {
+    rememberInstalled();
     deferredInstallPrompt = null;
     closePrompt();
   });
@@ -161,6 +173,8 @@
           deferredInstallPrompt.prompt();
           const choice = await deferredInstallPrompt.userChoice;
           if (choice && choice.outcome === "accepted") {
+            // Persist installation across browser visits, not just this page session.
+            rememberInstalled();
           }
           deferredInstallPrompt = null;
           closePrompt();
@@ -176,7 +190,14 @@
   }
 
   function init() {
-    if (isInstalled()) return;
+    // Opening the installed PWA records the state for later visits in the browser.
+    if (isInstalled()) {
+      rememberInstalled();
+      return;
+    }
+    // Browser mode cannot reliably detect an app installed previously by the OS.
+    // Keep a same-origin marker after installation so the banner stays hidden there too.
+    if (hasInstalledMarker()) return;
     createPrompt();
   }
 
