@@ -3,6 +3,23 @@
   "use strict";
   let deferredInstallPrompt = null;
   let promptVisible = false;
+  const INSTALLED_KEY = "ts_pwa_installed_v1";
+
+  const hasInstalledMarker = () => {
+    try { return localStorage.getItem(INSTALLED_KEY) === "1"; }
+    catch (_) { return false; }
+  };
+
+  const rememberInstalled = () => {
+    try { localStorage.setItem(INSTALLED_KEY, "1"); }
+    catch (_) {}
+  };
+
+  const clearInstalledMarker = () => {
+    try { localStorage.removeItem(INSTALLED_KEY); }
+    catch (_) {}
+  };
+
   const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: minimal-ui)").matches ||
@@ -20,12 +37,16 @@
 
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
+    // If the browser offers installation again, the app is not currently
+    // installed (or has been uninstalled), so discard any old marker.
+    clearInstalledMarker();
     deferredInstallPrompt = event;
   });
 
   window.addEventListener("appinstalled", () => {
-    // Standalone mode is the live installed-state signal. Do not persist a marker,
-    // because browsers do not reliably notify websites when an app is uninstalled.
+    // Remember successful installation so a later browser visit can explain
+    // that TypeShala is already installed when the browser has no native prompt.
+    rememberInstalled();
     deferredInstallPrompt = null;
     closePrompt();
   });
@@ -84,10 +105,13 @@
   }
 
   async function showInstallFallback() {
-    if (await isRelatedAppInstalled()) {
+    // Prefer browser-provided installed-app detection. The marker is a fallback
+    // for browsers that do not expose that API after a successful installation.
+    const relatedInstalled = await isRelatedAppInstalled();
+    if (relatedInstalled || (!deferredInstallPrompt && hasInstalledMarker())) {
       showMessage(
         "TypeShala is already installed",
-        "Open TypeShala from your Home screen or app drawer. You can close this message and continue browsing."
+        "Open TypeShala from your Home screen or app drawer."
       );
       return;
     }
