@@ -1673,124 +1673,62 @@ function renderEncouragement(passed) {
 // exactly window.print()'s destination picker, so no extra library
 // is needed for that requirement either.
 function wirePrintResults(r, passed) {
-  // Freeze the completed attempt once; PDF exports never read a live timer.
+  // Freeze result timing and render the same refined report design used by
+  // Mock Test History, including this attempt's actual weak-key statistics.
   r = Object.freeze({ ...r, elapsedTime: Math.max(0, Math.round(Number(r?.elapsedTime ?? 0))) });
   const btn = document.getElementById("printResultsBtn");
   if (!btn) return;
 
   btn.onclick = () => {
-    // Use the exact result and weak-key data already shown on screen.
-    const weakKeys = r.weakKeys || [];
-    const view = document.getElementById("printResultView");
-    const resultDate = new Date().toLocaleDateString(undefined, {
-      day: "2-digit", month: "short", year: "numeric"
-    });
-    const statusLabel = passed ? "PASSED" : "NOT PASSED";
-    const statusClass = passed ? "print-status-passed" : "print-status-failed";
-    const metrics = [
-      ["Net speed", r.netWpm + " WPM", "print-metric-primary"],
-      ["Accuracy", r.accuracy + "%", ""],
-      ["Gross speed", r.grossWpm + " WPM", ""],
-      ["Mistakes", r.errors, ""]
-    ];
+    const weakKeys = Array.isArray(r.weakKeys) ? r.weakKeys : [];
+    const keyAnalysis = r.keyAnalysis && typeof r.keyAnalysis === "object" ? r.keyAnalysis : {};
+    const dateText = new Date().toLocaleString("en-IN", {day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+    const safe = value => escapeHtml(String(value ?? "—"));
+    const val = value => value == null || value === "" ? "—" : safe(value);
+    const candidate = currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email || "Candidate";
+    const category = String(mockTest?.category || "Typing").toUpperCase();
+    const duration = r.testDurationMinutes ?? selectedDurationMinutes ?? "—";
+    const resultLabel = passed ? "PASSED" : "NOT PASSED";
+    const weakRows = weakKeys.map(item => {
+      const key = item.key ?? item.character ?? item.stroke ?? "—";
+      const misses = item.errors ?? item.misses ?? item.error_count ?? 0;
+      const accuracy = item.accuracy == null ? "—" : Math.round(Number(item.accuracy)) + "%";
+      const impact = Number(misses) >= 3 ? "HIGH" : Number(misses) === 2 ? "MEDIUM" : Number(misses) === 1 ? "LOW" : "—";
+      return "<tr><td><span class=\"history-print-keycap\">"+safe(key)+"</span></td><td>"+val(misses)+"</td><td>"+safe(accuracy)+"</td><td><b>"+impact+"</b></td><td>—</td></tr>";
+    }).join("");
+    const weakSection = weakRows
+      ? '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><p class="history-print-section-note">Keys with repeated errors in this attempt.</p><table class="history-print-weak-table"><thead><tr><th>KEY / STROKE</th><th>MISSES</th><th>ACCURACY</th><th>IMPACT</th><th>FINGER PATTERN / NOTE</th></tr></thead><tbody>'+weakRows+'</tbody></table></section>'
+      : '<section class="history-print-section"><h2>3. WEAK KEY ANALYSIS</h2><div class="history-print-empty-weak">'+(Object.keys(keyAnalysis).length ? "No significant weak keys detected in this attempt." : "Key-level analysis is not available for this attempt. No key-level statistics have been inferred.")+'</div></section>';
 
-    view.innerHTML = `
-      <article class="print-sheet">
-        <header class="print-report-header">
-          <div class="print-report-brand">
-            <img class="print-brand-logo" src="favicon.png" alt="TypeShala logo" width="34" height="34">
-            <span><strong>TypeShala</strong><small>Typing Practice Centre</small></span>
-          </div>
-          <div class="print-report-label">PERFORMANCE REPORT</div>
-        </header>
+    const observations = [];
+    const actions = [];
+    if (Number(r.accuracy) >= 97) { observations.push("Accuracy is strong; speed may be the next area to develop."); actions.push("Keep your current accuracy while gradually increasing your pace."); }
+    else if (Number(r.accuracy) < 90) { observations.push("Accuracy is below 90%, so mistakes may be reducing effective speed."); actions.push("Slow down slightly and prioritise correct keystrokes before increasing speed."); }
+    else { observations.push("Accuracy is moderate; aim to make typing more consistent."); actions.push("Practise short passages at a controlled pace and review recurring mistakes."); }
+    if (Number(r.grossWpm) > 0 && Number(r.netWpm) >= 0 && (Number(r.grossWpm)-Number(r.netWpm))/Number(r.grossWpm) < .07) {
+      observations.push("Net speed is close to gross speed, indicating relatively efficient typing.");
+      actions.push("Build speed in small increments without sacrificing accuracy.");
+    }
+    if (Number(r.errors) > 0) { observations.push("The attempt recorded "+Number(r.errors)+" error(s)."); actions.push("Review the weak-key/stroke table above, if available, and drill those patterns in focused repetitions."); }
+    observations.push("Recorded net speed: "+Number(r.netWpm)+" WPM.");
+    actions.push("Use timed practice rounds and compare net WPM across several attempts to confirm progress.");
+    const li = items => items.map(item=>"<li>"+safe(item)+"</li>").join("");
+    const analysisSection = '<section class="history-print-section history-print-analysis"><h2>4. PERFORMANCE ANALYSIS &amp; IMPROVEMENT PLAN</h2><div class="history-print-analysis-grid"><div class="history-print-analysis-card"><h3>WHY PROGRESS MAY BE LIMITED</h3><ul>'+li(observations)+'</ul></div><div class="history-print-analysis-card history-print-analysis-actions"><h3>WHAT TO IMPROVE NEXT</h3><ul>'+li(actions)+'</ul></div></div><p class="history-print-analysis-note">This guidance is based only on metrics recorded for this attempt. It is a practice guide, not a diagnosis or a guarantee of exam performance.</p></section>';
 
-        <section class="print-report-title">
-          <div>
-            <p class="print-eyebrow">MOCK TEST RESULT</p>
-            <h1>${escapeHtml(mockTest.title || "Typing Test")}</h1>
-            <p class="print-report-subtitle">${escapeHtml(selectedPassage.title || "Typing passage")} · ${escapeHtml(String(mockTest.category || "Typing").toUpperCase())}</p>
-          </div>
-          <span class="print-status ${statusClass}">${statusLabel}</span>
-        </section>
-
-        <div class="print-report-meta">
-          <span><b>DATE</b>${resultDate}</span>
-          <span><b>TEST DURATION</b>${r.testDurationMinutes} minutes</span>
-          <span><b>TIME TAKEN</b>${escapeHtml(formatDurationForResult(r))}</span>
-        </div>
-
-        <section class="print-metrics" aria-label="Performance metrics">
-          ${metrics.map(([label, value, extra]) => `
-            <div class="print-metric ${extra}">
-              <span>${label}</span><strong>${value}</strong>
-            </div>`).join("")}
-        </section>
-
-        <section class="print-report-section">
-          <h2><span>01</span> Test overview</h2>
-          <table class="print-table">
-            <tbody>
-              <tr><th>Words typed</th><td>${r.wordsTyped}</td></tr>
-              <tr><th>Time taken</th><td>${escapeHtml(formatDurationForResult(r))}</td></tr>
-              <tr><th>Gross typing speed</th><td>${r.grossWpm} WPM</td></tr>
-              <tr><th>Net typing speed</th><td>${r.netWpm} WPM</td></tr>
-              <tr><th>Accuracy</th><td>${r.accuracy}%</td></tr>
-              <tr><th>Total mistakes</th><td>${r.errors}</td></tr>
-              ${!passed && r.failReasons && r.failReasons.length ? `<tr><th>Areas to improve</th><td>${r.failReasons.map(escapeHtml).join("; ")}</td></tr>` : ""}
-            </tbody>
-          </table>
-        </section>
-
-        <section class="print-report-section print-weak-section">
-          <h2><span>02</span> Weak-key analysis</h2>
-          ${weakKeys.length ? `
-            <p class="print-section-note">Focus on these keys to improve accuracy in your next attempt.</p>
-            <table class="print-table print-weak-table">
-              <thead><tr><th>Key</th><th>Accuracy</th><th>Mistakes</th></tr></thead>
-              <tbody>${weakKeys.map(k => `
-                <tr>
-                  <td><span class="print-keycap">${escapeHtml(String(k.key))}</span></td>
-                  <td>${Math.round(k.accuracy)}%</td>
-                  <td>${k.errors}</td>
-                </tr>`).join("")}</tbody>
-            </table>
-          ` : `
-            <div class="print-no-weak-keys">
-              <strong>No significant weak keys detected</strong>
-              <p>No keys were flagged for additional practice in this attempt.</p>
-            </div>
-          `}
-        </section>
-
-        <footer class="print-report-footer">
-          <span>Keep practising. Every keystroke counts.</span>
-          <span>typeshala.vercel.app</span>
-        </footer>
-      </article>
-    `;
-    view.setAttribute("aria-hidden", "false");
-
-    // Print the report as a direct body child so app-shell backgrounds cannot
-    // bleed through the PDF, regardless of the selected theme.
-    const originalParent = view.parentNode;
-    const originalNextSibling = view.nextSibling;
-    document.body.appendChild(view);
-    document.body.classList.add("printing-results");
-    let restored = false;
-    const restoreReport = () => {
-      if (restored) return;
-      restored = true;
-      document.body.classList.remove("printing-results");
-      if (originalParent) {
-        if (originalNextSibling && originalNextSibling.parentNode === originalParent) originalParent.insertBefore(view, originalNextSibling);
-        else originalParent.appendChild(view);
-      }
-      view.setAttribute("aria-hidden", "true");
-      window.removeEventListener("afterprint", restoreReport);
-    };
-    window.addEventListener("afterprint", restoreReport, { once: true });
-    window.print();
-    setTimeout(restoreReport, 1500);
+    let view = document.getElementById("historyPrintResultView");
+    if (!view) { view = document.createElement("div"); view.id = "historyPrintResultView"; view.setAttribute("aria-hidden","true"); document.body.appendChild(view); }
+    view.innerHTML = '<article class="history-print-sheet"><header class="history-print-brand"><span class="history-print-brand-left"><img src="favicon.png" alt="" class="history-print-logo"><strong class="history-print-wordmark">TypeShala</strong></span></header><h1 class="history-print-title">TYPING PERFORMANCE REPORT</h1>'+
+      '<section class="history-print-section"><h2>1. CANDIDATE &amp; EXAMINATION DETAILS</h2><table class="history-print-details"><tbody><tr><th>CANDIDATE NAME</th><td>'+safe(candidate)+'</td><th>TEST TYPE</th><td>'+safe(category)+'</td></tr><tr><th>TEST NAME</th><td>'+safe(mockTest?.title || selectedPassage?.title || "Typing Mock Test")+'</td><th>TEST DATE &amp; TIME</th><td>'+safe(dateText)+'</td></tr><tr><th>DURATION</th><td>'+safe(duration)+' minutes</td><th>REPORT GENERATED ON</th><td>'+safe(dateText)+'</td></tr></tbody></table></section>'+
+      '<section class="history-print-section"><h2>2. PERFORMANCE SUMMARY</h2><div class="history-print-metrics"><div class="metric-speed"><span>NET SPEED</span><strong>'+val(r.netWpm)+'</strong><small>WPM</small></div><div class="metric-accuracy"><span>ACCURACY</span><strong>'+val(r.accuracy)+'%</strong><small>PRECISION</small></div><div class="metric-speed-secondary"><span>GROSS SPEED</span><strong>'+val(r.grossWpm)+'</strong><small>WPM</small></div><div class="metric-errors"><span>TOTAL ERRORS</span><strong>'+val(r.errors)+'</strong><small>ERROR COUNT</small></div><div class="metric-words"><span>WORDS TYPED</span><strong>'+val(r.wordsTyped)+'</strong><small>WORD COUNT</small></div><div class="metric-duration"><span>TEST RESULT</span><strong class="history-print-metric-result">'+resultLabel+'</strong><small>FINAL STATUS</small></div></div></section>'+weakSection+analysisSection+'<footer class="history-print-footer"><span>TypeShala · typeshala.vercel.app</span><span>Keep practising. Improve every attempt.</span></footer></article>';
+    document.body.classList.add("printing-history-result");
+    view.setAttribute("aria-hidden","false");
+    let cleaned = false;
+    const cleanup = () => { if (cleaned) return; cleaned = true; document.body.classList.remove("printing-history-result"); view.setAttribute("aria-hidden","true"); window.removeEventListener("afterprint",cleanup); };
+    window.addEventListener("afterprint",cleanup,{once:true});
+    const logo = view.querySelector(".history-print-logo");
+    const printNow = () => setTimeout(() => window.print(),120);
+    if (logo && !logo.complete) { logo.addEventListener("load",printNow,{once:true}); logo.addEventListener("error",printNow,{once:true}); setTimeout(printNow,900); } else printNow();
+    setTimeout(cleanup,30000);
   };
 }
 
