@@ -7196,3 +7196,128 @@ body.app-shell.dashboard-page .dash-stats-grid {
     margin-bottom: 16px !important;
   }
 }
+
+
+/* Recent Test History responsive hardening (2026-10-13).
+   Keep the 11-column table readable until the content area can truly
+   accommodate it; on smaller desktop/tablet widths, scroll only the
+   table wrapper rather than squeezing action controls into each other. */
+@media (min-width: 901px) and (max-width: 1439px) {
+  body.app-shell.mock-history-page .app-content .page {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+  body.app-shell.mock-history-page .mh-history-card,
+  body.app-shell.mock-history-page .mh-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  body.app-shell.mock-history-page .mh-history-table {
+    width: 1180px;
+    min-width: 1180px;
+    table-layout: fixed;
+  }
+}
+
+/* The desktop table uses proportional widths totalling 100%, avoiding
+   the former 108% sum that could distort columns or create overflow. */
+@media (min-width: 1440px) {
+  body.app-shell.mock-history-page .mh-history-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(1) { width: 3.7%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(2) { width: 9.3%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(3) { width: 11.1%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(4),
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(5) { width: 7.4%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(6) { width: 7.4%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(7) { width: 6.5%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(8) { width: 9.3%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(9) { width: 8.3%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(10) { width: 12%; }
+  body.app-shell.mock-history-page .mh-history-table th:nth-child(11) { width: 17.6%; }
+}
+
+/* Allow action content to use multiple lines where its column is narrow. */
+body.app-shell.mock-history-page .mh-history-table td[data-label="Actions"],
+body.app-shell.mock-history-page .mh-history-table td[data-label="Re-attempt"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+body.app-shell.mock-history-page .mh-history-table td[data-label="Actions"] .mh-action,
+body.app-shell.mock-history-page .mh-history-table td[data-label="Re-attempt"] .mh-action {
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: normal;
+}
+body.app-shell.mock-history-page .mh-action-unavailable {
+  min-width: 0;
+}
+body.app-shell.mock-history-page .mh-reattempt-wrap {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+body.app-shell.mock-history-page .mh-reattempt-countdown {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Pagination should never force the page wider than a phone. */
+body.app-shell.mock-history-page .mh-history-footer {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+body.app-shell.mock-history-page .mh-entry-summary,
+body.app-shell.mock-history-page .mh-footer-right {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  flex-wrap: wrap;
+}
+body.app-shell.mock-history-page .mh-footer-right {
+  justify-content: flex-end;
+}
+body.app-shell.mock-history-page .mh-pagination {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+body.app-shell.mock-history-page .mh-page-control,
+body.app-shell.mock-history-page .mh-page-number {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 34px;
+}
+@media (max-width: 480px) {
+  body.app-shell.mock-history-page .mh-history-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  body.app-shell.mock-history-page .mh-entry-summary {
+    justify-content: flex-start;
+  }
+  body.app-shell.mock-history-page .mh-footer-right {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  body.app-shell.mock-history-page .mh-pagination {
+    justify-content: flex-start;
+    gap: 3px;
+  }
+  body.app-shell.mock-history-page .mh-page-control,
+  body.app-shell.mock-history-page .mh-page-number {
+    flex-basis: 30px;
+    width: 30px;
+    height: 32px;
+  }
+  body.app-shell.mock-history-page .mh-history-heading-text {
+    overflow-wrap: anywhere;
+  }
+}
