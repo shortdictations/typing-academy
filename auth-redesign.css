@@ -5,9 +5,11 @@ body.auth-shell{
   --auth-accent:var(--gold,#e8aa00);margin:0;min-height:100vh;background:var(--auth-bg);color:var(--auth-text);font-family:inherit;
 }
 .auth-page{min-height:100vh;display:flex;flex-direction:column;position:relative}
-.auth-brand{position:absolute;left:28px;top:24px;display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--auth-text);z-index:2}
-.auth-brand-logo{width:36px;height:36px;display:block;object-fit:contain;flex:none;border-radius:0}
-.auth-brand-copy strong{display:block;font-size:17px;line-height:1;color:var(--navy,#0b1f47);letter-spacing:-.5px}
+/* Match the landing header brand's horizontal container, vertical alignment,
+   logo size, gap and wordmark typography. */
+.auth-brand{position:absolute;left:max(32px,calc((100% - 1380px)/2));top:18px;display:inline-flex;align-items:center;gap:11px;text-decoration:none;color:var(--auth-text);z-index:2}
+.auth-brand-logo{width:39px;height:39px;display:block;object-fit:contain;flex:none;border-radius:0}
+.auth-brand-copy strong{display:block;font-size:18px;line-height:1;color:var(--navy,#0b1f47);letter-spacing:-.5px}
 .auth-brand-copy small{display:block;margin-top:3px;color:var(--auth-accent);font-size:7px;font-weight:800;letter-spacing:1.25px;line-height:1}
 .auth-main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:31vh 20px 54px}
 .auth-panel{width:min(100%,390px);overflow:visible}
@@ -47,7 +49,8 @@ body.auth-shell{
 .auth-simple-main{padding-top:31vh}.auth-simple-panel{max-width:390px}.auth-simple-submit{margin-top:0}.auth-simple-back{margin-top:18px}.auth-back-inline{color:var(--auth-muted)!important;font-weight:600!important}
 .auth-reset-form .auth-field{margin-bottom:14px}
 .auth-reset-actions{margin-top:0}
-@media(max-width:520px){.auth-brand{left:18px;top:18px}.auth-main{padding:112px 18px 35px}.auth-panel{max-width:390px}.auth-name-grid{grid-template-columns:1fr 1fr}.auth-brand-logo{width:34px;height:34px}}
+@media(max-width:720px){.auth-brand{left:14px;top:14px}.auth-brand-logo{width:39px;height:39px}}
+@media(max-width:520px){.auth-main{padding:112px 18px 35px}.auth-panel{max-width:390px}.auth-name-grid{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.auth-socials,.auth-signup-fields,.auth-password-step,.auth-step-back{transition:none!important}}
 
 
