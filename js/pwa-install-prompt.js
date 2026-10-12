@@ -203,9 +203,12 @@
   }
 
   function init() {
-    // Browser visits always get the install banner, even if TypeShala is also
-    // installed on this device. Hide it only when launched as the installed app.
-    if (isInstalled()) return;
+    // Opening TypeShala in standalone mode confirms an existing installation.
+    // Shared origin storage lets a later browser visit show the right message.
+    if (isInstalled()) {
+      rememberInstalled();
+      return;
+    }
     // On mobile, wait until the animated splash has disappeared.
     const delay = window.matchMedia("(max-width: 767px)").matches ? 1750 : 500;
     window.setTimeout(() => {
