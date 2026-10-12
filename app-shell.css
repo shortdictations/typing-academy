@@ -6931,16 +6931,30 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
   }
 }
 
-/* Wide-screen content expansion for core account pages.
-   Keep the existing gutters and responsive/mobile layout, but remove the
-   generic 1000px reading-width cap when there is room beside the sidebar. */
+/* Balanced desktop content widths for core account pages.
+   Use generous but readable max-widths rather than stretching every page
+   across ultrawide displays; keep existing responsive rules on mobile. */
 @media (min-width: 901px) {
-  body.app-shell.dashboard-page .app-content .page,
-  body.app-shell.purchase-history-page .app-content .page,
+  body.app-shell.dashboard-page .app-content .page {
+    width: calc(100% - 48px);
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  body.app-shell.purchase-history-page .app-content .page {
+    width: calc(100% - 48px);
+    max-width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
   body.app-shell.help-page .app-content .page,
   body.app-shell.settings-page .app-content .page {
-    width: 100%;
-    max-width: none;
+    width: calc(100% - 48px);
+    max-width: 1160px;
+    margin-left: auto;
+    margin-right: auto;
     box-sizing: border-box;
   }
   body.app-shell.dashboard-page .app-content,
@@ -6950,4 +6964,3 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     min-width: 0;
   }
 }
-
