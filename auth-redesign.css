@@ -309,14 +309,35 @@ body.auth-shell .auth-page > .auth-brand .auth-brand-logo {
 
 /* Login uses the exact shared landing-page header and brand markup. */
 body.auth-shell .auth-site-header {
-  position: sticky;
-  top: 0;
+  position: absolute;
+  inset: 0 0 auto 0;
   z-index: 50;
+  display: block;
   width: 100%;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  border-bottom-color: transparent;
+  border: 0;
   box-shadow: none;
   backdrop-filter: none;
+}
+body.auth-shell .auth-site-header .container {
+  width: min(1380px, calc(100% - 64px));
+  margin: 0 auto;
+}
+body.auth-shell .auth-site-header .nav-wrap {
+  height: 76px;
+  min-height: 76px;
+  padding: 0;
+}
+@media (max-width: 720px) {
+  body.auth-shell .auth-site-header .container {
+    width: calc(100% - 28px);
+  }
+  body.auth-shell .auth-site-header .nav-wrap {
+    height: 68px;
+    min-height: 68px;
+  }
 }
 body.auth-shell .auth-site-header .lp-brand strong {
   color: var(--auth-text);
