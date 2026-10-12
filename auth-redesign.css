@@ -321,9 +321,15 @@ body.auth-shell .auth-site-header {
   box-shadow: none;
   backdrop-filter: none;
 }
+/* Match the landing screenshot's near-edge brand placement, not the
+   centered max-width container used by the authentication layout. */
 body.auth-shell .auth-site-header .container {
-  width: min(1380px, calc(100% - 64px));
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+  box-sizing: border-box;
 }
 body.auth-shell .auth-site-header .nav-wrap {
   height: 76px;
@@ -332,7 +338,9 @@ body.auth-shell .auth-site-header .nav-wrap {
 }
 @media (max-width: 720px) {
   body.auth-shell .auth-site-header .container {
-    width: calc(100% - 28px);
+    width: 100% !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
   }
   body.auth-shell .auth-site-header .nav-wrap {
     height: 68px;
