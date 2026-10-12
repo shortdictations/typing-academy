@@ -181,6 +181,10 @@
       const syncFooterVisibility = (isFooterVisible) => {
         overlay.classList.toggle("ts-footer-hidden", isFooterVisible);
         overlay.setAttribute("aria-hidden", isFooterVisible ? "true" : "false");
+        // The banner's base styles use !important declarations. Apply display
+        // inline with the same priority so footer visibility always wins over
+        // animation/base CSS and the banner cannot remain visible over the footer.
+        overlay.style.setProperty("display", isFooterVisible ? "none" : "flex", "important");
       };
 
       // Use scroll geometry as the reliable source of truth. IntersectionObserver
