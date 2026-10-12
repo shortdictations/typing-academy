@@ -80,6 +80,13 @@
     overlay.setAttribute("role", "region");
     overlay.setAttribute("aria-label", "Install TypeShala");
     overlay.innerHTML = `
+      <div class="ts-install-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v11"></path>
+          <path d="m7.5 9.5 4.5 4.5 4.5-4.5"></path>
+          <path d="M5 16.5v2A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5v-2"></path>
+        </svg>
+      </div>
       <div class="ts-install-copy">
         <p id="ts-install-title" class="ts-install-title">Install TypeShala</p>
       </div>
