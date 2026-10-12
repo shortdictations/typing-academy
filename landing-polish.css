@@ -589,13 +589,13 @@ body.landing-v2 .credit-options strong {
   letter-spacing: -.2px;
 }
 html[data-theme="dark"] body.landing-v2 .credit-options strong {
-  font-size: clamp(13px, 1.05vw, 15px);
+  font-size: clamp(13px, 1.15vw, 16px);
 }
 @media (max-width: 600px) {
   body.landing-v2 .credit-options strong {
     font-size: 14px;
   }
   html[data-theme="dark"] body.landing-v2 .credit-options strong {
-    font-size: 13px;
+    font-size: 14px;
   }
 }
