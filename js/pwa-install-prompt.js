@@ -110,8 +110,8 @@
         bottom: mobile ? "calc(10px + env(safe-area-inset-bottom))" : "24px",
         left: mobile ? "10px" : "auto",
         "z-index": "2147483647",
-        width: mobile ? "auto" : "min(390px, calc(100vw - 32px))",
-        "max-width": mobile ? "none" : "calc(100vw - 32px)",
+        width: "max-content",
+        "max-width": mobile ? "calc(100vw - 20px)" : "calc(100vw - 32px)",
         "box-sizing": "border-box",
         transform: "none"
       };
