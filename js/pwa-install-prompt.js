@@ -109,6 +109,8 @@
       };
       Object.entries(properties).forEach(([name, value]) => overlay.style.setProperty(name, value, "important"));
     }
+    // Mount the banner before positioning it; otherwise isConnected is false and positioning exits early.
+    document.body.appendChild(overlay);
     pinPromptToViewport();
     window.addEventListener("resize", pinPromptToViewport, { passive: true });
     const promptPositionObserver = new MutationObserver(() => {
