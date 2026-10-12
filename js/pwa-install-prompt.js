@@ -93,30 +93,9 @@
 
     const style = document.createElement("style");
     style.id = "ts-install-styles";
-    style.textContent = `
-      .ts-install-banner{position:static;z-index:20;display:flex!important;visibility:visible!important;opacity:1!important;align-items:center;gap:8px;box-sizing:border-box;width:auto;max-width:330px;padding:6px 9px;border:1px solid rgba(148,163,184,.24);border-radius:16px;background:#fff;color:#172033;box-shadow:0 10px 34px rgba(15,23,42,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;animation:tsInstallSlide .22s ease-out}
-      html[data-theme="dark"] .ts-install-banner,html.dark .ts-install-banner,body.dark .ts-install-banner{background:#171f2e;color:#edf2fb;border-color:rgba(148,163,184,.2);box-shadow:0 10px 34px rgba(0,0,0,.32)}
-      .ts-install-mark{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:9px;background:#f4ead1;color:#7a5a16;font-size:22px}
-      html[data-theme="dark"] .ts-install-mark,html.dark .ts-install-mark,body.dark .ts-install-mark{background:#3a3223;color:#f0cc75}
-      .ts-install-copy{flex:1;min-width:0;text-align:left}
-      .ts-install-eyebrow{display:none;margin:0 0 3px;font-size:9px;letter-spacing:.13em;font-weight:700;opacity:.6}
-      .ts-install-title{margin:0;font-size:12px;line-height:1.3;font-weight:650}
-      .ts-install-copy #ts-install-description{display:none;margin:0;font-size:11.5px;line-height:1.4;opacity:.72}
-      .ts-install-action{flex:0 0 auto;padding:7px 10px;border:0;border-radius:10px;background:#d9b45b;color:#231d10;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
-      .ts-install-action:hover{filter:brightness(.97)}
-      @keyframes tsInstallSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-      @media(max-width:767px){.ts-install-banner{position:fixed!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;left:10px!important;width:auto;max-width:none;gap:9px;padding:10px;border-radius:14px}.ts-install-mark{flex-basis:36px;width:36px;height:36px;font-size:19px}.ts-install-eyebrow{display:block}.ts-install-title{font-size:13px}.ts-install-copy #ts-install-description{display:block;font-size:11px}.ts-install-action{padding:8px 11px;font-size:11.5px}}
-      @media(prefers-reduced-motion:reduce){.ts-install-banner{animation:none}}
-    `
+    style.textContent = ".ts-install-banner{position:fixed!important;right:24px!important;bottom:24px!important;z-index:2147483647!important;display:flex!important;visibility:visible!important;opacity:1!important;align-items:center;gap:13px;box-sizing:border-box;width:min(390px,calc(100vw - 32px));padding:11px 13px;border:1px solid rgba(148,163,184,.24);border-radius:16px;background:#fff;color:#172033;box-shadow:0 10px 34px rgba(15,23,42,.14);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;animation:tsInstallSlide .22s ease-out}\nhtml[data-theme=\"dark\"] .ts-install-banner,html.dark .ts-install-banner,body.dark .ts-install-banner{background:#171f2e;color:#edf2fb;border-color:rgba(148,163,184,.2);box-shadow:0 10px 34px rgba(0,0,0,.32)}\n.ts-install-mark{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:#f4ead1;color:#7a5a16;font-size:22px}\nhtml[data-theme=\"dark\"] .ts-install-mark,html.dark .ts-install-mark,body.dark .ts-install-mark{background:#3a3223;color:#f0cc75}\n.ts-install-copy{flex:1;min-width:0;text-align:left}\n.ts-install-eyebrow{margin:0 0 3px;font-size:9px;letter-spacing:.13em;font-weight:700;opacity:.6}\n.ts-install-title{margin:0 0 3px;font-size:14px;line-height:1.3;font-weight:650}\n.ts-install-copy #ts-install-description{margin:0;font-size:11.5px;line-height:1.4;opacity:.72}\n.ts-install-action{flex:0 0 auto;padding:9px 13px;border:0;border-radius:10px;background:#d9b45b;color:#231d10;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}\n.ts-install-action:hover{filter:brightness(.97)}\n@keyframes tsInstallSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}\n@media(max-width:767px){.ts-install-banner{right:10px;bottom:calc(10px + env(safe-area-inset-bottom));left:10px;width:auto;gap:9px;padding:10px;border-radius:14px}.ts-install-mark{flex-basis:36px;width:36px;height:36px;font-size:19px}.ts-install-title{font-size:13px}.ts-install-copy #ts-install-description{font-size:11px}.ts-install-action{padding:8px 11px;font-size:11.5px}}\n@media(prefers-reduced-motion:reduce){.ts-install-banner{animation:none}}";
     if (!document.getElementById("ts-install-styles")) document.head.appendChild(style);
-    const headerActions = document.querySelector(".site-header .nav-actions");
-    if (headerActions) {
-      const getStarted = headerActions.querySelector('a[href="login.html"], a[href="register.html"]');
-      if (getStarted) headerActions.insertBefore(overlay, getStarted);
-      else headerActions.appendChild(overlay);
-    } else {
-      document.body.appendChild(overlay);
-    }
+    document.body.appendChild(overlay);
 
     const installButton = overlay.querySelector("#ts-install-action");
     const handleInstall = async () => {
