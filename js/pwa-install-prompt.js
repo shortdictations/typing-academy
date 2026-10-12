@@ -137,34 +137,7 @@
     });
     promptPositionObserver.observe(document.body, { childList: true, subtree: true });
 
-    // Keep the banner visible by default. Hide it only when the footer physically
-    // overlaps its on-screen rectangle, then recalculate on scroll/resize/page restore.
-    const footer = document.querySelector("footer.site-foot") || document.querySelector("footer");
-    overlay.classList.remove("ts-footer-hidden");
-    if (footer) {
-      let footerCheckPending = false;
-      const updateFooterVisibility = () => {
-        footerCheckPending = false;
-        if (!overlay.isConnected) return;
-        const footerRect = footer.getBoundingClientRect();
-        const bannerRect = overlay.getBoundingClientRect();
-        const isFooterInBannerArea =
-          footerRect.top < bannerRect.bottom &&
-          footerRect.bottom > bannerRect.top &&
-          footerRect.top < window.innerHeight &&
-          footerRect.bottom > 0;
-        overlay.classList.toggle("ts-footer-hidden", isFooterInBannerArea);
-      };
-      const scheduleFooterCheck = () => {
-        if (footerCheckPending) return;
-        footerCheckPending = true;
-        window.requestAnimationFrame(updateFooterVisibility);
-      };
-      window.addEventListener("scroll", scheduleFooterCheck, { passive: true });
-      window.addEventListener("resize", scheduleFooterCheck, { passive: true });
-      window.addEventListener("pageshow", scheduleFooterCheck);
-      scheduleFooterCheck();
-    }
+    // Keep the install banner visible even when the page footer is in view.
 
     const installButton = overlay.querySelector("#ts-install-action");
     const handleInstall = async () => {
@@ -186,11 +159,14 @@
   }
 
   function init() {
-    // Only suppress the banner while this page is running as the installed app.
-    // If the user uninstalls it, opening the website in a browser shows the banner
-    // again because we never store a permanent "installed" flag in localStorage.
+    // Browser visits always get the install banner, even if TypeShala is also
+    // installed on this device. Hide it only when launched as the installed app.
     if (isInstalled()) return;
-    createPrompt();
+    // On mobile, wait until the animated splash has disappeared.
+    const delay = window.matchMedia("(max-width: 767px)").matches ? 1750 : 500;
+    window.setTimeout(() => {
+      if (!isInstalled() && !document.getElementById("ts-install-overlay")) createPrompt();
+    }, delay);
   }
 
   if (document.readyState === "loading") {
@@ -198,4 +174,12 @@
   } else {
     init();
   }
+
+  // Restore the banner when returning to the browser tab or using back/forward cache.
+  window.addEventListener("pageshow", () => {
+    if (isInstalled() || document.getElementById("ts-install-overlay")) return;
+    window.setTimeout(() => {
+      if (!isInstalled() && !document.getElementById("ts-install-overlay")) createPrompt();
+    }, 250);
+  });
 })();
