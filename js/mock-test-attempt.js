@@ -160,9 +160,9 @@ function setResumeSessionExpired() {
   if (note) note.textContent = "Start a new mock test to continue.";
 
   if (button) {
-    button.disabled = false;
-    button.innerHTML = "Start New Test <span aria-hidden=\"true\">→</span>";
-    button.onclick = () => window.location.reload();
+    button.disabled = true;
+    button.innerHTML = "Opening new test…";
+    button.onclick = null;
   }
   const setupCard = document.getElementById("setupCard");
   if (setupCard) {
@@ -212,12 +212,17 @@ function startResumeCountdown(resumeStatus) {
       clearInterval(resumeCountdownInterval);
       resumeCountdownInterval = null;
       setResumeSessionExpired();
-      // This server call changes the session status to "expired".
-      // If it fails transiently, a page refresh will re-check it.
+      // Let the server apply its authoritative expiry transition before
+      // returning to the clean Start Test entry point. Never reload this
+      // URL, because it still contains the expired session id.
       supabaseClient.rpc("get_mock_session_resume_status", {
         p_session_id: currentSession?.id
-      }).then(({ error }) => {
-        if (error) console.error("Could not finalize expired resume session:", error);
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error("Could not finalize expired resume session:", error);
+          return;
+        }
+        window.location.replace("mock-test-attempt.html");
       });
     }
   };
@@ -293,7 +298,9 @@ async function showInlineUnfinishedSession(sessionRow, mockRow) {
   }
 
   if (resumeInfo.status.session_status !== "in_progress") {
-    setResumeSessionExpired();
+    // The server has already confirmed this session is no longer resumable.
+    // Leave the session-specific URL and open the normal new-test selector.
+    window.location.replace("mock-test-attempt.html");
     return;
   }
 
