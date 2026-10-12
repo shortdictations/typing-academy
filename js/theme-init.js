@@ -135,7 +135,7 @@
       html[data-theme="dark"] #ts-app-close-control{background:rgba(23,31,46,.96);color:#f1f5f9;border-color:rgba(148,163,184,.28);box-shadow:0 5px 20px rgba(0,0,0,.3)}
       #ts-app-close-control.ts-visible{opacity:1;visibility:visible;transform:translateY(0)}
       #ts-app-close-control:focus-visible{opacity:1;visibility:visible;outline:2px solid #d9b45b;outline-offset:3px}
-      body.mock-test-active #ts-app-close-control{display:none!important}
+      body.mock-test-active #ts-app-close-control,body.mock-attempt-page #ts-app-close-control{display:none!important}
       #ts-app-close-hint{position:fixed;z-index:2147483001;top:48px;right:10px;max-width:250px;padding:8px 11px;border:1px solid rgba(148,163,184,.24);border-radius:10px;background:#fff;color:#263247;font:12px/1.45 system-ui,sans-serif;box-shadow:0 8px 25px rgba(15,23,42,.15)}
       html[data-theme="dark"] #ts-app-close-hint{background:#171f2e;color:#f1f5f9}
       @media(prefers-reduced-motion:reduce){#ts-app-close-control{transition:none}}
