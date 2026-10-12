@@ -3,18 +3,6 @@
   "use strict";
   let deferredInstallPrompt = null;
   let promptVisible = false;
-  const INSTALLED_KEY = "ts_pwa_installed_v1";
-
-  const hasInstalledMarker = () => {
-    try { return localStorage.getItem(INSTALLED_KEY) === "1"; }
-    catch (_) { return false; }
-  };
-
-  const rememberInstalled = () => {
-    try { localStorage.setItem(INSTALLED_KEY, "1"); }
-    catch (_) {}
-  };
-
   const isStandalone = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: minimal-ui)").matches ||
@@ -67,19 +55,44 @@
     };
   }
 
-  function showInstructions() {
-    const copy = getInstructions();
-    const title = document.getElementById("ts-install-title");
-    const button = document.getElementById("ts-install-action");
-    if (title) title.textContent = copy.title;
-    if (button) {
-      button.textContent = "Back";
-      button.onclick = () => {
-        if (title) title.textContent = "Install TypeShala";
-        button.textContent = "Install";
-        button.onclick = null;
-      };
+  async function isRelatedAppInstalled() {
+    // Chromium can expose installed related web apps on supported devices.
+    // This is intentionally optional: most browsers do not implement this API.
+    if (typeof navigator.getInstalledRelatedApps !== "function") return false;
+    try {
+      const apps = await navigator.getInstalledRelatedApps();
+      return Array.isArray(apps) && apps.some(app =>
+        app.platform === "webapp" &&
+        (!app.url || app.url.includes("/manifest.webmanifest"))
+      );
+    } catch (error) {
+      console.debug("TypeShala installed-app detection is unavailable:", error);
+      return false;
     }
+  }
+
+  function showMessage(titleText, descriptionText, buttonText = "Got it") {
+    const title = document.getElementById("ts-install-title");
+    const description = document.querySelector("#ts-install-overlay .ts-install-description");
+    const button = document.getElementById("ts-install-action");
+    if (title) title.textContent = titleText;
+    if (description) description.textContent = descriptionText;
+    if (button) {
+      button.textContent = buttonText;
+      button.onclick = closePrompt;
+    }
+  }
+
+  async function showInstallFallback() {
+    if (await isRelatedAppInstalled()) {
+      showMessage(
+        "TypeShala is already installed",
+        "Open TypeShala from your Home screen or app drawer. You can close this message and continue browsing."
+      );
+      return;
+    }
+    const copy = getInstructions();
+    showMessage(copy.title, copy.text);
   }
 
   function createPrompt() {
@@ -142,17 +155,24 @@
     const installButton = overlay.querySelector("#ts-install-action");
     const handleInstall = async () => {
       if (deferredInstallPrompt) {
+        const installPrompt = deferredInstallPrompt;
+        deferredInstallPrompt = null;
         try {
-          deferredInstallPrompt.prompt();
-          const choice = await deferredInstallPrompt.userChoice;
-          deferredInstallPrompt = null;
-          closePrompt();
+          await installPrompt.prompt();
+          const choice = await installPrompt.userChoice;
+          if (choice && choice.outcome === "accepted") {
+            closePrompt();
+            return;
+          }
+          // If the visitor dismisses the native prompt, keep the banner useful
+          // by explaining where to find the browser's manual install option.
+          await showInstallFallback();
         } catch (error) {
           console.warn("TypeShala install prompt could not be opened:", error);
-          showInstructions();
+          await showInstallFallback();
         }
       } else {
-        showInstructions();
+        await showInstallFallback();
       }
     };
     installButton.onclick = handleInstall;
