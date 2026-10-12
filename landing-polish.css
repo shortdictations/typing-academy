@@ -574,3 +574,28 @@ html[data-theme="dark"] body.landing-v2 .lp-theme-moon {
     will-change: auto;
   }
 }
+
+
+/* Credit Wallet: keep test-count labels on one line in both themes. */
+body.landing-v2 .credit-options > div {
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+body.landing-v2 .credit-options strong {
+  font-size: clamp(13px, 1.15vw, 16px);
+  line-height: 1.25;
+  white-space: nowrap;
+  letter-spacing: -.2px;
+}
+html[data-theme="dark"] body.landing-v2 .credit-options strong {
+  font-size: clamp(13px, 1.05vw, 15px);
+}
+@media (max-width: 600px) {
+  body.landing-v2 .credit-options strong {
+    font-size: 14px;
+  }
+  html[data-theme="dark"] body.landing-v2 .credit-options strong {
+    font-size: 13px;
+  }
+}
