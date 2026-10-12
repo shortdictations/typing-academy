@@ -123,9 +123,9 @@
       if (error) throw error;
       if (data && data.session && data.session.user) {
         typeShalaLandingHasSession = true;
-        // Let the mobile in-app splash finish before routing returning users.
+        // Keep returning mobile users on the landing page until the in-app splash has finished.
         if (window.matchMedia("(max-width: 767px)").matches) {
-          await new Promise(resolve => window.setTimeout(resolve, 1320));
+          await new Promise(resolve => window.setTimeout(resolve, 1720));
         }
         window.location.replace("dashboard.html");
         return;
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", function(){
 </head>
 <body class="landing-v2">
 <div id="ts-animated-splash" aria-hidden="true"><img class="ts-splash-logo" src="/favicon.png?v=20261013-logo-motion" alt=""/></div>
-<script>(function(){var splash=document.getElementById("ts-animated-splash");if(!splash||!window.matchMedia("(max-width: 767px)").matches)return;window.setTimeout(function(){splash.classList.add("ts-splash-exit");window.setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash)},260)},1050)})();</script>
+<script>(function(){var splash=document.getElementById("ts-animated-splash");if(!splash||!window.matchMedia("(max-width: 767px)").matches)return;var logo=splash.querySelector(".ts-splash-logo");var dismissed=false;function dismiss(){if(dismissed)return;dismissed=true;splash.classList.add("ts-splash-exit");window.setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash)},260)}var minimumTime=new Promise(function(resolve){window.setTimeout(resolve,1450)});var logoReady=new Promise(function(resolve){if(!logo){resolve();return}if(logo.complete){resolve();return}logo.addEventListener("load",resolve,{once:true});logo.addEventListener("error",resolve,{once:true});window.setTimeout(resolve,900)});Promise.all([minimumTime,logoReady]).then(dismiss);window.setTimeout(dismiss,1900)})();</script>
 <div class="ts-landing-main">
 <header class="site-header">
 <div class="container nav-wrap">
