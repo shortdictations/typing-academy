@@ -58,15 +58,12 @@
   function showInstructions() {
     const copy = getInstructions();
     const title = document.getElementById("ts-install-title");
-    const description = document.getElementById("ts-install-description");
     const button = document.getElementById("ts-install-action");
     if (title) title.textContent = copy.title;
-    if (description) description.textContent = copy.text;
     if (button) {
       button.textContent = "Back";
       button.onclick = () => {
         if (title) title.textContent = "Install TypeShala";
-        if (description) description.textContent = "Practice typing anytime, right from your home screen.";
         button.textContent = "Install";
         button.onclick = null;
       };
@@ -83,11 +80,8 @@
     overlay.setAttribute("role", "region");
     overlay.setAttribute("aria-label", "Install TypeShala");
     overlay.innerHTML = `
-      <div class="ts-install-mark" aria-hidden="true">⌨</div>
       <div class="ts-install-copy">
-        <p class="ts-install-eyebrow">TYPE SHALA APP</p>
         <p id="ts-install-title" class="ts-install-title">Install TypeShala</p>
-        <p id="ts-install-description">Practice typing anytime, right from your home screen.</p>
       </div>
       <button id="ts-install-action" class="ts-install-action" type="button">Install</button>`;
 
