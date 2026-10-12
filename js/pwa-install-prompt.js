@@ -113,8 +113,7 @@
         "z-index": "2147483647",
         width: "max-content",
         "max-width": mobile ? "calc(100vw - 20px)" : "calc(100vw - 32px)",
-        "box-sizing": "border-box",
-        transform: "none"
+        "box-sizing": "border-box"
       };
       Object.entries(properties).forEach(([name, value]) => overlay.style.setProperty(name, value, "important"));
     }
@@ -127,14 +126,30 @@
     });
     promptPositionObserver.observe(document.body, { childList: true, subtree: true });
 
-    // Fade the floating install banner away while the landing-page footer is visible.
+    // Hide only when the footer reaches the banner's bottom-of-screen area.
+    // This prevents the banner disappearing merely because the footer is visible far above it.
     const footer = document.querySelector("footer.site-foot") || document.querySelector("footer");
-    if (footer && "IntersectionObserver" in window) {
-      const footerObserver = new IntersectionObserver(entries => {
-        const footerVisible = entries.some(entry => entry.isIntersecting);
-        overlay.classList.toggle("ts-footer-hidden", footerVisible);
-      }, { threshold: 0, rootMargin: "0px 0px -8% 0px" });
-      footerObserver.observe(footer);
+    if (footer) {
+      let footerCheckPending = false;
+      const updateFooterVisibility = () => {
+        footerCheckPending = false;
+        if (!overlay.isConnected) return;
+        const footerRect = footer.getBoundingClientRect();
+        const bannerRect = overlay.getBoundingClientRect();
+        const overlapsBannerArea =
+          footerRect.top < window.innerHeight &&
+          footerRect.bottom > Math.max(0, bannerRect.top) &&
+          footerRect.top < bannerRect.bottom;
+        overlay.classList.toggle("ts-footer-hidden", overlapsBannerArea);
+      };
+      const scheduleFooterCheck = () => {
+        if (footerCheckPending) return;
+        footerCheckPending = true;
+        window.requestAnimationFrame(updateFooterVisibility);
+      };
+      window.addEventListener("scroll", scheduleFooterCheck, { passive: true });
+      window.addEventListener("resize", scheduleFooterCheck, { passive: true });
+      updateFooterVisibility();
     }
 
     const installButton = overlay.querySelector("#ts-install-action");
