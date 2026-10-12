@@ -14,6 +14,10 @@
 <script src="js/theme-init.js?v=20261011-single-writer"></script>
 <link rel="stylesheet" href="style.css?v=20260825b">
 <link rel="stylesheet" href="app-shell.css?v=20261012-original-logo">
+<style>
+.mobile-physical-keyboard-alert{display:none}
+@media(max-width:700px){.mobile-physical-keyboard-alert{display:flex;flex-direction:column;gap:5px;margin-top:12px;padding:13px 15px;border:1px solid rgba(217,146,0,.38);border-left:4px solid #d99200;border-radius:10px;background:rgba(217,146,0,.09);color:var(--ink,#172033);font-size:.92rem;line-height:1.5}.mobile-physical-keyboard-alert strong{font-size:.95rem}.mobile-physical-keyboard-alert span{display:block}}
+</style>
 
 </head>
 <body class="app-shell test-mode mock-attempt-page">
@@ -206,6 +210,7 @@
   <div class="card" id="setupCard">
     <div class="card-label">Mock Test</div>
     <div id="setupInfo" class="loading-strip mock-test-setup-info">Loading your mock test...</div>
+    <div class="mobile-physical-keyboard-alert" role="note"><strong>Using a mobile phone?</strong><span>Connect a Bluetooth or USB keyboard to take the mock test. For a wired keyboard, use a compatible USB-OTG adapter.</span></div>
     <div class="mock-test-actions">
       <button class="mock-start-button" id="startBtn" style="display:none;">Start Mock Test</button>
     </div>
