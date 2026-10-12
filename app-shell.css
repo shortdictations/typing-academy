@@ -6964,3 +6964,52 @@ html[data-theme="dark"] body.app-shell.mock-attempt-page #resultCard .mtr-action
     min-width: 0;
   }
 }
+
+/* Dashboard responsive hardening: base the stat-card layout on the
+   actual content column (which changes when the sidebar collapses),
+   rather than viewport width alone. This prevents four cramped cards
+   beside an expanded desktop/tablet sidebar while preserving the
+   existing 2x2 mobile layout. */
+@media (min-width: 701px) {
+  body.app-shell.dashboard-page .app-content > .page {
+    container-type: inline-size;
+    container-name: dashboard-content;
+  }
+}
+@container dashboard-content (max-width: 1050px) {
+  body.app-shell.dashboard-page .dash-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@container dashboard-content (min-width: 1051px) {
+  body.app-shell.dashboard-page .dash-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+body.app-shell.dashboard-page .dash-stat-card,
+body.app-shell.dashboard-page .dash-stat-text,
+body.app-shell.dashboard-page .dash-current-plan-card,
+body.app-shell.dashboard-page .dash-current-plan-body {
+  min-width: 0;
+}
+body.app-shell.dashboard-page .dash-stat-text .lab,
+body.app-shell.dashboard-page .dash-stat-sub,
+body.app-shell.dashboard-page .dash-current-plan-name,
+body.app-shell.dashboard-page .dash-current-plan-date {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 701px) and (max-width: 1100px) {
+  body.app-shell.dashboard-page .letterhead-inner {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  body.app-shell.dashboard-page .brand {
+    gap: 8px;
+  }
+  body.app-shell.dashboard-page .nav-links {
+    gap: 8px;
+  }
+  body.app-shell.dashboard-page .credit-badge {
+    white-space: nowrap;
+  }
+}
