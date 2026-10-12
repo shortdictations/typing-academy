@@ -7090,3 +7090,92 @@ body.app-shell.dashboard-page .app-recent-head {
   }
 }
 
+
+
+/* Dashboard final responsive safety pass (2026-10-13).
+   Prevent hover transforms from expanding cards into neighbouring cards,
+   and let compact landscape layouts wrap instead of clipping long plan text. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body.dashboard-page .dash-stat-card:hover,
+  body.dashboard-page .dash-current-plan-card:hover,
+  body.dashboard-page .dash-practice-cta:hover,
+  body.dashboard-page .dash-target-card:hover,
+  body.dashboard-page .app-overview-card:hover,
+  body.dashboard-page .app-recent-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+body.app-shell.dashboard-page .dash-stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body.app-shell.dashboard-page .dash-stat-card,
+body.app-shell.dashboard-page .dash-stat-text,
+body.app-shell.dashboard-page .dash-current-plan-card,
+body.app-shell.dashboard-page .dash-current-plan-body,
+body.app-shell.dashboard-page .dash-target-left,
+body.app-shell.dashboard-page .dash-target-right,
+body.app-shell.dashboard-page .dash-practice-cta-text {
+  min-width: 0;
+}
+body.app-shell.dashboard-page .dash-current-plan-name,
+body.app-shell.dashboard-page .dash-current-plan-date,
+body.app-shell.dashboard-page .dash-target-right-heading,
+body.app-shell.dashboard-page .dash-target-right-numbers,
+body.app-shell.dashboard-page .dash-practice-cta-text p {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 701px) {
+  body.app-shell.dashboard-page .dash-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container dashboard-content (min-width: 1051px) {
+  body.app-shell.dashboard-page .dash-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The previous landscape layout forced the greeting and plan into one
+   unbreakable row. Permit wrapping at short viewport heights and keep
+   the plan's expiry/action readable on narrow landscape screens. */
+@media (orientation: landscape) and (max-height: 700px) and (max-width: 1100px) {
+  body.dashboard-page .app-greeting-row-with-plan {
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+  body.dashboard-page .app-greeting-row-with-plan > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  body.dashboard-page .dash-current-plan-card {
+    flex: 1 1 100% !important;
+    flex-wrap: wrap !important;
+    box-sizing: border-box !important;
+  }
+  body.dashboard-page .dash-current-plan-name {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+  body.dashboard-page .dash-current-plan-expiry {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+  body.dashboard-page .dash-practice-cta {
+    min-width: 0 !important;
+  }
+  body.dashboard-page .dash-practice-cta-text {
+    flex: 1 1 220px !important;
+  }
+}
+@media (orientation: landscape) and (max-height: 700px) and (max-width: 760px) {
+  body.app-shell.dashboard-page .app-dash-split {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  body.app-shell.dashboard-page .app-overview-card,
+  body.app-shell.dashboard-page .app-recent-card {
+    min-width: 0 !important;
+  }
+}
