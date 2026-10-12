@@ -31,5 +31,12 @@
       "type": "image/png",
       "purpose": "any"
     }
-  ]
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://typeshala.vercel.app/manifest.webmanifest"
+    }
+  ],
+  "prefer_related_applications": false
 }
