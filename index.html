@@ -123,6 +123,10 @@
       if (error) throw error;
       if (data && data.session && data.session.user) {
         typeShalaLandingHasSession = true;
+        // Let the mobile in-app splash finish before routing returning users.
+        if (window.matchMedia("(max-width: 767px)").matches) {
+          await new Promise(resolve => window.setTimeout(resolve, 1320));
+        }
         window.location.replace("dashboard.html");
         return;
       }
@@ -209,8 +213,21 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 </script>
+<style id="ts-animated-splash-styles">
+#ts-animated-splash{display:none}
+@media(max-width:767px){
+#ts-animated-splash{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0F1521;opacity:1;visibility:visible;transition:opacity .24s ease,visibility .24s ease;padding:env(safe-area-inset-top) 24px env(safe-area-inset-bottom)}
+#ts-animated-splash.ts-splash-exit{opacity:0;visibility:hidden;pointer-events:none}
+#ts-animated-splash .ts-splash-logo{display:block;width:clamp(108px,31vw,156px);height:auto;object-fit:contain;opacity:0;transform:scale(.88);filter:drop-shadow(0 0 0 rgba(64,170,255,0));animation:ts-splash-logo-in .82s cubic-bezier(.2,.75,.25,1) .08s forwards,ts-splash-logo-glow .72s ease-out .58s both;will-change:transform,opacity,filter}
+}
+@keyframes ts-splash-logo-in{0%{opacity:0;transform:scale(.88)}70%{opacity:1;transform:scale(1.035)}100%{opacity:1;transform:scale(1)}}
+@keyframes ts-splash-logo-glow{0%{filter:drop-shadow(0 0 0 rgba(64,170,255,0))}55%{filter:drop-shadow(0 0 15px rgba(64,170,255,.22))}100%{filter:drop-shadow(0 0 5px rgba(64,170,255,.08))}}
+@media(prefers-reduced-motion:reduce){#ts-animated-splash .ts-splash-logo{animation:none;opacity:1;transform:none;filter:none}#ts-animated-splash{transition:none}}
+</style>
 </head>
 <body class="landing-v2">
+<div id="ts-animated-splash" aria-hidden="true"><img class="ts-splash-logo" src="/favicon.png?v=20261013-logo-motion" alt=""/></div>
+<script>(function(){var splash=document.getElementById("ts-animated-splash");if(!splash||!window.matchMedia("(max-width: 767px)").matches)return;window.setTimeout(function(){splash.classList.add("ts-splash-exit");window.setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash)},260)},1050)})();</script>
 <div class="ts-landing-main">
 <header class="site-header">
 <div class="container nav-wrap">
