@@ -260,11 +260,11 @@
       rememberInstalled();
       return;
     }
-    // On mobile, wait until the animated splash has disappeared.
-    const delay = window.matchMedia("(max-width: 767px)").matches ? 1750 : 500;
+    // Give the page time to finish loading and let visitors settle before
+    // showing the install banner. Use the same delay on mobile and desktop.
     window.setTimeout(() => {
       if (!isInstalled() && !document.getElementById("ts-install-overlay")) createPrompt();
-    }, delay);
+    }, 5000);
   }
 
   if (document.readyState === "loading") {
@@ -273,11 +273,13 @@
     init();
   }
 
-  // Restore the banner when returning to the browser tab or using back/forward cache.
-  window.addEventListener("pageshow", () => {
-    if (isInstalled() || document.getElementById("ts-install-overlay")) return;
+  // If the page is restored from the back/forward cache, restart the same
+  // five-second delay. Ignore the initial pageshow event so it cannot bypass
+  // the delay scheduled by init().
+  window.addEventListener("pageshow", event => {
+    if (!event.persisted || isInstalled() || document.getElementById("ts-install-overlay")) return;
     window.setTimeout(() => {
       if (!isInstalled() && !document.getElementById("ts-install-overlay")) createPrompt();
-    }, 250);
+    }, 5000);
   });
 })();
