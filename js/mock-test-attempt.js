@@ -737,7 +737,14 @@ function closeTestFromKeyboardGate() {
 
 function showMobileKeyboardGate() {
   const overlay = document.getElementById("keyboardGateOverlay");
-  if (!overlay || !window.matchMedia("(max-width: 700px)").matches) return;
+  // Viewport width alone fails on phones rotated to landscape: their CSS
+  // viewport can exceed 700px even though they are still mobile devices.
+  // Use touch/coarse-pointer capability as a second signal so the reminder
+  // appears on phones in both portrait and landscape orientations.
+  const narrowViewport = window.matchMedia("(max-width: 700px)").matches;
+  const touchDevice = window.matchMedia("(pointer: coarse)").matches &&
+    window.matchMedia("(hover: none)").matches;
+  if (!overlay || !(narrowViewport || touchDevice)) return;
 
   const closeButton = document.getElementById("keyboardGateCloseBtn");
   if (closeButton && closeButton.dataset.gateCloseWired !== "true") {
