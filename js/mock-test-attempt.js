@@ -550,6 +550,16 @@ async function loadSessionIntoSetupScreen(sessionId, requestedDurationParam) {
 // anyway since handleNewMockStart() calls this itself right before
 // handing off to handleStartClick(), separately from the ?session=
 // path's own call right after DOMContentLoaded's loadSessionIntoSetupScreen.
+// Keep physical-keyboard mode detection identical for both the typing
+// input and the reminder gate. Some phones (including landscape Motorola
+// devices) report a viewport wider than 700px while still using a touch UI.
+function requiresPhysicalKeyboardOnThisDevice() {
+  const narrowViewport = window.matchMedia("(max-width: 700px)").matches;
+  const touchDevice = window.matchMedia("(pointer: coarse)").matches &&
+    window.matchMedia("(hover: none)").matches;
+  return narrowViewport || touchDevice;
+}
+
 let testInputHandlersWired = false;
 function wireTestInputHandlers() {
   if (testInputHandlersWired) return;
@@ -557,7 +567,7 @@ function wireTestInputHandlers() {
 
   const input = document.getElementById("typeInput");
   const status = document.getElementById("keyboardInputStatus");
-  const requirePhysicalKeyboard = window.matchMedia("(max-width: 700px)").matches;
+  const requirePhysicalKeyboard = requiresPhysicalKeyboardOnThisDevice();
   let physicalKeydownKey = null;
   if (requirePhysicalKeyboard) {
     input.setAttribute("inputmode", "none");
@@ -737,14 +747,9 @@ function closeTestFromKeyboardGate() {
 
 function showMobileKeyboardGate() {
   const overlay = document.getElementById("keyboardGateOverlay");
-  // Viewport width alone fails on phones rotated to landscape: their CSS
-  // viewport can exceed 700px even though they are still mobile devices.
-  // Use touch/coarse-pointer capability as a second signal so the reminder
-  // appears on phones in both portrait and landscape orientations.
-  const narrowViewport = window.matchMedia("(max-width: 700px)").matches;
-  const touchDevice = window.matchMedia("(pointer: coarse)").matches &&
-    window.matchMedia("(hover: none)").matches;
-  if (!overlay || !(narrowViewport || touchDevice)) return;
+  // Use the same device check as the input's inputmode=none setting,
+  // so the reminder cannot appear while leaving the touch keyboard enabled.
+  if (!overlay || !requiresPhysicalKeyboardOnThisDevice()) return;
 
   const closeButton = document.getElementById("keyboardGateCloseBtn");
   if (closeButton && closeButton.dataset.gateCloseWired !== "true") {
