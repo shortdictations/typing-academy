@@ -1,1 +1,0 @@
-REVOKE ALL ON FUNCTION public.capture_mock_session_credit_lot() FROM PUBLIC, anon, authenticated;
