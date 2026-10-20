@@ -123,10 +123,8 @@
       if (error) throw error;
       if (data && data.session && data.session.user) {
         typeShalaLandingHasSession = true;
-        // Keep returning mobile users on the landing page until the in-app splash has finished.
-        if (window.matchMedia("(max-width: 767px)").matches) {
-          await new Promise(resolve => window.setTimeout(resolve, 1720));
-        }
+        // Redirect immediately on every device. The landing page splash must
+        // never delay or flash the public page for an authenticated user.
         window.location.replace("dashboard.html");
         return;
       }
