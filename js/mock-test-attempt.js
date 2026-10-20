@@ -37,6 +37,7 @@ let testScreenOpen = false;
 // fallback for when fullscreen never engaged) can both observe the
 // same Escape keystroke.
 let testCancelled = false;
+let typingStartedMarkRequested = false;
 let passageChars = [];
 let wordRanges = [];
 // Word-level typing state (replaces the old character-index model).
@@ -332,6 +333,13 @@ async function showInlineUnfinishedSession(sessionRow, mockRow) {
 
 function initPreTestSelection() {
   document.getElementById("preTestCard").style.display = "block";
+
+  const notice = new URLSearchParams(window.location.search).get("notice");
+  if (notice === "credit-refunded") {
+    showPreTestError("Test closed before typing began. Your 1 credit has been returned.");
+  } else if (notice === "cancelled") {
+    showPreTestError("Test closed. You can start a new mock whenever you're ready.");
+  }
 
   document.getElementById("ptsSscOption").addEventListener("click", () => selectPtsType("ssc"));
   document.getElementById("ptsLegalOption").addEventListener("click", () => selectPtsType("legal"));
@@ -785,6 +793,7 @@ function startMockTest() {
   const unfinishedCard = document.getElementById("unfinishedSessionCard");
   if (unfinishedCard) unfinishedCard.style.setProperty("display", "none", "important");
   testResultSaved = false;
+  typingStartedMarkRequested = false;
   passageChars = selectedPassage.content.split("");
   wordRanges = computeWordRanges(selectedPassage.content);
   activeWordIndex = 0;
@@ -1196,13 +1205,18 @@ function onTypingInput(e) {
     testActive = true;
     testStartTime = Date.now();
     testTimer = setInterval(tickTimer, 1000);
-    // Access/credit consumption already happened before this page
-    // loaded (start_or_resume_mock_test/start_reattempt, called from
-    // this page/mock-history.js) — nothing to consume here
-    // anymore. The timer still only starts on the first real
-    // keystroke, same as before, purely for a responsive/expected
-    // typing-test feel — it no longer has anything to do with
-    // whether anything gets spent.
+  }
+
+  // Persist the first real typing event so the server can distinguish
+  // an untouched session from one the student actually began. This is
+  // called once per attempt; local state also prevents an ESC race.
+  if (!typingStartedMarkRequested && currentSession?.id) {
+    typingStartedMarkRequested = true;
+    supabaseClient.rpc("mark_mock_typing_started", {
+      p_session_id: currentSession.id
+    }).then(({ error }) => {
+      if (error) console.error("Could not mark first typing event:", error);
+    });
   }
 
   const typed = e.target.value;
@@ -1336,7 +1350,7 @@ function beforeUnloadHandler(e) {
 // 'in_progress' in the database, since this function never calls any
 // RPC) — so the student can pick up the exact same session later from
 // the Mock Test page's "Continue Test" card, at no additional cost.
-function cancelUnstartedTest(customMessage) {
+async function cancelUnstartedTest(customMessage) {
   if (testCancelled) return;
   testCancelled = true;
 
@@ -1362,9 +1376,28 @@ function cancelUnstartedTest(customMessage) {
   document.getElementById("testCard").style.display = "none";
   document.getElementById("resultCard").style.display = "none";
 
-  // Keep the exact same in-progress session and show its state inline.
-  // No result is saved, no score is produced, and no new session is
-  // created. The typing area will be fresh when Continue Test is used.
+  // Close the untouched session server-side. The database refunds a
+  // credit only when no first-keystroke marker exists; a session that
+  // has actually begun typing remains charged and resumable.
+  if (currentSession?.id) {
+    const { data, error } = await supabaseClient.rpc("cancel_unstarted_mock_session", {
+      p_session_id: currentSession.id
+    });
+
+    if (error) {
+      console.error("Could not close unstarted mock session:", error);
+    } else {
+      const result = Array.isArray(data) ? data[0] : data;
+      if (result?.session_status === "expired") {
+        const notice = result.credit_refunded ? "credit-refunded" : "cancelled";
+        window.location.replace("mock-test-attempt.html?notice=" + notice);
+        return;
+      }
+    }
+  }
+
+  // If the server could not confirm cancellation (or the session had
+  // already recorded typing), preserve the existing safe resume path.
   showInlineUnfinishedSession(currentSession, mockTest);
   if (customMessage) {
     document.getElementById("unfinishedSessionMessage").textContent = customMessage.replace(/<br\s*\/?>/gi, " ");
