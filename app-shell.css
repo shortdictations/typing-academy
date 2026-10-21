@@ -7321,3 +7321,104 @@ body.app-shell.mock-history-page .mh-page-number {
     overflow-wrap: anywhere;
   }
 }
+
+
+/* ---------- Current Plan card: compact, stable mobile layout ----------
+   Keep the icon, plan text and primary action on one row, matching the
+   approved mobile reference. For active passes, expiry sits beneath the
+   plan/action row instead of forcing the primary row to wrap. */
+@media (max-width: 640px) {
+  body.app-shell.dashboard-page .dash-current-plan-card {
+    display: grid !important;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 8px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 16px;
+    flex-wrap: nowrap !important;
+    justify-content: initial;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 40px;
+    height: 40px;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-body {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-lab {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-name {
+    font-size: clamp(0.86rem, 3.7vw, 1rem);
+    line-height: 1.25;
+    margin-top: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-btn {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-expiry {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--ts-border);
+    padding: 8px 0 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-date {
+    font-size: 0.8rem;
+    margin-top: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  body.app-shell.dashboard-page .dash-current-plan-card {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    column-gap: 9px;
+    padding: 12px;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  body.app-shell.dashboard-page .dash-current-plan-btn {
+    padding: 9px 9px;
+    font-size: 0.68rem;
+  }
+}
