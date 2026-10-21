@@ -76,6 +76,24 @@ async function loadPage(replace) {
     return;
   }
 
+  // Load the user's pass rows as well as credit lots. Purchase cards show
+  // live remaining days for the matching pass, not the original validity.
+  let passRows = [];
+  const hasPaidPassPurchase = data.some(t => t.product_type === "PASS" && t.status === "paid");
+  let passRowsAvailable = true;
+  if (hasPaidPassPurchase) {
+    const { data: passes, error: passesError } = await supabaseClient
+      .from("user_passes")
+      .select("pass_type, status, starts_at, expires_at, created_at")
+      .eq("user_id", currentUser.id);
+    if (passesError || !passes) {
+      passRowsAvailable = false;
+      console.warn("Could not load pass validity details:", passesError);
+    } else {
+      passRows = passes;
+    }
+  }
+
   // Load individual credit lots so each purchase shows its own balance and expiry.
   let creditLots = [];
   const hasPaidCreditPurchase = data.some(t => t.product_type === "CREDIT" && t.status === "paid");
@@ -108,7 +126,7 @@ async function loadPage(replace) {
   }
 
   const promotionHtml = replace ? promotions.map(buildPromotionCardHtml).join("") : "";
-  const cardsHtml = data.map(t => buildTransactionCardHtml(t, creditLots, creditLotsAvailable)).join("");
+  const cardsHtml = data.map(t => buildTransactionCardHtml(t, creditLots, creditLotsAvailable, passRows, passRowsAvailable)).join("");
   listEl.innerHTML = replace ? promotionHtml + cardsHtml : listEl.innerHTML + cardsHtml;
 
   currentOffset += data.length;
@@ -161,14 +179,16 @@ function transactionDisplayName(t) {
   return (t.credits || "?") + " Test Credits";
 }
 
-function buildTransactionCardHtml(t, creditLots = [], creditLotsAvailable = true) {
+function buildTransactionCardHtml(t, creditLots = [], creditLotsAvailable = true, passRows = [], passRowsAvailable = true) {
   const status = STATUS_META[t.status] || { label: t.status, cls: "" };
   const displayDate = new Date(t.paid_at || t.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
   const isUpgrade = t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE";
   const typeLabel = isUpgrade ? "Pass Upgrade" : (t.product_type === "PASS" ? "Pass" : "Credits");
   const meta = t.product_type === "CREDIT"
     ? creditPurchaseMeta(t, creditLots, creditLotsAvailable)
-    : (typeLabel + (t.validity_days ? " &middot; " + t.validity_days + " Days" : ""));
+    : (t.product_type === "PASS"
+      ? passPurchaseMeta(t, passRows, passRowsAvailable, typeLabel)
+      : typeLabel);
   const icon = t.product_type === "PASS"
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
@@ -192,7 +212,7 @@ function buildTransactionCardHtml(t, creditLots = [], creditLotsAvailable = true
     </a>`;
 }
 
-function creditPurchaseMeta(t, lots, lotsAvailable) {
+function passPurchaseMeta(t, passes, passesAvailable, typeLabel) {\n  if (t.status === "created" || t.status === "pending") return "Pass &middot; Activation pending";\n  if (t.status !== "paid") return typeLabel + " &middot; Payment not completed";\n  if (!passesAvailable) return typeLabel + " &middot; Validity unavailable";\n\n  const targetType = String(t.pass_type || "").toUpperCase();\n  const matching = (passes || []).filter(p => String(p.pass_type || "").toUpperCase() === targetType && p.status !== "cancelled");\n  if (!matching.length) return typeLabel + " &middot; Pass details unavailable";\n\n  const now = Date.now();\n  const active = matching.filter(p => new Date(p.expires_at).getTime() > now);\n  const targetTime = new Date(t.paid_at || t.created_at).getTime();\n  // Prefer the active pass with expiry nearest to this purchase's timestamp;\n  // a pass upgrade may preserve the original pass row and expiry.\n  const pool = active.length ? active : matching;\n  const matched = pool.reduce((best, p) => {\n    const distance = Math.abs(new Date(p.created_at || p.starts_at || p.expires_at).getTime() - targetTime);\n    return !best || distance < best.distance ? { pass: p, distance } : best;\n  }, null)?.pass;\n  if (!matched) return typeLabel + " &middot; Pass details unavailable";\n\n  const expiry = new Date(matched.expires_at).getTime();\n  if (!Number.isFinite(expiry) || expiry <= now) return "Pass &middot; Expired";\n  const daysLeft = Math.max(1, Math.ceil((expiry - now) / 86400000));\n  return escapeHtmlPH(typeLabel) + " &middot; " + escapeHtmlPH(String(daysLeft)) +\n    (daysLeft === 1 ? " day left" : " days left");\n}\nfunction creditPurchaseMeta(t, lots, lotsAvailable) {
   if (t.status === "created" || t.status === "pending") return "Credits &middot; Activation pending";
   if (t.status !== "paid") return "Credits &middot; Payment not completed";
   if (!lotsAvailable) return "Credits &middot; Balance unavailable";
