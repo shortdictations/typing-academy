@@ -66,7 +66,7 @@ export async function fulfillOrder(
       .from("purchase_transactions")
       .update({ status: "paid", payment_gateway_id: paymentId })
       .eq("order_id", orderId)
-      .eq("status", "created")
+      .in("status", ["created", "pending", "cancelled", "failed"])
       .eq("fulfilled", false)
       .select("*, products(*)")
       .maybeSingle();
