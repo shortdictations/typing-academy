@@ -7443,3 +7443,25 @@ body.app-shell.mock-history-page .mh-page-number {
     font-size: 0.68rem;
   }
 }
+
+
+/* Dark-theme refinement: dashboard Recent Tests table */
+html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
+  background: #22345C;
+  color: #A9C4FF;
+}
+html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.legal {
+  background: #183A2B;
+  color: #8DE0AC;
+}
+html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.combo {
+  background: #33264F;
+  color: #D0B5FF;
+}
+html[data-theme="dark"] body.app-shell.dashboard-page .app-accuracy-cell {
+  color: #6EE7A0;
+}
+html[data-theme="dark"] body.app-shell.dashboard-page .app-recent-row:hover,
+html[data-theme="dark"] body.app-shell.dashboard-page .app-recent-row:focus-visible {
+  background: #202B3E;
+}
