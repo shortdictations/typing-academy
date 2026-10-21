@@ -90,13 +90,23 @@ Deno.serve(async (req: Request) => {
     // are failed. Unknown states remain pending rather than guessing.
     const statuses = payments.map((payment: any) => String(payment.status || "").toLowerCase());
     const allFailed = statuses.length > 0 && statuses.every((status: string) => status === "failed");
-    const onlyAbandonedOrFailed = statuses.length > 0 && statuses.every((status: string, i: number) =>
-      status === "failed" || (status === "created" && !isRecentCreated(payments[i]))
+    const allAbandoned = statuses.length > 0 && statuses.every((status: string, i: number) =>
+      status === "created" && !isRecentCreated(payments[i])
     );
+    const hasFailedAttempt = statuses.some((status: string) => status === "failed");
     let nextStatus: string;
-    if (payments.length === 0 || (onlyAbandonedOrFailed && !allFailed)) nextStatus = "cancelled";
-    else if (allFailed) nextStatus = "failed";
-    else nextStatus = "pending";
+    if (payments.length === 0 || allAbandoned) {
+      nextStatus = "cancelled";
+    } else if (allFailed || (hasFailedAttempt && statuses.every((status: string, i: number) =>
+      status === "failed" || (status === "created" && !isRecentCreated(payments[i]))
+    ))) {
+      // If at least one real payment attempt failed and every other attempt
+      // is either failed or abandoned, preserve the meaningful Failed result.
+      nextStatus = "failed";
+    } else {
+      // Unknown/new Razorpay states must not be guessed into a final status.
+      nextStatus = "pending";
+    }
 
     const { error: updateError } = await admin.from("purchase_transactions")
       .update({ status: nextStatus })
