@@ -147,10 +147,10 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Razorpay's own payment status is the actual money-movement
-    // truth — "captured" (or "authorized" for non-auto-capture flows)
-    // is required before this is treated as a real, completed payment.
-    if (paymentData.status !== "captured" && paymentData.status !== "authorized") {
+    // Use the same completion rule as reconciliation and the webhook:
+    // only a captured payment may fulfill a purchase. Authorization alone
+    // does not prove that funds have been captured.
+    if (String(paymentData.status || "").toLowerCase() !== "captured") {
       return new Response(JSON.stringify({ error: `Payment is not completed (status: ${paymentData.status})` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
