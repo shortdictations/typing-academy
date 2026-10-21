@@ -103,17 +103,29 @@ async function startPurchase(productId, options) {
         }
       },
       modal: {
-        ondismiss: function () {
+        ondismiss: async function () {
           if (btn) { btn.disabled = false; btn.textContent = originalText; }
-          if (options.onFailure) options.onFailure("Payment was cancelled.");
+          // Checkout dismissal is not proof that no payment occurred. Ask
+          // the server to reconcile the Razorpay order before changing status.
+          try {
+            await callEdgeFunction("reconcile-razorpay-order", { razorpay_order_id: order.order_id });
+          } catch (reconcileError) {
+            console.warn("Could not reconcile dismissed Razorpay checkout:", reconcileError);
+          }
+          if (options.onFailure) options.onFailure("Payment window closed. Check Purchase History for the final payment status.");
         },
       },
       theme: { color: "#B23A2E" },
     });
 
-    rzp.on("payment.failed", function () {
+    rzp.on("payment.failed", async function () {
       if (btn) { btn.disabled = false; btn.textContent = originalText; }
-      if (options.onFailure) options.onFailure("Payment could not be completed. Please try again.");
+      try {
+        await callEdgeFunction("reconcile-razorpay-order", { razorpay_order_id: order.order_id });
+      } catch (reconcileError) {
+        console.warn("Could not reconcile failed Razorpay payment:", reconcileError);
+      }
+      if (options.onFailure) options.onFailure("Payment could not be completed. Please check Purchase History before retrying.");
     });
 
     rzp.open();
