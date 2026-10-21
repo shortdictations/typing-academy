@@ -20,6 +20,8 @@ let currentUser = null;
 let currentOffset = 0;
 let currentFilters = { type: "all", status: "all" };
 let reachedEnd = false;
+// Avoid repeated reconciliation calls while this page remains open.
+const reconciliationAttempted = new Set();
 
 document.addEventListener("DOMContentLoaded", async () => {
   currentUser = await requireLogin();
@@ -74,6 +76,25 @@ async function loadPage(replace) {
     listEl.innerHTML = '<div class="empty-state">Could not load your purchase history.</div>';
     loadMoreWrap.innerHTML = "";
     return;
+  }
+
+  // Reconcile visible unfinished orders with Razorpay when Purchase History
+  // opens. This also repairs older rows that were left Processing by the
+  // previous server logic. The server verifies payment status; browser state
+  // is never used to mark an order cancelled or paid.
+  const unfinished = data.filter(t =>
+    (t.status === "created" || t.status === "pending") &&
+    t.order_id &&
+    !reconciliationAttempted.has(t.order_id)
+  );
+  if (unfinished.length) {
+    unfinished.forEach(t => reconciliationAttempted.add(t.order_id));
+    await Promise.all(unfinished.map(t =>
+      supabaseClient.functions.invoke("reconcile-razorpay-order", {
+        body: { razorpay_order_id: t.order_id }
+      }).catch(error => console.warn("Purchase reconciliation deferred:", error))
+    ));
+    return loadPage(replace);
   }
 
   // Load the user's pass rows as well as credit lots. Purchase cards show
