@@ -76,6 +76,24 @@ async function loadPage(replace) {
     return;
   }
 
+  // Load individual credit lots so each purchase shows its own balance and expiry.
+  let creditLots = [];
+  const hasPaidCreditPurchase = data.some(t => t.product_type === "CREDIT" && t.status === "paid");
+  let creditLotsAvailable = true;
+  if (hasPaidCreditPurchase) {
+    const { data: lots, error: lotsError } = await supabaseClient
+      .from("wallet_credits")
+      .select("credit_type, credits_total, credits_remaining, expires_at, created_at")
+      .eq("user_id", currentUser.id)
+      .eq("credit_type", "purchased");
+    if (lotsError || !lots) {
+      creditLotsAvailable = false;
+      console.warn("Could not load individual credit lots:", lotsError);
+    } else {
+      creditLots = lots;
+    }
+  }
+
   // Promotional benefits are displayed as FREE history entries.
   let promotions = [];
   if (replace) {
@@ -90,7 +108,7 @@ async function loadPage(replace) {
   }
 
   const promotionHtml = replace ? promotions.map(buildPromotionCardHtml).join("") : "";
-  const cardsHtml = data.map(buildTransactionCardHtml).join("");
+  const cardsHtml = data.map(t => buildTransactionCardHtml(t, creditLots, creditLotsAvailable)).join("");
   listEl.innerHTML = replace ? promotionHtml + cardsHtml : listEl.innerHTML + cardsHtml;
 
   currentOffset += data.length;
@@ -143,11 +161,14 @@ function transactionDisplayName(t) {
   return (t.credits || "?") + " Test Credits";
 }
 
-function buildTransactionCardHtml(t) {
+function buildTransactionCardHtml(t, creditLots = [], creditLotsAvailable = true) {
   const status = STATUS_META[t.status] || { label: t.status, cls: "" };
   const displayDate = new Date(t.paid_at || t.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
   const isUpgrade = t.product_type === "PASS" && String(t.transaction_type || "").toUpperCase() === "UPGRADE";
   const typeLabel = isUpgrade ? "Pass Upgrade" : (t.product_type === "PASS" ? "Pass" : "Credits");
+  const meta = t.product_type === "CREDIT"
+    ? creditPurchaseMeta(t, creditLots, creditLotsAvailable)
+    : (typeLabel + (t.validity_days ? " &middot; " + t.validity_days + " Days" : ""));
   const icon = t.product_type === "PASS"
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
@@ -159,7 +180,7 @@ function buildTransactionCardHtml(t) {
         <span class="ph-txn-name">${escapeHtmlPH(transactionDisplayName(t))}</span>
         <span class="ph-txn-amount">&#8377;${t.amount != null ? t.amount : "—"}</span>
       </div>
-      <div class="ph-txn-meta">${typeLabel}${t.validity_days ? " &middot; " + t.validity_days + " Days" : ""}</div>
+      <div class="ph-txn-meta">${meta}</div>
       <div class="ph-txn-row2">
         <span class="ph-txn-date">${displayDate}</span>
         <span class="ph-txn-status ${status.cls}"><span class="ph-status-dot"></span>${status.label}</span>
@@ -171,6 +192,25 @@ function buildTransactionCardHtml(t) {
     </a>`;
 }
 
+function creditPurchaseMeta(t, lots, lotsAvailable) {
+  if (t.status === "created" || t.status === "pending") return "Credits &middot; Activation pending";
+  if (t.status !== "paid") return "Credits &middot; Payment not completed";
+  if (!lotsAvailable) return "Credits &middot; Balance unavailable";
+  const targetTime = new Date(t.paid_at || t.created_at).getTime();
+  const candidates = (lots || []).filter(lot => Number(lot.credits_total) === Number(t.credits));
+  if (!candidates.length) return "Credits &middot; Activation pending";
+  const matchedLot = candidates.reduce((best, lot) => {
+    const distance = Math.abs(new Date(lot.created_at).getTime() - targetTime);
+    return !best || distance < best.distance ? { lot, distance } : best;
+  }, null)?.lot;
+  if (!matchedLot) return "Credits &middot; Balance unavailable";
+  const expiryTime = new Date(matchedLot.expires_at).getTime();
+  if (!Number.isFinite(expiryTime) || expiryTime <= Date.now()) return "0 usable credits &middot; Expired";
+  const daysLeft = Math.max(1, Math.ceil((expiryTime - Date.now()) / 86400000));
+  const creditsLeft = Math.max(0, Number(matchedLot.credits_remaining) || 0);
+  return escapeHtmlPH(String(creditsLeft)) + " credits left &middot; " +
+    escapeHtmlPH(String(daysLeft)) + (daysLeft === 1 ? " day left" : " days left");
+}
 function escapeHtmlPH(str) {
   const div = document.createElement("div");
   div.textContent = str == null ? "" : str;
