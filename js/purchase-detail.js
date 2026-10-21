@@ -114,7 +114,6 @@ function statusBannerHtml(t) {
       <div class="ph-detail-status ${meta.cls}"><span class="ph-status-dot"></span>${meta.label}</div>
       <div class="ph-detail-amount">&#8377;${t.amount != null ? t.amount : "—"}</div>
       ${note}
-      ${retryBtn}
     </div>`;
 }
 
