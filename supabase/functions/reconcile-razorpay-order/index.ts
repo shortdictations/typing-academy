@@ -47,8 +47,10 @@ Deno.serve(async (req: Request) => {
 
     const expectedAmount = Math.round(Number(txn.amount) * 100);
     const expectedCurrency = String(txn.currency || "INR").toUpperCase();
+    // Only captured payments are eligible for fulfillment. An authorized
+    // payment is not proof of capture and must never grant a pass or credits.
     const successful = payments.find((payment: any) =>
-      (payment.status === "captured" || payment.status === "authorized") &&
+      String(payment.status || "").toLowerCase() === "captured" &&
       Number(payment.amount) === expectedAmount &&
       String(payment.currency || "").toUpperCase() === expectedCurrency
     );
@@ -57,24 +59,51 @@ Deno.serve(async (req: Request) => {
       return json({ status: "paid", fulfilled: true });
     }
 
-    const hasUnresolved = payments.some((payment: any) =>
-      ["created", "authorized", "pending"].includes(String(payment.status || "").toLowerCase())
-    );
-    const allFailed = payments.length > 0 && payments.every((payment: any) =>
-      ["failed", "cancelled"].includes(String(payment.status || "").toLowerCase())
-    );
+    // Razorpay can leave an abandoned checkout attempt in "created".
+    // Keep it processing briefly in case the customer is still completing
+    // checkout; after a 2-minute grace period, it is treated as abandoned.
+    // Any later captured payment is still recoverable through verified
+    // reconciliation/webhook fulfillment.
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const isRecentCreated = (payment: any) => {
+      const createdAt = Number(payment.created_at || 0);
+      return createdAt > 0 && nowSeconds - createdAt < 120;
+    };
+    const unresolved = payments.some((payment: any) => {
+      const status = String(payment.status || "").toLowerCase();
+      return status === "authorized" || status === "pending" ||
+        (status === "created" && isRecentCreated(payment));
+    });
 
-    // A status transition is conditional and never overwrites a fulfilled
-    // purchase. If Razorpay has an unresolved attempt, leave it processing.
-    if (hasUnresolved) {
-      await admin.from("purchase_transactions").update({ status: "pending" })
-        .eq("order_id", razorpay_order_id).eq("fulfilled", false).in("status", ["created", "pending"]);
+    if (unresolved) {
+      const { error: updateError } = await admin.from("purchase_transactions")
+        .update({ status: "pending" })
+        .eq("order_id", razorpay_order_id)
+        .eq("fulfilled", false)
+        .in("status", ["created", "pending", "cancelled", "failed"]);
+      if (updateError) throw updateError;
       return json({ status: "pending" });
     }
 
-    const nextStatus = payments.length === 0 ? "cancelled" : (allFailed ? "failed" : "pending");
-    await admin.from("purchase_transactions").update({ status: nextStatus })
-      .eq("order_id", razorpay_order_id).eq("fulfilled", false).in("status", ["created", "pending"]);
+    // No payments means checkout was opened and dismissed without creating
+    // a payment. Aged "created" attempts are abandoned; all failed attempts
+    // are failed. Unknown states remain pending rather than guessing.
+    const statuses = payments.map((payment: any) => String(payment.status || "").toLowerCase());
+    const allFailed = statuses.length > 0 && statuses.every((status: string) => status === "failed");
+    const onlyAbandonedOrFailed = statuses.length > 0 && statuses.every((status: string, i: number) =>
+      status === "failed" || (status === "created" && !isRecentCreated(payments[i]))
+    );
+    let nextStatus: string;
+    if (payments.length === 0 || (onlyAbandonedOrFailed && !allFailed)) nextStatus = "cancelled";
+    else if (allFailed) nextStatus = "failed";
+    else nextStatus = "pending";
+
+    const { error: updateError } = await admin.from("purchase_transactions")
+      .update({ status: nextStatus })
+      .eq("order_id", razorpay_order_id)
+      .eq("fulfilled", false)
+      .in("status", ["created", "pending", "cancelled", "failed"]);
+    if (updateError) throw updateError;
     return json({ status: nextStatus });
   } catch (error) {
     console.error("reconcile-razorpay-order error:", error);
