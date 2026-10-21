@@ -131,7 +131,7 @@ async function renderPassDetail(t, userId, body) {
   // wrong one.
   if (t.status !== "paid") {
     body.innerHTML = statusBannerHtml(t) + purchaseInfoHtml(t);
-    wireRetryButton();
+
     return;
   }
 
@@ -171,7 +171,7 @@ async function renderPassDetail(t, userId, body) {
   }
 
   body.innerHTML = statusBannerHtml(t) + purchaseInfoHtml(t) + passSection;
-  wireRetryButton();
+
 }
 
 async function renderCreditDetail(t, userId, body) {
@@ -180,7 +180,7 @@ async function renderCreditDetail(t, userId, body) {
   // succeeded.
   if (t.status !== "paid") {
     body.innerHTML = statusBannerHtml(t) + purchaseInfoHtml(t);
-    wireRetryButton();
+
     return;
   }
 
@@ -214,7 +214,7 @@ async function renderCreditDetail(t, userId, body) {
   }
 
   body.innerHTML = statusBannerHtml(t) + purchaseInfoHtml(t) + creditSection;
-  wireRetryButton();
+
 }
 
 // Picks whichever candidate row's own created_at is nearest to the
