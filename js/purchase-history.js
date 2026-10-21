@@ -164,6 +164,7 @@ const STATUS_META = {
   pending: { label: "Processing", cls: "ph-status-processing" },
   created: { label: "Processing", cls: "ph-status-processing" },
   failed: { label: "Failed", cls: "ph-status-failed" },
+  cancelled: { label: "Cancelled", cls: "ph-status-cancelled" },
   refunded: { label: "Refunded", cls: "ph-status-refunded" }
 };
 
