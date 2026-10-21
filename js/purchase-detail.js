@@ -65,6 +65,7 @@ const STATUS_META = {
   pending: { label: "Payment Processing", cls: "ph-status-processing" },
   created: { label: "Payment Processing", cls: "ph-status-processing" },
   failed: { label: "Payment Failed", cls: "ph-status-failed" },
+  cancelled: { label: "Payment Cancelled", cls: "ph-status-cancelled" },
   refunded: { label: "Refunded", cls: "ph-status-refunded" }
 };
 
@@ -102,7 +103,9 @@ function purchaseInfoHtml(t) {
 function statusBannerHtml(t) {
   const meta = STATUS_META[t.status] || { label: t.status, cls: "" };
   let note = "";
-  if (t.status === "pending" || t.status === "created") {
+  if (t.status === "cancelled") {
+    note = '<p class="ph-status-note">Checkout was cancelled. No pass or credits were activated.</p>';
+  } else if (t.status === "pending" || t.status === "created") {
     note = '<p class="ph-status-note">Your payment is being verified. Your pass/credits will be activated after confirmation.</p>';
   }
   const retryBtn = (t.status === "failed" && t.product_id)
