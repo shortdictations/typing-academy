@@ -108,9 +108,6 @@ function statusBannerHtml(t) {
   } else if (t.status === "pending" || t.status === "created") {
     note = '<p class="ph-status-note">Your payment is being verified. Your pass/credits will be activated after confirmation.</p>';
   }
-  const retryBtn = (t.status === "failed" && t.product_id)
-    ? `<button type="button" class="btn dash-btn-primary" id="phRetryBtn" data-product-id="${t.product_id}" data-product-type="${t.product_type}" ${t.pass_type ? 'data-pass-type="' + t.pass_type + '"' : ""} ${t.credits ? 'data-credits="' + t.credits + '"' : ""}>Try Again <span aria-hidden="true">&rarr;</span></button>`
-    : "";
   return `
     <div class="ph-detail-head">
       <div class="ph-detail-name">${escapeHtmlPD(transactionDisplayName(t))}</div>
@@ -218,20 +215,6 @@ async function renderCreditDetail(t, userId, body) {
 
   body.innerHTML = statusBannerHtml(t) + purchaseInfoHtml(t) + creditSection;
   wireRetryButton();
-}
-
-function wireRetryButton() {
-  const btn = document.getElementById("phRetryBtn");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    // Same existing purchase flow every "Buy" button on
-    // subscriptions.html uses — not a new/duplicate mechanism.
-    startPurchase(btn.dataset.productId, {
-      buttonEl: btn,
-      onSuccess: () => { window.location.href = "purchase-history.html"; },
-      onFailure: (message) => { alert(message); }
-    });
-  });
 }
 
 // Picks whichever candidate row's own created_at is nearest to the
