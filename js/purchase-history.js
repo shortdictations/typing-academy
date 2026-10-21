@@ -1,13 +1,10 @@
 /* ============================================================
    purchase-history.js
    ------------------------------------------------------------
-   Entirely read-only against the existing purchase_transactions
-   table (RLS already restricts every query here to the logged-in
-   user's own rows — auth.uid() = user_id, confirmed directly
-   against the live policy before writing this). Nothing here
-   creates, updates, or deletes a transaction, a pass, or a credit
-   balance — it only displays what already happened via the real
-   purchase/payment flow in payments.js.
+   Reads purchase_transactions and displays payment records. When
+   unfinished orders are visible, it requests server-side reconciliation;
+   only the authenticated Edge Function may update transaction status.
+   This page never directly grants or removes passes or credits.
 
    Filtering and "Load More" pagination both go back to the server
    (not client-side slicing of one fetched batch), so they stay
@@ -89,11 +86,23 @@ async function loadPage(replace) {
   );
   if (unfinished.length) {
     unfinished.forEach(t => reconciliationAttempted.add(t.order_id));
-    await Promise.all(unfinished.map(t =>
-      supabaseClient.functions.invoke("reconcile-razorpay-order", {
-        body: { razorpay_order_id: t.order_id }
-      }).catch(error => console.warn("Purchase reconciliation deferred:", error))
-    ));
+    await Promise.all(unfinished.map(async t => {
+      try {
+        const { data: result, error: invokeError } = await supabaseClient.functions.invoke(
+          "reconcile-razorpay-order",
+          { body: { razorpay_order_id: t.order_id } }
+        );
+        if (invokeError) {
+          console.warn("Purchase reconciliation deferred:", t.order_id, invokeError);
+          return;
+        }
+        if (result?.error) {
+          console.warn("Purchase reconciliation returned an error:", t.order_id, result.error);
+        }
+      } catch (error) {
+        console.warn("Purchase reconciliation deferred:", t.order_id, error);
+      }
+    }));
     return loadPage(replace);
   }
 
