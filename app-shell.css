@@ -493,6 +493,8 @@ body.app-shell .ph-status-processing{ color: var(--ts-orange); }
 body.app-shell .ph-status-processing .ph-status-dot{ background: var(--ts-orange); }
 body.app-shell .ph-status-failed{ color: var(--ts-red); }
 body.app-shell .ph-status-failed .ph-status-dot{ background: var(--ts-red); }
+body.app-shell .ph-status-cancelled{ color: var(--ts-muted); }
+body.app-shell .ph-status-cancelled .ph-status-dot{ background: var(--ts-muted); }
 body.app-shell .ph-status-refunded{ color: var(--ts-muted); }
 body.app-shell .ph-status-refunded .ph-status-dot{ background: var(--ts-muted); }
 
