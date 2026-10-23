@@ -7826,6 +7826,229 @@ body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
   }
 }
 
+
+/* Consolidated Start Test card: shared visual language across desktop/mobile
+   and themes. Responsive layout only changes sizing/placement, not the UI. */
+body.app-shell.dashboard-page .dash-practice-cta {
+  box-sizing: border-box;
+  border: 1px solid var(--ts-blue-tint);
+  border-radius: 18px;
+  background: var(--ts-blue-tint);
+  gap: 20px;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+  color: var(--ts-text);
+  font-weight: 800;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+  color: var(--ts-blue);
+}
+
+body.app-shell.dashboard-page .dash-practice-cta-text p {
+  color: var(--ts-muted);
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-sizing: border-box;
+  width: auto;
+  min-width: max-content;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--ts-blue);
+  border-radius: 10px;
+  background: var(--ts-blue);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(47, 95, 236, 0.16);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn:hover {
+  background: var(--ts-blue-dark);
+  border-color: var(--ts-blue-dark);
+  box-shadow: 0 6px 16px rgba(47, 95, 236, 0.22);
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn:focus-visible {
+  outline: 2px solid var(--ts-blue);
+  outline-offset: 3px;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+html[data-theme="dark"] body.app-shell.dashboard-page .dash-practice-cta {
+  background: var(--ts-card, #111827);
+  border-color: var(--ts-border, #293548);
+}
+
+html[data-theme="dark"] body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+  color: var(--ts-text, #f3f4f6);
+}
+
+html[data-theme="dark"] body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+  color: var(--ts-blue, #6b91ff);
+}
+
+html[data-theme="dark"] body.app-shell.dashboard-page .dash-practice-cta-text p {
+  color: var(--ts-muted, #aab4c5);
+}
+
+@media (min-width: 641px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    padding: 22px 26px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    flex: 0 0 clamp(100px, 14vw, 170px);
+    width: clamp(100px, 14vw, 170px);
+    margin: 0;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    line-height: 1.2;
+    margin: 0 0 5px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    font-size: clamp(.75rem, 1vw, .9rem);
+    line-height: 1.4;
+    margin: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    display: grid;
+    grid-template-columns: clamp(44px, 14vw, 64px) minmax(0, 1fr) max-content;
+    grid-template-rows: auto auto;
+    align-items: center;
+    justify-content: stretch;
+    column-gap: clamp(7px, 2.5vw, 11px);
+    row-gap: 3px;
+    flex-wrap: nowrap;
+    padding: 12px clamp(8px, 2.8vw, 12px);
+    border-radius: 16px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding-right: 7px;
+    border-right: 1px solid var(--ts-border, #344b70);
+    box-sizing: border-box;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text {
+    display: contents;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: clamp(.72rem, 3.25vw, .98rem);
+    line-height: 1.17;
+    letter-spacing: -.025em;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+    display: block;
+    white-space: nowrap;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    margin: 2px 0 0;
+    font-size: clamp(.55rem, 2.35vw, .7rem);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    align-self: center;
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 clamp(7px, 2vw, 11px);
+    gap: 4px;
+    font-size: clamp(.58rem, 2.5vw, .75rem);
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+    font-size: .85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    grid-template-columns: 42px minmax(0, 1fr) max-content;
+    column-gap: 6px;
+    padding: 10px 7px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    font-size: .7rem;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    font-size: .53rem;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-height: 33px;
+    padding: 0 6px;
+    font-size: .58rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    transition: none;
+  }
+}
+
 /* Dark-theme refinement: dashboard Recent Tests table */
 html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
   background: #22345C;
