@@ -7697,6 +7697,79 @@ body.app-shell.mock-history-page .mh-page-number {
   }
 }
 
+
+/* Final mobile CTA fit: concise action label and single horizontal banner row. */
+@media (max-width: 640px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    grid-template-columns: clamp(48px, 16vw, 68px) minmax(0, 1fr) max-content;
+    column-gap: clamp(7px, 2.5vw, 12px);
+    row-gap: 3px;
+    padding: 12px clamp(9px, 3vw, 13px);
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    width: 100%;
+    min-width: 0;
+    padding-right: 7px;
+    box-sizing: border-box;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    font-size: clamp(0.74rem, 3.35vw, 1rem);
+    line-height: 1.16;
+    letter-spacing: -0.035em;
+    overflow-wrap: normal;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+    white-space: nowrap;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    font-size: clamp(0.56rem, 2.35vw, 0.72rem);
+    line-height: 1.25;
+    margin-top: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 clamp(8px, 2.4vw, 12px);
+    gap: 4px;
+    font-size: clamp(0.62rem, 2.55vw, 0.75rem);
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    grid-template-columns: 48px minmax(0, 1fr) max-content;
+    column-gap: 7px;
+    padding: 11px 8px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    font-size: 0.73rem;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    font-size: 0.55rem;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-height: 34px;
+    padding: 0 7px;
+    font-size: 0.6rem;
+    gap: 3px;
+  }
+}
+
 /* Dark-theme refinement: dashboard Recent Tests table */
 html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
   background: #22345C;
