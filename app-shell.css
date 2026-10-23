@@ -7445,6 +7445,151 @@ body.app-shell.mock-history-page .mh-page-number {
 }
 
 
+
+/* Mobile dashboard Start Test banner — compact horizontal reference treatment.
+   Scoped to the dashboard and small screens; desktop styling and CTA behaviour
+   remain unchanged. */
+@media (max-width: 640px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 16px 14px;
+    overflow: hidden;
+    background: linear-gradient(115deg, #101f36 0%, #122744 100%);
+    border: 1px solid #263d61;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(3, 12, 28, 0.14);
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    order: 0;
+    flex: 0 0 76px;
+    width: 76px;
+    min-width: 0;
+    margin: 0;
+    padding-right: 10px;
+    border-right: 1px solid #344b70;
+    box-sizing: content-box;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    width: 100%;
+    margin: 0 0 5px;
+    color: #f8fafc;
+    font-size: clamp(0.98rem, 4.3vw, 1.15rem);
+    font-weight: 800;
+    line-height: 1.22;
+    letter-spacing: -0.025em;
+    overflow-wrap: normal;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+    display: block;
+    color: #58a6ff;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    width: 100%;
+    margin: 0 0 11px;
+    color: #b5c7e3;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    overflow-wrap: normal;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: auto;
+    max-width: 100%;
+    min-height: 42px;
+    margin: 0;
+    padding: 0 15px;
+    border: 0;
+    border-radius: 999px;
+    background: #0866f5;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 85, 230, 0.22);
+    font-size: 0.78rem;
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn:focus-visible {
+    outline: 2px solid #8fc4ff;
+    outline-offset: 3px;
+  }
+}
+
+@media (max-width: 380px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    gap: 9px;
+    padding: 13px 11px;
+    border-radius: 17px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    flex-basis: 63px;
+    width: 63px;
+    padding-right: 8px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    font-size: 0.94rem;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    font-size: 0.7rem;
+    margin-bottom: 9px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-height: 39px;
+    padding: 0 12px;
+    font-size: 0.73rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-shell.dashboard-page .dash-practice-cta,
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    transition: none !important;
+  }
+}
+
 /* Dark-theme refinement: dashboard Recent Tests table */
 html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
   background: #22345C;
