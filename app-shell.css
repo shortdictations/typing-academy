@@ -7796,6 +7796,36 @@ body.app-shell.mock-history-page .mh-page-number {
   }
 }
 
+
+/* Start Test CTA uses the same Explore Passes button UI on desktop and mobile. */
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+  border-radius: 10px;
+  background: var(--ts-blue);
+  border: 1px solid var(--ts-blue);
+  box-shadow: 0 5px 14px rgba(47, 95, 236, 0.16);
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn:hover {
+  background: var(--ts-blue-dark);
+  border-color: var(--ts-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(47, 95, 236, 0.22);
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    transition: none;
+  }
+}
+
 /* Dark-theme refinement: dashboard Recent Tests table */
 html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
   background: #22345C;
