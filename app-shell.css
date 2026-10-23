@@ -8049,6 +8049,88 @@ html[data-theme="dark"] body.app-shell.dashboard-page .dash-practice-cta-text p 
   }
 }
 
+
+
+/* Mobile landscape: preserve the same compact, single-row Start Test card.
+   Landscape phones often exceed the 640px width breakpoint, so explicitly
+   retain the three-column layout when the viewport is short. */
+@media (orientation: landscape) and (max-height: 500px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    display: grid;
+    grid-template-columns: clamp(48px, 9vw, 64px) minmax(0, 1fr) max-content;
+    grid-template-rows: auto auto;
+    align-items: center;
+    justify-content: stretch;
+    column-gap: clamp(8px, 1.8vw, 14px);
+    row-gap: 3px;
+    flex-wrap: nowrap;
+    min-width: 0;
+    padding: 10px clamp(10px, 2vw, 18px);
+    overflow: hidden;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 100%;
+    min-width: 0;
+    flex: none;
+    margin: 0;
+    padding-right: 7px;
+    border-right: 1px solid var(--ts-border, #344b70);
+    box-sizing: border-box;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-illustration svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text {
+    display: contents;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: clamp(.78rem, 1.8vw, 1rem);
+    line-height: 1.16;
+    letter-spacing: -.025em;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2 span {
+    display: block;
+    white-space: nowrap;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    margin: 2px 0 0;
+    font-size: clamp(.62rem, 1.25vw, .75rem);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    align-self: center;
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 clamp(9px, 1.5vw, 14px);
+    gap: 5px;
+    font-size: clamp(.68rem, 1.2vw, .8rem);
+    white-space: nowrap;
+  }
+}
+
 /* Dark-theme refinement: dashboard Recent Tests table */
 html[data-theme="dark"] body.app-shell.dashboard-page .app-type-pill.ssc {
   background: #22345C;
