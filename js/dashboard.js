@@ -957,7 +957,7 @@ function buildCurrentPlanCardHtml(activePasses) {
         '<div class="dash-current-plan-lab">Current Plan</div>' +
         '<div class="dash-current-plan-name">No active plan</div>' +
       '</div>' +
-      '<a class="dash-current-plan-btn" href="subscriptions.html">Explore Passes <span aria-hidden="true">→</span></a>';
+      '<a class="dash-current-plan-btn" href="subscriptions.html">Explore Passes</a>';
   }
 
   const current = activePasses[0];
