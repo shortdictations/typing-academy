@@ -8151,3 +8151,42 @@ html[data-theme="dark"] body.app-shell.dashboard-page .app-recent-row:hover,
 html[data-theme="dark"] body.app-shell.dashboard-page .app-recent-row:focus-visible {
   background: #202B3E;
 }
+
+
+/* Final size alignment: Start Test matches the Explore Passes CTA dimensions
+   at each dashboard breakpoint while retaining the compact card layout. */
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+  box-sizing: border-box;
+  min-height: 0;
+  height: auto;
+  padding: 8px 14px;
+  gap: 6px;
+  font-size: 0.76rem;
+  line-height: normal;
+}
+
+body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-height: 0;
+    height: auto;
+    padding: 10px 12px;
+    gap: 6px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 380px) {
+  body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn {
+    min-height: 0;
+    height: auto;
+    padding: 9px 9px;
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+}
