@@ -664,7 +664,7 @@ function updateDashboardTimeGreeting() {
   } else if (hour >= 17 && hour < 21) {
     greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! 🌆";
   } else {
-    greetingEl.textContent = "Hello, night owl! 🦉";
+    greetingEl.innerHTML = 'Hello, night owl! <span class="night-owl" role="img" aria-label="animated owl"><svg class="night-owl-svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g class="night-owl-head"><path d="M8 17 5 5 17 11Q24 7 31 11L43 5 40 17Q44 23 42 32Q39 43 24 44Q9 43 6 32Q4 23 8 17Z" fill="#9B6A43" stroke="#68442E" stroke-width="1.5"/><path d="M10 29Q10 16 20 17Q24 18 24 25Q24 18 28 17Q38 16 38 29Q38 38 24 40Q10 38 10 29Z" fill="#F4D7A0"/><g class="night-owl-eyes"><ellipse cx="17.5" cy="24" rx="6.4" ry="7" fill="#FFF9E8"/><ellipse cx="30.5" cy="24" rx="6.4" ry="7" fill="#FFF9E8"/><circle cx="19" cy="24.5" r="3.1" fill="#29231F"/><circle cx="29" cy="24.5" r="3.1" fill="#29231F"/><circle cx="20" cy="23.2" r="1" fill="#FFFFFF"/><circle cx="30" cy="23.2" r="1" fill="#FFFFFF"/></g><path d="m21 30 3-2 3 2-3 4Z" fill="#E9A52B" stroke="#A86A1D" stroke-width=".8"/></g></svg></span>';
   }
 }
 
