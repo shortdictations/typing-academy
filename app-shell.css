@@ -8238,3 +8238,37 @@ body.app-shell.dashboard-page .dash-practice-cta #startMockTestBtn span {
     margin: 0;
   }
 }
+
+
+/* Align desktop Practice CTA with the mobile card's visual hierarchy:
+   compact copy and the same compact Start Test control, with the
+   illustration retained at the far edge. */
+@media (min-width: 901px) {
+  body.app-shell.dashboard-page .dash-practice-cta {
+    grid-template-columns: minmax(0, 1fr) auto 200px;
+    column-gap: 24px;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 20px;
+    align-content: center;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text h2,
+  body.app-shell.dashboard-page .dash-practice-cta-text p {
+    justify-self: start;
+    max-width: 100%;
+  }
+
+  body.app-shell.dashboard-page .dash-practice-cta-text #startMockTestBtn {
+    padding: 10px 12px;
+    min-height: 0;
+    height: auto;
+    gap: 6px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+}
