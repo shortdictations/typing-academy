@@ -8511,9 +8511,9 @@ body.app-shell.dashboard-page .dash-practice-cta-text #startMockTestBtn {
 /* Friendly animated owl shown in the dashboard's night greeting. */
 body.app-shell.dashboard-page .night-owl {
   display: inline-flex;
-  width: 1.18em;
-  height: 1.18em;
-  vertical-align: -0.18em;
+  width: 1.48em;
+  height: 1.76em;
+  vertical-align: -0.42em;
   margin-left: 0.08em;
 }
 body.app-shell.dashboard-page .night-owl-svg {
@@ -8524,7 +8524,7 @@ body.app-shell.dashboard-page .night-owl-svg {
 }
 body.app-shell.dashboard-page .night-owl-head {
   transform-box: fill-box;
-  transform-origin: 50% 62%;
+  transform-origin: 50% 78%;
   animation: night-owl-head-turn 8.6s ease-in-out infinite;
 }
 body.app-shell.dashboard-page .night-owl-eyes {
@@ -8543,7 +8543,5 @@ body.app-shell.dashboard-page .night-owl-eyes {
 }
 @media (prefers-reduced-motion: reduce) {
   body.app-shell.dashboard-page .night-owl-head,
-  body.app-shell.dashboard-page .night-owl-eyes {
-    animation: none;
-  }
+  body.app-shell.dashboard-page .night-owl-eyes { animation: none; }
 }
