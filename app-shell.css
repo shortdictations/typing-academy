@@ -8511,16 +8511,18 @@ body.app-shell.dashboard-page .dash-practice-cta-text #startMockTestBtn {
 /* Friendly animated owl shown in the dashboard's night greeting. */
 body.app-shell.dashboard-page .night-owl {
   display: inline-flex;
-  width: 1.48em;
-  height: 1.76em;
-  vertical-align: -0.42em;
+  width: 1.5em;
+  height: 1.72em;
+  vertical-align: -0.4em;
   margin-left: 0.08em;
+  overflow: visible;
 }
 body.app-shell.dashboard-page .night-owl-svg {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 12%));
 }
 body.app-shell.dashboard-page .night-owl-head {
   transform-box: fill-box;
