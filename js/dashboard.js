@@ -768,7 +768,7 @@ function updateDashboardTimeGreeting() {
     eveningMoon.appendChild(document.importNode(eveningMoonDocument.documentElement, true));
     greetingEl.appendChild(eveningMoon);
   } else {
-    greetingEl.innerHTML = 'Hello, night owl! <span class="night-owl" role="img" aria-label="cute animated owl">
+    greetingEl.innerHTML = `Hello, night owl! <span class="night-owl" role="img" aria-label="cute animated owl">
 <svg class="night-owl-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
 <defs>
 <linearGradient id="owlBodyMochaGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350F"/><stop offset="60%" stop-color="#542409"/><stop offset="100%" stop-color="#361605"/></linearGradient>
@@ -808,7 +808,7 @@ function updateDashboardTimeGreeting() {
 </g>
 <path id="leftEyebrow" d="M109 110Q127 104 145 116" stroke="#542409" stroke-width="3.5" stroke-linecap="round" fill="none"/><path id="rightEyebrow" d="M191 110Q173 104 155 116" stroke="#542409" stroke-width="3.5" stroke-linecap="round" fill="none"/>
 <path d="M144 128Q150 126 156 128L152 147Q150 151 148 147Z" fill="url(#owlBeakGoldGrad)" stroke="#B45309" stroke-width="1"/><path d="M148 131L147 143" stroke="#FEF08A" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
-</g></g></svg></span>'
+</g></g></svg></span>`
   }
 }
 
