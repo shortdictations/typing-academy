@@ -806,11 +806,24 @@ function showStudentName(user) {
   const firstName = fullName ? fullName.trim().split(/\s+/)[0] : null;
   dashboardGreetingName = firstName || "there"; // graceful fallback if no name is set at all
 
-  updateDashboardTimeGreeting();
+  // Greeting artwork is decorative and must never interrupt dashboard
+  // initialization or the Supabase data fetches that follow login.
+  try {
+    updateDashboardTimeGreeting();
+  } catch (err) {
+    console.error("Dashboard greeting could not be rendered:", err);
+  }
+
   // Keep the greeting correct if the dashboard remains open across a
-  // morning/afternoon/evening boundary.
+  // morning/afternoon/evening boundary. Isolate each refresh as well.
   if (!window.dashboardGreetingInterval) {
-    window.dashboardGreetingInterval = window.setInterval(updateDashboardTimeGreeting, 60 * 1000);
+    window.dashboardGreetingInterval = window.setInterval(() => {
+      try {
+        updateDashboardTimeGreeting();
+      } catch (err) {
+        console.error("Dashboard greeting refresh failed:", err);
+      }
+    }, 60 * 1000);
   }
 }
 
