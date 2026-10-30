@@ -8524,6 +8524,23 @@ body.app-shell.dashboard-page .owl-wing-right{transform-box:fill-box;transform-o
 @media(prefers-reduced-motion:reduce){body.app-shell.dashboard-page .owl-body-float,body.app-shell.dashboard-page .owl-head-group,body.app-shell.dashboard-page .owl-eye-lid,body.app-shell.dashboard-page .owl-wing-left,body.app-shell.dashboard-page .owl-wing-right{animation:none}}
 
 
+/* Animated sunny character used only in the dashboard afternoon greeting. */
+body.app-shell.dashboard-page .afternoon-sun{display:inline-flex;width:1.76em;height:1.76em;margin-left:.08em;vertical-align:-.48em}
+body.app-shell.dashboard-page .afternoon-sun-svg{display:block;width:100%;height:100%;overflow:visible}
+body.app-shell.dashboard-page .afternoon-sun .sun-ray-outer,body.app-shell.dashboard-page .afternoon-sun .sun-ray-inner{transform-box:view-box;transform-origin:150px 150px}
+body.app-shell.dashboard-page .afternoon-sun .sun-ray-outer{animation:ts-afternoon-ray-spin 28s linear infinite}
+body.app-shell.dashboard-page .afternoon-sun .sun-ray-inner{animation:ts-afternoon-ray-spin-reverse 38s linear infinite}
+body.app-shell.dashboard-page .afternoon-sun #sunglassesGroup{transform-box:fill-box;transform-origin:center;animation:ts-afternoon-shades 5s ease-in-out infinite}
+body.app-shell.dashboard-page .afternoon-sun .afternoon-drink{transform-box:fill-box;transform-origin:center;animation:ts-afternoon-drink-bob 3.4s ease-in-out infinite}
+body.app-shell.dashboard-page .afternoon-sun .steam-line-1,body.app-shell.dashboard-page .afternoon-sun .steam-line-2{animation:ts-afternoon-steam 2.4s ease-in-out infinite}
+body.app-shell.dashboard-page .afternoon-sun .steam-line-2{animation-delay:1.2s}
+@keyframes ts-afternoon-ray-spin{to{transform:rotate(360deg)}}
+@keyframes ts-afternoon-ray-spin-reverse{to{transform:rotate(-360deg)}}
+@keyframes ts-afternoon-shades{0%,100%{transform:translateY(0)}50%{transform:translateY(1.5px)}}
+@keyframes ts-afternoon-drink-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ts-afternoon-steam{0%,100%{opacity:.2;transform:translateY(2px)}50%{opacity:.8;transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){body.app-shell.dashboard-page .afternoon-sun .sun-ray-outer,body.app-shell.dashboard-page .afternoon-sun .sun-ray-inner,body.app-shell.dashboard-page .afternoon-sun #sunglassesGroup,body.app-shell.dashboard-page .afternoon-sun .afternoon-drink,body.app-shell.dashboard-page .afternoon-sun .steam-line-1,body.app-shell.dashboard-page .afternoon-sun .steam-line-2{animation:none}}
+
 /* Animated smiling sun used only in the dashboard morning greeting. */
 body.app-shell.dashboard-page .morning-sun{display:inline-flex;width:1.42em;height:1.42em;margin-left:.08em;vertical-align:-.25em}
 body.app-shell.dashboard-page .morning-sun-svg{display:block;width:100%;height:100%;overflow:visible}
