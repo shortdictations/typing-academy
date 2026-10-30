@@ -672,7 +672,47 @@ function updateDashboardTimeGreeting() {
   } else if (hour >= 17 && hour < 21) {
     greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! 🌆";
   } else {
-    greetingEl.innerHTML = 'Hello, night owl! <span class="night-owl" role="img" aria-label="cute animated owl"><svg class="night-owl-svg" viewBox="0 0 64 76" aria-hidden="true" focusable="false"><path d="M3 65Q20 60 37 65T62 64" fill="none" stroke="#35456C" stroke-width="5" stroke-linecap="round"/><path d="M44 65Q48 56 54 52M50 61Q57 59 61 63M50 58Q49 52 53 49" fill="none" stroke="#567A61" stroke-width="2.5" stroke-linecap="round"/><path d="M19 61Q8 56 10 42L13 29Q15 21 22 22L43 22Q51 24 53 37L55 48Q55 58 45 62Z" fill="#8B563B" stroke="#68412F" stroke-width="1.4"/><path d="M21 43Q32 37 44 43L47 58Q32 65 17 58Z" fill="#F3D5A0"/><path d="M15 35Q8 44 13 53L20 57 23 43ZM49 35Q57 44 52 53L45 57 42 43Z" fill="#9D6848"/><path d="M21 51q3-4 5 0m1 4q3-4 5 0m1-4q3-4 5 0m1 4q3-4 5 0" fill="none" stroke="#D7AD73" stroke-width="1.5" stroke-linecap="round"/><path d="M20 60Q17 65 20 68L29 68 31 63M35 63 37 68 46 68Q49 65 45 60" fill="#EAA12C" stroke="#A96B20" stroke-width="1.2"/><g class="night-owl-head"><path d="M13 29 8 14 22 20Q32 15 42 20L56 14 51 30Q54 40 47 46Q32 57 17 46Q10 40 13 29Z" fill="#A66C49" stroke="#68412F" stroke-width="1.5"/><path d="M13 27Q20 20 25 23L19 29ZM51 27Q44 20 39 23L45 29Z" fill="#C9875A"/><path d="M17 35Q17 25 25 26Q32 27 32 36Q32 27 39 26Q47 25 47 35Q47 44 32 47Q17 44 17 35Z" fill="#F8E5BD"/><g class="night-owl-eyes"><ellipse cx="24" cy="34" rx="6.1" ry="7" fill="#FFF9E8"/><ellipse cx="40" cy="34" rx="6.1" ry="7" fill="#FFF9E8"/><circle cx="25.5" cy="34.5" r="3.4" fill="#29231F"/><circle cx="38.5" cy="34.5" r="3.4" fill="#29231F"/><circle cx="26.5" cy="33" r="1.2" fill="#FFFFFF"/><circle cx="39.5" cy="33" r="1.2" fill="#FFFFFF"/></g><path d="M28 42 32 39 36 42 32 47Z" fill="#F2A22A" stroke="#B36F1D" stroke-width="1"/></g></svg></span>'
+    greetingEl.innerHTML = 'Hello, night owl! <span class="night-owl" role="img" aria-label="cute animated owl">
+<svg class="night-owl-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<defs>
+<linearGradient id="owlBodyMochaGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350F"/><stop offset="60%" stop-color="#542409"/><stop offset="100%" stop-color="#361605"/></linearGradient>
+<linearGradient id="owlHeadMochaGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#92400E"/><stop offset="60%" stop-color="#78350F"/><stop offset="100%" stop-color="#451A03"/></linearGradient>
+<linearGradient id="owlChestCreamGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FFFBEB"/><stop offset="70%" stop-color="#FEF3C7"/><stop offset="100%" stop-color="#FDE68A"/></linearGradient>
+<radialGradient id="owlIrisGoldenGrad" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FEF08A"/><stop offset="50%" stop-color="#F59E0B"/><stop offset="85%" stop-color="#D97706"/><stop offset="100%" stop-color="#92400E"/></radialGradient>
+<linearGradient id="owlBeakGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FDE047"/><stop offset="60%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#D97706"/></linearGradient>
+<linearGradient id="owlWoodBranchGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#593217"/><stop offset="50%" stop-color="#3F220F"/><stop offset="100%" stop-color="#261408"/></linearGradient>
+<filter id="owlPerchShadow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/></filter>
+</defs>
+<g id="perchBranchGroup">
+<ellipse cx="150" cy="268" rx="100" ry="8" fill="#000" opacity=".35" filter="url(#owlPerchShadow)"/>
+<path d="M28 250C70 248 120 252 150 250C190 248 235 254 275 249C278 253 274 259 268 261C220 263 175 259 145 261C105 263 60 258 25 258Z" fill="url(#owlWoodBranchGrad)"/>
+<path d="M50 253Q95 254 130 253M165 253Q210 255 245 252" stroke="#78350F" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".6"/>
+<g id="branchLeaves">
+<path d="M55 250C45 242 42 230 52 232C60 234 62 245 55 250Z" fill="#22C55E"/><path d="M55 250Q52 236 49 233" stroke="#15803D" stroke-width="1" fill="none"/>
+<path d="M245 251C255 243 268 245 262 254C256 261 248 256 245 251Z" fill="#16A34A"/><path d="M235 256C242 263 248 269 243 273C237 274 233 267 235 256Z" fill="#22C55E"/>
+</g></g>
+<g id="owlBodyContainer" class="owl-body-float">
+<path d="M136 235L150 256L164 235Z" fill="#3B1705"/>
+<path d="M98 160C92 195 106 242 150 242C194 242 208 195 202 160C200 135 100 135 98 160Z" fill="url(#owlBodyMochaGrad)"/>
+<path d="M116 158C114 186 122 236 150 236C178 236 186 186 184 158C180 148 120 148 116 158Z" fill="url(#owlChestCreamGrad)"/>
+<g stroke="#D97706" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".65"><path d="M140 178Q145 182 150 178Q155 182 160 178"/><path d="M134 193Q142 198 150 193Q158 198 166 193"/><path d="M138 208Q144 213 150 208Q156 213 162 208"/><path d="M144 222Q150 225 156 222"/></g>
+<g id="leftWingGroup" class="owl-wing-left"><path d="M103 152C84 170 82 205 98 226C102 210 106 185 114 165Z" fill="#5A2408" stroke="#3B1705" stroke-width="1.5"/><path d="M93 178C88 195 94 214 100 222" stroke="#853609" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+<g id="rightWingGroup" class="owl-wing-right"><path d="M197 152C216 170 218 205 202 226C198 210 194 185 186 165Z" fill="#5A2408" stroke="#3B1705" stroke-width="1.5"/><path d="M207 178C212 195 206 214 200 222" stroke="#853609" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
+<g id="owlTalons">
+<path d="M124 242Q123 253 126 254M130 242Q130 254 132 255M136 242Q137 253 139 254M161 242Q160 253 163 254M167 242Q167 254 169 255M173 242Q174 253 176 254" stroke="url(#owlBeakGoldGrad)" stroke-width="4.5" stroke-linecap="round"/>
+</g>
+<g id="owlHeadGroup" class="owl-head-group">
+<path d="M106 102C86 64 96 46 114 66C122 75 124 90 125 100Z" fill="#5A2408"/><path d="M104 88C96 68 103 58 112 70" stroke="#B45309" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M194 102C214 64 204 46 186 66C178 75 176 90 175 100Z" fill="#5A2408"/><path d="M196 88C204 68 197 58 188 70" stroke="#B45309" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M92 135C88 95 116 75 150 75C184 75 212 95 208 135C206 158 178 168 150 168C122 168 94 158 92 135Z" fill="url(#owlHeadMochaGrad)"/>
+<circle cx="127" cy="128" r="28" fill="#FEF3C7" opacity=".9"/><circle cx="173" cy="128" r="28" fill="#FEF3C7" opacity=".9"/><circle cx="127" cy="128" r="28" stroke="#D97706" stroke-width="1.8" fill="none" opacity=".4"/><circle cx="173" cy="128" r="28" stroke="#D97706" stroke-width="1.8" fill="none" opacity=".4"/>
+<g id="eyesCluster" class="owl-eye-lid">
+<g id="leftEyeWrapper"><circle cx="127" cy="128" r="20" fill="url(#owlIrisGoldenGrad)" stroke="#78350F" stroke-width="2.5"/><circle id="leftPupil" cx="127" cy="128" r="10.5" fill="#0F172A"/><circle cx="123" cy="123" r="3.6" fill="#FFF"/><circle cx="131" cy="132" r="1.6" fill="#FFF" opacity=".8"/></g>
+<g id="rightEyeWrapper"><circle cx="173" cy="128" r="20" fill="url(#owlIrisGoldenGrad)" stroke="#78350F" stroke-width="2.5"/><circle id="rightPupil" cx="173" cy="128" r="10.5" fill="#0F172A"/><circle cx="169" cy="123" r="3.6" fill="#FFF"/><circle cx="177" cy="132" r="1.6" fill="#FFF" opacity=".8"/></g>
+</g>
+<path id="leftEyebrow" d="M109 110Q127 104 145 116" stroke="#542409" stroke-width="3.5" stroke-linecap="round" fill="none"/><path id="rightEyebrow" d="M191 110Q173 104 155 116" stroke="#542409" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<path d="M144 128Q150 126 156 128L152 147Q150 151 148 147Z" fill="url(#owlBeakGoldGrad)" stroke="#B45309" stroke-width="1"/><path d="M148 131L147 143" stroke="#FEF08A" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+</g></g></svg></span>'
   }
 }
 
