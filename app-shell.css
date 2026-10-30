@@ -8508,6 +8508,25 @@ body.app-shell.dashboard-page .dash-practice-cta-text #startMockTestBtn {
 }
 
 
+/* Animated crescent moon used only in the dashboard evening greeting. */
+body.app-shell.dashboard-page .evening-moon{display:inline-flex;width:1.76em;height:1.76em;margin-left:.08em;vertical-align:-.48em}
+body.app-shell.dashboard-page .evening-moon-svg{display:block;width:100%;height:100%;overflow:visible}
+body.app-shell.dashboard-page .evening-moon .celestial-ring-outer,body.app-shell.dashboard-page .evening-moon .celestial-ring-inner{transform-box:view-box;transform-origin:150px 150px}
+body.app-shell.dashboard-page .evening-moon .celestial-ring-outer{animation:ts-evening-ring-spin 42s linear infinite}
+body.app-shell.dashboard-page .evening-moon .celestial-ring-inner{animation:ts-evening-ring-spin-reverse 30s linear infinite}
+body.app-shell.dashboard-page .evening-moon #lanternWrapper{transform-box:fill-box;transform-origin:50% 0%;animation:ts-evening-lantern-sway 4s ease-in-out infinite}
+body.app-shell.dashboard-page .evening-moon .lantern-glow-mesh{animation:ts-evening-lantern-glow 2.4s ease-in-out infinite}
+body.app-shell.dashboard-page .evening-moon .evening-tea-mug{transform-box:fill-box;transform-origin:center;animation:ts-evening-mug-bob 3.8s ease-in-out infinite}
+body.app-shell.dashboard-page .evening-moon .steam-float-1,body.app-shell.dashboard-page .evening-moon .steam-float-2{animation:ts-evening-steam 2.8s ease-in-out infinite}
+body.app-shell.dashboard-page .evening-moon .steam-float-2{animation-delay:1.4s}
+@keyframes ts-evening-ring-spin{to{transform:rotate(360deg)}}
+@keyframes ts-evening-ring-spin-reverse{to{transform:rotate(-360deg)}}
+@keyframes ts-evening-lantern-sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes ts-evening-lantern-glow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes ts-evening-mug-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes ts-evening-steam{0%,100%{opacity:.15;transform:translateY(2px)}50%{opacity:.75;transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){body.app-shell.dashboard-page .evening-moon .celestial-ring-outer,body.app-shell.dashboard-page .evening-moon .celestial-ring-inner,body.app-shell.dashboard-page .evening-moon #lanternWrapper,body.app-shell.dashboard-page .evening-moon .lantern-glow-mesh,body.app-shell.dashboard-page .evening-moon .evening-tea-mug,body.app-shell.dashboard-page .evening-moon .steam-float-1,body.app-shell.dashboard-page .evening-moon .steam-float-2{animation:none}}
+
 /* Animated replacement owl shown only in the dashboard night greeting. */
 body.app-shell.dashboard-page .night-owl{display:inline-flex;width:1.76em;height:1.76em;vertical-align:-.48em;margin-left:.08em}
 body.app-shell.dashboard-page .night-owl-svg{display:block;width:100%;height:100%;overflow:visible}
