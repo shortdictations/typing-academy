@@ -118,22 +118,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   // exactly what an unguarded exception earlier in this function
   // used to do, since everything after it is sequential.
 
-  // Onboarding / "Welcome back" must appear as soon as possible after
-  // login — checked and shown BEFORE the (slower) dashboard stats
-  // fetch below, not after, so there's no perceptible delay between
-  // logging in and seeing the welcome slides.
-  let onboardingCompleted = false;
-  try {
-    onboardingCompleted = await initTargetWpm(user.id, user);
-  } catch (err) {
+  // Start every independent dashboard section immediately after login.
+  // In particular, do not let the user_preferences request inside
+  // initTargetWpm() hold up the pass/credits card or test-history query.
+  initAnnouncementTicker("announcementBoard", "dashboard");
+  void renderPassCreditsCard(user);
+  const targetWpmPromise = initTargetWpm(user.id, user).catch((err) => {
     console.error("initTargetWpm failed:", err);
-  }
-  // Returning users go straight to the dashboard. The welcome/mobile
-  // onboarding flow is reserved exclusively for accounts that have not
-  // completed their first-time setup (handled inside initTargetWpm).
-
-  initAnnouncementTicker("announcementBoard", "dashboard"); // not awaited — independent of everything else on the page
-  renderPassCreditsCard(user); // not awaited — independent card, uses the same fetchActivePasses/fetchTotalCredits helpers as the header dropdown (js/auth.js); internally guarded too, see below
+    return false;
+  });
+  const weakKeysPromise = loadWeakKeysCard(user).catch((err) => {
+    console.error("Could not load weak-keys card:", err);
+  });
 
   try {
     const { data: results, error } = await supabaseClient
@@ -143,10 +139,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error(error);
-      return;
-    }
-
+      console.error("Could not load dashboard test results:", error);
+      const recentBody = document.getElementById("recentTestsBody");
+      if (recentBody) {
+        recentBody.innerHTML = '<div class="app-recent-empty">Test history could not be loaded. Please refresh the page.</div>';
+      }
+      const chartCanvas = document.getElementById("overviewChart");
+      const chartEmpty = document.getElementById("overviewChartEmpty");
+      if (chartCanvas) chartCanvas.style.display = "none";
+      if (chartEmpty) {
+        chartEmpty.textContent = "Performance data could not be loaded. Please refresh the page.";
+        chartEmpty.style.display = "block";
+      }
+    } else {
     currentAvgWpm = renderSummary(results);
     allResults = results; // kept so the Overview period dropdown can re-filter without a second fetch
     renderOverviewChart(currentPeriodDays);
@@ -160,15 +165,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderOverviewChart(currentPeriodDays);
       });
     }
+    }
   } catch (err) {
     console.error("Could not load dashboard stats/chart/recent tests:", err);
+    const recentBody = document.getElementById("recentTestsBody");
+    if (recentBody) {
+      recentBody.innerHTML = '<div class="app-recent-empty">Test history could not be loaded. Please refresh the page.</div>';
+    }
+    const chartCanvas = document.getElementById("overviewChart");
+    const chartEmpty = document.getElementById("overviewChartEmpty");
+    if (chartCanvas) chartCanvas.style.display = "none";
+    if (chartEmpty) {
+      chartEmpty.textContent = "Performance data could not be loaded. Please refresh the page.";
+      chartEmpty.style.display = "block";
+    }
   }
 
-  try {
-    await loadWeakKeysCard(user);
-  } catch (err) {
-    console.error("Could not load weak-keys card:", err);
-  }
+  await Promise.allSettled([targetWpmPromise, weakKeysPromise]);
 });
 
 /* ---------------- Returning-user "Welcome back" — session-scoped only ----------------
