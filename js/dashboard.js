@@ -668,7 +668,47 @@ function updateDashboardTimeGreeting() {
     morningSun.appendChild(document.importNode(sunDocument.documentElement, true));
     greetingEl.appendChild(morningSun);
   } else if (hour >= 12 && hour < 17) {
-    greetingEl.textContent = "Good afternoon, " + dashboardGreetingName + "! 👋";
+    greetingEl.textContent = "Good afternoon, " + dashboardGreetingName + "! ";
+    const afternoonSun = document.createElement("span");
+    afternoonSun.className = "afternoon-sun";
+    afternoonSun.setAttribute("role", "img");
+    afternoonSun.setAttribute("aria-label", "animated sunny character with sunglasses and iced drink");
+    const afternoonSunMarkup = `<svg class="afternoon-sun-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="noonSunGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFBEB"/><stop offset="25%" stop-color="#FDE047"/><stop offset="70%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EA580C"/></linearGradient>
+        <radialGradient id="sunShineMask" cx="30%" cy="25%" r="70%"><stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="50%" stop-color="#FEF08A" stop-opacity="0.3"/><stop offset="100%" stop-color="#F97316" stop-opacity="0"/></radialGradient>
+        <linearGradient id="primaryBeamGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FEF08A"/><stop offset="55%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EA580C" stop-opacity="0.8"/></linearGradient>
+        <linearGradient id="secondaryBeamGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FFF7ED"/><stop offset="60%" stop-color="#FB923C"/><stop offset="100%" stop-color="#C2410C" stop-opacity="0.2"/></linearGradient>
+        <linearGradient id="sunglassesGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1E293B"/><stop offset="65%" stop-color="#0F172A"/><stop offset="100%" stop-color="#020617"/></linearGradient>
+        <linearGradient id="latteGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FEF3C7"/><stop offset="35%" stop-color="#D97706"/><stop offset="85%" stop-color="#78350F"/><stop offset="100%" stop-color="#451A03"/></linearGradient>
+        <filter id="softSunGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx="150" cy="150" r="92" fill="#FBBF24" fill-opacity="0.32" filter="url(#softSunGlow)"/>
+      <g id="secondaryBeamsGroup" class="sun-ray-inner" opacity="0.85">
+        <circle cx="150" cy="58" r="5" fill="url(#secondaryBeamGrad)"/><circle cx="150" cy="242" r="5" fill="url(#secondaryBeamGrad)"/><circle cx="58" cy="150" r="5" fill="url(#secondaryBeamGrad)"/><circle cx="242" cy="150" r="5" fill="url(#secondaryBeamGrad)"/><circle cx="85" cy="85" r="4.5" fill="url(#secondaryBeamGrad)"/><circle cx="215" cy="85" r="4.5" fill="url(#secondaryBeamGrad)"/><circle cx="85" cy="215" r="4.5" fill="url(#secondaryBeamGrad)"/><circle cx="215" cy="215" r="4.5" fill="url(#secondaryBeamGrad)"/>
+      </g>
+      <g id="primaryBeamsGroup" class="sun-ray-outer">
+        <path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(30 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(60 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(90 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(120 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(150 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(180 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(210 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(240 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(270 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(300 150 150)"/><path d="M 143 72 Q 150 36 157 72 Z" fill="url(#primaryBeamGrad)" transform="rotate(330 150 150)"/>
+      </g>
+      <circle cx="150" cy="150" r="58" fill="url(#noonSunGrad)" filter="url(#softSunGlow)"/><circle cx="150" cy="150" r="58" fill="url(#sunShineMask)"/>
+      <g id="bareEyesGroup" style="display:none"><path d="M 125 142 Q 134 135 141 142" stroke="#78350F" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M 159 142 Q 166 135 175 142" stroke="#78350F" stroke-width="3.5" stroke-linecap="round" fill="none"/></g>
+      <g id="blushCheeksGroup"><circle cx="120" cy="158" r="7" fill="#F43F5E" fill-opacity="0.4"/><circle cx="180" cy="158" r="7" fill="#F43F5E" fill-opacity="0.4"/></g>
+      <path id="sunSmile" d="M 136 160 Q 150 174 164 160" fill="none" stroke="#78350F" stroke-width="3.6" stroke-linecap="round"/><path d="M 134 158 Q 132 161 135 163" stroke="#92400E" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M 166 158 Q 168 161 165 163" stroke="#92400E" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <g id="sunglassesGroup" class="sunglasses-anim">
+        <path d="M 143 136 Q 150 133 157 136" stroke="#0F172A" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M 115 130 C 115 130 144 130 144 135 C 144 148 139 152 127 152 C 117 152 115 145 115 130 Z" fill="url(#sunglassesGrad)" stroke="#0F172A" stroke-width="2"/><path d="M 120 134 L 138 134 L 128 148 L 123 148 Z" fill="#FFFFFF" fill-opacity="0.22"/><circle cx="121" cy="136" r="1.5" fill="#FFFFFF" opacity="0.7"/>
+        <path d="M 156 135 C 156 130 185 130 185 130 C 185 145 183 152 173 152 C 161 152 156 148 156 135 Z" fill="url(#sunglassesGrad)" stroke="#0F172A" stroke-width="2"/><path d="M 161 134 L 179 134 L 169 148 L 164 148 Z" fill="#FFFFFF" fill-opacity="0.22"/><circle cx="162" cy="136" r="1.5" fill="#FFFFFF" opacity="0.7"/>
+      </g>
+      <g id="drinkCupGroup" class="afternoon-drink">
+        <ellipse cx="208" cy="208" rx="14" ry="4" fill="#000000" opacity="0.25"/>
+        <path d="M 197 175 L 200 205 Q 200 208 208 208 Q 216 208 216 205 L 219 175 Z" fill="url(#latteGrad)" stroke="#FFFFFF" stroke-width="1.8"/><ellipse cx="208" cy="175" rx="11" ry="3.5" fill="#FFFBEB" stroke="#FFFFFF" stroke-width="1.5"/>
+        <path d="M 210 173 L 218 153" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/><path d="M 218 153 L 225 151" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/><path d="M 198 173 A 6 6 0 0 1 204 167 Z" fill="#FACC15" stroke="#CA8A04" stroke-width="1"/>
+        <path class="steam-line-1" d="M 205 163 Q 202 154 206 148" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.6"/><path class="steam-line-2" d="M 211 161 Q 215 152 211 146" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.6"/>
+      </g>
+    </svg>`;
+    const afternoonSunDocument = new DOMParser().parseFromString(afternoonSunMarkup, "image/svg+xml");
+    afternoonSun.appendChild(document.importNode(afternoonSunDocument.documentElement, true));
+    greetingEl.appendChild(afternoonSun);
   } else if (hour >= 17 && hour < 21) {
     greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! 🌆";
   } else {
