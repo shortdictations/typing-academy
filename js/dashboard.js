@@ -710,7 +710,50 @@ function updateDashboardTimeGreeting() {
     afternoonSun.appendChild(document.importNode(afternoonSunDocument.documentElement, true));
     greetingEl.appendChild(afternoonSun);
   } else if (hour >= 17 && hour < 21) {
-    greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! 🌆";
+    greetingEl.textContent = "Good evening, " + dashboardGreetingName + "! ";
+    const eveningMoon = document.createElement("span");
+    eveningMoon.className = "evening-moon";
+    eveningMoon.setAttribute("role", "img");
+    eveningMoon.setAttribute("aria-label", "animated crescent moon with lantern and warm tea");
+    const eveningMoonMarkup = `<svg class="evening-moon-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="moonGoldenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFBEB"/><stop offset="35%" stop-color="#FEF08A"/><stop offset="75%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#D97706"/></linearGradient>
+        <radialGradient id="moonPearlSheen" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="50%" stop-color="#FEF3C7" stop-opacity="0.25"/><stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/></radialGradient>
+        <linearGradient id="ringOrbitGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FEF08A" stop-opacity="0.8"/><stop offset="50%" stop-color="#F59E0B" stop-opacity="0.3"/><stop offset="100%" stop-color="#C084FC" stop-opacity="0.1"/></linearGradient>
+        <linearGradient id="lanternMetalGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350F"/><stop offset="50%" stop-color="#451A03"/><stop offset="100%" stop-color="#1C1917"/></linearGradient>
+        <radialGradient id="lanternFlameGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="30%" stop-color="#FEF08A"/><stop offset="70%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EA580C" stop-opacity="0.2"/></radialGradient>
+        <linearGradient id="teaMugGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E2E8F0"/><stop offset="60%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#64748B"/></linearGradient>
+        <filter id="eveningSoftGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx="145" cy="145" r="85" fill="#FBBF24" fill-opacity="0.2" filter="url(#eveningSoftGlow)"/>
+      <g id="celestialStarRing" class="celestial-ring-outer" opacity="0.85">
+        <circle cx="150" cy="150" r="102" fill="none" stroke="url(#ringOrbitGrad)" stroke-width="1.2" stroke-dasharray="4 8" opacity="0.6"/>
+        <path d="M 150 43 L 152 48 L 157 50 L 152 52 L 150 57 L 148 52 L 143 50 L 148 48 Z" fill="#FEF08A"/><circle cx="252" cy="150" r="2.8" fill="#FDE047"/>
+        <path d="M 150 243 L 152 248 L 157 250 L 152 252 L 150 257 L 148 252 L 143 250 L 148 248 Z" fill="#F59E0B"/><circle cx="48" cy="150" r="2.8" fill="#FDE047"/>
+        <path d="M 222 78 L 224 81 L 227 82 L 224 83 L 222 86 L 220 83 L 217 82 L 220 81 Z" fill="#FEF3C7"/><circle cx="78" cy="222" r="2.2" fill="#FEF08A"/><circle cx="78" cy="78" r="2.2" fill="#F59E0B"/><circle cx="222" cy="222" r="2.5" fill="#FEF3C7"/>
+      </g>
+      <g id="celestialInnerRing" class="celestial-ring-inner" opacity="0.7"><circle cx="150" cy="150" r="76" fill="none" stroke="#FDE68A" stroke-width="0.8" stroke-dasharray="2 12" opacity="0.4"/></g>
+      <g id="crescentMoonGroup">
+        <path d="M 148 68 C 192 68 228 104 228 148 C 228 192 192 228 148 228 C 120 228 95 214 80 192 C 102 201 127 203 150 196 C 185 186 206 150 196 115 C 189 90 171 72 148 68 Z" fill="url(#moonGoldenGrad)" filter="url(#eveningSoftGlow)"/>
+        <path d="M 148 68 C 192 68 228 104 228 148 C 228 192 192 228 148 228 C 120 228 95 214 80 192 C 102 201 127 203 150 196 C 185 186 206 150 196 115 C 189 90 171 72 148 68 Z" fill="url(#moonPearlSheen)"/>
+        <g id="moonFaceDetails"><path id="moonEyePath" d="M 172 138 Q 181 146 190 138" stroke="#78350F" stroke-width="2.8" stroke-linecap="round" fill="none"/><path d="M 175 142 L 173 146 M 181 144 L 181 148 M 187 142 L 189 146" stroke="#78350F" stroke-width="1.8" stroke-linecap="round" fill="none"/><path id="moonSmilePath" d="M 166 160 Q 175 168 184 162" stroke="#78350F" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="168" cy="152" r="5.5" fill="#F43F5E" fill-opacity="0.38"/></g>
+      </g>
+      <g id="lanternWrapper" class="lantern-sway-anim">
+        <line x1="220" y1="78" x2="220" y2="108" stroke="#92400E" stroke-width="1.8" stroke-dasharray="2 3"/>
+        <path d="M 212 108 L 228 108 L 224 103 L 216 103 Z" fill="url(#lanternMetalGrad)" stroke="#78350F" stroke-width="1"/><circle cx="220" cy="101" r="2.5" fill="none" stroke="#B45309" stroke-width="1.2"/>
+        <circle cx="220" cy="120" r="18" fill="#F59E0B" fill-opacity="0.35" class="lantern-glow-mesh" filter="url(#eveningSoftGlow)"/>
+        <path d="M 213 108 L 227 108 L 225 128 L 215 128 Z" fill="#FFFBEB" fill-opacity="0.85" stroke="url(#lanternMetalGrad)" stroke-width="1.5"/><path d="M 220 114 Q 223 121 220 124 Q 217 121 220 114 Z" fill="url(#lanternFlameGrad)"/><circle cx="220" cy="120" r="2" fill="#FFFFFF"/>
+        <path d="M 213 128 L 227 128 L 224 132 L 216 132 Z" fill="url(#lanternMetalGrad)" stroke="#78350F" stroke-width="1"/><polygon points="219,132 221,132 220,135" fill="#78350F"/>
+      </g>
+      <g id="teaMugGroup" class="evening-tea-mug">
+        <ellipse cx="94" cy="226" rx="16" ry="4" fill="#000000" opacity="0.3"/><path d="M 83 205 C 72 205 72 220 83 220" fill="none" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M 86 198 L 88 222 Q 88 226 94 226 Q 100 226 100 222 L 102 198 Z" fill="url(#teaMugGrad)" stroke="#E2E8F0" stroke-width="1.2"/><ellipse cx="94" cy="198" rx="8" ry="2.5" fill="#78350F"/>
+        <path class="steam-float-1" d="M 91 192 Q 89 184 93 178" stroke="#FEF3C7" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/><path class="steam-float-2" d="M 97 190 Q 99 182 95 176" stroke="#FEF3C7" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+      </g>
+    </svg>`;
+    const eveningMoonDocument = new DOMParser().parseFromString(eveningMoonMarkup, "image/svg+xml");
+    eveningMoon.appendChild(document.importNode(eveningMoonDocument.documentElement, true));
+    greetingEl.appendChild(eveningMoon);
   } else {
     greetingEl.innerHTML = 'Hello, night owl! <span class="night-owl" role="img" aria-label="cute animated owl">
 <svg class="night-owl-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
