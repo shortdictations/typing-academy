@@ -658,7 +658,15 @@ function updateDashboardTimeGreeting() {
   // own timezone rather than a fixed server timezone.
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
-    greetingEl.textContent = "Good morning, " + dashboardGreetingName + "! ☀️";
+    greetingEl.textContent = "Good morning, " + dashboardGreetingName + "! ";
+    const morningSun = document.createElement("span");
+    morningSun.className = "morning-sun";
+    morningSun.setAttribute("role", "img");
+    morningSun.setAttribute("aria-label", "animated smiling sun");
+    const sunMarkup = `<svg viewBox="0 0 300 300" class="morning-sun-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="150" cy="150" r="56" fill="#FDE047"/></svg>`;
+    const sunDocument = new DOMParser().parseFromString(sunMarkup, "image/svg+xml");
+    morningSun.appendChild(document.importNode(sunDocument.documentElement, true));
+    greetingEl.appendChild(morningSun);
   } else if (hour >= 12 && hour < 17) {
     greetingEl.textContent = "Good afternoon, " + dashboardGreetingName + "! 👋";
   } else if (hour >= 17 && hour < 21) {
